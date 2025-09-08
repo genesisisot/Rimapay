@@ -36,7 +36,7 @@ class AppRouter {
       GoRoute(
         path: '/welcome',
         name: 'welcome',
-        builder: (context, state) => const WelcomeScreen(),
+        builder: (context, state) =>  WelcomeScreen() ,
       ),
 
       // Authentication Flow
