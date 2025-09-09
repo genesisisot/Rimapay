@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -676,22 +678,62 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
             textEditingController: _addressController,
             googleAPIKey: GOOGLE_API_KEY, // Replace with your API key
             debounceTime: 600,
+            onSuggestionClicked: (prediction) {
+              _addressController.text = prediction.description ?? "";
+              _addressController.selection = TextSelection.fromPosition(
+                TextPosition(offset: prediction.description?.length ?? 0),
+              );
+            },
             countries: const ["ng"], // Nigeria only
+            onChanged: (e) {
+              if (e.trim().isEmpty) {
+                setState(() {
+                  selectedState = null;
+                  selectedLga = null;
+                });
+              }
+            },
 
-            onPlaceDetailsWithCoordinatesReceived: (prediction) {
+            onPlaceDetailsWithCoordinatesReceived: (prediction) async {
+              log("all here");
+              log(prediction.toString());
               setState(() {
-                _personalInfo.residentialAddress = prediction.description ?? '';
                 selectedCoordinate = Prediction(
                   description: prediction.description,
                   lat: prediction.lat,
                   lng: prediction.lng,
                   placeId: prediction.placeId,
                 );
-                _personalInfo.currentLat = double.tryParse(prediction.lat ?? "0");
-                _personalInfo.currentLng = double.tryParse(prediction.lng ?? "0");
               });
+              if (prediction.placeId != null) {
+                log("Place ID received: ${prediction.placeId}");
 
-              // You can add logic here to automatically set state and LGA based on the address
+                final locationDetails = await ref.read(locationDetailsProvider(prediction.placeId ?? "").future);
+
+                if (locationDetails != null) {
+                  log("Location details: $locationDetails");
+
+                  final locations = getCountryLocation();
+
+                  final service = ref.read(locationDetailsServiceProvider);
+                  final matchingState = service.findMatchingState(locationDetails.state, locations);
+
+                  if (matchingState != null) {
+                    setState(() {
+                      selectedState = matchingState;
+                      locals = matchingState.state?.locals;
+
+                      if (locationDetails.localGovernment != null && locals != null) {
+                        selectedLga = service.findMatchingLGA(locationDetails.localGovernment!, locals!);
+                      } else {
+                        selectedLga = null;
+                      }
+                    });
+                  } else {
+                    log("No matching state found for: ${locationDetails.state}");
+                  }
+                }
+              }
             },
             decoration: InputDecoration(
               hintText: 'Enter your full address',
@@ -1034,8 +1076,9 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
       verificationMessage = "We've sent a verification code to ${_personalInfo.phoneNumber}";
     }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+    return SingleChildScrollView(
+         padding: const EdgeInsets.symmetric(horizontal: 24),
+      physics: BouncingScrollPhysics(),
       child: Column(
         children: [
           const SizedBox(height: 40),
@@ -1221,8 +1264,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 20),
-
-          // Required for Tier 1 Info
+    
+          // // Required for Tier 1 Info
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -1266,8 +1309,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
             ),
           ),
           const SizedBox(height: 20),
-
-          // Camera Guidelines
+    
+          // // Camera Guidelines
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -1285,8 +1328,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
             ),
           ),
           const SizedBox(height: 20),
-
-          // Camera Interface
+    
+          // // Camera Interface
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -1386,10 +1429,15 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: const Color(0xFF00B252), width: 2),
                     ),
+                    // This is the fix. The AspectRatio ensures the camera preview fits
+                    // within the container without causing layout overflow.
                     child: _cameraController != null && _cameraController!.value.isInitialized
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(6),
-                            child: CameraPreview(_cameraController!),
+                            child: AspectRatio(
+                                aspectRatio: _cameraController!.value.aspectRatio,
+                                child: CameraPreview(_cameraController!),
+                            ),
                           )
                         : const Center(
                             child: CircularProgressIndicator(
@@ -1398,8 +1446,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                           ),
                   ),
                   const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  Column(
+               spacing: 5,
                     children: [
                       ElevatedButton(
                         onPressed: () {
@@ -1445,8 +1493,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(6),
-                      child: Image.network(
-                        _capturedImage!,
+                      child: Image.file(
+                        File(_capturedImage??""),
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
                           return const Center(
@@ -1461,8 +1509,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  Column(
+                   spacing: 10,
                     children: [
                       ElevatedButton(
                         onPressed: _retakePhoto,
@@ -1491,12 +1539,12 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                       ),
                     ],
                   ),
-                ],
+               ],
               ],
             ),
           ),
           const SizedBox(height: 16),
-
+    
           const Text(
             '🔒 Your image is encrypted and securely stored for identity verification purposes only',
             style: TextStyle(
@@ -1537,6 +1585,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
   Widget _buildPinStep() {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
+      physics: BouncingScrollPhysics(),
       child: Column(
         children: [
           const SizedBox(height: 40),
@@ -1923,17 +1972,19 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
         return false;
       },
       child: Scaffold(
+        backgroundColor: const Color(0xFFFAFAFA),
         body: Container(
           decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.white,
-                Color(0xFFF0FDF4),
-                Color(0xFFDCFCE7),
-              ],
-            ),
+            color: Color(0xFFFAFAFA),
+            //  gradient: LinearGradient(
+            //   begin: Alignment.topCenter,
+            //   end: Alignment.bottomCenter,
+            //   colors: [
+            //     Colors.white,
+            //     Color(0xFFF0FDF4),
+            //     Color(0xFFDCFCE7),
+            //   ],
+            // ),
           ),
           child: SafeArea(
             child: FadeTransition(
