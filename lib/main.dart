@@ -15,17 +15,17 @@ import 'core/localization/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize Hive for local storage
   await Hive.initFlutter();
   await StorageService.initialize();
-  
+
   // Set preferred orientations
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  
+
   // Set system UI overlay style
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -35,7 +35,7 @@ void main() async {
       systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );
-  
+
   runApp(const RimaPayApp());
 }
 
@@ -44,60 +44,65 @@ class RimaPayApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => LanguageProvider()),
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => TransactionProvider()),
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
-      ],
-      child: Consumer2<LanguageProvider, ThemeProvider>(
-        builder: (context, languageProvider, themeProvider, child) {
-          return MaterialApp.router(
-            title: 'RimaPay',
-            debugShowCheckedModeBanner: false,
-            
-            // Theme - Convert AppThemeMode to ThemeMode
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
-            themeMode: _convertToThemeMode(themeProvider.themeMode),
-            
-            // Routing
-            routerConfig: AppRouter.router,
-            
-            // Localization
-            locale: languageProvider.currentLocale,
-            localizationsDelegates: const [
-              AppLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: AppLocalizationsExtension.supportedLocales,
-            
-            // App Builder - Simplified to avoid MediaQuery issues
-            // builder: (context, child) {
-            //   return AnnotatedRegion<SystemUiOverlayStyle>(
-            //     value: SystemUiOverlayStyle(
-            //       statusBarColor: Colors.transparent,
-            //       statusBarIconBrightness: themeProvider.isDarkMode
-            //          ? Brightness.light
-            //          : Brightness.dark,
-            //       systemNavigationBarColor: themeProvider.isDarkMode
-            //          ? Colors.black
-            //          : Colors.white,
-            //       systemNavigationBarIconBrightness: themeProvider.isDarkMode
-            //          ? Brightness.light
-            //          : Brightness.dark,
-            //     ),
-            //     child: Container(
-            //       constraints: const BoxConstraints(maxWidth: 430),
-            //       child: child ?? const SizedBox.shrink(),
-            //     ),
-            //   );
-            // },
-          );
-        },
+    return GestureDetector(
+      onTap: () {
+        FocusManager.instance.primaryFocus?.unfocus();
+      },
+      child: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => LanguageProvider()),
+          ChangeNotifierProvider(create: (_) => AuthProvider()),
+          ChangeNotifierProvider(create: (_) => TransactionProvider()),
+          ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ],
+        child: Consumer2<LanguageProvider, ThemeProvider>(
+          builder: (context, languageProvider, themeProvider, child) {
+            return MaterialApp.router(
+              title: 'RimaPay',
+              debugShowCheckedModeBanner: false,
+
+              // Theme - Convert AppThemeMode to ThemeMode
+              theme: AppTheme.lightTheme,
+              darkTheme: AppTheme.darkTheme,
+              themeMode: _convertToThemeMode(themeProvider.themeMode),
+
+              // Routing
+              routerConfig: AppRouter.router,
+
+              // Localization
+              locale: languageProvider.currentLocale,
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: AppLocalizationsExtension.supportedLocales,
+
+              // App Builder - Simplified to avoid MediaQuery issues
+              // builder: (context, child) {
+              //   return AnnotatedRegion<SystemUiOverlayStyle>(
+              //     value: SystemUiOverlayStyle(
+              //       statusBarColor: Colors.transparent,
+              //       statusBarIconBrightness: themeProvider.isDarkMode
+              //          ? Brightness.light
+              //          : Brightness.dark,
+              //       systemNavigationBarColor: themeProvider.isDarkMode
+              //          ? Colors.black
+              //          : Colors.white,
+              //       systemNavigationBarIconBrightness: themeProvider.isDarkMode
+              //          ? Brightness.light
+              //          : Brightness.dark,
+              //     ),
+              //     child: Container(
+              //       constraints: const BoxConstraints(maxWidth: 430),
+              //       child: child ?? const SizedBox.shrink(),
+              //     ),
+              //   );
+              // },
+            );
+          },
+        ),
       ),
     );
   }
@@ -107,7 +112,7 @@ class RimaPayApp extends StatelessWidget {
     // If you have an AppThemeMode enum, convert it here
     // Assuming AppThemeMode has values like: light, dark, system
     if (appThemeMode == null) return ThemeMode.system;
-    
+
     switch (appThemeMode.toString()) {
       case 'AppThemeMode.light':
         return ThemeMode.light;

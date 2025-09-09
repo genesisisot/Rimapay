@@ -1,5 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:rimapay/core/providers/app_state_provider.dart';
 
 /// Usage:
 /// WelcomeScreen(
@@ -494,7 +497,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                     children: [
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                              context.pushNamed('auth', queryParameters: {"mode": 'signup'});
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF00B252),
                             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -512,19 +517,20 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                       const SizedBox(width: 12),
                       Expanded(
                         child: InkWell(
-                          onTap: (){},
+                          onTap: () {
+                            context.pushNamed('auth', queryParameters: {"mode": 'login'});
+                          },
                           child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.14),
-                                 borderRadius: BorderRadius.circular(14),
+                              borderRadius: BorderRadius.circular(14),
                             ),
                             child: const Text(
                               'Sign In',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: Colors.white70,
-                                
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                               ),

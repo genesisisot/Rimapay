@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rimapay/features/airtime/presentation/screens/airtime_purchase_screen.dart';
+import 'package:rimapay/features/auth/presentation/screens/business_account_flow.dart';
+import 'package:rimapay/features/auth/presentation/screens/personal_account_flow.dart';
 import 'package:rimapay/features/bills/presentation/screens/bill_payments_screen.dart';
 import 'package:rimapay/features/cable/presentation/screens/cable_purchase_screen.dart';
 import 'package:rimapay/features/data/presentation/screens/data_purchase_screen.dart';
@@ -36,7 +38,7 @@ class AppRouter {
       GoRoute(
         path: '/welcome',
         name: 'welcome',
-        builder: (context, state) =>  WelcomeScreen() ,
+        builder: (context, state) => WelcomeScreen(),
       ),
 
       // Authentication Flow
@@ -46,11 +48,20 @@ class AppRouter {
         builder: (context, state) {
           final mode = state.uri.queryParameters['mode'] ?? 'login';
           return AuthScreen(
-            mode: mode == 'login' ? AuthMode.login : AuthMode.register,
+            mode: mode == 'login' ? AuthMode.login : AuthMode.signup,
           );
         },
       ),
-
+      GoRoute(
+        path: '/personal-account',
+        name: 'personal-account',
+        builder: (context, state) => PersonalAccountFlow(),
+      ),
+      GoRoute(
+        path: '/business-account',
+        name: 'business-account',
+        builder: (context, state) => BusinessAccountFlow(),
+      ),
       // Main Navigation Shell
       ShellRoute(
         builder: (context, state, child) {

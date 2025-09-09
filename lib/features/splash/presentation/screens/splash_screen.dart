@@ -11,12 +11,11 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
-    with TickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
   late AnimationController _logoController;
   late AnimationController _textController;
   late AnimationController _backgroundController;
-  
+
   late Animation<double> _logoScale;
   late Animation<double> _logoOpacity;
   late Animation<double> _textOpacity;
@@ -36,13 +35,13 @@ class _SplashScreenState extends State<SplashScreen>
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
-    
+
     // Text animation controller
     _textController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
+
     // Background animation controller
     _backgroundController = AnimationController(
       duration: const Duration(milliseconds: 2000),
@@ -96,15 +95,15 @@ class _SplashScreenState extends State<SplashScreen>
   Future<void> _startAnimationSequence() async {
     // Start background animation immediately
     _backgroundController.forward();
-    
+
     // Start logo animation after short delay
     await Future.delayed(const Duration(milliseconds: 300));
     _logoController.forward();
-    
+
     // Start text animation
     await Future.delayed(const Duration(milliseconds: 600));
     _textController.forward();
-    
+
     // Navigate to welcome screen
     await Future.delayed(const Duration(milliseconds: 2500));
     if (mounted) {
@@ -144,7 +143,7 @@ class _SplashScreenState extends State<SplashScreen>
               );
             },
           ),
-          
+
           // Background effects
           Positioned.fill(
             child: AnimatedBuilder(
@@ -156,8 +155,7 @@ class _SplashScreenState extends State<SplashScreen>
                     decoration: const BoxDecoration(
                       image: DecorationImage(
                         image: NetworkImage(
-                          'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.05"/><circle cx="10" cy="60" r="0.8" fill="white" opacity="0.08"/><circle cx="90" cy="30" r="0.6" fill="white" opacity="0.06"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>'
-                        ),
+                            'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.05"/><circle cx="10" cy="60" r="0.8" fill="white" opacity="0.08"/><circle cx="90" cy="30" r="0.6" fill="white" opacity="0.06"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>'),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -166,7 +164,7 @@ class _SplashScreenState extends State<SplashScreen>
               },
             ),
           ),
-          
+
           // Main content
           Center(
             child: Column(
@@ -180,40 +178,19 @@ class _SplashScreenState extends State<SplashScreen>
                       opacity: _logoOpacity.value,
                       child: Transform.scale(
                         scale: _logoScale.value,
-                        child: Container(
-                          width: 120,
-                          height: 120,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(AppSpacing.radiusXxl),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 20,
-                                spreadRadius: 0,
-                                offset: const Offset(0, 10),
-                              ),
-                            ],
-                          ),
-                          child: const Center(
-                            child: Text(
-                              'R',
-                              style: TextStyle(
-                                fontSize: 48,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.primary500,
-                                fontFamily: AppTextStyles.fontFamily,
-                              ),
-                            ),
-                          ),
-                        ),
+                        child: Center(
+                              child: Image.asset(
+                            "assets/images/AppIcon.png",
+                            height: 120,
+                            width: 120,
+                          )),
                       ),
                     );
                   },
                 ),
-                
+
                 const SizedBox(height: AppSpacing.xxl),
-                
+
                 // App name and tagline
                 AnimatedBuilder(
                   animation: _textController,
@@ -246,9 +223,9 @@ class _SplashScreenState extends State<SplashScreen>
                     );
                   },
                 ),
-                
+
                 const SizedBox(height: AppSpacing.xxxl * 2),
-                
+
                 // Loading indicator
                 AnimatedBuilder(
                   animation: _textController,
@@ -269,7 +246,7 @@ class _SplashScreenState extends State<SplashScreen>
               ],
             ),
           ),
-          
+
           // Floating particles effect
           ...List.generate(5, (index) {
             return AnimatedBuilder(
@@ -283,7 +260,7 @@ class _SplashScreenState extends State<SplashScreen>
                   Offset(screenSize.width * 0.8, screenSize.height * 0.7),
                   Offset(screenSize.width * 0.5, screenSize.height * 0.1),
                 ];
-                
+
                 return Positioned(
                   left: positions[index].dx,
                   top: positions[index].dy,
