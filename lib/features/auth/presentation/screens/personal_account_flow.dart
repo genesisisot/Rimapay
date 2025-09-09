@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:google_places_autocomplete_text_field/google_places_autocomplete_text_field.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
+import 'dart:developer';
+
+import 'package:rimapay/core/Models/CountryStateLgaModel.dart';
+import 'package:rimapay/core/Utils/En.dart';
+import 'package:rimapay/core/services/GetPlaceDetailsService.dart';
 
 enum AccountStep {
   personalInfo,
@@ -23,18 +32,34 @@ class PersonalInfo {
   String lga = '';
   String bvn = '';
   String nin = '';
+  double? currentLat;
+  double? currentLng;
 }
 
-class PersonalAccountFlow extends StatefulWidget {
+class Prediction {
+  final String? placeId;
+  final String? description;
+  final String? lat;
+  final String? lng;
+
+  Prediction({
+    this.placeId,
+    this.description,
+    this.lat,
+    this.lng,
+  });
+}
+
+class PersonalAccountFlow extends ConsumerStatefulWidget {
   const PersonalAccountFlow({
     super.key,
   });
 
   @override
-  State<PersonalAccountFlow> createState() => _PersonalAccountFlowState();
+  ConsumerState<PersonalAccountFlow> createState() => _PersonalAccountFlowState();
 }
 
-class _PersonalAccountFlowState extends State<PersonalAccountFlow> with TickerProviderStateMixin {
+class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with TickerProviderStateMixin {
   AccountStep _currentStep = AccountStep.personalInfo;
   final PersonalInfo _personalInfo = PersonalInfo();
   final List<String> _otp = List.filled(6, '');
@@ -50,52 +75,21 @@ class _PersonalAccountFlowState extends State<PersonalAccountFlow> with TickerPr
   String? _capturedImage;
   String? _cameraError;
   bool _permissionDenied = false;
+  bool _isGettingLocation = false;
+
+  // Address and location related fields
+  final _addressController = TextEditingController();
+  CountryStateLgaModel? selectedState;
+  Local? selectedLga;
+  @override
+  List<Local>? locals;
+  Prediction? selectedCoordinate;
 
   CameraController? _cameraController;
   late AnimationController _fadeController;
   late AnimationController _scaleController;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
-
-  final List<String> _nigerianStates = [
-    'Abia',
-    'Adamawa',
-    'Akwa Ibom',
-    'Anambra',
-    'Bauchi',
-    'Bayelsa',
-    'Benue',
-    'Borno',
-    'Cross River',
-    'Delta',
-    'Ebonyi',
-    'Edo',
-    'Ekiti',
-    'Enugu',
-    'FCT',
-    'Gombe',
-    'Imo',
-    'Jigawa',
-    'Kaduna',
-    'Kano',
-    'Katsina',
-    'Kebbi',
-    'Kogi',
-    'Kwara',
-    'Lagos',
-    'Nasarawa',
-    'Niger',
-    'Ogun',
-    'Ondo',
-    'Osun',
-    'Oyo',
-    'Plateau',
-    'Rivers',
-    'Sokoto',
-    'Taraba',
-    'Yobe',
-    'Zamfara'
-  ];
 
   @override
   void initState() {
@@ -120,6 +114,7 @@ class _PersonalAccountFlowState extends State<PersonalAccountFlow> with TickerPr
     _fadeController.dispose();
     _scaleController.dispose();
     _cameraController?.dispose();
+    _addressController.dispose();
     super.dispose();
   }
 
@@ -149,7 +144,12 @@ class _PersonalAccountFlowState extends State<PersonalAccountFlow> with TickerPr
     });
   }
 
-  void _handleUnderbanking() {}
+  void _handleUnderbanking() {
+    setState(() {
+      _showUnderbanking = false;
+      _currentStep = AccountStep.otpVerification;
+    });
+  }
 
   void _handleOtpSubmit() {
     setState(() {
@@ -199,29 +199,159 @@ class _PersonalAccountFlowState extends State<PersonalAccountFlow> with TickerPr
     setState(() {
       _currentStep = AccountStep.success;
     });
-
-    Future.delayed(const Duration(seconds: 2), () {
-      String tier = 'Tier 1';
-      final hasVerification = _personalInfo.bvn.trim().isNotEmpty || _personalInfo.nin.trim().isNotEmpty;
-
-      if (hasVerification && _completedLiveness) {
-        tier = 'Tier 1';
-      } else if (!hasVerification) {
-        tier = 'Underbanking';
-      }
-
-      // widget.onSuccess({
-      //   'personalInfo': _personalInfo,
-      //   'password': _password,
-      //   'accountNumber': '2001234567',
-      //   'tier': tier,
-      //   'bvnVerified': _personalInfo.bvn.isNotEmpty,
-      //   'ninVerified': _personalInfo.nin.isNotEmpty,
-      //   'livenessCompleted': _completedLiveness,
-      // });
-    });
   }
 
+  // Location related methods
+  Future<Position?> getCurrentLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Location services are disabled")),
+      );
+      return null;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Location permissions are denied")),
+        );
+        return null;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Location permissions are permanently denied")),
+      );
+      return null;
+    }
+
+    return await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+  }
+
+  Future<void> _onLocateMePressed() async {
+    setState(() {
+      _isGettingLocation = true;
+    });
+
+    try {
+      final position = await getCurrentLocation();
+      if (position != null) {
+        try {
+          List<Placemark> placemarks = await placemarkFromCoordinates(
+            position.latitude,
+            position.longitude,
+          );
+
+          if (placemarks.isNotEmpty) {
+            final placemark = placemarks.first;
+
+            String address = '';
+            if (placemark.street?.isNotEmpty == true) {
+              address += '${placemark.street}, ';
+            }
+            if (placemark.subLocality?.isNotEmpty == true) {
+              address += '${placemark.subLocality}, ';
+            }
+            if (placemark.locality?.isNotEmpty == true) {
+              address += '${placemark.locality}, ';
+            }
+            if (placemark.administrativeArea?.isNotEmpty == true) {
+              address += '${placemark.administrativeArea}, ';
+            }
+            if (placemark.country?.isNotEmpty == true) {
+              address += placemark.country!;
+            }
+
+            address = address.replaceAll(RegExp(r', $'), '');
+
+            setState(() {
+              _addressController.text = address;
+              _personalInfo.residentialAddress = address;
+
+              selectedCoordinate = Prediction(
+                placeId: null,
+                description: address,
+                lat: position.latitude.toString(),
+                lng: position.longitude.toString(),
+              );
+
+              _personalInfo.currentLat = position.latitude;
+              _personalInfo.currentLng = position.longitude;
+            });
+
+            final locations = getCountryLocation();
+            if (placemark.administrativeArea != null) {
+              final service = ref.read(locationDetailsServiceProvider);
+              final matchingState = service.findMatchingState(placemark.administrativeArea!, locations);
+              if (matchingState != null) {
+                setState(() {
+                  selectedState = matchingState;
+                  _personalInfo.state = matchingState.state?.name ?? '';
+                  locals = matchingState.state?.locals;
+
+                  if (placemark.subAdministrativeArea != null && locals != null) {
+                    selectedLga = service.findMatchingLGA(placemark.subAdministrativeArea!, locals!);
+                    if (selectedLga != null) {
+                      _personalInfo.lga = selectedLga!.name ?? '';
+                    }
+                  } else {
+                    selectedLga = null;
+                    _personalInfo.lga = '';
+                  }
+                });
+              }
+            }
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Location found successfully!")),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Could not get address for your location")),
+            );
+          }
+        } catch (e) {
+          log("Error in reverse geocoding: $e");
+
+          setState(() {
+            _addressController.text = "Current Location (${position.latitude.toStringAsFixed(6)}, ${position.longitude.toStringAsFixed(6)})";
+            _personalInfo.residentialAddress = _addressController.text;
+            selectedCoordinate = Prediction(
+              placeId: null,
+              description: "Current Location",
+              lat: position.latitude.toString(),
+              lng: position.longitude.toString(),
+            );
+            _personalInfo.currentLat = position.latitude;
+            _personalInfo.currentLng = position.longitude;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Location coordinates found!")),
+          );
+        }
+      }
+    } catch (e) {
+      log("Error getting location: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Failed to get your location")),
+      );
+    } finally {
+      setState(() {
+        _isGettingLocation = false;
+      });
+    }
+  }
+
+  // Camera methods (keeping existing implementation)
   Future<void> _initializeCamera() async {
     try {
       final cameras = await availableCameras();
@@ -300,6 +430,7 @@ class _PersonalAccountFlowState extends State<PersonalAccountFlow> with TickerPr
   }
 
   Widget _buildPersonalInfoStep() {
+    final locations = getCountryLocation();
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -531,7 +662,7 @@ class _PersonalAccountFlowState extends State<PersonalAccountFlow> with TickerPr
           ),
           const SizedBox(height: 16),
 
-          // Address Field
+          // Address Field with Google Places Autocomplete
           const Text(
             'Residential Address *',
             style: TextStyle(
@@ -541,20 +672,59 @@ class _PersonalAccountFlowState extends State<PersonalAccountFlow> with TickerPr
             ),
           ),
           const SizedBox(height: 6),
-          TextFormField(
-            onChanged: (value) {
+          GooglePlacesAutoCompleteTextFormField(
+            textEditingController: _addressController,
+            googleAPIKey: GOOGLE_API_KEY, // Replace with your API key
+            debounceTime: 600,
+            countries: const ["ng"], // Nigeria only
+
+            onPlaceDetailsWithCoordinatesReceived: (prediction) {
               setState(() {
-                _personalInfo.residentialAddress = value;
+                _personalInfo.residentialAddress = prediction.description ?? '';
+                selectedCoordinate = Prediction(
+                  description: prediction.description,
+                  lat: prediction.lat,
+                  lng: prediction.lng,
+                  placeId: prediction.placeId,
+                );
+                _personalInfo.currentLat = double.tryParse(prediction.lat ?? "0");
+                _personalInfo.currentLng = double.tryParse(prediction.lng ?? "0");
               });
+
+              // You can add logic here to automatically set state and LGA based on the address
             },
-            maxLines: 2,
             decoration: InputDecoration(
               hintText: 'Enter your full address',
+              hintStyle: TextStyle(
+                color: Colors.grey.withOpacity(0.6),
+                fontSize: 14,
+              ),
               prefixIcon: const Icon(
                 Icons.location_on_outlined,
                 color: Color(0xFF9CA3AF),
                 size: 16,
               ),
+              suffixIcon: _isGettingLocation
+                  ? Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: const CircularProgressIndicator.adaptive(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF00B252)),
+                        ),
+                      ),
+                    )
+                  : IconButton(
+                      onPressed: _onLocateMePressed,
+                      icon: const Icon(
+                        Icons.my_location,
+                        color: Color(0xFF00B252),
+                        size: 20,
+                      ),
+                      tooltip: "Use my current location",
+                    ),
               fillColor: Colors.white,
               filled: true,
               border: OutlineInputBorder(
@@ -580,15 +750,23 @@ class _PersonalAccountFlowState extends State<PersonalAccountFlow> with TickerPr
             ),
           ),
           const SizedBox(height: 6),
-          DropdownButtonFormField<String>(
-            value: _personalInfo.state.isEmpty ? null : _personalInfo.state,
+          DropdownButtonFormField<CountryStateLgaModel>(
+            value: selectedState,
             onChanged: (value) {
               setState(() {
-                _personalInfo.state = value ?? '';
-                _personalInfo.lga = ''; // Clear LGA when state changes
+                selectedState = value;
+                _personalInfo.state = value?.state?.name ?? '';
+                locals = value?.state?.locals;
+                selectedLga = null;
+                _personalInfo.lga = '';
+                // Clear address and coordinates when state changes manually
+                selectedCoordinate = null;
+                _addressController.clear();
+                _personalInfo.residentialAddress = '';
               });
             },
             decoration: InputDecoration(
+              hintText: 'Select your state',
               fillColor: Colors.white,
               filled: true,
               border: OutlineInputBorder(
@@ -601,8 +779,14 @@ class _PersonalAccountFlowState extends State<PersonalAccountFlow> with TickerPr
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
-            items: _nigerianStates.map((state) {
-              return DropdownMenuItem(value: state, child: Text(state));
+            items: locations.map((location) {
+              return DropdownMenuItem<CountryStateLgaModel>(
+                value: location,
+                child: Text(
+                  location.state?.name ?? '',
+                  style: const TextStyle(fontSize: 14),
+                ),
+              );
             }).toList(),
           ),
           const SizedBox(height: 16),
@@ -617,16 +801,18 @@ class _PersonalAccountFlowState extends State<PersonalAccountFlow> with TickerPr
             ),
           ),
           const SizedBox(height: 6),
-          DropdownButtonFormField<String>(
-            value: _personalInfo.lga.isEmpty ? null : _personalInfo.lga,
-            onChanged: _personalInfo.state.isEmpty
+          DropdownButtonFormField<Local>(
+            value: selectedLga,
+            onChanged: selectedState == null
                 ? null
                 : (value) {
                     setState(() {
-                      _personalInfo.lga = value ?? '';
+                      selectedLga = value;
+                      _personalInfo.lga = value?.name ?? '';
                     });
                   },
             decoration: InputDecoration(
+              hintText: selectedState == null ? 'Select state first' : 'Select your LGA',
               fillColor: Colors.white,
               filled: true,
               border: OutlineInputBorder(
@@ -639,11 +825,16 @@ class _PersonalAccountFlowState extends State<PersonalAccountFlow> with TickerPr
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
-            items: _personalInfo.state.isEmpty
-                ? []
-                : [
-                    const DropdownMenuItem(value: 'sample_lga', child: Text('Sample LGA')),
-                  ],
+            items: locals?.map((local) {
+                  return DropdownMenuItem<Local>(
+                    value: local,
+                    child: Text(
+                      local.name ?? '',
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  );
+                }).toList() ??
+                [],
           ),
           const SizedBox(height: 16),
 
@@ -798,8 +989,13 @@ class _PersonalAccountFlowState extends State<PersonalAccountFlow> with TickerPr
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed:
-                  (_personalInfo.fullName.isNotEmpty && _personalInfo.phoneNumber.isNotEmpty && _personalInfo.state.isNotEmpty && _personalInfo.lga.isNotEmpty) ? _handlePersonalInfoSubmit : null,
+              onPressed: (_personalInfo.fullName.isNotEmpty &&
+                      _personalInfo.phoneNumber.isNotEmpty &&
+                      _personalInfo.state.isNotEmpty &&
+                      _personalInfo.lga.isNotEmpty &&
+                      _personalInfo.residentialAddress.isNotEmpty)
+                  ? _handlePersonalInfoSubmit
+                  : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF00B252),
                 foregroundColor: Colors.white,

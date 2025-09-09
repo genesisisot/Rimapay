@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as rev;
 import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -36,7 +37,11 @@ void main() async {
     ),
   );
 
-  runApp(const RimaPayApp());
+  runApp(
+    rev.ProviderScope(
+      child: const RimaPayApp(),
+    ),
+  );
 }
 
 class RimaPayApp extends StatelessWidget {
