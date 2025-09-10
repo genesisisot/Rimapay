@@ -498,7 +498,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () {
-                              context.pushNamed('auth', queryParameters: {"mode": 'signup'});
+                            context.pushNamed('auth', queryParameters: {"mode": 'signup'});
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF00B252),
@@ -545,8 +545,26 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                 const SizedBox(height: 14),
 
                 // Branding placeholder (CBN/NDIC)
-                const CBNNDICBranding(),
-
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    margin: EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.04),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Image.asset(
+                      "assets/images/NI.jpeg",
+                      width: double.infinity,
+                      height: 80,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Text(
+                        "NDIC",
+                        style: const TextStyle(color: Colors.white54, fontSize: 12),
+                      ),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 12),
 
                 // Footer text

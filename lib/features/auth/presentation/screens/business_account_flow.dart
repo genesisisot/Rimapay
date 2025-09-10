@@ -22,12 +22,12 @@ enum BusinessAccountStep {
   bnInfo,
   llcInfo,
   otpVerification,
-  bnDocuments,
-  llcDocuments,
+  // bnDocuments,
+  // llcDocuments,
   ownerVerification,
-  directorsInfo,
-  llcOwnerVerification,
-  verificationLoading,
+  // directorsInfo,
+ llcOwnerVerification,
+  // verificationLoading,
   setPin,
 }
 
@@ -327,9 +327,9 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
         BusinessAccountStep.businessTypeSelection,
         BusinessAccountStep.bnInfo,
         BusinessAccountStep.otpVerification,
-        BusinessAccountStep.bnDocuments,
+      //  BusinessAccountStep.bnDocuments,
         BusinessAccountStep.ownerVerification,
-        BusinessAccountStep.verificationLoading,
+        //BusinessAccountStep.verificationLoading,
         BusinessAccountStep.setPin,
       ];
       return bnSteps.indexOf(_currentStep) + 1;
@@ -338,10 +338,10 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
         BusinessAccountStep.businessTypeSelection,
         BusinessAccountStep.llcInfo,
         BusinessAccountStep.otpVerification,
-        BusinessAccountStep.llcDocuments,
-        BusinessAccountStep.directorsInfo,
+       // BusinessAccountStep.llcDocuments,
+       // BusinessAccountStep.directorsInfo,
         BusinessAccountStep.llcOwnerVerification,
-        BusinessAccountStep.verificationLoading,
+       // BusinessAccountStep.verificationLoading,
         BusinessAccountStep.setPin,
       ];
       return llcSteps.indexOf(_currentStep) + 1;
@@ -350,9 +350,9 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
   }
 
   int _getTotalSteps() {
-    if (_businessInfo.businessType == BusinessType.bn) return 7;
-    if (_businessInfo.businessType == BusinessType.llc) return 8;
-    return 7;
+    if (_businessInfo.businessType == BusinessType.bn) return 5;
+    if (_businessInfo.businessType == BusinessType.llc) return 5;
+    return 5;
   }
 
   void _handleBusinessTypeSelection(BusinessType type) {
@@ -395,20 +395,23 @@ void _handleBusinessLCCInfoSubmit() {
     Future.delayed(const Duration(seconds: 2), () {
       setState(() {
         _isLoading = false;
-        _currentStep = _businessInfo.businessType == BusinessType.bn ? BusinessAccountStep.bnDocuments : BusinessAccountStep.llcDocuments;
+        _currentStep = _businessInfo.businessType == BusinessType.bn?BusinessAccountStep.ownerVerification:BusinessAccountStep.llcOwnerVerification;
+        //_businessInfo.businessType == BusinessType.bn ;
+        //? BusinessAccountStep.bnDocuments : BusinessAccountStep.llcDocuments;
       });
     });
   }
 
   void _handleDocumentsSubmit() {
     setState(() {
-      _currentStep = _businessInfo.businessType == BusinessType.bn ? BusinessAccountStep.ownerVerification : BusinessAccountStep.directorsInfo;
+      //_currentStep = _businessInfo.businessType == BusinessType.bn ? BusinessAccountStep.ownerVerification : BusinessAccountStep.directorsInfo;
     });
   }
 
   void _handleVerificationComplete() {
     setState(() {
-      _currentStep = BusinessAccountStep.verificationLoading;
+      // _currentStep = BusinessAccountStep.verificationLoading;
+       _currentStep = BusinessAccountStep.setPin;
       _verificationProgress = 0;
     });
 
@@ -1517,18 +1520,18 @@ void _handleBusinessLCCInfoSubmit() {
         return _buildLLCInfoStep();
       case BusinessAccountStep.otpVerification:
         return _buildOtpVerificationStep();
-      case BusinessAccountStep.bnDocuments:
-        return _buildBNDocumentsStep();
-      case BusinessAccountStep.llcDocuments:
-        return _buildLLCDocumentsStep();
+      // case BusinessAccountStep.bnDocuments:
+      //   return _buildBNDocumentsStep();
+      // case BusinessAccountStep.llcDocuments:
+      //   return _buildLLCDocumentsStep();
       case BusinessAccountStep.ownerVerification:
         return _buildOwnerVerificationStep();
-      case BusinessAccountStep.directorsInfo:
-        return _buildDirectorsInfoStep();
+      // case BusinessAccountStep.directorsInfo:
+      //   return _buildDirectorsInfoStep();
       case BusinessAccountStep.llcOwnerVerification:
         return _buildLLCOwnerVerificationStep();
-      case BusinessAccountStep.verificationLoading:
-        return _buildVerificationLoadingStep();
+      // case BusinessAccountStep.verificationLoading:
+      //   return _buildVerificationLoadingStep();
       case BusinessAccountStep.setPin:
         return _buildSetPinStep();
       default:
@@ -3043,7 +3046,7 @@ void _handleBusinessLCCInfoSubmit() {
     return _password.isNotEmpty && _confirmPassword.isNotEmpty && _password == _confirmPassword && _password.length >= 8;
   }
 
-  // LLC Owner Verification Step - Similar to BN owner verification
+// LLC Owner Verification Step - Now with real camera functionality
   Widget _buildLLCOwnerVerificationStep() {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -3076,7 +3079,7 @@ void _handleBusinessLCCInfoSubmit() {
           ),
           const SizedBox(height: 32),
 
-          // Same camera implementation as BN owner verification
+          // Camera Interface - Ready to take photo state
           if (!_cameraActive && _capturedImage == null)
             Container(
               width: double.infinity,
@@ -3103,7 +3106,7 @@ void _handleBusinessLCCInfoSubmit() {
                   ),
                   const SizedBox(height: 12),
                   ElevatedButton(
-                    onPressed: () => setState(() => _cameraActive = true),
+                    onPressed: _startCamera,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF00B252),
                       foregroundColor: Colors.white,
@@ -3115,94 +3118,76 @@ void _handleBusinessLCCInfoSubmit() {
               ),
             ),
 
-          if (_cameraActive && _capturedImage == null)
-            Column(
-              children: [
-                Container(
-                  width: double.infinity,
-                  height: 200,
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFF00B252), width: 4),
-                  ),
-                  child: const Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+          // Live Camera View
+          (_cameraActive && _cameraController != null && _cameraController!.value.isInitialized)
+              ? Column(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      height: 300,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: const Color(0xFF00B252), width: 4),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: CameraPreview(
+                          _cameraController!,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Column(
+                      spacing: 10,
                       children: [
-                        Icon(Icons.camera_alt, color: Colors.white, size: 40),
-                        SizedBox(height: 8),
-                        Text('Position your face in the center', style: TextStyle(color: Colors.white, fontSize: 12)),
+                        ElevatedButton(
+                          onPressed: () => setState(() => _cameraActive = false),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.grey,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                          child: const Text('Cancel'),
+                        ),
+                        ElevatedButton(
+                          onPressed: _capturePhoto,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF00B252),
+                            shape: const CircleBorder(),
+                            padding: const EdgeInsets.all(16),
+                          ),
+                          child: const Icon(Icons.camera_alt, color: Colors.white, size: 24),
+                        ),
                       ],
                     ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      _capturedImage = 'captured';
-                      _cameraActive = false;
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00B252),
-                    shape: const CircleBorder(),
-                    padding: const EdgeInsets.all(16),
-                  ),
-                  child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
-                ),
-              ],
-            ),
+                  ],
+                )
+              : const SizedBox.shrink(),
 
+          // Captured Photo Preview
           if (_capturedImage != null)
             Column(
               children: [
                 Container(
-                  width: 144,
-                  height: 144,
+                  width: 200,
+                  height: 200,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE5E7EB),
                     borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFF00B252), width: 2),
                   ),
-                  child: Stack(
-                    children: [
-                      const Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.person, size: 60, color: Color(0xFF9CA3AF)),
-                            Text('Captured Image', style: TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
-                          ],
-                        ),
-                      ),
-                      Positioned(
-                        top: 4,
-                        right: 4,
-                        child: Container(
-                          width: 24,
-                          height: 24,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFF10B981),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.check, color: Colors.white, size: 12),
-                        ),
-                      ),
-                    ],
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: Image.file(
+                      File(_capturedImage!),
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                const SizedBox(height: 16),
+                Column(
+                  spacing: 10,
                   children: [
                     TextButton(
-                      onPressed: () {
-                        setState(() {
-                          _capturedImage = null;
-                          _cameraActive = true;
-                        });
-                      },
+                      onPressed: _retakePhoto,
                       child: const Text('Retake', style: TextStyle(color: Color(0xFF6B7280))),
                     ),
                     const SizedBox(width: 16),
@@ -3218,6 +3203,42 @@ void _handleBusinessLCCInfoSubmit() {
                   ],
                 ),
               ],
+            ),
+
+          // Camera Error Display
+          if (_cameraError != null)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFEF2F2),
+                border: Border.all(color: const Color(0xFFFECACA)),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: const [
+                      Icon(Icons.error_outline, color: Color(0xFFEF4444), size: 16),
+                      SizedBox(width: 8),
+                      Text('Camera Error', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF991B1B))),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(_cameraError!, style: const TextStyle(fontSize: 14, color: Color(0xFFDC2626))),
+                  const SizedBox(height: 12),
+                  ElevatedButton(
+                    onPressed: _uploadingPhoto ? null : _uploadPhoto,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFECACA),
+                      foregroundColor: const Color(0xFF991B1B),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    child: Text(_uploadingPhoto ? 'Uploading...' : 'Upload Photo Instead'),
+                  ),
+                ],
+              ),
             ),
 
           const SizedBox(height: 24),
