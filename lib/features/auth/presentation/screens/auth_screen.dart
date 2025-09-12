@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:rimapay/core/router/app_router.dart';
 import '../../../../core/providers/auth_provider.dart';
 import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -187,9 +188,10 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
     });
 
     if (credential != null && credential['password'] == _loginForm['password']) {
-      setState(() {
-        _currentFlow = Flow.success;
-      });
+      // setState(() {
+      //   _currentFlow = Flow.success;
+      // });
+      AppNavigation.goToHome(context);
     } else {
       _showErrorMessage('Invalid credentials. Try:\n'
           '• +2348012345678 / tier1pass (Tier 1)\n'

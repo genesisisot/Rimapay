@@ -3235,7 +3235,7 @@ void _handleBusinessLCCInfoSubmit() {
                       foregroundColor: const Color(0xFF991B1B),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
-                    child: Text(_uploadingPhoto ? 'Uploading...' : 'Upload Photo Instead'),
+                    child: Text(_uploadingPhoto ? 'Uploading...' : 'Upload Photo Insteaad'),
                   ),
                 ],
               ),

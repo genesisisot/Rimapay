@@ -26,47 +26,42 @@ class _HomeScreenState extends State<HomeScreen>
   late Animation<Offset> _slideAnimation;
   
   bool _balanceVisible = true;
+  String _selectedPeriod = 'This month';
+
+  final List<String> _timePeriods = [
+    'This day',
+    'This week', 
+    'This month',
+    '6 Month',
+    '1yr'
+  ];
 
   final List<QuickAction> _quickActions = [
     QuickAction(
-      id: 'airtime',
-      title: 'Airtime',
-      icon: '📱',
-      color: AppColors.accentPurple,
-      route: '/airtime',
-    ),
-    QuickAction(
-      id: 'data',
-      title: 'Data',
-      icon: '📶',
+      id: 'send',
+      title: 'Send',
+      icon: Icons.send_outlined,
       color: AppColors.accentBlue,
-      route: '/data',
+      route: '/transfer',
     ),
     QuickAction(
-      id: 'electricity',
-      title: 'Electricity',
-      icon: '⚡',
-      color: AppColors.accentYellow,
-      route: '/electricity',
+      id: 'request',
+      title: 'Request',
+      icon: Icons.call_received_outlined,
+      color: AppColors.primary400,
+      route: '/request',
     ),
     QuickAction(
-      id: 'loans',
-      title: 'Loans',
-      icon: '🏦',
+      id: 'topup',
+      title: 'Top Up',
+      icon: Icons.add_circle_outline,
       color: AppColors.accentOrange,
-      route: '/loans',
-    ),
-    QuickAction(
-      id: 'cable',
-      title: 'Cable TV',
-      icon: '📺',
-      color: AppColors.accentPink,
-      route: '/cable',
+      route: '/add-money',
     ),
     QuickAction(
       id: 'more',
-      title: 'More Services',
-      icon: '⚙️',
+      title: 'More',
+      icon: Icons.apps_outlined,
       color: AppColors.neutral600,
       route: '/bills',
     ),
@@ -148,153 +143,6 @@ class _HomeScreenState extends State<HomeScreen>
     return '$hour:$minute $period';
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final languageProvider = Provider.of<LanguageProvider>(context);
-    final authProvider = Provider.of<AuthProvider>(context);
-    final transactionProvider = Provider.of<TransactionProvider>(context);
-    final user = authProvider.user;
-
-    return Scaffold(
-      backgroundColor: AppColors.neutral50,
-      body: FadeTransition(
-        opacity: _fadeAnimation,
-        child: SlideTransition(
-          position: _slideAnimation,
-          child: CustomScrollView(
-            slivers: [
-              // App Bar
-              SliverAppBar(
-                expandedHeight: 120,
-                floating: false,
-                pinned: true,
-                backgroundColor: AppColors.neutral0,
-                elevation: 0,
-                flexibleSpace: FlexibleSpaceBar(
-                  background: Container(
-                    decoration: BoxDecoration(
-                      gradient: AppColors.primaryGradient,
-                    ),
-                    padding: EdgeInsets.fromLTRB(
-                      AppSpacing.responsivePadding(context),
-                      MediaQuery.of(context).padding.top + AppSpacing.md,
-                      AppSpacing.responsivePadding(context),
-                      AppSpacing.md,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  _getGreeting(),
-                                  style: AppTextStyles.bodyMedium.copyWith(
-                                    color: Colors.white.withOpacity(0.9),
-                                  ),
-                                ),
-                                const SizedBox(height: AppSpacing.xs),
-                                Text(
-                                  user?.lastName ?? 'Welcome to RimaPay',
-                                  style: AppTextStyles.heading4.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                IconButton(
-                                  onPressed: () => context.push('/notifications'),
-                                  icon: Stack(
-                                    children: [
-                                      Icon(
-                                        Icons.notifications_outlined,
-                                        color: Colors.white,
-                                        size: 24,
-                                      ),
-                                      Positioned(
-                                        right: 0,
-                                        top: 0,
-                                        child: Container(
-                                          width: 8,
-                                          height: 8,
-                                          decoration: BoxDecoration(
-                                            color: AppColors.accentOrange,
-                                            shape: BoxShape.circle,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                IconButton(
-                                  onPressed: () => context.push('/settings'),
-                                  icon: Icon(
-                                    Icons.settings_outlined,
-                                    color: Colors.white,
-                                    size: 24,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
-              // Main Content
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.all(AppSpacing.responsivePadding(context)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Underbanking Banner (if applicable)
-                      if (user?.accountType == AccountType.underbanking) ...[
-                         UnderbankingBanner(
-                          onUpgrade: (){},
-                        ),
-                        const SizedBox(height: AppSpacing.lg),
-                      ],
-
-                      // Balance Card
-                      _buildBalanceCard(user),
-                      
-                      const SizedBox(height: AppSpacing.xl),
-
-                      // Quick Actions
-                      _buildQuickActions(),
-                      
-                      const SizedBox(height: AppSpacing.xl),
-
-                      // Promotional Carousel
-                      const PromotionalCarousel(),
-                      
-                      const SizedBox(height: AppSpacing.xl),
-
-                      // Recent Activity
-                      _buildRecentActivity(transactionProvider, languageProvider),
-                      
-                      const SizedBox(height: AppSpacing.xxl),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   String _getGreeting() {
     final hour = DateTime.now().hour;
     if (hour < 12) {
@@ -306,37 +154,204 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
-  Widget _buildBalanceCard(User? user) {
+  @override
+  Widget build(BuildContext context) {
+    final languageProvider = Provider.of<LanguageProvider>(context);
+    final authProvider = Provider.of<AuthProvider>(context);
+    final transactionProvider = Provider.of<TransactionProvider>(context);
+    final user = authProvider.user;
+
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppColors.primary50,
+              AppColors.neutral0,
+            ],
+          ),
+        ),
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: SlideTransition(
+            position: _slideAnimation,
+            child: CustomScrollView(
+              slivers: [
+                // Header
+                SliverAppBar(
+                  expandedHeight: 100,
+                  floating: false,
+                  pinned: false,
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: Container(
+                      padding: EdgeInsets.fromLTRB(
+                        AppSpacing.responsivePadding(context),
+                        MediaQuery.of(context).padding.top + AppSpacing.md,
+                        AppSpacing.responsivePadding(context),
+                        AppSpacing.md,
+                      ),
+                      child: Row(
+                        children: [
+                          // User Avatar and Greeting
+                          CircleAvatar(
+                            radius: 24,
+                            backgroundImage: user?.profileImageUrl != null
+                                ? NetworkImage(user!.profileImageUrl!)
+                                : null,
+                            child: user?.profileImageUrl == null
+                                ? Icon(
+                                    Icons.person,
+                                    color: AppColors.neutral500,
+                                  )
+                                : null,
+                          ),
+                          const SizedBox(width: AppSpacing.md),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Hello, ${user?.firstName ?? 'Ava'}',
+                                  style: AppTextStyles.heading4.copyWith(
+                                    color: AppColors.neutral900,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: AppSpacing.xs),
+                                Text(
+                                  'welcome back',
+                                  style: AppTextStyles.bodySmall.copyWith(
+                                    color: AppColors.neutral500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          // Action Buttons
+                          IconButton(
+                            onPressed: () => context.push('/notifications'),
+                            icon: Icon(
+                              Icons.notifications_outlined,
+                              color: AppColors.neutral700,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () => context.push('/settings'),
+                            icon: Icon(
+                              Icons.menu,
+                              color: AppColors.neutral700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Content
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.all(AppSpacing.responsivePadding(context)),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // My Wallet Section
+                        Text(
+                          'My wallet',
+                          style: AppTextStyles.heading4.copyWith(
+                            color: AppColors.neutral900,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        _buildDarkWalletCard(user),
+                        
+                        const SizedBox(height: AppSpacing.xl),
+
+                        // Recent Transactions Section
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Recent Transaction',
+                              style: AppTextStyles.heading4.copyWith(
+                                color: AppColors.neutral900,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () => context.push('/transactions'),
+                              child: Text(
+                                'See All',
+                                style: AppTextStyles.labelMedium.copyWith(
+                                  color: AppColors.neutral400,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        
+                        const SizedBox(height: AppSpacing.lg),
+
+                        // Time Period Filters
+                        _buildTimePeriodFilters(),
+                        
+                        const SizedBox(height: AppSpacing.lg),
+
+                        // Transaction List
+                        _buildTransactionList(transactionProvider),
+                        
+                        const SizedBox(height: AppSpacing.xxl),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDarkWalletCard(User? user) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(AppSpacing.responsiveCardPadding(context)),
       decoration: BoxDecoration(
-        gradient: AppColors.primaryGradient,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF1E1E2E),
+            Color(0xFF2A2A3E),
+          ],
+        ),
         borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary500.withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Balance Section
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Available Balance',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: Colors.white.withOpacity(0.9),
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
                   GestureDetector(
                     onTap: _toggleBalanceVisibility,
                     child: Row(
@@ -345,10 +360,10 @@ class _HomeScreenState extends State<HomeScreen>
                           duration: const Duration(milliseconds: 300),
                           child: Text(
                             _balanceVisible 
-                              ? '₦${user?.balance.toStringAsFixed(2) ?? '0.00'}'
-                              : '₦ ••••••',
+                              ? '\$${user?.balance.toStringAsFixed(2) ?? '12,854.00'}'
+                              : '\$ ••••••',
                             key: ValueKey(_balanceVisible),
-                            style: AppTextStyles.heading2.copyWith(
+                            style: AppTextStyles.heading1.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.w800,
                             ),
@@ -365,16 +380,23 @@ class _HomeScreenState extends State<HomeScreen>
                       ],
                     ),
                   ),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    'Available balance',
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: Colors.white.withOpacity(0.7),
+                    ),
+                  ),
                 ],
               ),
               Container(
                 padding: const EdgeInsets.all(AppSpacing.sm),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
                 ),
                 child: Icon(
-                  Icons.account_balance_wallet,
+                  Icons.credit_card,
                   color: Colors.white,
                   size: 24,
                 ),
@@ -383,301 +405,279 @@ class _HomeScreenState extends State<HomeScreen>
           ),
           
           const SizedBox(height: AppSpacing.lg),
+
+          // Savings Section
+          Container(
+            padding: EdgeInsets.all(AppSpacing.md),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.1),
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(AppSpacing.sm),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                  ),
+                  child: Icon(
+                    Icons.savings_outlined,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Savings',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: Colors.white.withOpacity(0.7),
+                      ),
+                    ),
+                    Text(
+                      '\$955.00',
+                      style: AppTextStyles.labelLarge.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
           
+          const SizedBox(height: AppSpacing.lg),
+          
+          // Action Buttons
           Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () => context.push('/add-money'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: AppColors.primary600,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+            children: _quickActions.map((action) {
+              final isFirst = _quickActions.first == action;
+              return Expanded(
+                child: Container(
+                  margin: EdgeInsets.only(
+                    left: isFirst ? 0 : AppSpacing.xs,
+                    right: isFirst ? AppSpacing.xs : 0,
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.add, size: 18),
-                      const SizedBox(width: AppSpacing.xs),
-                      Text(
-                        'Add Money',
-                        style: AppTextStyles.labelMedium.copyWith(
-                          fontWeight: FontWeight.w600,
+                  child: ElevatedButton(
+                    onPressed: () => _handleQuickAction(action),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white.withOpacity(0.1),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                        side: BorderSide(
+                          color: Colors.white.withOpacity(0.2),
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () => context.push('/transfer'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white.withOpacity(0.2),
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                      side: BorderSide(color: Colors.white.withOpacity(0.3)),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.send, size: 18),
-                      const SizedBox(width: AppSpacing.xs),
-                      Text(
-                        'Send',
-                        style: AppTextStyles.labelMedium.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSpacing.md,
+                        horizontal: AppSpacing.sm,
                       ),
-                    ],
+                    ),
+                    child: Column(
+                      children: [
+                        Icon(action.icon, size: 20),
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          action.title,
+                          style: AppTextStyles.labelSmall.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              );
+            }).toList(),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildQuickActions() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Quick Actions',
-          style: AppTextStyles.heading4.copyWith(
-            color: AppColors.neutral900,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        const SizedBox(height: AppSpacing.md),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            crossAxisSpacing: AppSpacing.md,
-            mainAxisSpacing: AppSpacing.md,
-            childAspectRatio: 1.0,
-          ),
-          itemCount: _quickActions.length,
-          itemBuilder: (context, index) {
-            final action = _quickActions[index];
-            return _buildQuickActionCard(action);
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildQuickActionCard(QuickAction action) {
-    return GestureDetector(
-      onTap: () => _handleQuickAction(action),
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.neutral0,
-          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.shadowColor,
-              blurRadius: 4,
-              offset: const Offset(0, 2),
+  Widget _buildTimePeriodFilters() {
+    return SizedBox(
+      height: 40,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: _timePeriods.length,
+        itemBuilder: (context, index) {
+          final period = _timePeriods[index];
+          final isSelected = _selectedPeriod == period;
+          
+          return Container(
+            margin: EdgeInsets.only(
+              right: index < _timePeriods.length - 1 ? AppSpacing.sm : 0,
             ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: action.color.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-              ),
-              child: Center(
-                child: Text(
-                  action.icon,
-                  style: const TextStyle(fontSize: 24),
+            child: FilterChip(
+              label: Text(
+                period,
+                style: AppTextStyles.labelSmall.copyWith(
+                  color: isSelected ? Colors.white : AppColors.neutral600,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              action.title,
-              style: AppTextStyles.labelSmall.copyWith(
-                color: AppColors.neutral700,
-                fontWeight: FontWeight.w500,
+              selected: isSelected,
+              onSelected: (selected) {
+                if (selected) {
+                  setState(() {
+                    _selectedPeriod = period;
+                  });
+                }
+              },
+              backgroundColor: AppColors.neutral100,
+              selectedColor: AppColors.primary500,
+              side: BorderSide(
+                color: isSelected ? AppColors.primary500 : AppColors.neutral200,
               ),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+              ),
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildRecentActivity(TransactionProvider provider, LanguageProvider languageProvider) {
-    final recentTransactions = provider.recentTransactions.take(3).toList();
+  Widget _buildTransactionList(TransactionProvider provider) {
+    final recentTransactions = provider.recentTransactions.take(4).toList();
     
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    if (recentTransactions.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: EdgeInsets.all(AppSpacing.responsiveCardPadding(context)),
+        decoration: BoxDecoration(
+          color: AppColors.neutral0,
+          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+          border: Border.all(color: AppColors.neutral200),
+        ),
+        child: Column(
           children: [
+            Icon(
+              Icons.history,
+              size: 48,
+              color: AppColors.neutral400,
+            ),
+            const SizedBox(height: AppSpacing.sm),
             Text(
-              'Recent Activity',
-              style: AppTextStyles.heading4.copyWith(
-                color: AppColors.neutral900,
-                fontWeight: FontWeight.w700,
+              'No recent transactions',
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.neutral600,
               ),
             ),
-            TextButton(
-              onPressed: () => context.push('/transactions'),
-              child: Text(
-                'See All',
-                style: AppTextStyles.labelMedium.copyWith(
-                  color: AppColors.primary500,
-                  fontWeight: FontWeight.w600,
-                ),
+            Text(
+              'Your transaction history will appear here',
+              style: AppTextStyles.bodySmall.copyWith(
+                color: AppColors.neutral500,
               ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
-        const SizedBox(height: AppSpacing.md),
-        
-        if (recentTransactions.isEmpty)
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(AppSpacing.responsiveCardPadding(context)),
-            decoration: BoxDecoration(
-              color: AppColors.neutral0,
-              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-              border: Border.all(color: AppColors.neutral200),
-            ),
-            child: Column(
+      );
+    }
+
+    return Column(
+      children: recentTransactions.map((transaction) {
+        return Container(
+          margin: const EdgeInsets.only(bottom: AppSpacing.md),
+          child: GestureDetector(
+            onTap: () => _handleRecentActivityTap(transaction),
+            child: Row(
               children: [
-                Icon(
-                  Icons.history,
-                  size: 48,
-                  color: AppColors.neutral400,
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  'No recent transactions',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.neutral600,
+                // Avatar or Icon
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: _getTransactionColor(transaction.type).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                  ),
+                  child: Center(
+                    child: transaction.recipient == 'Omid Farokhi'
+                        ? CircleAvatar(
+                            radius: 20,
+                            backgroundImage: NetworkImage(
+                              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face'
+                            ),
+                          )
+                        : Text(
+                            _getTransactionEmoji(transaction.type),
+                            style: const TextStyle(fontSize: 20),
+                          ),
                   ),
                 ),
-                Text(
-                  'Your transaction history will appear here',
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.neutral500,
+                
+                const SizedBox(width: AppSpacing.md),
+                
+                // Transaction Details
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        transaction.recipient,
+                        style: AppTextStyles.labelMedium.copyWith(
+                          color: AppColors.neutral900,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        _formatDate(transaction.timestamp),
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.neutral400,
+                        ),
+                      ),
+                    ],
                   ),
-                  textAlign: TextAlign.center,
+                ),
+                
+                // Amount
+                Text(
+                  '${transaction.type == TransactionType.transfer ? '- ' : '+ '}\$${transaction.amount.toStringAsFixed(2)}',
+                  style: AppTextStyles.labelLarge.copyWith(
+                    color: transaction.type == TransactionType.transfer 
+                        ? AppColors.error500 
+                        : AppColors.success500,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
-          )
-        else
-          ...recentTransactions.map((transaction) {
-            return Container(
-              margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-              child: GestureDetector(
-                onTap: () => _handleRecentActivityTap(transaction),
-                child: Container(
-                  padding: EdgeInsets.all(AppSpacing.responsiveCardPadding(context)),
-                  decoration: BoxDecoration(
-                    color: AppColors.neutral0,
-                    borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.shadowColor,
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: transaction.statusColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                        ),
-                        child: Center(
-                          child: Text(
-                            _getTransactionIcon(transaction.type),
-                            style: const TextStyle(fontSize: 20),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: AppSpacing.md),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              transaction.typeDisplayName,
-                              style: AppTextStyles.labelMedium.copyWith(
-                                color: AppColors.neutral900,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            Text(
-                              transaction.recipient,
-                              style: AppTextStyles.bodySmall.copyWith(
-                                color: AppColors.neutral600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            transaction.formattedAmount,
-                            style: AppTextStyles.labelMedium.copyWith(
-                              color: AppColors.neutral900,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          Text(
-                            _formatTime(transaction.timestamp),
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: AppColors.neutral500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          }),
-      ],
+          ),
+        );
+      }).toList(),
     );
   }
 
-  String _getTransactionIcon(TransactionType type) {
+  Color _getTransactionColor(TransactionType type) {
+    switch (type) {
+      case TransactionType.transfer:
+        return AppColors.error500;
+      case TransactionType.addMoney:
+        return AppColors.success500;
+      case TransactionType.airtime:
+        return AppColors.accentPurple;
+      case TransactionType.data:
+        return AppColors.accentBlue;
+      default:
+        return AppColors.neutral400;
+    }
+  }
+
+  String _getTransactionEmoji(TransactionType type) {
     switch (type) {
       case TransactionType.airtime:
         return '📱';
@@ -702,7 +702,7 @@ class _HomeScreenState extends State<HomeScreen>
 class QuickAction {
   final String id;
   final String title;
-  final String icon;
+  final IconData icon;
   final Color color;
   final String route;
 

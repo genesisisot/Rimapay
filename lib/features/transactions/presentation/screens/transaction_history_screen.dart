@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/providers/language_provider.dart';
@@ -14,18 +15,28 @@ class TransactionHistoryScreen extends StatefulWidget {
   State<TransactionHistoryScreen> createState() => _TransactionHistoryScreenState();
 }
 
-class _TransactionHistoryScreenState extends State<TransactionHistoryScreen>
-    with TickerProviderStateMixin {
+class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-  
-  String _selectedFilter = 'All';
-  final List<String> _filterOptions = ['All', 'Success', 'Pending', 'Failed'];
+
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  bool _showFilter = false;
+  String _selectedFilter = 'all';
+
+  final List<FilterOption> _filterOptions = [
+    FilterOption(id: 'all', label: 'All Transactions', count: 8),
+    FilterOption(id: 'income', label: 'Income', count: 1),
+    FilterOption(id: 'expense', label: 'Expenses', count: 7),
+    FilterOption(id: 'today', label: 'Today', count: 3),
+    FilterOption(id: 'yesterday', label: 'Yesterday', count: 5),
+  ];
 
   @override
   void initState() {
     super.initState();
     _initializeAnimations();
+    _searchController.addListener(_onSearchChanged);
   }
 
   void _initializeAnimations() {
@@ -45,21 +56,48 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen>
     _animationController.forward();
   }
 
+  void _onSearchChanged() {
+    setState(() {
+      _searchQuery = _searchController.text.toLowerCase();
+    });
+  }
+
   @override
   void dispose() {
     _animationController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
   List<Transaction> _getFilteredTransactions(List<Transaction> transactions) {
-    if (_selectedFilter == 'All') return transactions;
-    
-    final filterStatus = TransactionStatus.values.firstWhere(
-      (status) => status.name.toLowerCase() == _selectedFilter.toLowerCase(),
-      orElse: () => TransactionStatus.success,
-    );
-    
-    return transactions.where((tx) => tx.status == filterStatus).toList();
+    List<Transaction> filtered = transactions;
+
+    // Apply search filter
+    if (_searchQuery.isNotEmpty) {
+      filtered = filtered
+          .where((tx) => tx.typeDisplayName.toLowerCase().contains(_searchQuery) || tx.recipient.toLowerCase().contains(_searchQuery) || tx.description!.toLowerCase().contains(_searchQuery))
+          .toList();
+    }
+
+    // Apply category filter
+    switch (_selectedFilter) {
+      case 'income':
+        filtered = filtered.where((tx) => tx.type == TransactionType.addMoney).toList();
+        break;
+      case 'expense':
+        filtered = filtered.where((tx) => tx.type != TransactionType.addMoney).toList();
+        break;
+      case 'today':
+        final today = DateTime.now();
+        filtered = filtered.where((tx) => tx.timestamp.year == today.year && tx.timestamp.month == today.month && tx.timestamp.day == today.day).toList();
+        break;
+      case 'yesterday':
+        final yesterday = DateTime.now().subtract(const Duration(days: 1));
+        filtered = filtered.where((tx) => tx.timestamp.year == yesterday.year && tx.timestamp.month == yesterday.month && tx.timestamp.day == yesterday.day).toList();
+        break;
+    }
+
+    return filtered;
   }
 
   void _handleTransactionTap(Transaction transaction) {
@@ -70,17 +108,11 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen>
       'recipient': transaction.recipient,
       'date': _formatDate(transaction.timestamp),
       'time': _formatTime(transaction.timestamp),
-      'status': transaction.status.name,
-      'reference': transaction.reference,
-      'network': transaction.network,
-      'plan': transaction.plan,
-      'provider': transaction.provider,
-      'accountNumber': transaction.accountNumber,
-      'bank': transaction.bank,
-      'description': transaction.description,
-      'fee': transaction.formattedFee,
+      'status': 'success',
+      'reference': transaction.reference ?? 'RMP${DateTime.now().millisecondsSinceEpoch}',
+      'description': '${transaction.typeDisplayName} payment',
     };
-    
+
     context.push('/receipt', extra: receiptData);
   }
 
@@ -89,25 +121,20 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen>
   }
 
   String _formatTime(DateTime dateTime) {
-    final hour = dateTime.hour > 12 ? dateTime.hour - 12 : dateTime.hour;
+    final hour = dateTime.hour > 12 ? dateTime.hour - 12 : (dateTime.hour == 0 ? 12 : dateTime.hour);
     final minute = dateTime.minute.toString().padLeft(2, '0');
     final period = dateTime.hour >= 12 ? 'PM' : 'AM';
-    return '$hour:$minute $period';
+    return '$hour:$minute';
   }
 
-  String _getRelativeTime(DateTime dateTime) {
-    final now = DateTime.now();
-    final difference = now.difference(dateTime);
-    
-    if (difference.inMinutes < 60) {
-      return '${difference.inMinutes}m ago';
-    } else if (difference.inHours < 24) {
-      return '${difference.inHours}h ago';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays}d ago';
-    } else {
-      return _formatDate(dateTime);
-    }
+  double _calculateDayTotal(List<Transaction> transactions) {
+    return transactions.fold(0.0, (total, tx) {
+      return tx.type == TransactionType.addMoney ? total - tx.amount : total + tx.amount;
+    });
+  }
+
+  String _formatCurrency(double amount) {
+    return '₦${amount.toStringAsFixed(2)}';
   }
 
   @override
@@ -117,69 +144,399 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen>
 
     return Scaffold(
       backgroundColor: AppColors.neutral50,
-      appBar: AppBar(
-        backgroundColor: AppColors.neutral0,
-        elevation: 0,
-        leading: IconButton(
-          onPressed: () => context.pop(),
-          icon: const Icon(Icons.arrow_back_ios),
-          color: AppColors.neutral600,
-        ),
-        title: Text(
-          languageProvider.t('transactions'),
-          style: AppTextStyles.heading3.copyWith(
-            color: AppColors.neutral900,
+      body: Stack(
+        children: [
+          FadeTransition(
+            opacity: _fadeAnimation,
+            child: Column(
+              children: [
+                // Header
+                _buildHeader(),
+
+                // Content
+                Expanded(
+                  child: Consumer<TransactionProvider>(
+                    builder: (context, provider, child) {
+                      final filteredTransactions = _getFilteredTransactions(provider.transactions);
+
+                      if (filteredTransactions.isEmpty && _searchQuery.isNotEmpty) {
+                        return _buildNoResultsState();
+                      }
+
+                      if (filteredTransactions.isEmpty) {
+                        return _buildEmptyState();
+                      }
+
+                      return _buildTransactionsList(filteredTransactions);
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            onPressed: () {
-              // TODO: Show filter options
-            },
-            icon: const Icon(Icons.filter_list),
-            color: AppColors.neutral600,
-          ),
+
+          // Filter Modal
+          if (_showFilter) _buildFilterModal(),
         ],
       ),
-      body: FadeTransition(
-        opacity: _fadeAnimation,
+    );
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      color: AppColors.neutral0,
+      child: SafeArea(
+        bottom: false,
         child: Column(
           children: [
-            // Spending Summary
-            _buildSpendingSummary(transactionProvider),
-            
-            // Filter tabs
-            _buildFilterTabs(),
-            
-            // Transaction list
-            Expanded(
-              child: Consumer<TransactionProvider>(
-                builder: (context, provider, child) {
-                  final filteredTransactions = _getFilteredTransactions(provider.transactions);
-                  
-                  if (filteredTransactions.isEmpty) {
-                    return _buildEmptyState();
-                  }
-                  
-                  return ListView.builder(
-                    padding: EdgeInsets.all(AppSpacing.responsivePadding(context)),
-                    itemCount: filteredTransactions.length,
-                    itemBuilder: (context, index) {
-                      final transaction = filteredTransactions[index];
-                      final showDateHeader = index == 0 || 
-                        _shouldShowDateHeader(transaction, filteredTransactions[index - 1]);
-                      
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (showDateHeader) _buildDateHeader(transaction.timestamp),
-                          _buildTransactionItem(transaction),
-                        ],
-                      );
+            // Top bar with back button and title
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.md,
+                vertical: AppSpacing.sm,
+              ),
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => context.pop(),
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: AppColors.neutral100,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Center(
+                        child: Icon(
+                          Icons.arrow_back_ios_new,
+                          size: 16,
+                          color: AppColors.neutral700,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  // Logo placeholder - you can replace with actual logo
+                  Image.asset(
+                    "assets/images/AppIcon.png",
+                    height: 24,
+                    width: 24,
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Text(
+                    'Activity',
+                    style: AppTextStyles.heading4.copyWith(
+                      color: AppColors.neutral900,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Search and Filter
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.neutral200),
+                      ),
+                      child: TextField(
+                        controller: _searchController,
+                        style: AppTextStyles.bodyMedium,
+                        decoration: InputDecoration(
+                          hintText: 'Search transactions',
+                          hintStyle: AppTextStyles.bodyMedium.copyWith(
+                            color: AppColors.neutral400,
+                          ),
+                          prefixIcon: Icon(
+                            Icons.search,
+                            color: AppColors.neutral400,
+                            size: 20,
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.md,
+                            vertical: AppSpacing.sm,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  GestureDetector(
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      setState(() {
+                        _showFilter = true;
+                      });
                     },
-                  );
-                },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.md,
+                        vertical: AppSpacing.sm + 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.success500,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.filter_list,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                          const SizedBox(width: AppSpacing.xs),
+                          Text(
+                            'Filter',
+                            style: AppTextStyles.labelSmall.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Column Headers
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'TRANSACTIONS',
+                      style: AppTextStyles.labelSmall.copyWith(
+                        color: AppColors.success500,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 64,
+                    child: Text(
+                      'TIME',
+                      textAlign: TextAlign.center,
+                      style: AppTextStyles.labelSmall.copyWith(
+                        color: AppColors.neutral500,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 80,
+                    child: Text(
+                      'AMOUNT',
+                      textAlign: TextAlign.right,
+                      style: AppTextStyles.labelSmall.copyWith(
+                        color: AppColors.neutral500,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTransactionsList(List<Transaction> transactions) {
+    // Group transactions by date
+    final groupedTransactions = <String, List<Transaction>>{};
+
+    for (final transaction in transactions) {
+      final date = DateTime(
+        transaction.timestamp.year,
+        transaction.timestamp.month,
+        transaction.timestamp.day,
+      );
+
+      final today = DateTime.now();
+      final todayDate = DateTime(today.year, today.month, today.day);
+      final yesterday = todayDate.subtract(const Duration(days: 1));
+
+      String dateKey;
+      if (date == todayDate) {
+        dateKey = 'TODAY';
+      } else if (date == yesterday) {
+        dateKey = 'YESTERDAY';
+      } else {
+        dateKey = _formatDate(transaction.timestamp).toUpperCase();
+      }
+
+      groupedTransactions.putIfAbsent(dateKey, () => []).add(transaction);
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      itemCount: groupedTransactions.length,
+      itemBuilder: (context, index) {
+        final dateKey = groupedTransactions.keys.elementAt(index);
+        final dayTransactions = groupedTransactions[dateKey]!;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Date header
+            if (index > 0) const SizedBox(height: AppSpacing.lg),
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+              child: Text(
+                dateKey,
+                style: AppTextStyles.labelSmall.copyWith(
+                  color: AppColors.neutral400,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
+
+            // Transactions for this date
+            ...dayTransactions.asMap().entries.map((entry) {
+              final txIndex = entry.key;
+              final transaction = entry.value;
+
+              return AnimatedContainer(
+                duration: Duration(milliseconds: 200 + (txIndex * 50)),
+                curve: Curves.easeOut,
+                margin: const EdgeInsets.only(bottom: AppSpacing.xs),
+                child: _buildTransactionItem(transaction),
+              );
+            }),
+
+            // Day total
+            if (dateKey == 'TODAY' || dateKey == 'YESTERDAY')
+              Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.sm),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      'Total ',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.neutral500,
+                      ),
+                    ),
+                    Text(
+                      _formatCurrency(_calculateDayTotal(dayTransactions)),
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.neutral900,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildTransactionItem(Transaction transaction) {
+    return GestureDetector(
+      onTap: () => _handleTransactionTap(transaction),
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.sm + 2),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.neutral100),
+        ),
+        child: Row(
+          children: [
+            // Icon
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: _getTransactionBgColor(transaction.type),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Center(
+                child: Text(
+                  _getTransactionIcon(transaction.type),
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
+
+            const SizedBox(width: AppSpacing.sm),
+
+            // Transaction details
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    transaction.typeDisplayName,
+                    style: AppTextStyles.labelMedium.copyWith(
+                      color: AppColors.neutral900,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    transaction.recipient,
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.neutral500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Time
+            SizedBox(
+              width: 64,
+              child: Text(
+                _formatTime(transaction.timestamp),
+                textAlign: TextAlign.center,
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.neutral500,
+                ),
+              ),
+            ),
+
+            // Amount
+            SizedBox(
+              width: 80,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    '${transaction.type == TransactionType.addMoney ? '+' : ''}₦${transaction.amount.toStringAsFixed(2)}',
+                    style: AppTextStyles.labelMedium.copyWith(
+                      color: transaction.type == TransactionType.addMoney ? AppColors.success500 : AppColors.neutral900,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  if (transaction.plan != null)
+                    Text(
+                      transaction.plan ?? "",
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.neutral400,
+                        fontSize: 10,
+                      ),
+                    ),
+                ],
               ),
             ),
           ],
@@ -188,131 +545,42 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen>
     );
   }
 
-  Widget _buildSpendingSummary(TransactionProvider provider) {
-    return Container(
-      margin: EdgeInsets.all(AppSpacing.responsivePadding(context)),
-      padding: EdgeInsets.all(AppSpacing.responsiveCardPadding(context)),
-      decoration: BoxDecoration(
-        gradient: AppColors.primaryGradient,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary500.withOpacity(0.2),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+  Widget _buildNoResultsState() {
+    return Center(
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildSummaryItem(
-                'Today',
-                '₦${provider.totalSpentToday.toStringAsFixed(2)}',
-                Icons.today,
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: AppColors.neutral100,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Center(
+              child: Icon(
+                Icons.search,
+                size: 24,
+                color: AppColors.neutral400,
               ),
-              Container(
-                width: 1,
-                height: 40,
-                color: Colors.white.withOpacity(0.3),
-              ),
-              _buildSummaryItem(
-                'This Month',
-                '₦${provider.totalSpentThisMonth.toStringAsFixed(2)}',
-                Icons.calendar_month,
-              ),
-            ],
+            ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSummaryItem(String label, String amount, IconData icon) {
-    return Expanded(
-      child: Column(
-        children: [
-          Icon(
-            icon,
-            color: Colors.white.withOpacity(0.9),
-            size: 20,
-          ),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: AppSpacing.md),
           Text(
-            label,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: Colors.white.withOpacity(0.9),
+            'No transactions found',
+            style: AppTextStyles.heading4.copyWith(
+              color: AppColors.neutral900,
+              fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            amount,
-            style: AppTextStyles.labelLarge.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w700,
+            'Try searching with different keywords',
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.neutral500,
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildFilterTabs() {
-    return Container(
-      height: 50,
-      margin: EdgeInsets.symmetric(
-        horizontal: AppSpacing.responsivePadding(context),
-      ),
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: _filterOptions.length,
-        itemBuilder: (context, index) {
-          final option = _filterOptions[index];
-          final isSelected = _selectedFilter == option;
-          
-          return GestureDetector(
-            onTap: () {
-              setState(() {
-                _selectedFilter = option;
-              });
-            },
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              margin: const EdgeInsets.only(right: AppSpacing.sm),
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.lg,
-                vertical: AppSpacing.sm,
-              ),
-              decoration: BoxDecoration(
-                color: isSelected ? AppColors.primary500 : AppColors.neutral0,
-                borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
-                border: Border.all(
-                  color: isSelected ? AppColors.primary500 : AppColors.neutral200,
-                ),
-                boxShadow: isSelected
-                  ? [
-                      BoxShadow(
-                        color: AppColors.primary500.withOpacity(0.2),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ]
-                  : null,
-              ),
-              child: Center(
-                child: Text(
-                  option,
-                  style: AppTextStyles.labelMedium.copyWith(
-                    color: isSelected ? Colors.white : AppColors.neutral600,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
       ),
     );
   }
@@ -357,156 +625,164 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen>
     );
   }
 
-  bool _shouldShowDateHeader(Transaction current, Transaction previous) {
-    final currentDate = DateTime(
-      current.timestamp.year,
-      current.timestamp.month,
-      current.timestamp.day,
-    );
-    final previousDate = DateTime(
-      previous.timestamp.year,
-      previous.timestamp.month,
-      previous.timestamp.day,
-    );
-    
-    return currentDate != previousDate;
-  }
-
-  Widget _buildDateHeader(DateTime date) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final yesterday = today.subtract(const Duration(days: 1));
-    final dateOnly = DateTime(date.year, date.month, date.day);
-    
-    String dateText;
-    if (dateOnly == today) {
-      dateText = 'Today';
-    } else if (dateOnly == yesterday) {
-      dateText = 'Yesterday';
-    } else {
-      dateText = _formatDate(date);
-    }
-    
-    return Padding(
-      padding: const EdgeInsets.only(
-        top: AppSpacing.lg,
-        bottom: AppSpacing.md,
-      ),
-      child: Text(
-        dateText,
-        style: AppTextStyles.labelMedium.copyWith(
-          color: AppColors.neutral600,
-          fontWeight: FontWeight.w600,
+  Widget _buildFilterModal() {
+    return Stack(
+      children: [
+        // Backdrop
+        GestureDetector(
+          onTap: () => setState(() => _showFilter = false),
+          child: Container(
+            color: Colors.black.withOpacity(0.5),
+          ),
         ),
-      ),
-    );
-  }
 
-  Widget _buildTransactionItem(Transaction transaction) {
-    return GestureDetector(
-      onTap: () => _handleTransactionTap(transaction),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-        padding: EdgeInsets.all(AppSpacing.responsiveCardPadding(context)),
-        decoration: BoxDecoration(
-          color: AppColors.neutral0,
-          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.shadowColor,
-              blurRadius: 4,
-              offset: const Offset(0, 2),
+        // Modal
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
             ),
-          ],
-        ),
-        child: Row(
-          children: [
-            // Transaction icon
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: transaction.statusColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-              ),
-              child: Center(
-                child: Text(
-                  _getTransactionIcon(transaction.type),
-                  style: const TextStyle(fontSize: 20),
-                ),
-              ),
-            ),
-            
-            const SizedBox(width: AppSpacing.md),
-            
-            // Transaction details
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          transaction.typeDisplayName,
-                          style: AppTextStyles.labelMedium.copyWith(
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Header
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Filter Transactions',
+                          style: AppTextStyles.heading4.copyWith(
                             color: AppColors.neutral900,
                             fontWeight: FontWeight.w600,
                           ),
-                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                      Text(
-                        transaction.formattedAmount,
-                        style: AppTextStyles.labelMedium.copyWith(
-                          color: AppColors.neutral900,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.xs),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          transaction.recipient,
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.neutral600,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Container(
-                            width: 8,
-                            height: 8,
+                        GestureDetector(
+                          onTap: () => setState(() => _showFilter = false),
+                          child: Container(
+                            width: 32,
+                            height: 32,
                             decoration: BoxDecoration(
-                              color: transaction.statusColor,
-                              shape: BoxShape.circle,
+                              color: AppColors.neutral100,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Center(
+                              child: Icon(
+                                Icons.close,
+                                size: 16,
+                                color: AppColors.neutral600,
+                              ),
                             ),
                           ),
-                          const SizedBox(width: AppSpacing.xs),
-                          Text(
-                            _getRelativeTime(transaction.timestamp),
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: AppColors.neutral500,
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: AppSpacing.lg),
+
+                    // Filter options
+                    Column(
+                      children: _filterOptions.map((option) {
+                        final isSelected = _selectedFilter == option.id;
+
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _selectedFilter = option.id;
+                              _showFilter = false;
+                            });
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+                            padding: const EdgeInsets.all(AppSpacing.md),
+                            decoration: BoxDecoration(
+                              color: AppColors.neutral50,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 20,
+                                  height: 20,
+                                  decoration: BoxDecoration(
+                                    color: isSelected ? AppColors.success500 : Colors.transparent,
+                                    border: Border.all(
+                                      color: isSelected ? AppColors.success500 : AppColors.neutral300,
+                                      width: 2,
+                                    ),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: isSelected
+                                      ? const Icon(
+                                          Icons.check,
+                                          size: 12,
+                                          color: Colors.white,
+                                        )
+                                      : null,
+                                ),
+                                const SizedBox(width: AppSpacing.md),
+                                Expanded(
+                                  child: Text(
+                                    option.label,
+                                    style: AppTextStyles.labelMedium.copyWith(
+                                      color: AppColors.neutral900,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: AppSpacing.sm,
+                                    vertical: AppSpacing.xs,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.neutral200,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    '${option.count}',
+                                    style: AppTextStyles.bodySmall.copyWith(
+                                      color: AppColors.neutral500,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
+  }
+
+  Color _getTransactionBgColor(TransactionType type) {
+    switch (type) {
+      case TransactionType.airtime:
+      case TransactionType.data:
+        return const Color(0xFFFFEBEE);
+      case TransactionType.electricity:
+        return const Color(0xFFFFF3E0);
+      case TransactionType.transfer:
+        return const Color(0xFFE3F2FD);
+      case TransactionType.addMoney:
+        return const Color(0xFFE8F5E8);
+      default:
+        return const Color(0xFFF5F5F5);
+    }
   }
 
   String _getTransactionIcon(TransactionType type) {
@@ -535,4 +811,16 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen>
         return '🏛️';
     }
   }
+}
+
+class FilterOption {
+  final String id;
+  final String label;
+  final int count;
+
+  FilterOption({
+    required this.id,
+    required this.label,
+    required this.count,
+  });
 }
