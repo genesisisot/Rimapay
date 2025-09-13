@@ -587,28 +587,28 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                 
                 const SizedBox(height: 12),
                 
-                // Repeat Transaction Button
-                Container(
-                  width: double.infinity,
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: ElevatedButton.icon(
-                    onPressed: _onRepeatTransaction,
-                    icon: const Icon(Icons.refresh, size: 16),
-                    label: const Text('Repeat Transaction'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFEFF6FF), // blue-50
-                      foregroundColor: const Color(0xFF1D4ED8), // blue-700
-                      elevation: 0,
-                      side: const BorderSide(color: Color(0xFFBFDBFE)), // blue-200
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                  ),
-                ),
+                // // Repeat Transaction Button
+                // Container(
+                //   width: double.infinity,
+                //   margin: const EdgeInsets.only(bottom: 12),
+                //   child: ElevatedButton.icon(
+                //     onPressed: _onRepeatTransaction,
+                //     icon: const Icon(Icons.refresh, size: 16),
+                //     label: const Text('Repeat Transaction'),
+                //     style: ElevatedButton.styleFrom(
+                //       backgroundColor: const Color(0xFFEFF6FF), // blue-50
+                //       foregroundColor: const Color(0xFF1D4ED8), // blue-700
+                //       elevation: 0,
+                //       side: const BorderSide(color: Color(0xFFBFDBFE)), // blue-200
+                //       shape: RoundedRectangleBorder(
+                //         borderRadius: BorderRadius.circular(12),
+                //       ),
+                //       padding: const EdgeInsets.symmetric(vertical: 16),
+                //     ),
+                //   ),
+                // ),
                 
-                // Back to Home Button
+                // // Back to Home Button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(

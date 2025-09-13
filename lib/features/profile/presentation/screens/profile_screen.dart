@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:rimapay/core/router/app_router.dart';
 import '../../../../core/providers/app_state_provider.dart';
 import '../../../../core/providers/auth_provider.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -207,6 +209,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
     return SliverAppBar(
       backgroundColor: Colors.white,
       elevation: 0,
+      scrolledUnderElevation: 0,
       pinned: true,
       leading: Container(
         margin: const EdgeInsets.all(8),
@@ -388,10 +391,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
-            // Navigate to tiers page
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Account tiers feature coming soon')),
-            );
+            context.pushNamed("tiers");
           },
           borderRadius: BorderRadius.circular(16),
           child: Padding(

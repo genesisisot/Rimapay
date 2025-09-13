@@ -368,23 +368,23 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
       _processingController.stop();
       final language = ref.read(languageTranslationsProvider);
 
-      context.push('/transaction-success', extra: {
-        'type': 'Data Purchase',
-        'amount': _selectedPlan!.price,
-        'recipient': '${_selectedNetwork?.name} - ${_formatPhoneNumber(_phoneController.text)}',
-        'network': _selectedNetwork?.name,
-        'plan': _selectedPlan!.name,
-      });
-      final transactionProvider = ref.read(transactionProviders.notifier);
-      final transactionId = await transactionProvider.processTransaction(
-        type: TransactionType.data,
-        amount: double.parse(
-          _selectedPlan!.price.toString() ?? "4000",
-        ),
-        recipient: '${_selectedNetwork?.name} - ${_formatPhoneNumber(_phoneController.text)}',
-        description: _phoneController.text,
-        network: _selectedNetwork!.name,
-      );
+      // context.push('/transaction-success', extra: {
+      //   'type': 'Data Purchase',
+      //   'amount': _selectedPlan!.price,
+      //   'recipient': '${_selectedNetwork?.name} - ${_formatPhoneNumber(_phoneController.text)}',
+      //   'network': _selectedNetwork?.name,
+      //   'plan': _selectedPlan!.name,
+      // });
+      // final transactionProvider = ref.read(transactionProviders.notifier);
+      // final transactionId = await transactionProvider.processTransaction(
+      //   type: TransactionType.data,
+      //   amount: double.parse(
+      //     _selectedPlan!.price.toString() ?? "4000",
+      //   ),
+      //   recipient: '${_selectedNetwork?.name} - ${_formatPhoneNumber(_phoneController.text)}',
+      //   description: _phoneController.text,
+      //   network: _selectedNetwork!.name,
+      // );
 
       if (mounted) {
         HapticFeedback.lightImpact();

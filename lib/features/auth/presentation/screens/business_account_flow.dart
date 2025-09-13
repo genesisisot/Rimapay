@@ -26,7 +26,7 @@ enum BusinessAccountStep {
   // llcDocuments,
   ownerVerification,
   // directorsInfo,
- llcOwnerVerification,
+  llcOwnerVerification,
   // verificationLoading,
   setPin,
 }
@@ -327,7 +327,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
         BusinessAccountStep.businessTypeSelection,
         BusinessAccountStep.bnInfo,
         BusinessAccountStep.otpVerification,
-      //  BusinessAccountStep.bnDocuments,
+        //  BusinessAccountStep.bnDocuments,
         BusinessAccountStep.ownerVerification,
         //BusinessAccountStep.verificationLoading,
         BusinessAccountStep.setPin,
@@ -338,10 +338,10 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
         BusinessAccountStep.businessTypeSelection,
         BusinessAccountStep.llcInfo,
         BusinessAccountStep.otpVerification,
-       // BusinessAccountStep.llcDocuments,
-       // BusinessAccountStep.directorsInfo,
+        // BusinessAccountStep.llcDocuments,
+        // BusinessAccountStep.directorsInfo,
         BusinessAccountStep.llcOwnerVerification,
-       // BusinessAccountStep.verificationLoading,
+        // BusinessAccountStep.verificationLoading,
         BusinessAccountStep.setPin,
       ];
       return llcSteps.indexOf(_currentStep) + 1;
@@ -375,18 +375,19 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
     });
   }
 
-void _handleBusinessLCCInfoSubmit() {
-  if (_businessInfo.businessName.trim().isEmpty ||
-      _businessInfo.phoneNumber.trim().isEmpty ||
-      _businessInfo.emailAddress.trim().isEmpty ||
-      (!_businessInfo.tinApplicable && _businessInfo.tin.trim().isEmpty) ||
-      _businessInfo.cacNumber.trim().isEmpty) {
-    return;
+  void _handleBusinessLCCInfoSubmit() {
+    if (_businessInfo.businessName.trim().isEmpty ||
+        _businessInfo.phoneNumber.trim().isEmpty ||
+        _businessInfo.emailAddress.trim().isEmpty ||
+        (!_businessInfo.tinApplicable && _businessInfo.tin.trim().isEmpty) ||
+        _businessInfo.cacNumber.trim().isEmpty) {
+      return;
+    }
+    setState(() {
+      _currentStep = BusinessAccountStep.otpVerification;
+    });
   }
-  setState(() {
-    _currentStep = BusinessAccountStep.otpVerification;
-  });
-}
+
   void _handleOtpSubmit() {
     setState(() {
       _isLoading = true;
@@ -395,7 +396,7 @@ void _handleBusinessLCCInfoSubmit() {
     Future.delayed(const Duration(seconds: 2), () {
       setState(() {
         _isLoading = false;
-        _currentStep = _businessInfo.businessType == BusinessType.bn?BusinessAccountStep.ownerVerification:BusinessAccountStep.llcOwnerVerification;
+        _currentStep = _businessInfo.businessType == BusinessType.bn ? BusinessAccountStep.ownerVerification : BusinessAccountStep.llcOwnerVerification;
         //_businessInfo.businessType == BusinessType.bn ;
         //? BusinessAccountStep.bnDocuments : BusinessAccountStep.llcDocuments;
       });
@@ -411,7 +412,7 @@ void _handleBusinessLCCInfoSubmit() {
   void _handleVerificationComplete() {
     setState(() {
       // _currentStep = BusinessAccountStep.verificationLoading;
-       _currentStep = BusinessAccountStep.setPin;
+      _currentStep = BusinessAccountStep.setPin;
       _verificationProgress = 0;
     });
 
@@ -435,10 +436,7 @@ void _handleBusinessLCCInfoSubmit() {
       return;
     }
 
-    // widget.onSuccess({
-    //   'businessInfo': _businessInfo,
-    //   'password': _password,
-    // });
+    context.go("/business");
   }
 
   Future<Position?> getCurrentLocation() async {

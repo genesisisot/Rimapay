@@ -107,7 +107,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     // Navigate to welcome screen
     await Future.delayed(const Duration(milliseconds: 2500));
     if (mounted) {
-      context.go('/home');
+      context.go('/welcome');
     }
   }
 

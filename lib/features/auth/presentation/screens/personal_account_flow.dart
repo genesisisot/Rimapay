@@ -198,9 +198,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
       return;
     }
 
-    setState(() {
-      _currentStep = AccountStep.success;
-    });
+    context.go("/home");
   }
 
   // Location related methods
@@ -1077,7 +1075,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
     }
 
     return SingleChildScrollView(
-         padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       physics: BouncingScrollPhysics(),
       child: Column(
         children: [
@@ -1264,7 +1262,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 20),
-    
+
           // // Required for Tier 1 Info
           Container(
             padding: const EdgeInsets.all(12),
@@ -1309,7 +1307,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
             ),
           ),
           const SizedBox(height: 20),
-    
+
           // // Camera Guidelines
           Container(
             padding: const EdgeInsets.all(12),
@@ -1328,7 +1326,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
             ),
           ),
           const SizedBox(height: 20),
-    
+
           // // Camera Interface
           Container(
             padding: const EdgeInsets.all(16),
@@ -1435,8 +1433,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(6),
                             child: AspectRatio(
-                                aspectRatio: _cameraController!.value.aspectRatio,
-                                child: CameraPreview(_cameraController!),
+                              aspectRatio: _cameraController!.value.aspectRatio,
+                              child: CameraPreview(_cameraController!),
                             ),
                           )
                         : const Center(
@@ -1447,7 +1445,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                   ),
                   const SizedBox(height: 12),
                   Column(
-               spacing: 5,
+                    spacing: 5,
                     children: [
                       ElevatedButton(
                         onPressed: () {
@@ -1494,7 +1492,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(6),
                       child: Image.file(
-                        File(_capturedImage??""),
+                        File(_capturedImage ?? ""),
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
                           return const Center(
@@ -1510,7 +1508,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                   ),
                   const SizedBox(height: 12),
                   Column(
-                   spacing: 10,
+                    spacing: 10,
                     children: [
                       ElevatedButton(
                         onPressed: _retakePhoto,
@@ -1539,12 +1537,12 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                       ),
                     ],
                   ),
-               ],
+                ],
               ],
             ),
           ),
           const SizedBox(height: 16),
-    
+
           const Text(
             '🔒 Your image is encrypted and securely stored for identity verification purposes only',
             style: TextStyle(

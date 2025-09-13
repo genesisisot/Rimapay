@@ -64,7 +64,7 @@ class RimaPayApp extends ConsumerWidget {
 
         // Theme
         theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
+        darkTheme: AppTheme.lightTheme,
 
         // Routing
         routerConfig: AppRouter.router,

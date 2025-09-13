@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:rimapay/features/BusinessScreens/BusinessHome.dart';
+import 'package:rimapay/features/NotificationScreen.dart';
 import 'package:rimapay/features/Tiers/AccountTierScreen.dart';
 import 'package:rimapay/features/airtime/presentation/screens/airtime_purchase_screen.dart';
 import 'package:rimapay/features/auth/presentation/screens/business_account_flow.dart';
@@ -93,6 +95,7 @@ class AppRouter {
             name: 'profile',
             builder: (context, state) => const ProfileScreen(),
           ),
+      
         ],
       ),
 
@@ -138,7 +141,11 @@ class AppRouter {
           ),
         ],
       ),
-
+     GoRoute(
+        path: '/business',
+        name: 'business',
+        builder: (context, state) => BusinessHome(),
+      ),
       // Transfer Flow
       GoRoute(
         path: '/transfer',
@@ -173,11 +180,16 @@ class AppRouter {
           final data = state.extra as Map<String, dynamic>?;
           return SuccessScreen(
             props: SuccessScreenProps(),
-
           );
         },
       ),
-
+      GoRoute(
+        path: '/notifications',
+        name: 'notifications',
+        builder: (context, state) {
+          return NotificationScreen();
+        },
+      ),
       // Receipt Screen
       GoRoute(
         path: '/receipt',
@@ -189,7 +201,6 @@ class AppRouter {
           );
         },
       ),
-      
     ],
 
     // Error handling
