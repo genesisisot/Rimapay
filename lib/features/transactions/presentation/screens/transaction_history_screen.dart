@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:rimapay/features/receipt/presentation/screens/receipt_screen.dart';
 import '../../../../core/providers/language_provider.dart';
 import '../../../../core/providers/transaction_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
 
-class TransactionHistoryScreen extends StatefulWidget {
+class TransactionHistoryScreen extends ConsumerStatefulWidget {
   const TransactionHistoryScreen({super.key});
 
   @override
-  State<TransactionHistoryScreen> createState() => _TransactionHistoryScreenState();
+  ConsumerState<TransactionHistoryScreen> createState() => _TransactionHistoryScreenState();
 }
 
-class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> with TickerProviderStateMixin {
+class _TransactionHistoryScreenState extends ConsumerState<TransactionHistoryScreen> with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
@@ -113,7 +115,8 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> wit
       'description': '${transaction.typeDisplayName} payment',
     };
 
-    context.push('/receipt', extra: receiptData);
+    final re = ReceiptData.fromJson(receiptData);
+    context.push('/receipt', extra: re);
   }
 
   String _formatDate(DateTime dateTime) {
@@ -137,11 +140,74 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> wit
     return '₦${amount.toStringAsFixed(2)}';
   }
 
+  final trans = [
+    Transaction(
+      id: 'tx_001',
+      type: TransactionType.airtime,
+      amount: 1000.0,
+      recipient: 'MTN Airtime',
+      description: '08123456789',
+      status: TransactionStatus.success,
+      timestamp: DateTime.now().subtract(const Duration(hours: 2)),
+      network: 'MTN',
+      reference: 'RMP${DateTime.now().millisecondsSinceEpoch}',
+      fee: 10.0,
+    ),
+    Transaction(
+      id: 'tx_002',
+      type: TransactionType.transfer,
+      amount: 25000.0,
+      recipient: 'John Smith',
+      description: 'Payment for services',
+      status: TransactionStatus.success,
+      timestamp: DateTime.now().subtract(const Duration(days: 1)),
+      bank: 'Access Bank',
+      accountNumber: '1234567890',
+      reference: 'RMP${DateTime.now().millisecondsSinceEpoch - 1000}',
+      fee: 25.0,
+    ),
+    Transaction(
+      id: 'tx_003',
+      type: TransactionType.electricity,
+      amount: 5000.0,
+      recipient: 'AEDC Prepaid',
+      description: 'Meter: 12345678901',
+      status: TransactionStatus.success,
+      timestamp: DateTime.now().subtract(const Duration(days: 2)),
+      provider: 'Abuja Electric',
+      reference: 'RMP${DateTime.now().millisecondsSinceEpoch - 2000}',
+      fee: 15.0,
+    ),
+    Transaction(
+      id: 'tx_004',
+      type: TransactionType.data,
+      amount: 2000.0,
+      recipient: 'Glo Data',
+      description: '08098765432',
+      status: TransactionStatus.pending,
+      timestamp: DateTime.now().subtract(const Duration(hours: 5)),
+      network: 'Globacom',
+      plan: '2GB Monthly',
+      reference: 'RMP${DateTime.now().millisecondsSinceEpoch - 3000}',
+      fee: 5.0,
+    ),
+    Transaction(
+      id: 'tx_005',
+      type: TransactionType.cable,
+      amount: 3500.0,
+      recipient: 'DStv Premium',
+      description: 'Smart Card: 1234567890',
+      status: TransactionStatus.success,
+      timestamp: DateTime.now().subtract(const Duration(days: 3)),
+      provider: 'MultiChoice',
+      reference: 'RMP${DateTime.now().millisecondsSinceEpoch - 4000}',
+      fee: 20.0,
+    ),
+  ];
   @override
   Widget build(BuildContext context) {
-    final languageProvider = Provider.of<LanguageProvider>(context);
-    final transactionProvider = Provider.of<TransactionProvider>(context);
-
+    final transactions = ref.watch(recentTransactionsProvider);
+    final filteredTransactions = _getFilteredTransactions(transactions);
     return Scaffold(
       backgroundColor: AppColors.neutral50,
       body: Stack(
@@ -155,21 +221,11 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> wit
 
                 // Content
                 Expanded(
-                  child: Consumer<TransactionProvider>(
-                    builder: (context, provider, child) {
-                      final filteredTransactions = _getFilteredTransactions(provider.transactions);
-
-                      if (filteredTransactions.isEmpty && _searchQuery.isNotEmpty) {
-                        return _buildNoResultsState();
-                      }
-
-                      if (filteredTransactions.isEmpty) {
-                        return _buildEmptyState();
-                      }
-
-                      return _buildTransactionsList(filteredTransactions);
-                    },
-                  ),
+                  child: filteredTransactions.isEmpty && _searchQuery.isNotEmpty
+                      ? _buildNoResultsState()
+                      : filteredTransactions.isEmpty
+                          ? _buildEmptyState()
+                          : _buildTransactionsList(filteredTransactions),
                 ),
               ],
             ),

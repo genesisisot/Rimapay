@@ -16,7 +16,7 @@ class UnderbankingBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
-    final languageProvider = context.watch<LanguageProvider>();
+  
     
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -62,21 +62,21 @@ class UnderbankingBanner extends StatelessWidget {
               ],
             ),
           ),
-          TextButton(
-            onPressed: onUpgrade,
-            style: TextButton.styleFrom(
-              backgroundColor: Colors.white.withOpacity(0.2),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: Text(
-              languageProvider.currentLanguage!="en" ? 'Haɓaka' : 'Upgrade',
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-            ),
-          ),
+          // TextButton(
+          //   onPressed: onUpgrade,
+          //   style: TextButton.styleFrom(
+          //     backgroundColor: Colors.white.withOpacity(0.2),
+          //     foregroundColor: Colors.white,
+          //     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          //     shape: RoundedRectangleBorder(
+          //       borderRadius: BorderRadius.circular(8),
+          //     ),
+          //   ),
+          //   child: Text(
+          //     languageProvider.currentLanguage!="en" ? 'Haɓaka' : 'Upgrade',
+          //     style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+          //   ),
+          // ),
         ],
       ),
     );

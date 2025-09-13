@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/providers/language_provider.dart';
@@ -7,7 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_text_styles.dart';
 
-class MainNavigationScreen extends StatefulWidget {
+class MainNavigationScreen extends ConsumerStatefulWidget {
   final Widget child;
   final bool enableAnimations;
   final Function(String)? onRouteChange;
@@ -20,10 +20,10 @@ class MainNavigationScreen extends StatefulWidget {
   });
 
   @override
-  State<MainNavigationScreen> createState() => _MainNavigationScreenState();
+  ConsumerState<MainNavigationScreen> createState() => _MainNavigationScreenState();
 }
 
-class _MainNavigationScreenState extends State<MainNavigationScreen>
+class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
   late AnimationController _rippleController;
@@ -180,6 +180,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   }
 
   Widget _buildNavigationItem(NavigationItem item, int index, bool isActive) {
+    final language=ref.watch(languageTranslationsProvider);
     return Expanded(
       child: Material(
         color: Colors.transparent,
@@ -252,16 +253,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
                         ? FontWeight.w600 
                         : FontWeight.w500,
                   ),
-                  child: Consumer<LanguageProvider>(
-                    builder: (context, languageProvider, child) {
-                      return Text(
-                        languageProvider.t(item.label.toLowerCase()),
+                  child:
+                       Text(
+                        language(item.label.toLowerCase()),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.center,
-                      );
-                    },
-                  ),
+                      ),
+                  
                 ),
               ],
             ),

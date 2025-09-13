@@ -1,225 +1,93 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rimapay/core/localization/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class LanguageProvider extends ChangeNotifier {
-  Locale _currentLocale = const Locale('en', '');
-  
-  Locale get currentLocale => _currentLocale;
-  String get currentLanguage => _currentLocale.languageCode;
-  
-  void setLanguage(String languageCode) {
-    _currentLocale = Locale(languageCode, '');
-    notifyListeners();
+// The LanguageProvider holds the state (the current Locale) and manages it.
+class LanguageNotifier extends StateNotifier<Locale> {
+  // Initialize the state with a default locale and then load the saved one.
+  LanguageNotifier() : super(const Locale('en', '')) {
+    _loadSavedLanguage();
   }
-  
-  void toggleLanguage() {
-    setLanguage(_currentLocale.languageCode == 'en' ? 'ha' : 'en');
+
+  // Asynchronously loads the language from shared preferences.
+  Future<void> _loadSavedLanguage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedLanguageCode = prefs.getString('language_code');
+    if (savedLanguageCode != null) {
+      // Use English as fallback for unsupported locales
+      if (savedLanguageCode == 'ha') {
+        // For Hausa, we'll use English as the material locale but keep 'ha' for our translations
+        state = const Locale('en', ''); // Use English for Material components
+      } else {
+        state = Locale(savedLanguageCode, '');
+      }
+    }
   }
-  
-  // Translation function
-  String t(String key) {
-    return _translations[_currentLocale.languageCode]?[key] ?? key;
+
+  final _translations = AppLocalizations.localizedValues;
+  // Get the current language code for translations (separate from Material locale)
+  String get currentLanguageCode {
+    final prefs = SharedPreferences.getInstance();
+    return prefs.then((p) => p.getString('language_code') ?? 'en').toString();
   }
-  
-  static const Map<String, Map<String, String>> _translations = {
-    'en': {
-      // Greeting messages
-      'goodMorning': 'Good Morning',
-      'goodAfternoon': 'Good Afternoon',
-      'goodEvening': 'Good Evening',
-      
-      // Balance and account
-      'availableBalance': 'Available Balance',
-      'account': 'Account',
-      'dailyLimit': 'Daily Limit',
-      
-      // Tier related
-      'upgrade': 'Upgrade',
-      'upgradeToUnlock': 'Upgrade to unlock',
-      
-      // Quick actions
-      'sendMoney': 'Send',
-      'sendMoneyDesc': 'Transfer funds',
-      'addMoney': 'Add Money',
-      'addMoneyDesc': 'Fund wallet',
-      'quickActions': 'Quick Actions',
-      
-      // Services
-      'airtime': 'Airtime',
-      'airtimeDesc': 'Buy airtime',
-      'data': 'Data',
-      'dataDesc': 'Buy data',
-      'electricity': 'Electricity',
-      'electricityDesc': 'Pay bills',
-      'loans': 'Loans',
-      'loansDesc': 'Get loans',
-      'cableTV': 'Cable TV',
-      'cableTVDesc': 'Pay for TV',
-      'moreServices': 'More Services',
-      'moreServicesDesc': 'Other services',
-      
-      // Activity
-      'recentActivity': 'Recent Activity',
-      'viewAll': 'View All',
-      
-      // Welcome and onboarding
-      'welcome': 'Welcome to RimaPay',
-      'getStarted': 'Get Started',
-      'createAccount': 'Create Account',
-      'signIn': 'Sign In',
-      'skipForNow': 'Skip for now',
-      
-      // Authentication
-      'firstName': 'First Name',
-      'lastName': 'Last Name',
-      'email': 'Email Address',
-      'phoneNumber': 'Phone Number',
-      'password': 'Password',
-      'confirmPassword': 'Confirm Password',
-      'signUp': 'Sign Up',
-      'login': 'Login',
-      'forgotPassword': 'Forgot Password?',
-      
-      // Navigation
-      'home': 'Home',
-      'transactions': 'Transactions',
-      'cards': 'Cards',
-      'profile': 'Profile',
-      
-      // Common
-      'next': 'Next',
-      'back': 'Back',
-      'cancel': 'Cancel',
-      'confirm': 'Confirm',
-      'done': 'Done',
-      'save': 'Save',
-      'edit': 'Edit',
-      'delete': 'Delete',
-      'search': 'Search',
-      'filter': 'Filter',
-      'sort': 'Sort',
-      
-      // Promotional Carousel
-      'switchToHausa': 'Switch to Hausa',
-      'changeLanguageOneTap': 'Change language with one tap',
-      'upgradeYourAccount': 'Upgrade Your Account',
-      'unlockMoreFeatures': 'Unlock premium features',
-      'upgradeAccountNow': 'Upgrade Now',
-      'getLoansToday': 'Get Loans Today',
-      'quickApprovalProcess': 'Quick approval process',
-      'applyForLoan': 'Apply Now',
-      'sendMoneyFaster': 'Send Money Faster',
-      'instantTransfersToAnyBank': 'Instant transfers to any bank',
-      'startSending': 'Start Sending',
-      
-      // Tier names and benefits
-      'underbankingAccount': 'Underbanking Account',
-      'basicTier': 'Basic Tier',
-      'premiumTier': 'Premium Tier',
-      'eliteTier': 'Elite Tier',
-      
-      // Account types
-      'linkedToCooperative': 'Linked to Cooperative',
-      'fullBankingAccess': 'Full Banking Access',
-    },
-    'ha': {
-      // Greeting messages
-      'goodMorning': 'Barka da safe',
-      'goodAfternoon': 'Barka da rana',
-      'goodEvening': 'Barka da yamma',
-      
-      // Balance and account
-      'availableBalance': 'Kudin da ke akwai',
-      'account': 'Asusu',
-      'dailyLimit': 'Iyakar yau da yau',
-      
-      // Tier related
-      'upgrade': 'Inganta',
-      'upgradeToUnlock': 'Inganta don buɗewa',
-      
-      // Quick actions
-      'sendMoney': 'Aika',
-      'sendMoneyDesc': 'Tura kudi',
-      'addMoney': 'Kara Kudi',
-      'addMoneyDesc': 'Cika kudi',
-      'quickActions': 'Ayyuka masu sauri',
-      
-      // Services
-      'airtime': 'Kredit',
-      'airtimeDesc': 'Sayi kredit',
-      'data': 'Data',
-      'dataDesc': 'Sayi data',
-      'electricity': 'Wutar lantarki',
-      'electricityDesc': 'Biya kudade',
-      'loans': 'Bashi',
-      'loansDesc': 'Karbi bashi',
-      'cableTV': 'Cable TV',
-      'cableTVDesc': 'Biya TV',
-      'moreServices': 'Sauran ayyuka',
-      'moreServicesDesc': 'Wasu ayyuka',
-      
-      // Activity
-      'recentActivity': 'Ayyukan kwanan nan',
-      'viewAll': 'Duba duka',
-      
-      // Welcome and onboarding
-      'welcome': 'Maraba da RimaPay',
-      'getStarted': 'Fara',
-      'createAccount': 'Kirkiro Asusu',
-      'signIn': 'Shiga',
-      'skipForNow': 'Tsallake yanzu',
-      
-      // Authentication
-      'firstName': 'Suna na farko',
-      'lastName': 'Suna na karshe',
-      'email': 'Adireshin Email',
-      'phoneNumber': 'Lambar Waya',
-      'password': 'Kalmar sirri',
-      'confirmPassword': 'Tabbatar da kalmar sirri',
-      'signUp': 'Yi rajista',
-      'login': 'Shiga',
-      'forgotPassword': 'Kun manta da kalmar sirri?',
-      
-      // Navigation
-      'home': 'Gida',
-      'transactions': 'Ma\'amaloli',
-      'cards': 'Katuna',
-      'profile': 'Bayani',
-      
-      // Common
-      'next': 'Na gaba',
-      'back': 'Koma baya',
-      'cancel': 'Soke',
-      'confirm': 'Tabbatar',
-      'done': 'An gama',
-      'save': 'Ajiye',
-      'edit': 'Gyara',
-      'delete': 'Share',
-      'search': 'Bincike',
-      'filter': 'Tace',
-      'sort': 'Jera',
-      
-      // Promotional Carousel
-      'switchToHausa': 'Canza zuwa Turanci',
-      'changeLanguageOneTap': 'Canza harshe da danna daya',
-      'upgradeYourAccount': 'Inganta Asusunka',
-      'unlockMoreFeatures': 'Buɗe ƙarin ayyuka',
-      'upgradeAccountNow': 'Inganta Yanzu',
-      'getLoansToday': 'Samu Bashi Yau',
-      'quickApprovalProcess': 'Saurin amincewa',
-      'applyForLoan': 'Nema Yanzu',
-      'sendMoneyFaster': 'Aika Kudi Da Sauri',
-      'instantTransfersToAnyBank': 'Tura kudi nan take zuwa kowane banki',
-      'startSending': 'Fara Aikawa',
-      
-      // Tier names and benefits
-      'underbankingAccount': 'Asusu na Underbanking',
-      'basicTier': 'Mataki na Asali',
-      'premiumTier': 'Mataki na Premium',
-      'eliteTier': 'Mataki na Elite',
-      
-      // Account types
-      'linkedToCooperative': 'An haɗa da kamfani',
-      'fullBankingAccess': 'Cikakken shiga banki',
-    },
-  };
+
+  // Method to set the language and save it to shared preferences.
+  Future<void> setLanguage(String languageCode) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('language_code', languageCode);
+
+    // For Material components, always use English as fallback
+    // but keep the actual language preference stored
+    state = const Locale('en', '');
+  }
+
+  // Method to toggle between English and Hausa.
+  void toggleLanguage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final currentLang = prefs.getString('language_code') ?? 'en';
+    setLanguage(currentLang == 'en' ? 'ha' : 'en');
+  }
+
+  // A translation function that can be accessed via the provider.
+  Future<String> t(String key) async {
+    final prefs = await SharedPreferences.getInstance();
+    final languageCode = prefs.getString('language_code') ?? 'en';
+    return _translations[languageCode]?[key] ?? key;
+  }
+
+  // Synchronous version for immediate access
+  String tSync(String key) {
+    // This is a simplified version - you might want to cache the language code
+    // For now, we'll default to English if we can't determine the language
+
+    return _translations[state.languageCode]?[key] ?? key;
+  }
 }
+
+// This is the provider that exposes the LanguageNotifier instance.
+final languageProvider = StateNotifierProvider<LanguageNotifier, Locale>((ref) {
+  return LanguageNotifier();
+});
+
+// Fixed toggle provider - should not return a function directly
+final toggleLanguageProvider = Provider<void Function()>((ref) {
+  return () {
+    HapticFeedback.lightImpact();
+    ref.read(languageProvider.notifier).toggleLanguage();
+  };
+});
+
+// Provider for getting current language code
+final currentLanguageProvider = FutureProvider<String>((ref) async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getString('language_code') ?? 'en';
+});
+
+// A separate provider just for the translation function
+final languageTranslationsProvider = Provider<String Function(String)>((ref) {
+  return ref.watch(languageProvider.notifier).tSync;
+});
+
+// The translations map remains

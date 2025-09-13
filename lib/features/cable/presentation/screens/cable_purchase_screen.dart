@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/providers/app_state_provider.dart';
 import '../../../../core/providers/auth_provider.dart';
@@ -6,201 +8,718 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/localization/app_localizations.dart';
 
+class CableProvider {
+  final String id;
+  final String name;
+  final Color color;
+  final Color bgColor;
+  final String icon;
+  final String? logo;
+
+  CableProvider({
+    required this.id,
+    required this.name,
+    required this.color,
+    required this.bgColor,
+    required this.icon,
+    this.logo,
+  });
+}
+
+class CablePackage {
+  final String id;
+  final String name;
+  final String channels;
+  final String validity;
+  final String price;
+  final PackageCategory category;
+  final bool popular;
+
+  CablePackage({
+    required this.id,
+    required this.name,
+    required this.channels,
+    required this.validity,
+    required this.price,
+    required this.category,
+    this.popular = false,
+  });
+}
+
+class RecentPurchase {
+  final String id;
+  final String customerName;
+  final String customerNumber;
+  final String avatar;
+  final String initial;
+  final String lastUsed;
+  final String package;
+  final String provider;
+
+  RecentPurchase({
+    required this.id,
+    required this.customerName,
+    required this.customerNumber,
+    required this.avatar,
+    required this.initial,
+    required this.lastUsed,
+    required this.package,
+    required this.provider,
+  });
+}
+
+enum PackageCategory { basic, premium, sports }
+
+enum CableStep { form, confirm, processing }
+
 class CablePurchaseScreen extends StatefulWidget {
-  const CablePurchaseScreen({super.key});
+  final VoidCallback? onBack;
+  final Function(Map<String, dynamic>)? onSuccess;
+
+  const CablePurchaseScreen({
+    super.key,
+    this.onBack,
+    this.onSuccess,
+  });
 
   @override
   State<CablePurchaseScreen> createState() => _CablePurchaseScreenState();
 }
 
-class _CablePurchaseScreenState extends State<CablePurchaseScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _smartCardController = TextEditingController();
-  
-  String _selectedProvider = '';
-  String _selectedPackage = '';
-  
-  final List<Map<String, dynamic>> _providers = [
-    {
-      'name': 'DSTV',
-      'logo': '📺',
-      'color': Color(0xFFFF6B00),
-      'description': 'Premium satellite TV'
-    },
-    {
-      'name': 'GOTV',
-      'logo': '📻',
-      'color': Color(0xFF00A651),
-      'description': 'Digital terrestrial TV'
-    },
-    {
-      'name': 'StarTimes',
-      'logo': '⭐',
-      'color': Color(0xFFE60012),
-      'description': 'Affordable digital TV'
-    },
-    {
-      'name': 'Showmax',
-      'logo': '🎬',
-      'color': Color(0xFF8B5CF6),
-      'description': 'Online streaming'
-    },
+class _CablePurchaseScreenState extends State<CablePurchaseScreen> with TickerProviderStateMixin {
+  CableStep step = CableStep.form;
+  final TextEditingController customerNumberController = TextEditingController(text: '1234567890');
+  CablePackage? selectedPackage;
+  CableProvider? selectedProvider;
+  PackageCategory selectedCategory = PackageCategory.basic;
+  bool isProcessing = false;
+
+  late AnimationController _animationController;
+  late AnimationController _processingController;
+
+  final List<CableProvider> cableProviders = [
+    CableProvider(
+      id: 'dstv',
+      name: 'DSTV',
+      color: const Color(0xFFFF6B35),
+      bgColor: const Color(0xFFFFF4F2),
+      icon: 'assets/images/Dstv.jpeg',
+    ),
+    CableProvider(
+      id: 'gotv',
+      name: 'GOTV',
+      color: const Color(0xFF00A651),
+      bgColor: const Color(0xFFF0F9F4),
+      icon: 'assets/images/Gotv.jpeg',
+    ),
+    CableProvider(
+      id: 'startimes',
+      name: 'STARTIMES',
+      color: const Color(0xFF1E40AF),
+      bgColor: const Color(0xFFEFF6FF),
+      icon: 'assets/images/Startimes.jpeg',
+    ),
+    CableProvider(
+      id: 'showmax',
+      name: 'SHOWMAX',
+      color: const Color(0xFFDC2626),
+      bgColor: const Color(0xFFFEF2F2),
+      icon: 'assets/images/Showmax.png',
+    ),
   ];
 
-  final Map<String, List<Map<String, dynamic>>> _packages = {
-    'DSTV': [
-      {'name': 'DSTV Padi', 'amount': '₦2,150', 'code': 'DSTV_PADI', 'duration': '1 Month'},
-      {'name': 'DSTV Yanga', 'amount': '₦2,950', 'code': 'DSTV_YANGA', 'duration': '1 Month'},
-      {'name': 'DSTV Confam', 'amount': '₦5,300', 'code': 'DSTV_CONFAM', 'duration': '1 Month'},
-      {'name': 'DSTV Compact', 'amount': '₦9,000', 'code': 'DSTV_COMPACT', 'duration': '1 Month'},
-      {'name': 'DSTV Compact Plus', 'amount': '₦14,250', 'code': 'DSTV_COMPACT_PLUS', 'duration': '1 Month'},
-      {'name': 'DSTV Premium', 'amount': '₦21,000', 'code': 'DSTV_PREMIUM', 'duration': '1 Month'},
+  final Map<String, List<CablePackage>> cablePackages = {
+    'dstv': [
+      // Basic Plans
+      CablePackage(id: 'dstv_access', name: 'DStv Access', channels: '95+ Channels', validity: '1 Month', price: '2,950', category: PackageCategory.basic),
+      CablePackage(id: 'dstv_family', name: 'DStv Family', channels: '120+ Channels', validity: '1 Month', price: '4,615', category: PackageCategory.basic),
+      CablePackage(id: 'dstv_compact', name: 'DStv Compact', channels: '180+ Channels', validity: '1 Month', price: '9,000', category: PackageCategory.basic, popular: true),
+
+      // Premium Plans
+      CablePackage(id: 'dstv_compact_plus', name: 'DStv Compact Plus', channels: '230+ Channels', validity: '1 Month', price: '14,250', category: PackageCategory.premium, popular: true),
+      CablePackage(id: 'dstv_premium', name: 'DStv Premium', channels: '280+ Channels', validity: '1 Month', price: '21,000', category: PackageCategory.premium),
+
+      // Sports Plans
+      CablePackage(id: 'dstv_confam', name: 'DStv Confam', channels: '105+ Channels', validity: '1 Month', price: '5,500', category: PackageCategory.sports),
+      CablePackage(id: 'dstv_yanga', name: 'DStv Yanga', channels: '85+ Channels', validity: '1 Month', price: '2,565', category: PackageCategory.sports),
     ],
-    'GOTV': [
-      {'name': 'GOTV Smallie', 'amount': '₦900', 'code': 'GOTV_SMALLIE', 'duration': '1 Month'},
-      {'name': 'GOTV Jinja', 'amount': '₦1,900', 'code': 'GOTV_JINJA', 'duration': '1 Month'},
-      {'name': 'GOTV Jolli', 'amount': '₦2,800', 'code': 'GOTV_JOLLI', 'duration': '1 Month'},
-      {'name': 'GOTV Max', 'amount': '₦4,150', 'code': 'GOTV_MAX', 'duration': '1 Month'},
-      {'name': 'GOTV Supa', 'amount': '₦5,500', 'code': 'GOTV_SUPA', 'duration': '1 Month'},
+    'gotv': [
+      // Basic Plans
+      CablePackage(id: 'gotv_smallie', name: 'GOtv Smallie', channels: '25+ Channels', validity: '1 Month', price: '900', category: PackageCategory.basic),
+      CablePackage(id: 'gotv_jinja', name: 'GOtv Jinja', channels: '45+ Channels', validity: '1 Month', price: '1,900', category: PackageCategory.basic),
+      CablePackage(id: 'gotv_jolli', name: 'GOtv Jolli', channels: '65+ Channels', validity: '1 Month', price: '2,800', category: PackageCategory.basic, popular: true),
+
+      // Premium Plans
+      CablePackage(id: 'gotv_max', name: 'GOtv Max', channels: '75+ Channels', validity: '1 Month', price: '4,150', category: PackageCategory.premium, popular: true),
+      CablePackage(id: 'gotv_supa', name: 'GOtv Supa', channels: '85+ Channels', validity: '1 Month', price: '5,500', category: PackageCategory.premium),
+
+      // Sports Plans
+      CablePackage(id: 'gotv_lite', name: 'GOtv Lite', channels: '35+ Channels', validity: '1 Month', price: '610', category: PackageCategory.sports),
     ],
-    'StarTimes': [
-      {'name': 'Nova', 'amount': '₦900', 'code': 'STARTIMES_NOVA', 'duration': '1 Month'},
-      {'name': 'Basic', 'amount': '₦1,700', 'code': 'STARTIMES_BASIC', 'duration': '1 Month'},
-      {'name': 'Smart', 'amount': '₦2,500', 'code': 'STARTIMES_SMART', 'duration': '1 Month'},
-      {'name': 'Classic', 'amount': '₦2,750', 'code': 'STARTIMES_CLASSIC', 'duration': '1 Month'},
-      {'name': 'Super', 'amount': '₦4,200', 'code': 'STARTIMES_SUPER', 'duration': '1 Month'},
+    'startimes': [
+      // Basic Plans
+      CablePackage(id: 'startimes_nova', name: 'Nova', channels: '35+ Channels', validity: '1 Month', price: '900', category: PackageCategory.basic),
+      CablePackage(id: 'startimes_basic', name: 'Basic', channels: '50+ Channels', validity: '1 Month', price: '1,700', category: PackageCategory.basic, popular: true),
+      CablePackage(id: 'startimes_smart', name: 'Smart', channels: '65+ Channels', validity: '1 Month', price: '2,500', category: PackageCategory.basic),
+
+      // Premium Plans
+      CablePackage(id: 'startimes_classic', name: 'Classic', channels: '80+ Channels', validity: '1 Month', price: '2,750', category: PackageCategory.premium, popular: true),
+      CablePackage(id: 'startimes_super', name: 'Super', channels: '95+ Channels', validity: '1 Month', price: '4,200', category: PackageCategory.premium),
+
+      // Sports Plans
+      CablePackage(id: 'startimes_unique', name: 'Unique Sports', channels: '40+ Channels', validity: '1 Month', price: '1,200', category: PackageCategory.sports),
     ],
-    'Showmax': [
-      {'name': 'Showmax Mobile', 'amount': '₦1,200', 'code': 'SHOWMAX_MOBILE', 'duration': '1 Month'},
-      {'name': 'Showmax Standard', 'amount': '₦2,900', 'code': 'SHOWMAX_STANDARD', 'duration': '1 Month'},
-      {'name': 'Showmax Pro', 'amount': '₦3,200', 'code': 'SHOWMAX_PRO', 'duration': '1 Month'},
+    'showmax': [
+      // Basic Plans
+      CablePackage(id: 'showmax_mobile', name: 'Mobile', channels: 'Mobile Only', validity: '1 Month', price: '1,200', category: PackageCategory.basic),
+
+      // Premium Plans
+      CablePackage(id: 'showmax_standard', name: 'Standard', channels: '2 Devices', validity: '1 Month', price: '2,900', category: PackageCategory.premium, popular: true),
+      CablePackage(id: 'showmax_pro', name: 'Pro', channels: '4 Devices + Sports', validity: '1 Month', price: '6,300', category: PackageCategory.premium),
+
+      // Sports Plans
+      CablePackage(id: 'showmax_sport', name: 'Sport Add-on', channels: 'Live Sports', validity: '1 Month', price: '3,200', category: PackageCategory.sports),
     ],
   };
 
+  final List<RecentPurchase> recentPurchases = [
+    RecentPurchase(
+      id: '1',
+      customerName: 'My DStv',
+      customerNumber: '1234567890',
+      avatar: '',
+      initial: 'K',
+      lastUsed: '2 hours ago',
+      package: 'DStv Compact',
+      provider: 'DSTV',
+    ),
+    RecentPurchase(
+      id: '2',
+      customerName: 'Family GOtv',
+      customerNumber: '0987654321',
+      avatar: '',
+      initial: 'F',
+      lastUsed: 'Yesterday',
+      package: 'GOtv Max',
+      provider: 'GOTV',
+    ),
+    RecentPurchase(
+      id: '3',
+      customerName: 'Office TV',
+      customerNumber: '5678901234',
+      avatar: '',
+      initial: 'O',
+      lastUsed: '3 days ago',
+      package: 'StarTimes Classic',
+      provider: 'STARTIMES',
+    ),
+  ];
+
   @override
-  void dispose() {
-    _smartCardController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _processingController = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    );
+    _animationController.forward();
   }
 
   @override
-  Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
-    final appState = context.watch<AppStateProvider>();
-    
+  void dispose() {
+    customerNumberController.dispose();
+    _animationController.dispose();
+    _processingController.dispose();
+    super.dispose();
+  }
+
+  void handleCustomerNumberChange(String value) {
+    final cleanValue = value.replaceAll(RegExp(r'\D'), '');
+    if (cleanValue.length <= 12) {
+      setState(() {
+        customerNumberController.text = cleanValue;
+        customerNumberController.selection = TextSelection.fromPosition(
+          TextPosition(offset: cleanValue.length),
+        );
+      });
+    }
+  }
+
+  String formatCustomerNumber(String number) {
+    if (number.length >= 4) {
+      return number.replaceAllMapped(
+        RegExp(r'(\d{4})(\d{3})(\d{3})'),
+        (match) => '${match[1]} ${match[2]} ${match[3]}',
+      );
+    }
+    return number;
+  }
+
+  void handleContactSelect(RecentPurchase contact) {
+    final provider = cableProviders.firstWhere(
+      (p) => p.name == contact.provider,
+      orElse: () => cableProviders.first,
+    );
+    setState(() {
+      customerNumberController.text = contact.customerNumber;
+      selectedProvider = provider;
+      selectedPackage = null;
+    });
+  }
+
+  void handleNext() {
+    if (isFormValid) {
+      setState(() {
+        step = CableStep.processing;
+        isProcessing = true;
+      });
+
+      _processingController.repeat();
+
+      Future.delayed(const Duration(seconds: 3), () {
+        setState(() {
+          isProcessing = false;
+        });
+
+        // if (widget.onSuccess != null) {
+        //   widget.onSuccess!({
+        //     'type': 'Cable TV Purchase',
+        //     'amount': selectedPackage!.price,
+        //     'recipient': '${selectedProvider?.name} - ${formatCustomerNumber(customerNumberController.text)}',
+        //     'provider': selectedProvider?.name,
+        //     'plan': selectedPackage!.name,
+        //   });
+        // }
+        if (mounted) {
+          HapticFeedback.lightImpact();
+          context.push('/pin-verification', extra: {
+            'type': 'Cable TV Purchase',
+            'amount': selectedPackage!.price,
+            'recipient': '${selectedProvider?.name} - ${formatCustomerNumber(customerNumberController.text)}',
+            'provider': selectedProvider?.name,
+            'plan': selectedPackage!.name,
+          });
+        }
+      });
+    }
+  }
+
+  bool get isFormValid => customerNumberController.text.length >= 8 && selectedPackage != null && selectedProvider != null;
+
+  List<CablePackage> getCurrentPackages() {
+    if (selectedProvider == null) return [];
+    return cablePackages[selectedProvider!.id]?.where((pkg) => pkg.category == selectedCategory).toList() ?? [];
+  }
+
+  Widget _buildProcessingScreen() {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(localizations.cableTV),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-         
-          },
-        ),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildProviderSelection(localizations),
-                const SizedBox(height: 24),
-                _buildSmartCardInput(localizations),
-                const SizedBox(height: 24),
-                if (_selectedProvider.isNotEmpty) ...[
-                  Expanded(
-                    child: _buildPackagesSelection(localizations),
+      body: Container(
+        color: Colors.white,
+        child: Center(
+          child: AnimatedBuilder(
+            animation: _processingController,
+            builder: (context, child) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 64,
+                    height: 64,
+                    margin: const EdgeInsets.only(bottom: 24),
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [Color(0xFF00B252), Color(0xFF00A651)],
+                      ),
+                    ),
+                    child: Transform.rotate(
+                      angle: _processingController.value * 2 * 3.14159,
+                      child: const Icon(
+                        Icons.payment,
+                        color: Colors.white,
+                        size: 32,
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 16),
+                  const Text(
+                    'Processing Payment',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF101828),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Please wait while we process your cable TV subscription...',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF667085),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(3, (index) {
+                      return AnimatedBuilder(
+                        animation: _processingController,
+                        builder: (context, child) {
+                          final delay = index * 0.2;
+                          final progress = (_processingController.value + delay) % 1.0;
+                          final scale = 1.0 + 0.2 * (1 - (progress - 0.5).abs() * 2).clamp(0.0, 1.0);
+
+                          return Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 2),
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: const Color(0xFF00B252),
+                            ),
+                            transform: Matrix4.identity()..scale(scale),
+                          );
+                        },
+                      );
+                    }),
+                  ),
                 ],
-                _buildContinueButton(localizations, appState),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),
     );
   }
 
-  Widget _buildProviderSelection(AppLocalizations localizations) {
+  @override
+  Widget build(BuildContext context) {
+    if (step == CableStep.processing) {
+      return _buildProcessingScreen();
+    }
+
+    return Scaffold(
+      appBar: _buildAppBar(),
+      body: _buildBody(),
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      backgroundColor: Colors.white,
+      elevation: 0,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back, color: Color(0xFF667085)),
+        onPressed: widget.onBack ?? () => Navigator.pop(context),
+      ),
+      title: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              image: DecorationImage(
+                image: AssetImage("assets/images/AppIcon.png"),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          const Text(
+            'Cable TV',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF101828),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: const Color(0xFF00B252),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: const Text(
+              '🇳🇬',
+              style: TextStyle(fontSize: 10),
+            ),
+          ),
+        ],
+      ),
+      centerTitle: true,
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 16),
+          child: TextButton(
+            onPressed: isFormValid ? handleNext : null,
+            style: TextButton.styleFrom(
+              backgroundColor: isFormValid ? const Color(0xFF00B252) : const Color(0xFFF2F4F7),
+              foregroundColor: isFormValid ? Colors.white : const Color(0xFF98A2B3),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              'Next',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBody() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildCustomerNumberSection(),
+          const SizedBox(height: 20),
+          _buildProviderSelection(),
+          const SizedBox(height: 20),
+          if (selectedProvider != null) ...[
+            _buildCategorySelection(),
+            const SizedBox(height: 20),
+            _buildPackageSelection(),
+            const SizedBox(height: 20),
+          ],
+          _buildRecentPurchases(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCustomerNumberSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          localizations.translate('selectProvider'),
-          style: AppTextStyles.h6,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Smart Card / Customer Number',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF667085),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {}, // Handle saved contacts
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Icon(Icons.person, size: 12, color: Color(0xFF00B252)),
+                  SizedBox(width: 4),
+                  Text(
+                    'Saved',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF00B252),
+                    ),
+                  ),
+                  Icon(Icons.chevron_right, size: 10, color: Color(0xFF00B252)),
+                ],
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
+        Stack(
+          children: [
+            TextFormField(
+              controller: customerNumberController,
+              onChanged: handleCustomerNumberChange,
+              style: const TextStyle(
+                fontFamily: 'monospace',
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF101828),
+              ),
+              decoration: InputDecoration(
+                hintText: '1234567890',
+                contentPadding: const EdgeInsets.fromLTRB(12, 12, 56, 12),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(
+                    color: Color(0xFFD0D5DD),
+                    width: 2,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(
+                    color: Color(0xFF00B252),
+                    width: 2,
+                  ),
+                ),
+                suffixIcon: const Icon(
+                  Icons.credit_card,
+                  color: Color(0xFF98A2B3),
+                  size: 14,
+                ),
+              ),
+            ),
+            if (selectedProvider != null)
+              Positioned(
+                right: 32,
+                top: 12,
+                child: Container(
+                  width: 20,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: DecorationImage(image: AssetImage(selectedProvider?.icon ?? "")),
+                    color: selectedProvider!.bgColor,
+                  ),
+                ),
+              ),
+          ],
+        ),
+        if (customerNumberController.text.isNotEmpty && customerNumberController.text.length < 8)
+          const Padding(
+            padding: EdgeInsets.only(top: 4),
+            child: Text(
+              'Please enter a valid customer number (minimum 8 digits)',
+              style: TextStyle(
+                fontSize: 11,
+                color: Color(0xFFDC2626),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildProviderSelection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Choose Provider',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Color(0xFF667085),
+          ),
+        ),
+        const SizedBox(height: 10),
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             childAspectRatio: 2.5,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
           ),
-          itemCount: _providers.length,
+          itemCount: cableProviders.length,
           itemBuilder: (context, index) {
-            final provider = _providers[index];
-            final isSelected = _selectedProvider == provider['name'];
-            
+            final provider = cableProviders[index];
+            final isSelected = selectedProvider?.id == provider.id;
+
             return GestureDetector(
               onTap: () {
                 setState(() {
-                  _selectedProvider = provider['name'];
-                  _selectedPackage = ''; // Reset package selection
+                  selectedProvider = provider;
+                  selectedPackage = null;
                 });
               },
               child: Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: isSelected ? AppColors.primary500.withOpacity(0.1) : Colors.white,
+                  color: isSelected ? Colors.white : const Color(0xFFF9FAFB),
                   border: Border.all(
-                    color: isSelected ? AppColors.primary500 : AppColors.neutral200,
-                    width: 2,
+                    color: isSelected ? const Color(0xFF10B981) : const Color(0xFFF2F4F7),
+                    width: isSelected ? 2 : 1,
                   ),
                   borderRadius: BorderRadius.circular(12),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: const Color(0xFF10B981).withOpacity(0.2),
+                            blurRadius: 4,
+                            spreadRadius: 0,
+                          ),
+                        ]
+                      : null,
                 ),
                 child: Row(
                   children: [
-                    Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: provider['color'].withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Center(
-                        child: Text(
-                          provider['logo'],
-                          style: const TextStyle(fontSize: 16),
+                    Stack(
+                      children: [
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              image: AssetImage(
+                                provider.icon,
+                              ),
+                              fit: BoxFit.cover,
+                            ),
+                            color: provider.color,
+                          ),
                         ),
-                      ),
+                        if (isSelected)
+                          Positioned(
+                            top: -2,
+                            right: -2,
+                            child: Container(
+                              width: 14,
+                              height: 14,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Color(0xFF00B252),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.white,
+                                    blurRadius: 0,
+                                    spreadRadius: 1.5,
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.check,
+                                color: Colors.white,
+                                size: 8,
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            provider['name'],
-                            style: AppTextStyles.caption.copyWith(
+                            provider.name,
+                            style: TextStyle(
+                              fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: isSelected ? AppColors.primary500 : AppColors.neutral700,
+                              color: isSelected ? const Color(0xFF065F46) : const Color(0xFF101828),
                             ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                           Text(
-                            provider['description'],
-                            style: AppTextStyles.caption.copyWith(
+                            'TV Subscription',
+                            style: TextStyle(
                               fontSize: 10,
-                              color: AppColors.neutral500,
+                              fontWeight: FontWeight.w500,
+                              color: isSelected ? const Color(0xFF059669) : const Color(0xFF667085),
                             ),
-                            maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ],
@@ -216,225 +735,349 @@ class _CablePurchaseScreenState extends State<CablePurchaseScreen> {
     );
   }
 
-  Widget _buildSmartCardInput(AppLocalizations localizations) {
+  Widget _buildCategorySelection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          localizations.translate('smartCardNumber'),
-          style: AppTextStyles.h6,
-        ),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: _smartCardController,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            hintText: '0123456789',
-            prefixIcon: const Icon(Icons.credit_card),
-            suffixIcon: IconButton(
-              icon: const Icon(Icons.info_outline),
-              onPressed: () {
-                _showSmartCardInfo();
-              },
-            ),
+        const Text(
+          'Package Category',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Color(0xFF667085),
           ),
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return localizations.translate('smartCardRequired');
-            }
-            if (value.length < 10) {
-              return localizations.translate('invalidSmartCardNumber');
-            }
-            return null;
-          },
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            _buildCategoryButton('basic', 'Basic', '📺'),
+            const SizedBox(width: 8),
+            _buildCategoryButton('premium', 'Premium', '⭐'),
+            const SizedBox(width: 8),
+            _buildCategoryButton('sports', 'Sports', '⚽'),
+          ],
         ),
       ],
     );
   }
 
-  Widget _buildPackagesSelection(AppLocalizations localizations) {
-    final packages = _packages[_selectedProvider] ?? [];
-    
+  Widget _buildCategoryButton(String id, String label, String icon) {
+    final category = PackageCategory.values.firstWhere(
+      (e) => e.toString().split('.').last == id,
+    );
+    final isSelected = selectedCategory == category;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            selectedCategory = category;
+            selectedPackage = null;
+          });
+        },
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: isSelected ? const Color(0xFF00B252) : Colors.white,
+            border: Border.all(
+              color: isSelected ? const Color(0xFF00B252) : const Color(0xFFD0D5DD),
+              width: 2,
+            ),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                icon,
+                style: const TextStyle(fontSize: 10),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: isSelected ? Colors.white : const Color(0xFF374151),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPackageSelection() {
+    final packages = getCurrentPackages();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          localizations.translate('selectPackage'),
-          style: AppTextStyles.h6,
+        const Text(
+          'Choose Package',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Color(0xFF667085),
+          ),
         ),
-        const SizedBox(height: 12),
-        Expanded(
-          child: ListView.builder(
-            itemCount: packages.length,
-            itemBuilder: (context, index) {
-              final package = packages[index];
-              final isSelected = _selectedPackage == package['code'];
-              
-              return Container(
-                margin: const EdgeInsets.only(bottom: 8),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () {
-                      setState(() {
-                        _selectedPackage = package['code'];
-                      });
-                    },
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: isSelected ? AppColors.primary500.withOpacity(0.1) : Colors.white,
-                        border: Border.all(
-                          color: isSelected ? AppColors.primary500 : AppColors.neutral200,
-                          width: isSelected ? 2 : 1,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: isSelected ? AppColors.primary500 : AppColors.neutral100,
-                              borderRadius: BorderRadius.circular(8),
+        const SizedBox(height: 10),
+        Column(
+          children: packages.map((pkg) {
+            final isSelected = selectedPackage?.id == pkg.id;
+
+            return Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    selectedPackage = pkg;
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: isSelected ? const Color(0xFF00B252) : Colors.white,
+                    border: Border.all(
+                      color: isSelected ? const Color(0xFF00B252) : const Color(0xFFD0D5DD),
+                      width: 2,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Stack(
+                    children: [
+                      if (pkg.popular)
+                        Positioned(
+                          top: 0,
+                          right: 0,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
                             ),
-                            child: Icon(
-                              Icons.tv,
-                              color: isSelected ? Colors.white : AppColors.neutral600,
-                              size: 20,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF59E0B),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Text(
+                              'Popular',
+                              style: TextStyle(
+                                fontSize: 9,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
-                          const SizedBox(width: 12),
+                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  package['name'],
-                                  style: AppTextStyles.body2.copyWith(
+                                  pkg.name,
+                                  style: TextStyle(
+                                    fontSize: 12,
                                     fontWeight: FontWeight.w600,
-                                    color: isSelected ? AppColors.primary500 : AppColors.neutral900,
+                                    color: isSelected ? Colors.white : Colors.black,
                                   ),
                                 ),
+                                const SizedBox(height: 2),
                                 Text(
-                                  '${localizations.translate('duration')}: ${package['duration']}',
-                                  style: AppTextStyles.caption.copyWith(
-                                    color: AppColors.neutral500,
+                                  pkg.channels,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: isSelected ? Colors.white.withOpacity(0.8) : Colors.black,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  pkg.validity,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: isSelected ? Colors.white.withOpacity(0.7) : Colors.black,
                                   ),
                                 ),
                               ],
                             ),
                           ),
                           Text(
-                            package['amount'],
-                            style: AppTextStyles.body1.copyWith(
-                              fontWeight: FontWeight.w700,
-                              color: isSelected ? AppColors.primary500 : AppColors.neutral900,
+                            '₦${pkg.price}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: isSelected ? Colors.white : Colors.black,
                             ),
                           ),
-                          if (isSelected) ...[
-                            const SizedBox(width: 8),
-                            Icon(
-                              Icons.check_circle,
-                              color: AppColors.primary500,
-                              size: 20,
-                            ),
-                          ],
                         ],
                       ),
-                    ),
+                    ],
                   ),
                 ),
-              );
-            },
-          ),
+              ),
+            );
+          }).toList(),
         ),
       ],
     );
   }
 
-  Widget _buildContinueButton(AppLocalizations localizations, AppStateProvider appState) {
-    final selectedPackageData = _getSelectedPackageData();
-    
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: () {
-          if (_formKey.currentState!.validate() && 
-              _selectedProvider.isNotEmpty && 
-              _selectedPackage.isNotEmpty) {
-            
-            // final transactionDetails = TransactionDetails(
-            //   type: 'Cable TV Subscription',
-            //   amount: selectedPackageData?['amount']?.replaceAll('₦', '').replaceAll(',', '') ?? '0',
-            //   recipient: '${_selectedProvider} - ${selectedPackageData?['name']}',
-            //   customer: _smartCardController.text,
-            //   provider: _selectedProvider,
-            //   plan: selectedPackageData?['name'] ?? '',
-            //   description: 'Cable TV subscription for ${_smartCardController.text}',
-            // );
-            
-            // appState.handleBillPaymentNext(transactionDetails);
-          } else if (_selectedProvider.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(localizations.translate('selectProviderFirst')),
-                behavior: SnackBarBehavior.floating,
+  Widget _buildRecentPurchases() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: const [
+            Icon(
+              Icons.access_time,
+              size: 14,
+              color: Color(0xFF667085),
+            ),
+            SizedBox(width: 6),
+            Text(
+              'Recent Subscriptions',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF667085),
               ),
-            );
-          } else if (_selectedPackage.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(localizations.translate('selectPackageFirst')),
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-          }
-        },
-        child: Text(localizations.translate('continue')),
-      ),
-    );
-  }
-
-  Map<String, dynamic>? _getSelectedPackageData() {
-    final packages = _packages[_selectedProvider] ?? [];
-    try {
-      return packages.firstWhere((package) => package['code'] == _selectedPackage);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  void _showSmartCardInfo() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(AppLocalizations.of(context)!.translate('smartCardInfo')),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF9FAFB),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
             children: [
-              Text(AppLocalizations.of(context)!.translate('smartCardInfoDescription')),
-              const SizedBox(height: 12),
-              Text(
-                AppLocalizations.of(context)!.translate('smartCardLocation'),
-                style: AppTextStyles.caption.copyWith(
-                  fontWeight: FontWeight.w600,
+              ...recentPurchases.map((contact) {
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 6),
+                  child: GestureDetector(
+                    onTap: () => handleContactSelect(contact),
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(
+                          color: Colors.transparent,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: const Color(0xFF00B252).withOpacity(0.1),
+                            ),
+                            child: Center(
+                              child: Text(
+                                contact.initial,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF047857),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        contact.customerName,
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          color: Color(0xFF101828),
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    Text(
+                                      contact.provider,
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFF059669),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 2),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        contact.customerNumber,
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          color: Color(0xFF667085),
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    Text(
+                                      contact.lastUsed,
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        color: Color(0xFF98A2B3),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }),
+              const SizedBox(height: 6),
+              GestureDetector(
+                onTap: () {
+                  // Handle view all
+                },
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF00B252).withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'View All Recent Subscriptions',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF059669),
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(AppLocalizations.of(context)!.translate('close')),
-            ),
-          ],
-        );
-      },
+        ),
+      ],
     );
   }
 }

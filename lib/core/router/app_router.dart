@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:rimapay/features/Tiers/AccountTierScreen.dart';
 import 'package:rimapay/features/airtime/presentation/screens/airtime_purchase_screen.dart';
 import 'package:rimapay/features/auth/presentation/screens/business_account_flow.dart';
 import 'package:rimapay/features/auth/presentation/screens/personal_account_flow.dart';
@@ -14,14 +15,11 @@ import 'package:rimapay/features/success/presentation/screens/success_screen.dar
 import 'package:rimapay/features/transactions/presentation/screens/transaction_history_screen.dart';
 import 'package:rimapay/features/transfer/presentation/screens/transfer_screen.dart';
 import 'package:rimapay/shared/presentation/screens/main_app_screen.dart';
-
 import '../../features/splash/presentation/screens/splash_screen.dart';
 import '../../features/welcome/presentation/screens/welcome_screen.dart';
 import '../../features/auth/presentation/screens/auth_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
-
 import '../../features/settings/presentation/screens/settings_screen.dart';
-
 import '../../shared/presentation/screens/main_navigation_screen.dart';
 
 class AppRouter {
@@ -105,6 +103,13 @@ class AppRouter {
         builder: (context, state) => const SettingsScreen(),
       ),
 
+      // Account Tiers (NEW ROUTE)
+      GoRoute(
+        path: '/tiers',
+        name: 'tiers',
+        builder: (context, state) => const AccountTiersScreen(),
+      ),
+
       // Bill Payments Flow
       GoRoute(
         path: '/bills',
@@ -167,7 +172,8 @@ class AppRouter {
         builder: (context, state) {
           final data = state.extra as Map<String, dynamic>?;
           return SuccessScreen(
-            transactionData: data ?? {},
+            props: SuccessScreenProps(),
+
           );
         },
       ),
@@ -177,20 +183,13 @@ class AppRouter {
         path: '/receipt',
         name: 'receipt',
         builder: (context, state) {
-          final receiptData = state.extra as Map<String, dynamic>?;
+          final receiptData = state.extra as ReceiptData;
           return ReceiptScreen(
-            receiptData: ReceiptData(
-              amount: "",
-              date: "",
-              recipient: "",
-              reference: "",
-              status: "",
-              time: "",
-              type: "",
-            ),
+            receiptData: receiptData,
           );
         },
       ),
+      
     ],
 
     // Error handling

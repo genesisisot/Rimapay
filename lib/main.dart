@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart' as rev;
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -31,101 +30,65 @@ void main() async {
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
+      statusBarBrightness: Brightness.light,
+      
+      statusBarIconBrightness: Brightness.light,
       systemNavigationBarColor: Colors.white,
       systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );
 
   runApp(
-    rev.ProviderScope(
-      child: const RimaPayApp(),
+    const ProviderScope(
+      child: RimaPayApp(),
     ),
   );
 }
 
-class RimaPayApp extends StatelessWidget {
+class RimaPayApp extends ConsumerWidget {
   const RimaPayApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Always use English locale for Material components to avoid localization issues
+    // Your custom translations will handle the actual language switching
+    final currentLocale = const Locale('en', '');
+
     return GestureDetector(
       onTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
       },
-      child: MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (_) => LanguageProvider()),
-          ChangeNotifierProvider(create: (_) => AuthProvider()),
-          ChangeNotifierProvider(create: (_) => TransactionProvider()),
-          ChangeNotifierProvider(create: (_) => ThemeProvider()),
+      child: MaterialApp.router(
+        title: 'RimaPay',
+        debugShowCheckedModeBanner: false,
+
+        // Theme
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+
+        // Routing
+        routerConfig: AppRouter.router,
+
+        // Localization - Use English for Material components
+        locale: currentLocale,
+        localizationsDelegates: const [
+          // Only include English Material localizations to avoid conflicts
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+          // Your custom app localizations if you have them
+          // AppLocalizations.delegate,
         ],
-        child: Consumer2<LanguageProvider, ThemeProvider>(
-          builder: (context, languageProvider, themeProvider, child) {
-            return MaterialApp.router(
-              title: 'RimaPay',
-              debugShowCheckedModeBanner: false,
-
-              // Theme - Convert AppThemeMode to ThemeMode
-              theme: AppTheme.lightTheme,
-              darkTheme: AppTheme.darkTheme,
-              themeMode: _convertToThemeMode(themeProvider.themeMode),
-
-              // Routing
-              routerConfig: AppRouter.router,
-
-              // Localization
-              locale: languageProvider.currentLocale,
-              localizationsDelegates: const [
-                AppLocalizations.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              supportedLocales: AppLocalizationsExtension.supportedLocales,
-
-              // App Builder - Simplified to avoid MediaQuery issues
-              // builder: (context, child) {
-              //   return AnnotatedRegion<SystemUiOverlayStyle>(
-              //     value: SystemUiOverlayStyle(
-              //       statusBarColor: Colors.transparent,
-              //       statusBarIconBrightness: themeProvider.isDarkMode
-              //          ? Brightness.light
-              //          : Brightness.dark,
-              //       systemNavigationBarColor: themeProvider.isDarkMode
-              //          ? Colors.black
-              //          : Colors.white,
-              //       systemNavigationBarIconBrightness: themeProvider.isDarkMode
-              //          ? Brightness.light
-              //          : Brightness.dark,
-              //     ),
-              //     child: Container(
-              //       constraints: const BoxConstraints(maxWidth: 430),
-              //       child: child ?? const SizedBox.shrink(),
-              //     ),
-              //   );
-              // },
-            );
-          },
-        ),
+        
+        // Supported locales - keep it simple
+        supportedLocales: AppLocalizationsExtension.supportedLocales,
+        
+        // Fallback locale
+        localeResolutionCallback: (locale, supportedLocales) {
+          // Always return English as fallback
+          return const Locale('en', '');
+        },
       ),
     );
-  }
-
-  /// Converts AppThemeMode to Flutter's ThemeMode
-  ThemeMode _convertToThemeMode(dynamic appThemeMode) {
-    // If you have an AppThemeMode enum, convert it here
-    // Assuming AppThemeMode has values like: light, dark, system
-    if (appThemeMode == null) return ThemeMode.system;
-
-    switch (appThemeMode.toString()) {
-      case 'AppThemeMode.light':
-        return ThemeMode.light;
-      case 'AppThemeMode.dark':
-        return ThemeMode.dark;
-      case 'AppThemeMode.system':
-      default:
-        return ThemeMode.system;
-    }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rimapay/core/router/app_router.dart';
 import '../../core/providers/language_provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
@@ -29,15 +30,14 @@ class CarouselSlide {
   });
 }
 
-class PromotionalCarousel extends StatefulWidget {
+class PromotionalCarousel extends ConsumerStatefulWidget {
   const PromotionalCarousel({super.key});
 
   @override
-  State<PromotionalCarousel> createState() => _PromotionalCarouselState();
+  ConsumerState<PromotionalCarousel> createState() => _PromotionalCarouselState();
 }
 
-class _PromotionalCarouselState extends State<PromotionalCarousel>
-    with TickerProviderStateMixin {
+class _PromotionalCarouselState extends ConsumerState<PromotionalCarousel> with TickerProviderStateMixin {
   late PageController _pageController;
   late AnimationController _animationController;
   int _currentSlide = 0;
@@ -50,20 +50,22 @@ class _PromotionalCarouselState extends State<PromotionalCarousel>
       duration: const Duration(seconds: 8),
       vsync: this,
     )..repeat();
-    
+
     _startAutoSlide();
   }
 
   void _startAutoSlide() {
     Future.delayed(const Duration(seconds: 8), () {
       if (mounted) {
-        final nextSlide = (_currentSlide + 1) % _getSlides().length;
+        final nextSlide = (_currentSlide + 1) % 4;
         _pageController.animateToPage(
           nextSlide,
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
         );
         _startAutoSlide();
+
+        setState(() {});
       }
     });
   }
@@ -76,8 +78,8 @@ class _PromotionalCarouselState extends State<PromotionalCarousel>
   }
 
   List<CarouselSlide> _getSlides() {
-    final languageProvider = Provider.of<LanguageProvider>(context);
-    
+    final language = ref.read(languageTranslationsProvider);
+    final languageProvide = ref.read(languageProvider);
     return [
       CarouselSlide(
         id: 'language',
@@ -85,10 +87,12 @@ class _PromotionalCarouselState extends State<PromotionalCarousel>
         icon: Icons.language,
         iconColor: Colors.white,
         bgGradient: AppColors.primaryGradient,
-        title: languageProvider.t('switchToHausa'),
-        description: languageProvider.t('changeLanguageOneTap'),
-        actionText: languageProvider.currentLanguage == 'en' ? 'Switch to HA' : 'Canza zuwa EN',
-        action: languageProvider.toggleLanguage,
+        title: language('switchToHausa'),
+        description: language('changeLanguageOneTap'),
+        actionText: languageProvide.languageCode == 'en' ? 'Switch to HA' : 'Canza zuwa EN',
+        action: () {
+          ref.read(toggleLanguageProvider);
+        },
       ),
       CarouselSlide(
         id: 'upgrade',
@@ -98,12 +102,10 @@ class _PromotionalCarouselState extends State<PromotionalCarousel>
         bgGradient: const LinearGradient(
           colors: [Color(0xFF8B5CF6), Color(0xFF7C3AED), Color(0xFF6D28D9)],
         ),
-        title: languageProvider.t('upgradeYourAccount'),
-        description: languageProvider.t('unlockMoreFeatures'),
-        actionText: languageProvider.t('upgradeAccountNow'),
-        action: () {
-          // TODO: Navigate to upgrade
-        },
+        title: language('upgradeYourAccount'),
+        description: language('unlockMoreFeatures'),
+        actionText: language('upgradeAccountNow'),
+        action: () {},
       ),
       CarouselSlide(
         id: 'loans',
@@ -113,12 +115,10 @@ class _PromotionalCarouselState extends State<PromotionalCarousel>
         bgGradient: const LinearGradient(
           colors: [Color(0xFFEF4444), Color(0xFFDC2626), Color(0xFFB91C1C)],
         ),
-        title: languageProvider.t('getLoansToday'),
-        description: languageProvider.t('quickApprovalProcess'),
-        actionText: languageProvider.t('applyForLoan'),
-        action: () {
-          // TODO: Navigate to loans
-        },
+        title: language('getLoansToday'),
+        description: language('quickApprovalProcess'),
+        actionText: language('applyForLoan'),
+        action: () {},
       ),
       CarouselSlide(
         id: 'transfer',
@@ -128,18 +128,17 @@ class _PromotionalCarouselState extends State<PromotionalCarousel>
         bgGradient: const LinearGradient(
           colors: [Color(0xFF06B6D4), Color(0xFF0891B2), Color(0xFF0E7490)],
         ),
-        title: languageProvider.t('sendMoneyFaster'),
-        description: languageProvider.t('instantTransfersToAnyBank'),
-        actionText: languageProvider.t('startSending'),
-        action: () {
-          // TODO: Navigate to transfer
-        },
+        title: language('sendMoneyFaster'),
+        description: language('instantTransfersToAnyBank'),
+        actionText: language('startSending'),
+        action: () {},
       ),
     ];
   }
 
   @override
   Widget build(BuildContext context) {
+    // Now you can pass the provider to your helper method
     final slides = _getSlides();
     final screenWidth = MediaQuery.of(context).size.width;
     final carouselWidth = (screenWidth * 0.95).clamp(300.0, 460.0);
@@ -169,7 +168,7 @@ class _PromotionalCarouselState extends State<PromotionalCarousel>
                 return _buildSlide(slide);
               },
             ),
-            
+
             // Progress Indicators
             Positioned(
               bottom: 8,
@@ -178,7 +177,7 @@ class _PromotionalCarouselState extends State<PromotionalCarousel>
                 children: slides.asMap().entries.map((entry) {
                   final index = entry.key;
                   final isActive = index == _currentSlide;
-                  
+
                   return AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
                     margin: const EdgeInsets.only(right: 4),
@@ -192,7 +191,7 @@ class _PromotionalCarouselState extends State<PromotionalCarousel>
                 }).toList(),
               ),
             ),
-            
+
             // Auto-progress bar
             Positioned(
               bottom: 0,
@@ -234,11 +233,10 @@ class _PromotionalCarouselState extends State<PromotionalCarousel>
   }
 
   Widget _buildSlide(CarouselSlide slide) {
-    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
-    
     return GestureDetector(
       onTap: slide.action,
       child: Container(
+        margin: EdgeInsets.only(right: 2),
         decoration: BoxDecoration(
           gradient: slide.bgGradient,
           borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
@@ -261,7 +259,7 @@ class _PromotionalCarouselState extends State<PromotionalCarousel>
                 ),
               ),
             ),
-            
+
             // Content
             Padding(
               padding: const EdgeInsets.all(AppSpacing.md),
@@ -296,7 +294,7 @@ class _PromotionalCarouselState extends State<PromotionalCarousel>
                               ),
                               child: Center(
                                 child: Text(
-                                  languageProvider.currentLanguage.toUpperCase(),
+                                  ref.read(languageProvider).countryCode?.toUpperCase() ?? "en",
                                   style: AppTextStyles.labelSmall.copyWith(
                                     color: AppColors.primary500,
                                     fontWeight: FontWeight.w700,
@@ -309,18 +307,18 @@ class _PromotionalCarouselState extends State<PromotionalCarousel>
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(width: AppSpacing.md),
-                  
+
                   // Content
-                  Expanded(
+                  Flexible(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           slide.title,
-                          style: AppTextStyles.labelLarge.copyWith(
+                          style: AppTextStyles.labelMedium.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.w700,
                           ),
@@ -331,15 +329,16 @@ class _PromotionalCarouselState extends State<PromotionalCarousel>
                         Text(
                           slide.description,
                           style: AppTextStyles.bodySmall.copyWith(
+                            fontSize: 11,
                             color: Colors.white.withOpacity(0.8),
                           ),
-                          maxLines: 1,
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
                   ),
-                  
+
                   // Action button
                   Container(
                     padding: const EdgeInsets.symmetric(

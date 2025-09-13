@@ -322,7 +322,7 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
 
   @override
   Widget build(BuildContext context) {
-    final languageProvider = Provider.of<LanguageProvider>(context);
+
     final authProvider = Provider.of<AuthProvider>(context);
     final user = authProvider.user;
 

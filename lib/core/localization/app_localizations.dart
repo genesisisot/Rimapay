@@ -14,7 +14,7 @@ class AppLocalizations {
       _AppLocalizationsDelegate();
 
   // Complete translations with all screens and features
-  static const Map<String, Map<String, String>> _localizedValues = {
+  static const Map<String, Map<String, String>> localizedValues = {
     'en': {
       // Home Screen
       'goodMorning': 'Good morning ✨',
@@ -535,7 +535,7 @@ class AppLocalizations {
   };
 
   String translate(String key) {
-    return _localizedValues[locale.languageCode]?[key] ?? key;
+    return localizedValues[locale.languageCode]?[key] ?? key;
   }
 
   // Convenience getters for common translations
