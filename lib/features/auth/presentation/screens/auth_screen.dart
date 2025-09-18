@@ -462,27 +462,27 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                                     ),
                                     decoration: InputDecoration(
                                       hintText: 'Enter phone number',
-                                      prefixIcon: Padding(
-                                        padding: EdgeInsets.only(
-                                          left: 20,
-                                          right: 5,
-                                        ),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              "+234",
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                color: Colors.white.withOpacity(0.6),
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
+                                      // prefixIcon: Padding(
+                                      //   padding: EdgeInsets.only(
+                                      //     left: 20,
+                                      //     right: 5,
+                                      //   ),
+                                      //   child: Column(
+                                      //     mainAxisSize: MainAxisSize.min,
+                                      //     mainAxisAlignment: MainAxisAlignment.center,
+                                      //     crossAxisAlignment: CrossAxisAlignment.start,
+                                      //     children: [
+                                      //       Text(
+                                      //         "+234",
+                                      //         textAlign: TextAlign.center,
+                                      //         style: TextStyle(
+                                      //           color: Colors.white.withOpacity(0.6),
+                                      //           fontSize: 14,
+                                      //         ),
+                                      //       ),
+                                      //     ],
+                                      //   ),
+                                      // ),
                                       hintStyle: TextStyle(
                                         color: Colors.white.withOpacity(0.6),
                                         fontSize: 14,

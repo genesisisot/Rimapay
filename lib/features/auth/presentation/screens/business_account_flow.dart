@@ -1246,27 +1246,27 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
             keyboardType: TextInputType.phone,
             decoration: InputDecoration(
              hintText: 'Enter your business phone number',
-              prefixIcon: Padding(
-                padding: EdgeInsets.only(
-                  left: 20,
-                  right: 5,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "+234",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Color(0xFF9CA3AF),
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              // prefixIcon: Padding(
+              //   padding: EdgeInsets.only(
+              //     left: 20,
+              //     right: 5,
+              //   ),
+              //   child: Column(
+              //     mainAxisSize: MainAxisSize.min,
+              //     mainAxisAlignment: MainAxisAlignment.center,
+              //     crossAxisAlignment: CrossAxisAlignment.start,
+              //     children: [
+              //       Text(
+              //         "+234",
+              //         textAlign: TextAlign.center,
+              //         style: TextStyle(
+              //           color: Color(0xFF9CA3AF),
+              //           fontSize: 14,
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
               fillColor: Colors.white,
               filled: true,
               border: OutlineInputBorder(
