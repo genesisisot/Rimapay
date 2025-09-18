@@ -40,6 +40,19 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+    flavorDimensions "flavors"
+    productFlavors {
+        staging {
+            resValue "string", "app_name", "RimaPay-Staging"
+            dimension "flavors"
+            applicationIdSuffix ".stag"
+            versionNameSuffix " Stag"
+        }
+        production {
+            dimension "flavors"
+            resValue "string", "app_name", "RimaPay"
+        }
+    }
 }
 
 flutter {

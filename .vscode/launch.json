@@ -1,0 +1,29 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Staging",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/mainStaging.dart",
+            "args": [
+                "--flavor",
+                "staging",
+                "--target",
+                "lib/mainStaging.dart"
+            ]
+        },
+        {
+            "name": "Production",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/mainProd.dart",
+            "args": [
+                "--flavor",
+                "production",
+                "--target",
+                "lib/mainProd.dart"
+            ]
+        }
+    ]
+}

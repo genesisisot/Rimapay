@@ -924,7 +924,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
   }
 
   Widget _buildQuickActionsSection() {
-      final itemWidth = (MediaQuery.of(context).size.width - (4 * 12)) / 2;
+    final itemWidth = (MediaQuery.of(context).size.width - (4 * 12)) / 2;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -937,20 +937,21 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
           ),
         ),
         const SizedBox(height: 12),
-     SingleChildScrollView(
-      physics: NeverScrollableScrollPhysics(),
-      child: Wrap(
-        spacing: 12,
-        runSpacing: 12,
-        children: List.generate(
-          quickActions.length,
-          (index) => SizedBox(
-            width: itemWidth,
-            height: itemWidth / 2, // Example aspect ratio, adjust as needed
-            child: _buildQuickActionCard(quickActions[index], index),
+        SingleChildScrollView(
+          physics: NeverScrollableScrollPhysics(),
+          child: Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: List.generate(
+              quickActions.length,
+              (index) => SizedBox(
+                width: itemWidth,
+                height: itemWidth / 2, // Example aspect ratio, adjust as needed
+                child: _buildQuickActionCard(quickActions[index], index),
+              ),
+            ),
           ),
-        ),
-      ),)
+        )
       ],
     );
   }
@@ -1002,7 +1003,6 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 fontSize: 12,
-
                                 fontWeight: FontWeight.w700,
                                 color: Color(0xFF1D2939),
                               ),
