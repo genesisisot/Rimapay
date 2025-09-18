@@ -8,6 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:google_places_autocomplete_text_field/google_places_autocomplete_text_field.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:rimapay/Utils/Logics.dart';
 import 'dart:developer';
 
 import 'package:rimapay/core/Models/CountryStateLgaModel.dart';
@@ -24,7 +25,8 @@ enum AccountStep {
 }
 
 class PersonalInfo {
-  String fullName = '';
+  String firstname = '';
+  String lastname = '';
   String dateOfBirth = '';
   String gender = '';
   String phoneNumber = '';
@@ -78,7 +80,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
   String? _cameraError;
   bool _permissionDenied = false;
   bool _isGettingLocation = false;
-
+  final TextEditingController _birthdayController = TextEditingController();
   // Address and location related fields
   final _addressController = TextEditingController();
   CountryStateLgaModel? selectedState;
@@ -439,7 +441,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
           const SizedBox(height: 20),
           // Full Name Field
           const Text(
-            'Full Name *',
+            'First Name *',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -450,7 +452,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
           TextFormField(
             onChanged: (value) {
               setState(() {
-                _personalInfo.fullName = value;
+                _personalInfo.firstname = value;
               });
             },
             style: const TextStyle(
@@ -458,7 +460,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
               fontSize: 14,
             ),
             decoration: InputDecoration(
-              hintText: 'Enter your full name',
+              hintText: 'Enter your first name',
               hintStyle: TextStyle(
                 color: Colors.grey.withOpacity(0.6),
                 fontSize: 14,
@@ -482,7 +484,50 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
             ),
           ),
           const SizedBox(height: 16),
-
+          const Text(
+            'Last Name *',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF374151),
+            ),
+          ),
+          const SizedBox(height: 6),
+          TextFormField(
+            onChanged: (value) {
+              setState(() {
+                _personalInfo.lastname = value;
+              });
+            },
+            style: const TextStyle(
+              color: Color(0xFF111827),
+              fontSize: 14,
+            ),
+            decoration: InputDecoration(
+              hintText: 'Enter your last name',
+              hintStyle: TextStyle(
+                color: Colors.grey.withOpacity(0.6),
+                fontSize: 14,
+              ),
+              prefixIcon: const Icon(
+                Icons.person_outline,
+                color: Color(0xFF9CA3AF),
+                size: 16,
+              ),
+              fillColor: Colors.white,
+              filled: true,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Color(0xFF00B252), width: 2),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+          ),
+          const SizedBox(height: 16),
           // Date of Birth and Gender Row
           Row(
             children: [
@@ -500,13 +545,14 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                     ),
                     const SizedBox(height: 6),
                     TextFormField(
+                      controller: _birthdayController,
                       onChanged: (value) {
                         setState(() {
                           _personalInfo.dateOfBirth = value;
                         });
                       },
                       decoration: InputDecoration(
-                        hintText: 'YYYY-MM-DD',
+                        hintText: 'DD-MM-YYYY',
                         fillColor: Colors.white,
                         filled: true,
                         border: OutlineInputBorder(
@@ -522,13 +568,20 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                       onTap: () async {
                         final date = await showDatePicker(
                           context: context,
-                          initialDate: DateTime.now().subtract(const Duration(days: 6570)), // 18 years ago
+                          initialDate: DateTime.now().subtract(const Duration(days: 6570)),
                           firstDate: DateTime(1900),
                           lastDate: DateTime.now(),
                         );
                         if (date != null) {
+                          final dateString = date.toString().split(' ')[0];
+
+                          final parts = dateString.split('-');
+
+                          final formattedDate = '${parts[2]}-${parts[1]}-${parts[0]}';
+                          log(formattedDate);
                           setState(() {
-                            _personalInfo.dateOfBirth = date.toString().split(' ')[0];
+                            _personalInfo.dateOfBirth = formattedDate;
+                            _birthdayController.text = formattedDate;
                           });
                         }
                       },
@@ -597,16 +650,32 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
           TextFormField(
             onChanged: (value) {
               setState(() {
-                _personalInfo.phoneNumber = value;
+                _personalInfo.phoneNumber = addLeadingZero(value);
               });
             },
             keyboardType: TextInputType.phone,
             decoration: InputDecoration(
-              hintText: '+234 801 234 5678',
-              prefixIcon: const Icon(
-                Icons.phone_outlined,
-                color: Color(0xFF9CA3AF),
-                size: 16,
+              hintText: 'Enter your phone number',
+              prefixIcon: Padding(
+                padding: EdgeInsets.only(
+                  left: 20,
+                  right: 5,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "+234",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Color(0xFF9CA3AF),
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               fillColor: Colors.white,
               filled: true,
@@ -925,7 +994,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
 
           // BVN Field
           const Text(
-            'BVN (Choose BVN or NIN below)',
+            'BVN',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -978,7 +1047,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
 
           // NIN Field
           const Text(
-            'NIN (Choose BVN or NIN above)',
+            'NIN',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -1029,11 +1098,12 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: (_personalInfo.fullName.isNotEmpty &&
-                      _personalInfo.phoneNumber.isNotEmpty &&
-                      _personalInfo.state.isNotEmpty &&
-                      _personalInfo.lga.isNotEmpty &&
-                      _personalInfo.residentialAddress.isNotEmpty)
+              onPressed: (_personalInfo.firstname.trim().isNotEmpty &&
+                      _personalInfo.lastname.trim().isNotEmpty &&
+                      _personalInfo.phoneNumber.trim().isNotEmpty &&
+                      _personalInfo.state.trim().isNotEmpty &&
+                      _personalInfo.lga.trim().isNotEmpty &&
+                      _personalInfo.residentialAddress.trim().isNotEmpty)
                   ? _handlePersonalInfoSubmit
                   : null,
               style: ElevatedButton.styleFrom(
@@ -2162,7 +2232,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
             ),
             child: Column(
               children: [
-                _buildBvnDetailRow('Name:', _personalInfo.fullName),
+                _buildBvnDetailRow('Name:', "${_personalInfo.firstname} ${_personalInfo.lastname}"),
                 const SizedBox(height: 8),
                 _buildBvnDetailRow('Date of Birth:', _personalInfo.dateOfBirth),
                 const SizedBox(height: 8),

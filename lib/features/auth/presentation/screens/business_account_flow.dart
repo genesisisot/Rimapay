@@ -10,6 +10,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_places_autocomplete_text_field/google_places_autocomplete_text_field.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:rimapay/Utils/Logics.dart';
 import 'package:rimapay/core/Models/CountryStateLgaModel.dart';
 import 'dart:developer';
 
@@ -1239,16 +1240,32 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
           TextFormField(
             onChanged: (value) {
               setState(() {
-                _businessInfo.phoneNumber = value;
+                _businessInfo.phoneNumber = addLeadingZero(value);
               });
             },
             keyboardType: TextInputType.phone,
             decoration: InputDecoration(
-              hintText: '+234 801 234 5678',
-              prefixIcon: const Icon(
-                Icons.phone_outlined,
-                color: Color(0xFF9CA3AF),
-                size: 16,
+             hintText: 'Enter your business phone number',
+              prefixIcon: Padding(
+                padding: EdgeInsets.only(
+                  left: 20,
+                  right: 5,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "+234",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Color(0xFF9CA3AF),
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               fillColor: Colors.white,
               filled: true,

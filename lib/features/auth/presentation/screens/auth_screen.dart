@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:rimapay/Utils/Logics.dart';
 import 'package:rimapay/core/router/app_router.dart';
 import '../../../../core/providers/auth_provider.dart';
 import '../../../../core/providers/language_provider.dart';
@@ -173,7 +174,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
       _showErrorMessage('Please fill in all fields');
       return;
     }
-
+   
     setState(() {
       _isLoading = true;
     });
@@ -181,24 +182,13 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
     // Simulate API call
     await Future.delayed(const Duration(seconds: 2));
 
-    final credential = _mockCredentials[_loginForm['phoneNumber']];
+    //final credential = _mockCredentials[_loginForm['phoneNumber']];
 
     setState(() {
       _isLoading = false;
     });
 
-    if (credential != null && credential['password'] == _loginForm['password']) {
-      // setState(() {
-      //   _currentFlow = Flow.success;
-      // });
-      AppNavigation.goToHome(context);
-    } else {
-      _showErrorMessage('Invalid credentials. Try:\n'
-          '• +2348012345678 / tier1pass (Tier 1)\n'
-          '• +2348023456789 / tier2pass (Tier 2)\n'
-          '• +2348045678901 / underpass (Underbanking)\n'
-          '• +2348056789012 / bizpass (Business)');
-    }
+    AppNavigation.goToHome(context);
   }
 
   Future<void> _handleBiometricLogin() async {
@@ -463,7 +453,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                                   TextFormField(
                                     onChanged: (value) {
                                       setState(() {
-                                        _loginForm['phoneNumber'] = value;
+                                        _loginForm['phoneNumber'] = addLeadingZero(value);
                                       });
                                     },
                                     style: const TextStyle(
@@ -471,7 +461,28 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                                       fontSize: 14,
                                     ),
                                     decoration: InputDecoration(
-                                      hintText: '+2348012345678 or +2348045678901',
+                                      hintText: 'Enter phone number',
+                                      prefixIcon: Padding(
+                                        padding: EdgeInsets.only(
+                                          left: 20,
+                                          right: 5,
+                                        ),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "+234",
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                color: Colors.white.withOpacity(0.6),
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                       hintStyle: TextStyle(
                                         color: Colors.white.withOpacity(0.6),
                                         fontSize: 14,

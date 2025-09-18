@@ -4,7 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rimapay/Utils/MyFlavorsConfig.dart';
-import 'package:shimmer/main.dart';
+import 'package:rimapay/main.dart';
+
 
 void main() async {
   await AppInitializer.initialize();
@@ -13,7 +14,7 @@ void main() async {
     buildFlavour: "Production",
     isLive: true,
     skipUpdate: false,
-    child: MyApp(),
+    child: RimaPayApp(),
   );
   MyAppConfig.setInstance(appConfig);
   runApp(
