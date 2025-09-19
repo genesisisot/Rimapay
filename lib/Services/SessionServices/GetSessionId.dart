@@ -32,7 +32,7 @@ class GetSessionService {
         headers: {
           'accept': 'application/json',
           'Content-Type': 'application/json',
-          "Bearer Token": "10266560e8cc88866889421da7212a20",
+          'Authorization': "Bearer 10266560e8cc88866889421da7212a20",
         },
         body: jsonEncode(body),
       );
@@ -100,7 +100,7 @@ final authServiceProvider = Provider.autoDispose<GetSessionService>(
 
 final authResponseStateProvider = StateProvider.autoDispose<AuthResponse?>((ref) => null);
 
-final authenticateProvider = FutureProvider.autoDispose<bool>(
+final authenticateProvider = FutureProvider.autoDispose<AuthResponse?>(
   (ref) async {
     final authResponse = await ref.watch(authServiceProvider).authenticate();
 
@@ -110,7 +110,7 @@ final authenticateProvider = FutureProvider.autoDispose<bool>(
     if (isAuthenticated) {
       ref.read(sessionProvider.notifier).saveSessionId(authResponse.model?.data?.sessionId ?? "");
     }
-    return isAuthenticated;
+    return authResponse;
   },
 );
 

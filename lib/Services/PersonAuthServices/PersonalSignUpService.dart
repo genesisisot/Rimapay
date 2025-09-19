@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart';
 import 'package:rimapay/Constants/En.dart';
 import 'package:rimapay/Models/UserDataModel.dart';
+import 'package:rimapay/Services/UserDataProvider.dart';
 
 class PersonalSignupParams {
   final String? sessionId;
@@ -103,8 +104,9 @@ class PersonalSignupService {
 
   Future<PersonalSignupResponse> signupPersonal(PersonalSignupParams params) async {
     try {
+      log(BASE_URL);
       final url = Uri.parse('$BASE_URL/processes');
-
+      log(params.toJson().toString());
       final response = await post(
         url,
         headers: {
@@ -114,10 +116,10 @@ class PersonalSignupService {
         body: jsonEncode(params.toJson()),
       );
 
-      log(response.body.toString());
+      log("FUCKEN RESPONSE HERE -------> ${response.body.toString()}");
 
       if (response.statusCode == 200) {
-        final json = jsonDecode(response.body);
+        Map<String, dynamic> json = response.body as Map<String, dynamic>;
 
         SignUpData resBody = SignUpData.fromJson(json);
 
@@ -181,10 +183,12 @@ final signupProvider = FutureProvider.autoDispose.family<bool, PersonalSignupPar
   (ref, params) async {
     final signupResponse = await ref.watch(signupServiceProvider).signupPersonal(params);
 
-    final isSignupSuccessful = signupResponse.model != null && signupResponse.status == "success";
+    final isSignupSuccessful = signupResponse.model != null && signupResponse.status == SUCCESS;
 
     ref.read(signupResponseStateProvider.notifier).state = signupResponse;
-
+    if (isSignupSuccessful) {
+      ref.read(userDataProvider.notifier).saveUserData(signupResponse.model!.data!);
+    }
     return isSignupSuccessful;
   },
 );
