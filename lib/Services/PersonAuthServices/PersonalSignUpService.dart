@@ -187,7 +187,8 @@ final signupProvider = FutureProvider.autoDispose.family<bool, PersonalSignupPar
 
     ref.read(signupResponseStateProvider.notifier).state = signupResponse;
     if (isSignupSuccessful) {
-      ref.read(userDataProvider.notifier).saveUserData(signupResponse.model!.data!);
+      await ref.read(userDataProvider.notifier).saveUserData(signupResponse.model!.data!);
+      await ref.read(userDataProvider.notifier).updateUserData("password", params.password);
     }
     return isSignupSuccessful;
   },

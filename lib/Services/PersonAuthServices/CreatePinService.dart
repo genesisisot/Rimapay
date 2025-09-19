@@ -45,11 +45,9 @@ class CreatePinService {
 
   Future<CreatePinResponse> createPin(CreatePinParams params) async {
     try {
-   
-      
       final url = Uri.parse('$BASE_URL/processes');
       log(params.toJson().toString());
-      
+
       final response = await post(
         url,
         headers: {
@@ -122,12 +120,12 @@ final createPinResponseStateProvider = StateProvider.autoDispose<CreatePinRespon
 final createPinProvider = FutureProvider.autoDispose.family<bool, CreatePinParams>(
   (ref, params) async {
     final createPinResponse = await ref.watch(createPinServiceProvider).createPin(params);
-    
+
     final isPinCreated = createPinResponse.model != null && createPinResponse.status == SUCCESS;
-    
+
     ref.read(createPinResponseStateProvider.notifier).state = createPinResponse;
-    if(isPinCreated){
-      ref.read(userDataProvider.notifier).updateUserData("pin", params.sentPIN);
+    if (isPinCreated) {
+      await ref.read(userDataProvider.notifier).updateUserData("pin", params.sentPIN);
     }
     return isPinCreated;
   },
