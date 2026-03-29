@@ -226,6 +226,63 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
                 const SizedBox(height: AppSpacing.xxxl * 2),
 
+                // Compliance logos
+                AnimatedBuilder(
+                  animation: _textController,
+                  builder: (context, child) {
+                    return Opacity(
+                      opacity: _textOpacity.value,
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 32),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                              color: Colors.white.withOpacity(0.15)),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              'assets/images/NDIC.png',
+                              height: 48,
+                              errorBuilder: (_, __, ___) => const SizedBox(),
+                            ),
+                            Container(
+                              width: 1,
+                              height: 36,
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 14),
+                              color: Colors.white.withOpacity(0.2),
+                            ),
+                            Text(
+                              'AUTHORIZED AND\nREGULATED BY',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.7),
+                                fontSize: 9,
+                                fontWeight: FontWeight.w700,
+                                height: 1.3,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Image.asset(
+                              'assets/images/CBN.png',
+                              height: 50,
+                              errorBuilder: (_, __, ___) => const SizedBox(),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 20),
+
                 // Loading indicator
                 AnimatedBuilder(
                   animation: _textController,

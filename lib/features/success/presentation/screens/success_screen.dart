@@ -10,6 +10,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import 'dart:math' as math;
+import 'dart:math' show Random;
 import 'package:share_plus/share_plus.dart';
 
 class SuccessScreenProps {
@@ -82,6 +83,9 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
   late Animation<double> _iconRotateAnimation;
   late Animation<double> _iconScaleAnimation;
 
+  late AnimationController _confettiController;
+  late List<_ConfettiParticle> _particles;
+
   bool _showSaveBeneficiary = false;
   String _beneficiaryNickname = '';
   bool _markAsFavorite = false;
@@ -149,12 +153,20 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
     HapticFeedback.lightImpact();
     _mainAnimationController.forward();
     _iconRotationController.repeat(reverse: true);
+    // Confetti
+    _confettiController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    )..forward();
+    final rng = Random();
+    _particles = List.generate(60, (_) => _ConfettiParticle(rng));
   }
 
   @override
   void dispose() {
     _mainAnimationController.dispose();
     _iconRotationController.dispose();
+    _confettiController.dispose();
     super.dispose();
   }
 
@@ -181,16 +193,15 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
   void _onRepeatTransaction() {
     final type = widget.props.transactionType.toLowerCase();
     if (type.contains('airtime')) {
-      context.go('/airtime');
+      context.go('/bills/airtime');
     } else if (type.contains('data')) {
-      context.go('/data');
+      context.go('/bills/data');
     } else if (type.contains('electricity')) {
-      context.go('/electricity');
+      context.go('/bills/electricity');
     } else if (type.contains('cable')) {
-      context.go('/cable');
-    } else if (type.contains('transfer')) {
-      context.go('/transfer');
-    } else { context.go('/airtime');
+      context.go('/bills/cable');
+    } else {
+      context.go('/home');
     }
   }
 
@@ -229,63 +240,98 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
   @override
   Widget build(BuildContext context) {
     final isTransfer = widget.props.transactionType.toLowerCase().contains('transfer');
-    
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFFF8FAFC), // slate-50
-              Color(0xFFF0FDF4), // green-50/30
-              Color(0xFFECFDF5), // emerald-50/50
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Main content
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: SingleChildScrollView(
-                    physics: BouncingScrollPhysics(),
-                    child: Column(
 
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const SizedBox(height: 32),
-                        
-                        // Success Icon
-                        _buildSuccessIcon(),
-                        
-                        const SizedBox(height: 32),
-                        
-                        // Success Message
-                        _buildSuccessMessage(isTransfer),
-                        
-                        const SizedBox(height: 32),
-                        
-                        // Transaction Details
-                        _buildTransactionDetails(),
-                        
-                        const SizedBox(height: 32),
-                        
-                        // Action Buttons
-                        _buildActionButtons(),
-                      ],
+    return Scaffold(
+      body: Stack(
+        children: [
+          // Background
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFFF8FAFC),
+                  Color(0xFFF0FDF4),
+                  Color(0xFFECFDF5),
+                ],
+              ),
+            ),
+          ),
+
+          // Main content
+          SafeArea(
+            child: Column(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(height: 24),
+
+                          // RimaPay Logo
+                          Image.asset(
+                            'assets/images/AppIcon.png',
+                            height: 56,
+                            width: 56,
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          // Success Icon
+                          _buildSuccessIcon(),
+
+                          const SizedBox(height: 24),
+
+                          // Success Message
+                          _buildSuccessMessage(isTransfer),
+
+                          const SizedBox(height: 24),
+
+                          // Transaction Details
+                          _buildTransactionDetails(),
+
+                          const SizedBox(height: 24),
+
+                          // Action Buttons
+                          _buildActionButtons(),
+
+                          const SizedBox(height: 16),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              
-              // Footer
-              _buildFooter(),
-            ],
+
+                // Footer
+                _buildFooter(),
+              ],
+            ),
           ),
-        ),
+
+          // Confetti overlay
+          AnimatedBuilder(
+            animation: _confettiController,
+            builder: (context, child) {
+              return IgnorePointer(
+                child: CustomPaint(
+                  painter: _ConfettiPainter(
+                    particles: _particles,
+                    progress: _confettiController.value,
+                  ),
+                  size: MediaQuery.of(context).size,
+                ),
+              );
+            },
+          ),
+
+          // Save Beneficiary Modal
+          if (_showSaveBeneficiary) _buildSaveBeneficiaryModal(),
+        ],
       ),
     );
   }
@@ -518,120 +564,94 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
             offset: Offset(0, _slideUpAnimation.value),
             child: Column(
               children: [
-                // Save Beneficiary Button (for transfers)
-                if (widget.props.canSaveBeneficiary && widget.props.beneficiaryData != null)
-                  Container(
-                    width: double.infinity,
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        setState(() {
-                          _showSaveBeneficiary = true;
-                        });
-                      },
-                      icon: const Icon(Icons.person_add, size: 16),
-                      label: const Text('Save as Beneficiary'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFF0FDF4), // green-50
-                        foregroundColor: const Color(0xFF166534), // green-700
-                        elevation: 0,
-                        side: const BorderSide(color: Color(0xFFBBF7D0)), // green-200
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                    ),
-                  ),
-                
-                // Share and Download Row
+                // Repeat Transaction + Download Receipt row
                 Row(
                   children: [
                     Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: _handleShare,
-                        icon: const Icon(Icons.share, size: 16),
-                        label: const Text('Share'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white.withOpacity(0.7),
-                          foregroundColor: const Color(0xFF4B5563), // neutral-600
-                          elevation: 0,
-                          side: BorderSide(color: Colors.white.withOpacity(0.3)),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
+                      child: _outlineBtn(
+                        icon: Icons.refresh,
+                        label: 'Repeat',
+                        onTap: _onRepeatTransaction,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 10),
                     Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: _handleDownload,
-                        icon: const Icon(Icons.download, size: 16),
-                        label: const Text('Save'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white.withOpacity(0.7),
-                          foregroundColor: const Color(0xFF4B5563), // neutral-600
-                          elevation: 0,
-                          side: BorderSide(color: Colors.white.withOpacity(0.3)),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
+                      child: _outlineBtn(
+                        icon: Icons.download_rounded,
+                        label: 'Receipt',
+                        onTap: _handleDownload,
                       ),
                     ),
                   ],
                 ),
-                
-                const SizedBox(height: 12),
-                
-                // // Repeat Transaction Button
-                // Container(
-                //   width: double.infinity,
-                //   margin: const EdgeInsets.only(bottom: 12),
-                //   child: ElevatedButton.icon(
-                //     onPressed: _onRepeatTransaction,
-                //     icon: const Icon(Icons.refresh, size: 16),
-                //     label: const Text('Repeat Transaction'),
-                //     style: ElevatedButton.styleFrom(
-                //       backgroundColor: const Color(0xFFEFF6FF), // blue-50
-                //       foregroundColor: const Color(0xFF1D4ED8), // blue-700
-                //       elevation: 0,
-                //       side: const BorderSide(color: Color(0xFFBFDBFE)), // blue-200
-                //       shape: RoundedRectangleBorder(
-                //         borderRadius: BorderRadius.circular(12),
-                //       ),
-                //       padding: const EdgeInsets.symmetric(vertical: 16),
-                //     ),
-                //   ),
-                // ),
-                
-                // // Back to Home Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: _onHome,
-                    icon: const Icon(Icons.home, size: 16),
-                    label: const Text('Back to Home'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF16A34A), // green-600
-                      foregroundColor: Colors.white,
-                      elevation: 4,
-                      shadowColor: const Color(0xFF16A34A).withOpacity(0.3),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+
+                const SizedBox(height: 10),
+
+                // Dispute + Close row
+                Row(
+                  children: [
+                    Expanded(
+                      child: _outlineBtn(
+                        icon: Icons.flag_outlined,
+                        label: 'Dispute',
+                        onTap: _handleDispute,
+                        color: const Color(0xFFDC2626),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                  ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _onHome,
+                        icon: const Icon(Icons.close, size: 16),
+                        label: const Text('Close'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF16A34A),
+                          foregroundColor: Colors.white,
+                          elevation: 3,
+                          shadowColor: const Color(0xFF16A34A).withOpacity(0.3),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget _outlineBtn({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    Color color = const Color(0xFF374151),
+  }) {
+    return OutlinedButton.icon(
+      onPressed: onTap,
+      icon: Icon(icon, size: 15, color: color),
+      label: Text(label, style: TextStyle(color: color, fontSize: 13)),
+      style: OutlinedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        side: BorderSide(color: color.withOpacity(0.3)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        backgroundColor: color.withOpacity(0.05),
+      ),
+    );
+  }
+
+  void _handleDispute() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Dispute submitted. Our team will review it shortly.'),
+        backgroundColor: Color(0xFFDC2626),
+        behavior: SnackBarBehavior.floating,
+      ),
     );
   }
 
@@ -925,68 +945,70 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
     );
   }
 
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     body: Stack(
-  //       children: [
-  //         // Main content
-  //         Container(
-  //           decoration: const BoxDecoration(
-  //             gradient: LinearGradient(
-  //               begin: Alignment.topLeft,
-  //               end: Alignment.bottomRight,
-  //               colors: [
-  //                 Color(0xFFF8FAFC), // slate-50
-  //                 Color(0xFFF0FDF4), // green-50/30
-  //                 Color(0xFFECFDF5), // emerald-50/50
-  //               ],
-  //             ),
-  //           ),
-  //           child: SafeArea(
-  //             child: Column(
-  //               children: [
-  //                 // Main content
-  //                 Expanded(
-  //                   child: Padding(
-  //                     padding: const EdgeInsets.all(16.0),
-  //                     child: Column(
-  //                       mainAxisAlignment: MainAxisAlignment.center,
-  //                       children: [
-  //                         const SizedBox(height: 32),
-                          
-  //                         // Success Icon
-  //                         _buildSuccessIcon(),
-                          
-  //                         const SizedBox(height: 32),
-                          
-  //                         // Success Message
-  //                         _buildSuccessMessage(widget.props.transactionType.toLowerCase().contains('transfer')),
-                          
-  //                         const SizedBox(height: 32),
-                          
-  //                         // Transaction Details
-  //                         _buildTransactionDetails(),
-                          
-  //                         const SizedBox(height: 32),
-                          
-  //                         // Action Buttons
-  //                         _buildActionButtons(),
-  //                       ],
-  //                     ),
-  //                   ),
-  //                 ),
-                  
-  //                 // Footer
-  //                 _buildFooter(),
-  //               ],
-  //             ),
-  //           ),
-  //         ),
-          
-  //         // Save Beneficiary Modal
-  //         if (_showSaveBeneficiary) _buildSaveBeneficiaryModal(),
-  //       ],
-  //     ),
-  //   );
+}
+
+// ── Confetti ──────────────────────────────────────────────────────────────────
+
+class _ConfettiParticle {
+  final double x; // 0..1 relative to screen width
+  final double startY;
+  final double speed; // 0..1 per animation cycle
+  final double size;
+  final Color color;
+  final double wobble; // horizontal sway amplitude
+  final double wobbleSpeed;
+
+  _ConfettiParticle(Random rng)
+      : x = rng.nextDouble(),
+        startY = -0.1 - rng.nextDouble() * 0.3,
+        speed = 0.4 + rng.nextDouble() * 0.6,
+        size = 5 + rng.nextDouble() * 7,
+        color = _confettiColors[rng.nextInt(_confettiColors.length)],
+        wobble = 20 + rng.nextDouble() * 40,
+        wobbleSpeed = 2 + rng.nextDouble() * 3;
+
+  static const _confettiColors = [
+    Color(0xFF16A34A),
+    Color(0xFF4ADE80),
+    Color(0xFFFBBF24),
+    Color(0xFF60A5FA),
+    Color(0xFFF472B6),
+    Color(0xFFA78BFA),
+    Color(0xFFFB7185),
+  ];
+}
+
+class _ConfettiPainter extends CustomPainter {
+  final List<_ConfettiParticle> particles;
+  final double progress;
+
+  _ConfettiPainter({required this.particles, required this.progress});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..style = PaintingStyle.fill;
+    for (final p in particles) {
+      final t = ((progress * p.speed) % 1.0);
+      if (t <= 0) continue;
+      final dy = p.startY + t * 1.3;
+      if (dy > 1.1) continue;
+      final dx = p.x + math.sin(t * math.pi * 2 * p.wobbleSpeed) * p.wobble / size.width;
+      paint.color = p.color.withOpacity((1 - t * 0.6).clamp(0, 1));
+      canvas.save();
+      canvas.translate(dx * size.width, dy * size.height);
+      canvas.rotate(t * math.pi * 4);
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromCenter(center: Offset.zero, width: p.size, height: p.size * 0.5),
+          const Radius.circular(2),
+        ),
+        paint,
+      );
+      canvas.restore();
+    }
   }
+
+  @override
+  bool shouldRepaint(_ConfettiPainter old) => old.progress != progress;
+}
+

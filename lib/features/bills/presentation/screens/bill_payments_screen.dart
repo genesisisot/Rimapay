@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/providers/language_provider.dart';
 import '../../../../core/providers/auth_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../shared/widgets/noise_painter.dart';
 
 class BillService {
   final String id;
@@ -13,6 +13,7 @@ class BillService {
   final String description;
   final String icon;
   final Color color;
+  final Color bgColor;
   final String route;
   final bool isLocked;
   final TierLevel requiredTier;
@@ -23,6 +24,7 @@ class BillService {
     required this.description,
     required this.icon,
     required this.color,
+    required this.bgColor,
     required this.route,
     this.isLocked = false,
     this.requiredTier = TierLevel.tier0,
@@ -38,553 +40,481 @@ class BillPaymentsScreen extends StatefulWidget {
 
 class _BillPaymentsScreenState extends State<BillPaymentsScreen>
     with TickerProviderStateMixin {
-  late AnimationController _animationController;
+  late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
-  
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _initializeAnimations();
-  }
-
-  void _initializeAnimations() {
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 600),
+    _fadeController = AnimationController(
       vsync: this,
+      duration: const Duration(milliseconds: 500),
     );
-
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
       curve: Curves.easeOut,
-    ));
-
-    _animationController.forward();
+    );
+    _fadeController.forward();
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _fadeController.dispose();
     _searchController.dispose();
     super.dispose();
   }
 
   List<BillService> _getAllServices() {
     return [
-      // Essential Services (Always Available)
       BillService(
         id: 'airtime',
         title: 'Airtime',
-        description: 'Buy airtime for all networks',
+        description: 'All networks',
         icon: '📱',
-        color: AppColors.accentPurple,
-        route: '/airtime',
+        color: const Color(0xFF8B5CF6),
+        bgColor: const Color(0xFFf5f3ff),
+        route: '/bills/airtime',
       ),
       BillService(
         id: 'data',
         title: 'Data',
-        description: 'Buy data bundles',
+        description: 'Data bundles',
         icon: '📶',
-        color: AppColors.accentOrange,
-        route: '/data',
+        color: const Color(0xFFF97316),
+        bgColor: const Color(0xFFfff7ed),
+        route: '/bills/data',
       ),
       BillService(
         id: 'electricity',
         title: 'Electricity',
-        description: 'Pay electricity bills',
+        description: 'DISCO payments',
         icon: '⚡',
-        color: AppColors.accentYellow,
-        route: '/electricity',
+        color: const Color(0xFFEAB308),
+        bgColor: const Color(0xFFfefce8),
+        route: '/bills/electricity',
       ),
       BillService(
         id: 'cable',
         title: 'Cable TV',
-        description: 'Pay for cable subscriptions',
+        description: 'DSTV, GOtv, etc.',
         icon: '📺',
-        color: AppColors.accentPink,
-        route: '/cable',
+        color: const Color(0xFFEC4899),
+        bgColor: const Color(0xFFfdf2f8),
+        route: '/bills/cable',
       ),
-      
-      // Tier 1+ Services
       BillService(
         id: 'education',
-        title: 'Education Bills',
-        description: 'Pay school fees and educational bills',
+        title: 'Education',
+        description: 'School fees',
         icon: '🎓',
-        color: AppColors.accentBlue,
+        color: const Color(0xFF3B82F6),
+        bgColor: const Color(0xFFeff6ff),
         route: '/education-bills',
-        isLocked: true,
-        requiredTier: TierLevel.tier1,
       ),
       BillService(
         id: 'airtime-to-cash',
-        title: 'Airtime to Cash',
-        description: 'Convert airtime to cash',
+        title: 'Airtime→Cash',
+        description: 'Convert airtime',
         icon: '💰',
-        color: AppColors.primary500,
+        color: const Color(0xFF00B252),
+        bgColor: const Color(0xFFecfdf5),
         route: '/airtime-to-cash',
-        isLocked: true,
-        requiredTier: TierLevel.tier1,
       ),
       BillService(
         id: 'event-tickets',
-        title: 'Event Tickets',
-        description: 'Buy event and concert tickets',
+        title: 'Events',
+        description: 'Tickets & concerts',
         icon: '🎫',
-        color: AppColors.accentPink,
+        color: const Color(0xFFEC4899),
+        bgColor: const Color(0xFFfdf2f8),
         route: '/event-tickets',
-        isLocked: true,
-        requiredTier: TierLevel.tier1,
       ),
-      
-      // Tier 2+ Services
       BillService(
         id: 'betting',
-        title: 'Betting & Lottery',
-        description: 'Fund betting and lottery accounts',
+        title: 'Betting',
+        description: 'Betting & lottery',
         icon: '🎰',
-        color: AppColors.accentOrange,
+        color: const Color(0xFFF97316),
+        bgColor: const Color(0xFFfff7ed),
         route: '/betting-lottery',
-        isLocked: true,
-        requiredTier: TierLevel.tier2,
       ),
       BillService(
         id: 'pension',
-        title: 'Voluntary Pension',
-        description: 'Make voluntary pension contributions',
+        title: 'Pension',
+        description: 'Voluntary pension',
         icon: '🏦',
-        color: AppColors.accentBlue,
+        color: const Color(0xFF3B82F6),
+        bgColor: const Color(0xFFeff6ff),
         route: '/voluntary-pension',
-        isLocked: true,
-        requiredTier: TierLevel.tier2,
       ),
       BillService(
         id: 'road-transport',
-        title: 'Road Transport',
-        description: 'Pay for bus tickets and transport',
+        title: 'Transport',
+        description: 'Bus tickets',
         icon: '🚌',
-        color: AppColors.accentPurple,
+        color: const Color(0xFF8B5CF6),
+        bgColor: const Color(0xFFf5f3ff),
         route: '/road-transport',
-        isLocked: true,
-        requiredTier: TierLevel.tier2,
       ),
-      
-      // Tier 3+ Services
       BillService(
         id: 'air-transport',
-        title: 'Air Transport',
-        description: 'Book domestic and international flights',
+        title: 'Flights',
+        description: 'Book flights',
         icon: '✈️',
-        color: AppColors.accentBlue,
+        color: const Color(0xFF3B82F6),
+        bgColor: const Color(0xFFeff6ff),
         route: '/air-transport',
-        isLocked: true,
-        requiredTier: TierLevel.tier3,
       ),
       BillService(
         id: 'government',
-        title: 'State Government',
-        description: 'Pay government fees and taxes',
+        title: 'Gov. Payments',
+        description: 'Taxes & fees',
         icon: '🏛️',
-        color: AppColors.primary700,
+        color: const Color(0xFF00B252),
+        bgColor: const Color(0xFFecfdf5),
         route: '/state-government',
-        isLocked: true,
-        requiredTier: TierLevel.tier3,
       ),
     ];
   }
 
-  List<BillService> _getFilteredServices() {
-    final services = _getAllServices();
-    if (_searchQuery.isEmpty) return services;
-    
-    return services.where((service) =>
-      service.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-      service.description.toLowerCase().contains(_searchQuery.toLowerCase())
-    ).toList();
+  List<BillService> _filteredServices() {
+    final all = _getAllServices();
+    if (_searchQuery.isEmpty) return all;
+    return all
+        .where((s) =>
+            s.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+            s.description.toLowerCase().contains(_searchQuery.toLowerCase()))
+        .toList();
   }
 
-  void _handleServiceTap(BillService service) {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final user = authProvider.user;
-    
+  void _onServiceTap(BillService service) {
     if (service.isLocked) {
-      final userTierLevel = user?.tierLevel ?? TierLevel.tier0;
-      final requiredTierIndex = TierLevel.values.indexOf(service.requiredTier);
-      final userTierIndex = TierLevel.values.indexOf(userTierLevel);
-      
-      if (userTierIndex < requiredTierIndex) {
-        _showUpgradeDialog(service);
-        return;
-      }
+      _showUpgradeSheet(service);
+      return;
     }
-    
     context.push(service.route);
   }
 
-  void _showUpgradeDialog(BillService service) {
-    showDialog(
+  void _showUpgradeSheet(BillService service) {
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+      backgroundColor: Colors.transparent,
+      builder: (_) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
-        title: Row(
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Text(service.icon, style: const TextStyle(fontSize: 24)),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: Text(
-                'Upgrade Required',
-                style: AppTextStyles.heading4.copyWith(
-                  color: AppColors.neutral900,
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE4E7EC),
+                borderRadius: BorderRadius.circular(999),
+              ),
+            ),
+            Text(service.icon, style: const TextStyle(fontSize: 40)),
+            const SizedBox(height: 12),
+            Text(
+              'Upgrade to unlock ${service.title}',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF101828),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'This service requires ${service.requiredTier.name.toUpperCase()} tier or higher.',
+              style: const TextStyle(fontSize: 14, color: Color(0xFF667085)),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+                context.push('/tiers');
+              },
+              child: Container(
+                width: double.infinity,
+                height: 54,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFff6b35),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Center(
+                  child: Text(
+                    'Upgrade Account',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+                  ),
                 ),
               ),
             ),
           ],
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'To access ${service.title}, you need to upgrade your account to ${service.requiredTier.name.toUpperCase()} tier or higher.',
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.neutral600,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            Container(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              decoration: BoxDecoration(
-                color: AppColors.primary50,
-                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                border: Border.all(color: AppColors.primary200),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.star,
-                    color: AppColors.primary500,
-                    size: 20,
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: Text(
-                      'Upgrade now to unlock premium services',
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.primary700,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(
-              'Later',
-              style: AppTextStyles.labelMedium.copyWith(
-                color: AppColors.neutral500,
-              ),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              context.push('/account-tiers');
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary500,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-              ),
-            ),
-            child: Text(
-              'Upgrade',
-              style: AppTextStyles.labelMedium.copyWith(
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-
-    final authProvider = Provider.of<AuthProvider>(context);
-    final user = authProvider.user;
+    final services = _filteredServices();
 
     return Scaffold(
-      backgroundColor: AppColors.neutral50,
-      appBar: AppBar(
-        backgroundColor: AppColors.neutral0,
-        elevation: 0,
-        leading: IconButton(
-          onPressed: () => context.pop(),
-          icon: const Icon(Icons.arrow_back_ios),
-          color: AppColors.neutral600,
-        ),
-        title: Text(
-          'Bill Payments',
-          style: AppTextStyles.heading3.copyWith(
-            color: AppColors.neutral900,
-          ),
-        ),
-        centerTitle: true,
-      ),
+      backgroundColor: const Color(0xFFF9FAFB),
       body: FadeTransition(
         opacity: _fadeAnimation,
-        child: Column(
-          children: [
-            // Search bar
-            Container(
-              margin: EdgeInsets.all(AppSpacing.responsivePadding(context)),
-              child: TextField(
-                controller: _searchController,
-                onChanged: (value) {
-                  setState(() {
-                    _searchQuery = value;
-                  });
-                },
-                decoration: InputDecoration(
-                  hintText: 'Search services...',
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() {
-                            _searchQuery = '';
-                          });
-                        },
-                        icon: const Icon(Icons.clear),
-                      )
-                    : null,
-                  filled: true,
-                  fillColor: AppColors.neutral0,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                    borderSide: const BorderSide(color: AppColors.neutral200),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                    borderSide: const BorderSide(color: AppColors.neutral200),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                    borderSide: const BorderSide(color: AppColors.primary500),
-                  ),
-                ),
-              ),
-            ),
-            
-            // Account tier info
-            if (user != null)
-              Container(
-                margin: EdgeInsets.symmetric(
-                  horizontal: AppSpacing.responsivePadding(context),
-                ),
-                padding: const EdgeInsets.all(AppSpacing.md),
-                decoration: BoxDecoration(
-                  gradient: AppColors.primaryGradient,
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.account_circle,
-                      color: Colors.white,
-                      size: 24,
+        child: CustomScrollView(
+          slivers: [
+            // ── Green gradient header ──
+            SliverToBoxAdapter(
+              child: Stack(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).padding.top + 16,
+                      left: 20,
+                      right: 20,
+                      bottom: 28,
                     ),
-                    const SizedBox(width: AppSpacing.sm),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            user.tierName,
-                            style: AppTextStyles.labelMedium.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          Text(
-                            'Unlock more services by upgrading',
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: Colors.white.withOpacity(0.9),
-                            ),
-                          ),
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Color(0xFF001a0c),
+                          Color(0xFF003d1a),
+                          Color(0xFF005e27),
                         ],
+                        stops: [0.0, 0.5, 1.0],
                       ),
                     ),
-                    TextButton(
-                      onPressed: () => context.push('/account-tiers'),
-                      style: TextButton.styleFrom(
-                        backgroundColor: Colors.white.withOpacity(0.2),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                          child: CustomPaint(
+                            painter: NoisePainter(opacity: 0.04, seed: 5),
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        'Upgrade',
-                        style: AppTextStyles.labelSmall.copyWith(
-                          color: Colors.white,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Services',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Pay bills & manage services',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.65),
+                                fontSize: 13,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            // Search bar
+                            Container(
+                              height: 46,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                    color: Colors.white.withOpacity(0.18)),
+                              ),
+                              child: TextField(
+                                controller: _searchController,
+                                onChanged: (v) =>
+                                    setState(() => _searchQuery = v),
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 14),
+                                decoration: InputDecoration(
+                                  hintText: 'Search services...',
+                                  hintStyle: TextStyle(
+                                    color: Colors.white.withOpacity(0.5),
+                                    fontSize: 14,
+                                  ),
+                                  prefixIcon: Icon(Icons.search,
+                                      color:
+                                          Colors.white.withOpacity(0.6),
+                                      size: 20),
+                                  suffixIcon: _searchQuery.isNotEmpty
+                                      ? IconButton(
+                                          icon: Icon(Icons.clear,
+                                              color: Colors.white
+                                                  .withOpacity(0.6),
+                                              size: 18),
+                                          onPressed: () {
+                                            _searchController.clear();
+                                            setState(
+                                                () => _searchQuery = '');
+                                          },
+                                        )
+                                      : null,
+                                  border: InputBorder.none,
+                                  contentPadding:
+                                      const EdgeInsets.symmetric(
+                                          vertical: 12),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
-            
-            const SizedBox(height: AppSpacing.lg),
-            
-            // Services grid
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: AppSpacing.responsivePadding(context),
-                ),
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: AppSpacing.md,
-                    mainAxisSpacing: AppSpacing.md,
-                    childAspectRatio: 1.2,
                   ),
-                  itemCount: _getFilteredServices().length,
-                  itemBuilder: (context, index) {
-                    final service = _getFilteredServices()[index];
-                    return _buildServiceCard(service, user);
+                ],
+              ),
+            ),
+
+            // ── Service Grid ──
+            SliverPadding(
+              padding: const EdgeInsets.all(16),
+              sliver: SliverGrid(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final service = services[index];
+                    return _ServiceCard(
+                      service: service,
+                      onTap: () => _onServiceTap(service),
+                    );
                   },
+                  childCount: services.length,
+                ),
+                gridDelegate:
+                    const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 0.85,
                 ),
               ),
             ),
+
+            const SliverToBoxAdapter(child: SizedBox(height: 100)),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildServiceCard(BillService service, User? user) {
-    final userTierLevel = user?.tierLevel ?? TierLevel.tier0;
-    final requiredTierIndex = TierLevel.values.indexOf(service.requiredTier);
-    final userTierIndex = TierLevel.values.indexOf(userTierLevel);
-    final isLocked = service.isLocked && userTierIndex < requiredTierIndex;
-    
+class _ServiceCard extends StatelessWidget {
+  final BillService service;
+  final VoidCallback onTap;
+
+  const _ServiceCard({required this.service, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => _handleServiceTap(service),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+      onTap: onTap,
+      child: Container(
         decoration: BoxDecoration(
-          color: isLocked ? AppColors.neutral100 : AppColors.neutral0,
-          borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: isLocked ? AppColors.neutral200 : service.color.withOpacity(0.2),
+            color: service.isLocked
+                ? const Color(0xFFE4E7EC)
+                : service.color.withOpacity(0.15),
           ),
           boxShadow: [
             BoxShadow(
-              color: isLocked ? AppColors.neutral200 : service.color.withOpacity(0.1),
+              color: Colors.black.withOpacity(0.04),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
           ],
         ),
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Stack(
                 children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: isLocked 
-                            ? AppColors.neutral200 
-                            : service.color.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                        ),
-                        child: Center(
-                          child: Text(
-                            service.icon,
-                            style: TextStyle(
-                              fontSize: 20,
-                              color: isLocked ? AppColors.neutral400 : null,
-                            ),
-                          ),
-                        ),
-                      ),
-                      if (isLocked) ...[
-                        const Spacer(),
-                        Icon(
-                          Icons.lock,
-                          color: AppColors.neutral400,
-                          size: 16,
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    service.title,
-                    style: AppTextStyles.labelLarge.copyWith(
-                      color: isLocked ? AppColors.neutral400 : AppColors.neutral900,
-                      fontWeight: FontWeight.w600,
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: service.isLocked
+                          ? const Color(0xFFF4F6F8)
+                          : service.bgColor,
+                      borderRadius: BorderRadius.circular(14),
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: AppSpacing.xs),
-                  Expanded(
-                    child: Text(
-                      service.description,
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: isLocked ? AppColors.neutral400 : AppColors.neutral600,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  if (isLocked)
-                    Container(
-                      margin: const EdgeInsets.only(top: AppSpacing.xs),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.sm,
-                        vertical: AppSpacing.xs,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary100,
-                        borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                      ),
+                    child: Center(
                       child: Text(
-                        '${service.requiredTier.name.toUpperCase()}+',
-                        style: AppTextStyles.bodySmall.copyWith(
-                          color: AppColors.primary700,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
+                        service.icon,
+                        style: TextStyle(
+                          fontSize: 22,
+                          color:
+                              service.isLocked ? null : null,
                         ),
+                      ),
+                    ),
+                  ),
+                  if (service.isLocked)
+                    Positioned(
+                      top: -2,
+                      right: -2,
+                      child: Container(
+                        width: 16,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF98A2B3),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(Icons.lock,
+                            color: Colors.white, size: 9),
                       ),
                     ),
                 ],
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                service.title,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: service.isLocked
+                      ? const Color(0xFF98A2B3)
+                      : const Color(0xFF101828),
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 2),
+              Text(
+                service.isLocked
+                    ? '${service.requiredTier.name.toUpperCase()}+'
+                    : service.description,
+                style: TextStyle(
+                  fontSize: 10,
+                  color: service.isLocked
+                      ? const Color(0xFFff6b35)
+                      : const Color(0xFF667085),
+                  fontWeight: service.isLocked
+                      ? FontWeight.w600
+                      : FontWeight.normal,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
       ),
     );

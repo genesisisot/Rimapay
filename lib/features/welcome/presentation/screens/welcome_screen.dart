@@ -1,20 +1,12 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
-import 'package:rimapay/core/providers/app_state_provider.dart';
 
-/// Usage:
-/// WelcomeScreen(
-///   onCreateAccount: () => print('create account'),
-///   onLogin: () => print('login'),
-///   onSkip: () => print('skip'),
-/// );
+import '../../../../../shared/widgets/noise_painter.dart';
 
 class WelcomeScreen extends StatefulWidget {
-  const WelcomeScreen({
-    super.key,
-  });
+  const WelcomeScreen({super.key});
 
   @override
   State<WelcomeScreen> createState() => _WelcomeScreenState();
@@ -22,76 +14,102 @@ class WelcomeScreen extends StatefulWidget {
 
 class _Slide {
   final String id;
-  final String imageAsset;
   final String title;
   final String subtitle;
   final String description;
 
   _Slide({
     required this.id,
-    required this.imageAsset,
     required this.title,
     required this.subtitle,
     required this.description,
   });
 }
 
-class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateMixin {
-  final List<_Slide> slides = [
+class _WelcomeScreenState extends State<WelcomeScreen>
+    with TickerProviderStateMixin {
+  final List<_Slide> _slidesEn = [
     _Slide(
       id: 'heritage',
-      imageAsset: 'assets/images/Onboarding1.png',
       title: 'We are Indigenous,\nmade for us, by us',
       subtitle: 'Nigerian Heritage',
-      description: 'Built by Nigerians, for Nigerians. Experience financial freedom rooted in our rich culture and unwavering spirit of excellence.',
+      description:
+          'Built by Nigerians, for Nigerians. Experience financial freedom rooted in our rich culture and unwavering spirit of excellence.',
     ),
     _Slide(
       id: 'market',
-      imageAsset: 'assets/images/Onboarding2.png',
       title: 'RimaPay is\nfor Everyone',
       subtitle: 'Every Nigerian',
-      description: 'From corporate professionals to market entrepreneurs - financial freedom for all Nigerians, everywhere.',
+      description:
+          'From corporate professionals to market entrepreneurs - financial freedom for all Nigerians, everywhere.',
     ),
     _Slide(
       id: 'seamless',
-      imageAsset: 'assets/images/Onboarding3.png',
       title: 'Payments Made\nSeamless',
       subtitle: 'Effortless Experience',
-      description: 'Tap, pay, done. Experience the future of payments with instant, secure, and intuitive transactions.',
+      description:
+          'Tap, pay, done. Experience the future of payments with instant, secure, and intuitive transactions.',
     ),
   ];
 
-  // controllers
-  late final PageController _pageController;
-  late final AnimationController _progressController; // fills in 6s
-  late final AnimationController _bgFadeController; // optional for bg crossfade
+  final List<_Slide> _slidesHa = [
+    _Slide(
+      id: 'heritage',
+      title: "Mu 'Yan Gida Ne,\nAnyi Mana, Muka Yi",
+      subtitle: 'Gado na Najeriya',
+      description:
+          "An gina shi da Najeriyawa, don Najeriyawa. Warewar yancin kudi mai tushe a cikin al'adunmu da ruhun kwazo.",
+    ),
+    _Slide(
+      id: 'market',
+      title: 'RimaPay Yake\nGa Kowa',
+      subtitle: 'Kowane Najeriyawa',
+      description:
+          "Daga kwararrun ma'aikata zuwa yan kasuwa — yancin kudi ga duk Najeriyawa, ko'ina suke.",
+    ),
+    _Slide(
+      id: 'seamless',
+      title: 'Biyan Kudi Ya Zama\nSauki',
+      subtitle: 'Kwarewa Mai Sauki',
+      description:
+          "Taba, biya, an gama. Kwarewar makomar biyan kudi tare da ma'amaloli na nan take, aminci, da sauki.",
+    ),
+  ];
+
+  List<_Slide> get slides => _lang == 'ha' ? _slidesHa : _slidesEn;
+
+  late final AnimationController _progressController;
+  late final AnimationController _orb1Controller;
+  late final AnimationController _orb2Controller;
   Timer? _autoAdvanceTimer;
 
   int _currentIndex = 0;
-  String _currentLanguage = 'EN';
+  bool _getStartedPressed = false;
+  String _lang = 'en';
 
   static const Duration slideDuration = Duration(seconds: 6);
-  static const Curve slideCurve = Curves.easeInOut;
 
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(initialPage: _currentIndex);
+
     _progressController = AnimationController(
       vsync: this,
       duration: slideDuration,
     );
-    _bgFadeController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    );
 
-    // start progress and auto-advance
+    _orb1Controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 8),
+    )..repeat(reverse: true);
+
+    _orb2Controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 11),
+    )..repeat(reverse: true);
+
     _startSlideTimer();
     _progressController.forward();
-
-    // optional: ensure fade controller is complete initially
-    _bgFadeController.value = 1.0;
   }
 
   void _startSlideTimer() {
@@ -102,327 +120,152 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
 
     _autoAdvanceTimer = Timer(slideDuration, () {
       final next = (_currentIndex + 1) % slides.length;
-      _goToPage(next, animate: true);
+      _goToSlide(next);
     });
   }
 
-  void _goToPage(int page, {bool animate = true}) {
-    if (page == _currentIndex) return;
-    _bgFadeController.reverse().then((_) => _bgFadeController.forward()); // small crossfade effect
-
-    if (animate) {
-      _pageController.animateToPage(
-        page,
-        duration: const Duration(milliseconds: 600),
-        curve: slideCurve,
-      );
-    } else {
-      _pageController.jumpToPage(page);
-    }
-
+  void _goToSlide(int index) {
+    if (index == _currentIndex) return;
     setState(() {
-      _currentIndex = page;
+      _currentIndex = index;
     });
-
-    // reset progress timer
     _startSlideTimer();
   }
 
   @override
   void dispose() {
     _autoAdvanceTimer?.cancel();
-    _pageController.dispose();
     _progressController.dispose();
-    _bgFadeController.dispose();
+    _orb1Controller.dispose();
+    _orb2Controller.dispose();
     super.dispose();
   }
 
-  void _toggleLanguage() {
-    setState(() {
-      _currentLanguage = _currentLanguage == 'EN' ? 'HA' : 'EN';
-    });
-  }
-
-  // Floating dot builder depending on slide
-  List<Widget> _floatingDotsForSlide(int index, Size screen) {
-    // use Positioned + ScaleTransition + FadeTransition
-    final dots = <Widget>[];
-
-    AnimationController pulseController({
-      required int seconds,
-    }) {
-      final c = AnimationController(
-        vsync: this,
-        duration: Duration(seconds: seconds),
-      )..repeat(reverse: true);
-      return c;
-    }
-
-    // We'll create small controllers for each dot and dispose them when the widget tree disposes.
-    // For simplicity and to avoid many controllers, we'll use TweenAnimationBuilder
-    // which loops by rebuilding via Timer (we call setState in timer below).
-    // But simpler: use animated implicit widgets - use TweenAnimationBuilder with onEnd loop.
-    // We'll implement simple pulsing TweenAnimationBuilder widgets below.
-
-    Widget pulsingDot({
-      double top = 100,
-      double left = 20,
-      double right = double.nan,
-      Color color = Colors.white,
-      double size = 8,
-      int durationSeconds = 4,
-      double beginScale = 0.8,
-      double endScale = 1.25,
-      double opacity = 0.6,
-    }) {
-      return Positioned(
-        top: top,
-        left: left.isNaN ? null : left,
-        right: right.isNaN ? null : right,
-        child: TweenAnimationBuilder<double>(
-          tween: Tween(begin: beginScale, end: endScale),
-          duration: Duration(seconds: durationSeconds),
-          curve: Curves.easeInOut,
-          builder: (context, scale, child) {
-            return Transform.scale(
-              scale: scale,
-              child: Opacity(
-                opacity: opacity,
-                child: Container(
-                  width: size,
-                  height: size,
-                  decoration: BoxDecoration(
-                    color: color,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            );
-          },
-          onEnd: () {
-            // reverse by rebuilding with swapped tween (use setState to flip)
-            // Achieve repeating effect by toggling the tween endpoints in a micro state change.
-            // For simplicity: call setState to trigger rebuild, causing TweenAnimationBuilder to restart.
-            if (mounted) setState(() {});
-          },
-        ),
-      );
-    }
-
-    final h = screen.height;
-    switch (index) {
-      case 0:
-        dots.add(pulsingDot(top: h * 0.22, right: 40, color: Colors.greenAccent.withOpacity(0.55)));
-        dots.add(pulsingDot(top: h * 0.33, left: 18, color: Colors.yellowAccent.withOpacity(0.5), size: 6));
-        break;
-      case 1:
-        dots.add(pulsingDot(top: h * 0.22, left: 36, color: Colors.orangeAccent.withOpacity(0.45)));
-        dots.add(pulsingDot(top: h * 0.33, right: 22, color: Colors.yellowAccent.withOpacity(0.45), size: 6));
-        break;
-      case 2:
-        dots.add(pulsingDot(top: h * 0.22, right: 60, color: Colors.blueAccent.withOpacity(0.5)));
-        dots.add(pulsingDot(top: h * 0.33, left: 40, color: Colors.purpleAccent.withOpacity(0.5)));
-        break;
-    }
-
-    return dots;
-  }
-
-  Widget _buildBackgroundStack() {
-    // We'll stack images for crossfade. Use AnimatedBuilder on _pageController to get fractional offset,
-    // but simpler: use PageView with FadeTransition driven by _bgFadeController on top gradient.
-    return PageView.builder(
-      controller: _pageController,
-      itemCount: slides.length,
-      onPageChanged: (page) {
-        setState(() {
-          _currentIndex = page;
-        });
-        _startSlideTimer();
-      },
-      itemBuilder: (context, index) {
-        final slide = slides[index];
-        return Stack(
-          fit: StackFit.expand,
-          children: [
-            // Background image with fade/fallback
-            // Use FadeInImage to show a placeholder if asset is not immediately available.
-            // Placeholder: transparent image or local small image.
-            Positioned.fill(
-              child: FadeInImage(
-                placeholder: const AssetImage('assets/images/Onboarding1.png'),
-                image: AssetImage(slide.imageAsset),
-                fit: BoxFit.cover,
-                fadeInDuration: const Duration(milliseconds: 800),
-                fadeOutDuration: const Duration(milliseconds: 200),
-              ),
-            ),
-
-            // layered gradients for legibility (approximation of your Netflix-style)
-            Positioned.fill(
-              child: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Color.fromRGBO(0, 0, 0, 0.3), // 0%
-                      Color.fromRGBO(0, 0, 0, 0.45), // 20%
-                      Color.fromRGBO(0, 0, 0, 0.75), // 60%
-                      Color.fromRGBO(0, 0, 0, 0.92), // 100%
-                    ],
-                    stops: [0.0, 0.2, 0.6, 1.0],
-                  ),
-                ),
-              ),
-            ),
-
-            // radial overlay near bottom to highlight text area
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    center: const Alignment(0.0, 1.0),
-                    radius: 1.1,
-                    colors: [
-                      Colors.black.withOpacity(0.6),
-                      Colors.black.withOpacity(0.35),
-                      Colors.black.withOpacity(0.1),
-                    ],
-                    stops: const [0.0, 0.5, 1.0],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
+  void _showGetStartedSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => _GetStartedSheet(),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final slide = slides[_currentIndex];
-    final screen = MediaQuery.of(context).size;
+    final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: const Color(0xFF003d1a),
       body: Stack(
         children: [
-          // Background PageView with images & overlays
-          _buildBackgroundStack(),
+          // ── Green gradient background ──
+          Positioned.fill(
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF001a0c),
+                    Color(0xFF003d1a),
+                    Color(0xFF005e27),
+                    Color(0xFF003d1a),
+                  ],
+                  stops: [0.0, 0.3, 0.65, 1.0],
+                ),
+              ),
+            ),
+          ),
 
-          // Floating dots per-slide
-          ..._floatingDotsForSlide(_currentIndex, screen),
+          // ── Noise texture overlay ──
+          Positioned.fill(
+            child: CustomPaint(
+              painter: NoisePainter(opacity: 0.055, seed: 7),
+            ),
+          ),
 
-          // Foreground content
+          // ── Floating orb 1 (top-right) ──
+          AnimatedBuilder(
+            animation: _orb1Controller,
+            builder: (_, __) {
+              final dy = _orb1Controller.value * 40;
+              final dx = sin(_orb1Controller.value * pi) * 25;
+              return Positioned(
+                top: size.height * 0.08 + dy,
+                right: -60 + dx,
+                child: _buildOrb(260, const Color(0xFF00B252), 0.18),
+              );
+            },
+          ),
+
+          // ── Floating orb 2 (bottom-left) ──
+          AnimatedBuilder(
+            animation: _orb2Controller,
+            builder: (_, __) {
+              final dy = _orb2Controller.value * 50;
+              return Positioned(
+                bottom: size.height * 0.18 - dy,
+                left: -80,
+                child: _buildOrb(220, const Color(0xFF008A3C), 0.22),
+              );
+            },
+          ),
+
+          // ── Main content ──
           SafeArea(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header
+                // Top bar
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  child: Row(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                  child: Stack(
+                    alignment: Alignment.center,
                     children: [
-                      // Logo + title
-                      Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.08),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(6.0),
-                          child: Image.asset(
-                            'assets/images/AppIcon.png',
-                            fit: BoxFit.contain,
-                            errorBuilder: (_, __, ___) => const Icon(
-                              Icons.account_balance_wallet,
-                              color: Colors.white70,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      const Text(
-                        'RimaPay',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          shadows: [Shadow(blurRadius: 4.0, color: Colors.black)],
-                        ),
-                      ),
-                      const Spacer(),
-
-                      // Language toggle
-                      GestureDetector(
-                        onTap: _toggleLanguage,
-                        child: Stack(
-                          alignment: Alignment.center,
+                      // Left: Logo + name
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(
-                              width: 40,
-                              height: 40,
+                              width: 44,
+                              height: 44,
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.08),
+                                color: Colors.white.withOpacity(0.12),
                                 borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.white.withOpacity(0.18)),
                               ),
-                              child: const Icon(Icons.language, color: Colors.white, size: 18),
-                            ),
-                            Positioned(
-                              right: 0,
-                              bottom: 0,
-                              child: CircleAvatar(
-                                radius: 10,
-                                backgroundColor: Colors.white,
-                                child: Text(
-                                  _currentLanguage,
-                                  style: const TextStyle(
-                                    color: Color(0xFF00B252),
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
+                              child: Padding(
+                                padding: const EdgeInsets.all(6),
+                                child: Image.asset(
+                                  'assets/images/AppIcon.png',
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (_, __, ___) => const Icon(
+                                    Icons.account_balance_wallet,
+                                    color: Colors.white70,
                                   ),
                                 ),
                               ),
-                            )
+                            ),
+                            const SizedBox(width: 10),
+                            const Text(
+                              'RimaPay',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ],
                         ),
                       ),
-                      const SizedBox(width: 12),
-
-                      // Indicators
-                      Row(
-                        children: List.generate(slides.length, (i) {
-                          final selected = i == _currentIndex;
-                          return GestureDetector(
-                            onTap: () => _goToPage(i, animate: true),
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 400),
-                              margin: const EdgeInsets.symmetric(horizontal: 3),
-                              height: 8,
-                              width: selected ? 28 : 8,
-                              decoration: BoxDecoration(
-                                color: selected ? Colors.white : Colors.white38,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          );
-                        }),
-                      ),
-                      const SizedBox(width: 12),
-
-                      // Skip
-                      InkWell(
-                        onTap: () {
-                          _goToPage(2, animate: true);
-                        },
-                        child: const Text(
-                          'Skip',
-                          style: TextStyle(color: Colors.white70, fontSize: 14),
+                      // Center: Language toggle
+                      Center(
+                        child: _LangToggle(
+                          lang: _lang,
+                          onToggle: (l) => setState(() => _lang = l),
                         ),
                       ),
                     ],
@@ -431,55 +274,64 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
 
                 const Spacer(),
 
-                // Animated hero text area (fade/slide)
+                // Hero slide text
                 AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 700),
+                  duration: const Duration(milliseconds: 600),
                   switchInCurve: Curves.easeOut,
                   switchOutCurve: Curves.easeIn,
+                  transitionBuilder: (child, animation) {
+                    return FadeTransition(
+                      opacity: animation,
+                      child: SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(0.05, 0),
+                          end: Offset.zero,
+                        ).animate(animation),
+                        child: child,
+                      ),
+                    );
+                  },
                   child: Padding(
                     key: ValueKey(slide.id),
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        // Title: keep break lines with RichText
                         Text(
                           slide.title,
-                          textAlign: TextAlign.start,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 32,
-                            height: 1.05,
+                            height: 1.1,
                             fontWeight: FontWeight.w900,
                           ),
                         ),
-                        const SizedBox(height: 12),
-
-                        // Subtitle pill
+                        const SizedBox(height: 14),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 7),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.14),
+                            color: Colors.white.withOpacity(0.15),
                             borderRadius: BorderRadius.circular(999),
                           ),
                           child: Text(
                             slide.subtitle,
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 12),
-
-                        // Description
+                        const SizedBox(height: 14),
                         SizedBox(
-                          width: screen.width * 0.78,
+                          width: size.width * 0.78,
                           child: Text(
                             slide.description,
-                            textAlign: TextAlign.start,
-                            style: const TextStyle(
-                              color: Colors.white70,
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.78),
                               fontSize: 15,
-                              height: 1.4,
+                              height: 1.45,
                             ),
                           ),
                         ),
@@ -488,53 +340,107 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                   ),
                 ),
 
-                const SizedBox(height: 26),
+                const SizedBox(height: 24),
 
-                // Action buttons
+                // Pagination dots
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Row(
+                    children: List.generate(slides.length, (i) {
+                      final active = i == _currentIndex;
+                      return GestureDetector(
+                        onTap: () => _goToSlide(i),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 350),
+                          margin: const EdgeInsets.only(right: 6),
+                          height: 7,
+                          width: active ? 28 : 7,
+                          decoration: BoxDecoration(
+                            color:
+                                active ? Colors.white : Colors.white38,
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+
+                const SizedBox(height: 28),
+
+                // Buttons
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
                     children: [
-                      Expanded(
-                        child: InkWell(
-                          onTap: () {
-                            context.pushNamed('auth', queryParameters: {"mode": 'login'});
-                          },
+                      // Sign up
+                      GestureDetector(
+                        onTapDown: (_) =>
+                            setState(() => _getStartedPressed = true),
+                        onTapUp: (_) {
+                          setState(() => _getStartedPressed = false);
+                          context.push('/personal-account');
+                        },
+                        onTapCancel: () =>
+                            setState(() => _getStartedPressed = false),
+                        child: AnimatedScale(
+                          scale: _getStartedPressed ? 0.97 : 1.0,
+                          duration: const Duration(milliseconds: 100),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            width: double.infinity,
+                            height: 52,
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.14),
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFFff6b35), Color(0xFFff8c42)],
+                              ),
                               borderRadius: BorderRadius.circular(14),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFFff6b35).withOpacity(0.35),
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 6),
+                                ),
+                              ],
                             ),
-                            child: const Text(
-                              'Sign In',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                            child: Center(
+                              child: Text(
+                                _lang == 'ha' ? 'Yi Rajista' : 'Sign up',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            context.pushNamed('auth', queryParameters: {"mode": 'signup'});
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF00B252),
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            elevation: 10,
+
+                      const SizedBox(height: 12),
+
+                      // I already have an account
+                      GestureDetector(
+                        onTap: () => context.pushNamed('auth',
+                            queryParameters: {'mode': 'login'}),
+                        child: Container(
+                          width: double.infinity,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.13),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: Colors.white.withOpacity(0.22)),
                           ),
-                          child: const Text(
-                            'Sign Up',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          child: Center(
+                            child: Text(
+                              _lang == 'ha'
+                                  ? 'Ina da asusun riga'
+                                  : 'I already have an account',
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -544,59 +450,27 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
 
                 const SizedBox(height: 14),
 
-                // Branding placeholder (CBN/NDIC)
-                Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    margin: EdgeInsets.symmetric(horizontal: 20),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.04),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Image.asset(
-                      "assets/images/NI.jpeg",
-                      width: double.infinity,
-                      height: 80,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Text(
-                        "NDIC",
-                        style: const TextStyle(color: Colors.white54, fontSize: 12),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
+                // Compliance logos
+                const _ComplianceBar(),
 
-                // Footer text
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 22),
-                  child: Text(
-                    'By continuing, you agree to our Terms of Service and Privacy Policy',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white.withOpacity(0.75), fontSize: 12),
-                  ),
-                ),
+                const SizedBox(height: 10),
               ],
             ),
           ),
 
-          // Progress bar bottom (fills over slideDuration)
+          // Progress bar at very bottom
           Positioned(
-            bottom: 8,
-            left: 16,
-            right: 16,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: AnimatedBuilder(
-                animation: _progressController,
-                builder: (context, child) {
-                  return LinearProgressIndicator(
-                    value: _progressController.value,
-                    minHeight: 4,
-                    backgroundColor: Colors.white24,
-                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF00B252)),
-                  );
-                },
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: AnimatedBuilder(
+              animation: _progressController,
+              builder: (_, __) => LinearProgressIndicator(
+                value: _progressController.value,
+                minHeight: 3,
+                backgroundColor: Colors.white12,
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                    Color(0xFF00B252)),
               ),
             ),
           ),
@@ -604,40 +478,290 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
       ),
     );
   }
+
+  Widget _buildOrb(double size, Color color, double opacity) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: color.withOpacity(opacity),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: RadialGradient(
+            colors: [
+              color.withOpacity(opacity * 1.5),
+              color.withOpacity(0),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-/// Simple branding placeholder for CBN / NDIC logos
-class CBNNDICBranding extends StatelessWidget {
-  const CBNNDICBranding({super.key});
+// ── Language Toggle ───────────────────────────────────────────────────────────
+
+class _LangToggle extends StatelessWidget {
+  final String lang;
+  final void Function(String) onToggle;
+
+  const _LangToggle({required this.lang, required this.onToggle});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        // replace these with your real assets
-        _smallBrand('assets/b39136286f74d1d584407f38c9a71afdd287aec4.png', 'CBN'),
-        const SizedBox(width: 12),
-        _smallBrand('assets/620bde3872bcbf74c5f18aa6510617bd6ce22cfb.png', 'NDIC'),
-      ],
+    return Container(
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: Colors.white.withOpacity(0.18)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _tab('English', 'en'),
+          _tab('Hausa', 'ha'),
+        ],
+      ),
     );
   }
 
-  Widget _smallBrand(String asset, String alt) {
-    return Container(
-      padding: const EdgeInsets.all(6),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.04),
-        borderRadius: BorderRadius.circular(8),
+  Widget _tab(String label, String value) {
+    final active = lang == value;
+    return GestureDetector(
+      onTap: () => onToggle(value),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        decoration: BoxDecoration(
+          color: active ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: active ? const Color(0xFF003d1a) : Colors.white70,
+          ),
+        ),
       ),
-      child: Image.asset(
-        asset,
-        width: 48,
-        height: 24,
-        fit: BoxFit.contain,
-        errorBuilder: (_, __, ___) => Text(
-          alt,
-          style: const TextStyle(color: Colors.white54, fontSize: 12),
+    );
+  }
+}
+
+// ── Compliance Bar ────────────────────────────────────────────────────────────
+
+class _ComplianceBar extends StatelessWidget {
+  const _ComplianceBar();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withOpacity(0.12)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // NDIC
+          Image.asset(
+            'assets/images/NDIC.png',
+            height: 48,
+            errorBuilder: (_, __, ___) => const SizedBox(),
+          ),
+          Container(
+            width: 1,
+            height: 36,
+            margin: const EdgeInsets.symmetric(horizontal: 14),
+            color: Colors.white.withOpacity(0.2),
+          ),
+          // Authorized text
+          Text(
+            'AUTHORIZED AND\nREGULATED BY',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 9,
+              fontWeight: FontWeight.w700,
+              height: 1.3,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(width: 10),
+          // CBN
+          Image.asset(
+            'assets/images/CBN.png',
+            height: 50,
+            errorBuilder: (_, __, ___) => const SizedBox(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Bottom Sheet ──────────────────────────────────────────────────────────────
+
+class _GetStartedSheet extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Handle
+          Container(
+            width: 40,
+            height: 4,
+            margin: const EdgeInsets.only(bottom: 24),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE4E7EC),
+              borderRadius: BorderRadius.circular(999),
+            ),
+          ),
+
+          const Text(
+            'Welcome to RimaPay',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF101828),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Choose how you want to get started',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[600],
+            ),
+          ),
+
+          const SizedBox(height: 28),
+
+          _SheetOption(
+            icon: Icons.person_add_outlined,
+            iconBg: const Color(0xFFecfdf5),
+            iconColor: const Color(0xFF00B252),
+            title: 'Open New Account',
+            subtitle: 'Create a new RimaPay account',
+            onTap: () {
+              Navigator.pop(context);
+              context.pushNamed('auth', queryParameters: {'mode': 'signup'});
+            },
+          ),
+
+          const SizedBox(height: 12),
+
+          _SheetOption(
+            icon: Icons.login_outlined,
+            iconBg: const Color(0xFFfff3ee),
+            iconColor: const Color(0xFFff6b35),
+            title: 'Sign In',
+            subtitle: 'Access your existing account',
+            onTap: () {
+              Navigator.pop(context);
+              context.pushNamed('auth', queryParameters: {'mode': 'login'});
+            },
+          ),
+
+          const SizedBox(height: 12),
+
+          _SheetOption(
+            icon: Icons.devices_outlined,
+            iconBg: const Color(0xFFf5f3ff),
+            iconColor: const Color(0xFF8B5CF6),
+            title: 'Change Device',
+            subtitle: 'Transfer your account to this device',
+            onTap: () => Navigator.pop(context),
+          ),
+
+          const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+}
+
+class _SheetOption extends StatelessWidget {
+  final IconData icon;
+  final Color iconBg;
+  final Color iconColor;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _SheetOption({
+    required this.icon,
+    required this.iconBg,
+    required this.iconColor,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFAFBFC),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFFE4E7EC)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 46,
+              height: 46,
+              decoration: BoxDecoration(
+                color: iconBg,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: iconColor, size: 22),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF101828),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF667085),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, color: Colors.grey[400], size: 20),
+          ],
         ),
       ),
     );

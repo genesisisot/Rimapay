@@ -12,6 +12,7 @@ import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../shared/widgets/noise_painter.dart';
 
 enum AuthMode { signup, login }
 
@@ -570,42 +571,49 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                               Column(
                                 children: [
                                   // Regular Login Button
-                                  SizedBox(
-                                    width: double.infinity,
-                                    child: ElevatedButton(
-                                      onPressed: (_loginForm['phoneNumber']!.isNotEmpty && _loginForm['password']!.isNotEmpty && !_isLoading) ? _handleLoginSubmit : null,
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(0xFF00B252),
-                                        foregroundColor: Colors.white,
-                                        disabledBackgroundColor: Colors.grey.withOpacity(0.3),
-                                        elevation: 0,
-                                        padding: const EdgeInsets.symmetric(vertical: 16),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                        ),
+                                  GestureDetector(
+                                    onTap: (_loginForm['phoneNumber']!.isNotEmpty && _loginForm['password']!.isNotEmpty && !_isLoading) ? _handleLoginSubmit : null,
+                                    child: AnimatedContainer(
+                                      duration: const Duration(milliseconds: 150),
+                                      width: double.infinity,
+                                      height: 54,
+                                      decoration: BoxDecoration(
+                                        gradient: (_loginForm['phoneNumber']!.isNotEmpty && _loginForm['password']!.isNotEmpty && !_isLoading)
+                                            ? const LinearGradient(
+                                                colors: [Color(0xFF00B252), Color(0xFF00A651)],
+                                                begin: Alignment.centerLeft,
+                                                end: Alignment.centerRight,
+                                              )
+                                            : null,
+                                        color: (_loginForm['phoneNumber']!.isNotEmpty && _loginForm['password']!.isNotEmpty && !_isLoading) ? null : Colors.grey.withOpacity(0.3),
+                                        borderRadius: BorderRadius.circular(12),
                                       ),
-                                      child: _isLoading
-                                          ? const SizedBox(
-                                              height: 20,
-                                              width: 20,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 2,
-                                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                      child: Center(
+                                        child: _isLoading
+                                            ? const SizedBox(
+                                                height: 20,
+                                                width: 20,
+                                                child: CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                                ),
+                                              )
+                                            : const Text(
+                                                'Sign In',
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.white,
+                                                ),
                                               ),
-                                            )
-                                          : const Text(
-                                              'Sign In',
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(height: 12),
                                   // Biometric Login Button
                                   SizedBox(
                                     width: double.infinity,
+                                    height: 54,
                                     child: Container(
                                       decoration: BoxDecoration(
                                         color: Colors.white.withOpacity(0.15),
@@ -618,41 +626,42 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                                       child: Stack(
                                         children: [
                                           // Shimmer effect
-                                          ClipRRect(
-                                            borderRadius: BorderRadius.circular(12),
-                                            child: AnimatedBuilder(
-                                              animation: _shimmerAnimation,
-                                              builder: (context, child) {
-                                                return Transform.translate(
-                                                  offset: Offset(
-                                                    _shimmerAnimation.value.dx * 200,
-                                                    0,
-                                                  ),
-                                                  child: Container(
-                                                    width: 100,
-                                                    height: 48,
-                                                    decoration: BoxDecoration(
-                                                      gradient: LinearGradient(
-                                                        colors: [
-                                                          Colors.transparent,
-                                                          Colors.white.withOpacity(0.1),
-                                                          Colors.transparent,
-                                                        ],
+                                          Positioned.fill(
+                                            child: ClipRRect(
+                                              borderRadius: BorderRadius.circular(12),
+                                              child: AnimatedBuilder(
+                                                animation: _shimmerAnimation,
+                                                builder: (context, child) {
+                                                  return Transform.translate(
+                                                    offset: Offset(
+                                                      _shimmerAnimation.value.dx * 200,
+                                                      0,
+                                                    ),
+                                                    child: Container(
+                                                      width: 100,
+                                                      decoration: BoxDecoration(
+                                                        gradient: LinearGradient(
+                                                          colors: [
+                                                            Colors.transparent,
+                                                            Colors.white.withOpacity(0.1),
+                                                            Colors.transparent,
+                                                          ],
+                                                        ),
                                                       ),
                                                     ),
-                                                  ),
-                                                );
-                                              },
+                                                  );
+                                                },
+                                              ),
                                             ),
                                           ),
                                           // Button content
-                                          Material(
+                                          Positioned.fill(
+                                            child: Material(
                                             color: Colors.transparent,
                                             child: InkWell(
                                               onTap: _handleBiometricLogin,
                                               borderRadius: BorderRadius.circular(12),
                                               child: Container(
-                                                padding: const EdgeInsets.symmetric(vertical: 16),
                                                 child: Row(
                                                   mainAxisAlignment: MainAxisAlignment.center,
                                                   children: [
@@ -703,6 +712,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                                               ),
                                             ),
                                           ),
+                                          ), // closes Positioned.fill
                                         ],
                                       ),
                                     ),
@@ -876,163 +886,161 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
 
   Widget _buildAccountOpeningStart() {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/Skyscrapper.png'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.black.withOpacity(0.2),
-                Colors.black.withOpacity(0.4),
-                Colors.black.withOpacity(0.8),
-                Colors.black.withOpacity(0.9),
-              ],
+      body: Stack(
+        children: [
+          // Green gradient background
+          Positioned.fill(
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF001a0c),
+                    Color(0xFF003d1a),
+                    Color(0xFF005e27),
+                    Color(0xFF003d1a),
+                  ],
+                  stops: [0.0, 0.3, 0.65, 1.0],
+                ),
+              ),
             ),
           ),
-          child: SafeArea(
+          // Noise texture
+          Positioned.fill(
+            child: CustomPaint(
+              painter: NoisePainter(opacity: 0.055, seed: 7),
+            ),
+          ),
+          SafeArea(
             child: FadeTransition(
               opacity: _fadeAnimation,
               child: Column(
                 children: [
-                  // Header with back button and login button
+                  // Header row
                   Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // Back button - styled like login form
                         GestureDetector(
-                          onTap: () {
-                            context.pop();
-                          },
+                          onTap: () => context.pop(),
                           child: Container(
                             width: 40,
                             height: 40,
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(20),
+                              color: Colors.white.withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(10),
                               border: Border.all(
-                                color: Colors.white.withOpacity(0.3),
-                                width: 1,
-                              ),
+                                  color: Colors.white.withOpacity(0.18)),
                             ),
                             child: const Icon(
                               Icons.arrow_back_ios_new,
                               color: Colors.white,
-                              size: 20,
+                              size: 18,
                             ),
                           ),
                         ),
-                        // Login button
                         TextButton(
-                          onPressed: () {
-                            setState(() {
-                              _currentFlow = Flow.login;
-                            });
-                          },
-                          child: const Text(
-                            'Login',
+                          onPressed: () =>
+                              setState(() => _currentFlow = Flow.login),
+                          child: Text(
+                            'Sign In',
                             style: TextStyle(
-                              color: Color(0xFF00B252),
-                              fontWeight: FontWeight.w500,
-                              fontSize: 16,
+                              color: Colors.white.withOpacity(0.85),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15,
                             ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  // Scrollable Content
-                  Expanded(
-                    child: SingleChildScrollView(
-                      physics: BouncingScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom - 80, // Approximate header height
-                        ),
-                        child: IntrinsicHeight(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              // Logo
-                              ScaleTransition(
-                                scale: _scaleAnimation,
-                                child: Image.asset(
-                                  "assets/images/AppIcon.png",
-                                  width: 96,
-                                  height: 96,
-                                ),
-                              ),
-                              const SizedBox(height: 32),
-                              // Title
-                              const Text(
-                                'Choose Your Account Type',
-                                style: TextStyle(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 16),
-                              // Subtitle
-                              Text(
-                                'Select the account type that best suits your needs',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.white.withOpacity(0.8),
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 48),
-                              // Account Type Options
-                              Column(
-                                children: [
-                                  _buildAccountTypeCard(
-                                    title: 'Personal Account',
-                                    subtitle: 'For individual users and personal banking',
-                                    icon: Icons.person_outline,
-                                    onTap: () {
-                                      setState(() {
-                                        _currentFlow = Flow.personal;
-                                      });
-                                      context.pushNamed("personal-account");
-                                    },
-                                  ),
-                                  const SizedBox(height: 16),
-                                  _buildAccountTypeCard(
-                                    title: 'Business Account',
-                                    subtitle: 'For businesses and organizations',
-                                    icon: Icons.business_outlined,
-                                    onTap: () {
-                                      setState(() {
-                                        _currentFlow = Flow.business;
-                                      });
-                                      context.pushNamed("business-account");
-                                    },
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 24), // Extra padding at bottom
-                            ],
+
+                  const Spacer(),
+
+                  // Hero text
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Open an\nAccount',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 36,
+                            height: 1.1,
+                            fontWeight: FontWeight.w900,
                           ),
                         ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Choose the account type that fits your needs',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.65),
+                            fontSize: 15,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 28),
+
+                  // Account type cards
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      children: [
+                        _buildAccountTypeCard(
+                          title: 'Personal Account',
+                          subtitle:
+                              'For individuals — send, receive & pay bills',
+                          icon: Icons.person_outline,
+                          onTap: () {
+                            setState(() => _currentFlow = Flow.personal);
+                            context.pushNamed("personal-account");
+                          },
+                        ),
+                        const SizedBox(height: 14),
+                        _buildAccountTypeCard(
+                          title: 'Business Account',
+                          subtitle:
+                              'For businesses and organizations',
+                          icon: Icons.business_outlined,
+                          onTap: () {
+                            setState(() => _currentFlow = Flow.business);
+                            context.pushNamed("business-account");
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 28),
+
+                  // Footer
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Text(
+                      'By continuing, you agree to our Terms of Service and Privacy Policy',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.45),
+                        fontSize: 11,
+                        height: 1.4,
                       ),
                     ),
                   ),
+
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -1047,35 +1055,27 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.15),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: Colors.white.withOpacity(0.3),
-            width: 1,
-          ),
         ),
         child: Row(
           children: [
             Container(
-              width: 48,
-              height: 48,
+              width: 46,
+              height: 46,
               decoration: BoxDecoration(
-                color: const Color(0xFF00B252).withOpacity(0.2),
+                color: const Color(0xFFecfdf5),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFF00B252).withOpacity(0.3),
-                  width: 1,
-                ),
               ),
               child: Icon(
                 icon,
-                color: Colors.white,
-                size: 24,
+                color: const Color(0xFF00B252),
+                size: 22,
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1083,26 +1083,26 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                   Text(
                     title,
                     style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF101828),
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 3),
                   Text(
                     subtitle,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white.withOpacity(0.7),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF667085),
                     ),
                   ),
                 ],
               ),
             ),
-            Icon(
-              Icons.arrow_forward_ios,
-              size: 16,
-              color: Colors.white.withOpacity(0.6),
+            const Icon(
+              Icons.chevron_right,
+              size: 20,
+              color: Color(0xFF98A2B3),
             ),
           ],
         ),

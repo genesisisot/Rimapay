@@ -75,6 +75,13 @@ class AppRouter {
             builder: (context, state) => const HomeScreen(),
           ),
 
+          // Transfer Tab
+          GoRoute(
+            path: '/transfer',
+            name: 'transfer',
+            builder: (context, state) => const TransferScreen(),
+          ),
+
           // Transactions Tab
           GoRoute(
             path: '/transactions',
@@ -82,11 +89,11 @@ class AppRouter {
             builder: (context, state) => const TransactionHistoryScreen(),
           ),
 
-          // Cards Tab
+          // Bills / Services Tab
           GoRoute(
-            path: '/cards',
-            name: 'cards',
-            builder: (context, state) => const CardManagementScreen(),
+            path: '/bills',
+            name: 'bills',
+            builder: (context, state) => const BillPaymentsScreen(),
           ),
 
           // Profile Tab
@@ -95,8 +102,29 @@ class AppRouter {
             name: 'profile',
             builder: (context, state) => const ProfileScreen(),
           ),
-      
         ],
+      ),
+
+      // Bill sub-screens (outside shell — no bottom nav)
+      GoRoute(
+        path: '/bills/airtime',
+        name: 'airtime',
+        builder: (context, state) => const AirtimePurchaseScreen(),
+      ),
+      GoRoute(
+        path: '/bills/data',
+        name: 'data',
+        builder: (context, state) => const DataPurchaseScreen(),
+      ),
+      GoRoute(
+        path: '/bills/cable',
+        name: 'cable',
+        builder: (context, state) => const CablePurchaseScreen(),
+      ),
+      GoRoute(
+        path: '/bills/electricity',
+        name: 'electricity',
+        builder: (context, state) => const ElectricityPurchaseScreen(),
       ),
 
       // Settings (outside main navigation)
@@ -113,52 +141,53 @@ class AppRouter {
         builder: (context, state) => const AccountTiersScreen(),
       ),
 
-      // Bill Payments Flow
-      GoRoute(
-        path: '/bills',
-        name: 'bills',
-        builder: (context, state) => const BillPaymentsScreen(),
-        routes: [
-          GoRoute(
-            path: '/airtime',
-            name: 'airtime',
-            builder: (context, state) => const AirtimePurchaseScreen(),
-          ),
-          GoRoute(
-            path: '/data',
-            name: 'data',
-            builder: (context, state) => const DataPurchaseScreen(),
-          ),
-          GoRoute(
-            path: '/cable',
-            name: 'cable',
-            builder: (context, state) => const CablePurchaseScreen(),
-          ),
-          GoRoute(
-            path: '/electricity',
-            name: 'electricity',
-            builder: (context, state) => const ElectricityPurchaseScreen(),
-          ),
-        ],
-      ),
      GoRoute(
         path: '/business',
         name: 'business',
         builder: (context, state) => BusinessHome(),
       ),
-      // Transfer Flow
+
+      // Add Money
       GoRoute(
-        path: '/transfer',
-        name: 'transfer',
-        builder: (context, state) => const TransferScreen(),
+        path: '/add-money',
+        name: 'add-money',
+        builder: (context, state) =>
+            const ComingSoonScreen(title: 'Add Money', subtitle: 'Fund your account'),
       ),
 
-      // Add Money Flow
-      // GoRoute(
-      //   path: '/add-money',
-      //   name: 'add-money',
-      //   builder: (context, state) => const AddMoneyScreen(),
-      // ),
+      // Coming-soon stubs for unlocked services
+      GoRoute(
+        path: '/education-bills',
+        builder: (_, __) => const ComingSoonScreen(title: 'Education', subtitle: 'School fee payments'),
+      ),
+      GoRoute(
+        path: '/airtime-to-cash',
+        builder: (_, __) => const ComingSoonScreen(title: 'Airtime → Cash', subtitle: 'Convert airtime to cash'),
+      ),
+      GoRoute(
+        path: '/event-tickets',
+        builder: (_, __) => const ComingSoonScreen(title: 'Events', subtitle: 'Buy tickets & concert passes'),
+      ),
+      GoRoute(
+        path: '/betting-lottery',
+        builder: (_, __) => const ComingSoonScreen(title: 'Betting', subtitle: 'Betting & lottery top-up'),
+      ),
+      GoRoute(
+        path: '/voluntary-pension',
+        builder: (_, __) => const ComingSoonScreen(title: 'Pension', subtitle: 'Voluntary pension contributions'),
+      ),
+      GoRoute(
+        path: '/road-transport',
+        builder: (_, __) => const ComingSoonScreen(title: 'Transport', subtitle: 'Buy bus tickets'),
+      ),
+      GoRoute(
+        path: '/air-transport',
+        builder: (_, __) => const ComingSoonScreen(title: 'Flights', subtitle: 'Book flight tickets'),
+      ),
+      GoRoute(
+        path: '/state-government',
+        builder: (_, __) => const ComingSoonScreen(title: 'Gov. Payments', subtitle: 'Taxes & government fees'),
+      ),
 
       // PIN Verification
       GoRoute(
@@ -177,10 +206,20 @@ class AppRouter {
         path: '/success',
         name: 'success',
         builder: (context, state) {
-          final data = state.extra as Map<String, dynamic>?;
-          return SuccessScreen(
-            props: SuccessScreenProps(),
-          );
+          final extra = state.extra;
+          if (extra is SuccessScreenProps) {
+            return SuccessScreen(props: extra);
+          }
+          if (extra is Map<String, dynamic>) {
+            return SuccessScreen(
+              props: SuccessScreenProps(
+                transactionType: extra['type']?.toString() ?? 'Payment',
+                amount: extra['amount']?.toString() ?? '0',
+                recipient: extra['recipient']?.toString() ?? '',
+              ),
+            );
+          }
+          return SuccessScreen(props: SuccessScreenProps());
         },
       ),
       GoRoute(
@@ -242,6 +281,109 @@ class AppRouter {
       return null;
     },
   );
+}
+
+// ── Coming Soon Screen ────────────────────────────────────────────────────────
+
+class ComingSoonScreen extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  const ComingSoonScreen(
+      {super.key, required this.title, required this.subtitle});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF9FAFB),
+      body: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top + 14,
+              left: 20,
+              right: 20,
+              bottom: 20,
+            ),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFF001a0c),
+                  Color(0xFF003d1a),
+                  Color(0xFF005e27),
+                ],
+              ),
+            ),
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => context.pop(),
+                  child: Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.arrow_back_ios_new,
+                        color: Colors.white, size: 16),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w800,
+                        )),
+                    Text(subtitle,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.6),
+                          fontSize: 12,
+                        )),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const Expanded(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('🚧', style: TextStyle(fontSize: 64)),
+                  SizedBox(height: 20),
+                  Text(
+                    'Coming Soon',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF101828),
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'This feature is under development.\nCheck back soon!',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF667085),
+                      height: 1.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 // Navigation helper methods

@@ -7,6 +7,8 @@ import '../../../../core/providers/transaction_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../../shared/widgets/bill_screen_widgets.dart';
+import '../../../success/presentation/screens/success_screen.dart';
 
 enum PurchaseStep { form, processing }
 
@@ -351,51 +353,51 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
 
   bool get _isFormValid => _phoneController.text.length == 11 && _selectedPlan != null && _selectedNetwork != null;
 
+  void _showDataPinSheet() {
+    if (!_isFormValid) return;
+    showPinConfirmSheet(
+      context: context,
+      summary: [
+        {'label': 'Service', 'value': 'Data Bundle'},
+        {'label': 'Network', 'value': _selectedNetwork!.name},
+        {'label': 'Phone', 'value': _phoneController.text},
+        {'label': 'Plan', 'value': _selectedPlan!.name},
+        {'label': 'Amount', 'value': '₦${_selectedPlan!.price}'},
+      ],
+      onConfirmed: (_) {
+        Navigator.pop(context);
+        _handleNext();
+      },
+    );
+  }
+
+  void _showPlanSheet() {
+    if (_selectedNetwork == null) return;
+    final allPlans = _dataPlans[_selectedNetwork!.id] ?? [];
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _PlanPickerSheet(
+        plans: allPlans,
+        selected: _selectedPlan,
+        onSelect: (plan) {
+          setState(() => _selectedPlan = plan);
+          Navigator.pop(context);
+        },
+      ),
+    );
+  }
+
   Future<void> _handleNext() async {
     if (!_isFormValid) return;
-
-    setState(() {
-      _currentStep = PurchaseStep.processing;
-      _isProcessing = true;
-    });
-
-    _processingController.repeat();
-
-    // Simulate processing
-    await Future.delayed(const Duration(seconds: 3));
-
+    HapticFeedback.lightImpact();
     if (mounted) {
-      _processingController.stop();
-      final language = ref.read(languageTranslationsProvider);
-
-      // context.push('/transaction-success', extra: {
-      //   'type': 'Data Purchase',
-      //   'amount': _selectedPlan!.price,
-      //   'recipient': '${_selectedNetwork?.name} - ${_formatPhoneNumber(_phoneController.text)}',
-      //   'network': _selectedNetwork?.name,
-      //   'plan': _selectedPlan!.name,
-      // });
-      // final transactionProvider = ref.read(transactionProviders.notifier);
-      // final transactionId = await transactionProvider.processTransaction(
-      //   type: TransactionType.data,
-      //   amount: double.parse(
-      //     _selectedPlan!.price.toString() ?? "4000",
-      //   ),
-      //   recipient: '${_selectedNetwork?.name} - ${_formatPhoneNumber(_phoneController.text)}',
-      //   description: _phoneController.text,
-      //   network: _selectedNetwork!.name,
-      // );
-
-      if (mounted) {
-        HapticFeedback.lightImpact();
-        context.push('/pin-verification', extra: {
-          'type': 'Data Purchase',
-          'amount': _selectedPlan!.price,
-          'recipient': '${_selectedNetwork?.name} - ${_formatPhoneNumber(_phoneController.text)}',
-          'network': _selectedNetwork?.name,
-          'plan': _selectedPlan!.name,
-        });
-      }
+      context.pushReplacement('/success', extra: SuccessScreenProps(
+        transactionType: 'Data Purchase',
+        amount: _selectedPlan!.price,
+        recipient: '${_selectedNetwork!.name} - ${_phoneController.text}',
+      ));
     }
   }
 
@@ -409,53 +411,334 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
 
   @override
   Widget build(BuildContext context) {
-    final language = ref.read(languageTranslationsProvider);
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isSmallScreen = screenWidth < 400;
-
     if (_currentStep == PurchaseStep.processing) {
-      return _buildProcessingScreen(language);
+      return _buildProcessingScreen((_) => '');
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildCompactHeader(language, context),
-            Expanded(
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: SlideTransition(
-                  position: _slideAnimation,
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: isSmallScreen ? 16 : 20,
-                      vertical: 16,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildPhoneNumberSection(language, isSmallScreen),
-                        const SizedBox(height: 20),
-                        _buildNetworkSection(language, isSmallScreen),
-                        const SizedBox(height: 20),
-                        if (_selectedNetwork != null) ...[
-                          _buildCategorySection(language, isSmallScreen),
-                          const SizedBox(height: 20),
-                          _buildDataPlansSection(language, isSmallScreen),
-                          const SizedBox(height: 20),
-                        ],
-                        _buildRecentPurchasesSection(language, isSmallScreen),
-                        const SizedBox(height: 100),
-                      ],
+      backgroundColor: const Color(0xFFF9FAFB),
+      body: Column(
+        children: [
+          // ── Green header with tabs ──
+          BillGreenHeader(
+            title: 'Mobile Top-Up',
+            subtitle: 'Buy airtime and data bundles',
+            showAccountCard: false,
+            tabs: const ['Airtime', 'Data'],
+            selectedTab: 1,
+            onTabChanged: (i) {
+              if (i == 0) context.go('/bills/airtime');
+            },
+          ),
+
+          // ── Scrollable content ──
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Account card
+                  const BillAccountCard(),
+                  const SizedBox(height: 10),
+                  const BillPaginationDots(count: 2, active: 1),
+                  const SizedBox(height: 20),
+
+                  // Phone number
+                  _DataFloatingField(
+                    controller: _phoneController,
+                    label: 'Phone Number',
+                    hint: '0801 234 5678',
+                    keyboardType: TextInputType.phone,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(11),
+                    ],
+                    onChanged: (_) => setState(() {}),
+                    suffix: _selectedNetwork != null
+                        ? Container(
+                            width: 26,
+                            height: 26,
+                            margin: const EdgeInsets.only(right: 4),
+                            decoration: BoxDecoration(
+                              color: _selectedNetwork!.bgColor,
+                              shape: BoxShape.circle,
+                            ),
+                            child: ClipOval(
+                              child: Image.asset(
+                                _selectedNetwork!.logo,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => const SizedBox(),
+                              ),
+                            ),
+                          )
+                        : null,
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Frequent Beneficiaries
+                  const Text(
+                    'Frequent Beneficiaries',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF374151),
                     ),
                   ),
-                ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    height: 100,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _recentPurchases.length,
+                      itemBuilder: (_, i) {
+                        final c = _recentPurchases[i];
+                        final colors = [
+                          const Color(0xFF00B252),
+                          const Color(0xFF7C3AED),
+                          const Color(0xFFEF4444),
+                        ];
+                        final bgColor = colors[i % colors.length];
+                        return GestureDetector(
+                          onTap: () => setState(() {
+                            _phoneController.text = c.number;
+                            _detectNetwork();
+                          }),
+                          child: Container(
+                            margin: EdgeInsets.only(
+                                right: i == _recentPurchases.length - 1 ? 0 : 12),
+                            width: 72,
+                            child: Column(
+                              children: [
+                                CircleAvatar(
+                                  radius: 28,
+                                  backgroundColor: bgColor,
+                                  child: Text(
+                                    c.initial,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  c.name,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF374151),
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.center,
+                                ),
+                                Text(
+                                  '${c.number.substring(0, 7)}...',
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    color: Color(0xFF9CA3AF),
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Network selection
+                  const Text(
+                    'Choose Network',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF374151),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: _networks.asMap().entries.map((e) {
+                      final network = e.value;
+                      final isSelected = _selectedNetwork?.id == network.id;
+                      final isLast = e.key == _networks.length - 1;
+                      return Expanded(
+                        child: GestureDetector(
+                          onTap: () => setState(() {
+                            _selectedNetwork = network;
+                            _selectedPlan = null;
+                          }),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 150),
+                            margin: EdgeInsets.only(right: isLast ? 0 : 8),
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? network.bgColor
+                                  : const Color(0xFFF9FAFB),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: isSelected
+                                    ? network.color
+                                    : const Color(0xFFE5E7EB),
+                                width: isSelected ? 2 : 1,
+                              ),
+                            ),
+                            child: Column(
+                              children: [
+                                ClipOval(
+                                  child: Image.asset(
+                                    network.logo,
+                                    width: 24,
+                                    height: 24,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) => Text(
+                                      network.name[0],
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        color: network.color,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  network.name,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                    color: isSelected
+                                        ? network.color
+                                        : const Color(0xFF6B7280),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+
+                  if (_selectedNetwork != null) ...[
+                    const SizedBox(height: 24),
+
+                    // Plan dropdown
+                    const Text(
+                      'Select Plan',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF374151),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    GestureDetector(
+                      onTap: _showPlanSheet,
+                      child: Container(
+                        height: 56,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: _selectedPlan != null
+                                ? const Color(0xFF00B252).withOpacity(0.5)
+                                : const Color(0xFFE4E7EC),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: _selectedPlan != null
+                                  ? Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFECFDF5),
+                                            borderRadius:
+                                                BorderRadius.circular(6),
+                                          ),
+                                          child: Text(
+                                            _selectedPlan!.data,
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w700,
+                                              color: Color(0xFF00B252),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                _selectedPlan!.name,
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Color(0xFF101828),
+                                                ),
+                                              ),
+                                              Text(
+                                                '${_selectedPlan!.validity} · ₦${_selectedPlan!.price}',
+                                                style: const TextStyle(
+                                                  fontSize: 11,
+                                                  color: Color(0xFF9CA3AF),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : const Text(
+                                      'Tap to select a data plan',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        color: Color(0xFF9CA3AF),
+                                      ),
+                                    ),
+                            ),
+                            const Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              color: Color(0xFF9CA3AF),
+                              size: 22,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+
+                  const SizedBox(height: 20),
+                  const BillDailyLimitCard(),
+                  const SizedBox(height: 100),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+
+          // CTA
+          _DataCTA(
+            enabled: _isFormValid,
+            plan: _selectedPlan,
+            onTap: _showDataPinSheet,
+          ),
+        ],
       ),
     );
   }
@@ -646,12 +929,12 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
+            const Text(
               'Phone Number',
               style: TextStyle(
-                fontSize: isSmallScreen ? 14 : 16,
-                fontWeight: FontWeight.w500,
-                color: const Color(0xFF6B7280),
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF344054),
               ),
             ),
             GestureDetector(
@@ -685,55 +968,30 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
           ],
         ),
         const SizedBox(height: 10),
-        TextFormField(
+        BillSimpleInput(
           controller: _phoneController,
+          placeholder: 'Enter phone number',
           keyboardType: TextInputType.phone,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF101828),
-            fontFamily: 'monospace',
-          ),
-          decoration: InputDecoration(
-            hintText: '0801 234 5678',
-            hintStyle: TextStyle(
-              fontFamily: 'monospace',
-              color: Colors.grey[400],
-            ),
-            border: InputBorder.none,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-            suffixIcon: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (_selectedNetwork != null) ...[
-                  Container(
-                    width: 20,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      color: _selectedNetwork!.bgColor,
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        image: AssetImage(
-                          _selectedNetwork!.logo,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                ],
-                const Icon(
-                  Icons.person_outline,
-                  size: 14,
-                  color: Color(0xFF9CA3AF),
-                ),
-                const SizedBox(width: 12),
-              ],
-            ),
-          ),
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,
             LengthLimitingTextInputFormatter(11),
           ],
+          onChanged: (_) => setState(() {}),
+          suffix: _selectedNetwork != null
+              ? Container(
+                  width: 26,
+                  height: 26,
+                  margin: const EdgeInsets.only(right: 4),
+                  decoration: BoxDecoration(
+                    color: _selectedNetwork!.bgColor,
+                    shape: BoxShape.circle,
+                    image: DecorationImage(
+                      image: AssetImage(_selectedNetwork!.logo),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                )
+              : null,
         ),
         if (_phoneController.text.isNotEmpty && _phoneController.text.length < 11)
           const Padding(
@@ -1151,6 +1409,469 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
           ),
         ),
       ],
+    );
+  }
+}
+
+// ── Plan Picker Sheet ────────────────────────────────────────────────────────
+
+class _PlanPickerSheet extends StatefulWidget {
+  final List<DataPlan> plans;
+  final DataPlan? selected;
+  final void Function(DataPlan) onSelect;
+
+  const _PlanPickerSheet({
+    required this.plans,
+    required this.selected,
+    required this.onSelect,
+  });
+
+  @override
+  State<_PlanPickerSheet> createState() => _PlanPickerSheetState();
+}
+
+class _PlanPickerSheetState extends State<_PlanPickerSheet> {
+  final _searchController = TextEditingController();
+  PlanCategory? _filterCategory;
+  String _query = '';
+
+  List<DataPlan> get _filtered {
+    return widget.plans.where((p) {
+      final matchCat =
+          _filterCategory == null || p.category == _filterCategory;
+      final matchQuery = _query.isEmpty ||
+          p.name.toLowerCase().contains(_query.toLowerCase()) ||
+          p.data.toLowerCase().contains(_query.toLowerCase()) ||
+          p.price.contains(_query);
+      return matchCat && matchQuery;
+    }).toList();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final plans = _filtered;
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.78,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        children: [
+          // Handle
+          Container(
+            width: 40,
+            height: 4,
+            margin: const EdgeInsets.only(top: 12, bottom: 16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE4E7EC),
+              borderRadius: BorderRadius.circular(999),
+            ),
+          ),
+
+          // Title
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: [
+                Text(
+                  'Select Data Plan',
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF101828),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 14),
+
+          // Search field
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Container(
+              height: 46,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF9FAFB),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFE4E7EC)),
+              ),
+              child: TextField(
+                controller: _searchController,
+                onChanged: (v) => setState(() => _query = v),
+                style: const TextStyle(fontSize: 14),
+                decoration: InputDecoration(
+                  hintText: 'Search plans...',
+                  hintStyle: const TextStyle(
+                      color: Color(0xFF9CA3AF), fontSize: 14),
+                  prefixIcon: const Icon(Icons.search,
+                      color: Color(0xFF9CA3AF), size: 18),
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  isDense: true,
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 12),
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          // Category filter chips
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: [
+                _chip('All', null),
+                const SizedBox(width: 8),
+                _chip('Daily', PlanCategory.daily),
+                const SizedBox(width: 8),
+                _chip('Weekly', PlanCategory.weekly),
+                const SizedBox(width: 8),
+                _chip('Monthly', PlanCategory.monthly),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          // Plan list
+          Expanded(
+            child: plans.isEmpty
+                ? const Center(
+                    child: Text(
+                      'No plans found',
+                      style: TextStyle(color: Color(0xFF9CA3AF)),
+                    ),
+                  )
+                : ListView.separated(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: plans.length,
+                    separatorBuilder: (_, __) =>
+                        const SizedBox(height: 8),
+                    itemBuilder: (_, i) {
+                      final plan = plans[i];
+                      final isSelected =
+                          widget.selected?.id == plan.id;
+                      return GestureDetector(
+                        onTap: () => widget.onSelect(plan),
+                        child: Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? const Color(0xFFECFDF5)
+                                : const Color(0xFFF9FAFB),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: isSelected
+                                  ? const Color(0xFF00B252)
+                                  : const Color(0xFFE5E7EB),
+                              width: isSelected ? 2 : 1,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? const Color(0xFF00B252)
+                                          .withOpacity(0.12)
+                                      : Colors.white,
+                                  borderRadius:
+                                      BorderRadius.circular(10),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    plan.data,
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: isSelected
+                                          ? const Color(0xFF00B252)
+                                          : const Color(0xFF374151),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      plan.name,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: isSelected
+                                            ? const Color(0xFF00B252)
+                                            : const Color(0xFF101828),
+                                      ),
+                                    ),
+                                    Text(
+                                      'Valid for ${plan.validity}',
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        color: Color(0xFF9CA3AF),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Text(
+                                '₦${plan.price}',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: isSelected
+                                      ? const Color(0xFF00B252)
+                                      : const Color(0xFF101828),
+                                ),
+                              ),
+                              if (isSelected) ...[
+                                const SizedBox(width: 8),
+                                const Icon(Icons.check_circle,
+                                    color: Color(0xFF00B252), size: 18),
+                              ],
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+
+          SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
+        ],
+      ),
+    );
+  }
+
+  Widget _chip(String label, PlanCategory? cat) {
+    final isSelected = _filterCategory == cat;
+    return GestureDetector(
+      onTap: () => setState(() => _filterCategory = cat),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding:
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+        decoration: BoxDecoration(
+          color:
+              isSelected ? const Color(0xFF00B252) : const Color(0xFFF3F4F6),
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: isSelected ? Colors.white : const Color(0xFF6B7280),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Floating Label Input ──────────────────────────────────────────────────────
+
+class _DataFloatingField extends StatefulWidget {
+  final TextEditingController controller;
+  final String label;
+  final String hint;
+  final TextInputType keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
+  final void Function(String)? onChanged;
+  final Widget? suffix;
+
+  const _DataFloatingField({
+    required this.controller,
+    required this.label,
+    required this.hint,
+    required this.keyboardType,
+    this.inputFormatters,
+    this.onChanged,
+    this.suffix,
+  });
+
+  @override
+  State<_DataFloatingField> createState() => _DataFloatingFieldState();
+}
+
+class _DataFloatingFieldState extends State<_DataFloatingField> {
+  final _focusNode = FocusNode();
+  bool _focused = false;
+  bool _hasValue = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _hasValue = widget.controller.text.isNotEmpty;
+    _focusNode.addListener(() => setState(() => _focused = _focusNode.hasFocus));
+    widget.controller.addListener(() {
+      final v = widget.controller.text.isNotEmpty;
+      if (v != _hasValue) setState(() => _hasValue = v);
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isActive = _focused || _hasValue;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 150),
+      height: 60,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: _focused
+              ? const Color(0xFF00B252)
+              : _hasValue
+                  ? const Color(0xFF00B252).withOpacity(0.4)
+                  : const Color(0xFFE4E7EC),
+          width: _focused ? 2 : 1,
+        ),
+      ),
+      child: Stack(
+        children: [
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 150),
+            curve: Curves.easeOut,
+            top: isActive ? 9 : 20,
+            left: 16,
+            right: widget.suffix != null ? 52 : 16,
+            child: IgnorePointer(
+              child: AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 150),
+                style: TextStyle(
+                  fontSize: isActive ? 11 : 15,
+                  fontWeight: FontWeight.w500,
+                  height: 1.2,
+                  color: isActive
+                      ? const Color(0xFF00B252)
+                      : const Color(0xFF9CA3AF),
+                ),
+                child: Text(widget.label),
+              ),
+            ),
+          ),
+          Positioned(
+            left: 14,
+            right: widget.suffix != null ? 48 : 14,
+            top: isActive ? 28 : 18,
+            bottom: 6,
+            child: TextField(
+              controller: widget.controller,
+              focusNode: _focusNode,
+              keyboardType: widget.keyboardType,
+              inputFormatters: widget.inputFormatters,
+              onChanged: widget.onChanged,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF101828),
+              ),
+              decoration: InputDecoration(
+                hintText: isActive ? widget.hint : null,
+                hintStyle: const TextStyle(
+                  fontSize: 15,
+                  color: Color(0xFFD0D5DD),
+                  fontWeight: FontWeight.normal,
+                ),
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                errorBorder: InputBorder.none,
+                focusedErrorBorder: InputBorder.none,
+                filled: true,
+                fillColor: Colors.transparent,
+                isDense: true,
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
+          ),
+          if (widget.suffix != null)
+            Positioned(
+              right: 14,
+              top: 0,
+              bottom: 0,
+              child: Center(child: widget.suffix!),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Data CTA Button ───────────────────────────────────────────────────────────
+
+class _DataCTA extends StatelessWidget {
+  final bool enabled;
+  final DataPlan? plan;
+  final VoidCallback? onTap;
+
+  const _DataCTA({required this.enabled, this.plan, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final label = plan != null ? 'Buy ${plan!.data} — ₦${plan!.price}' : 'Continue';
+
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+          20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(top: BorderSide(color: Color(0xFFF3F4F6))),
+      ),
+      child: GestureDetector(
+        onTap: enabled ? onTap : null,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          width: double.infinity,
+          height: 54,
+          decoration: BoxDecoration(
+            gradient: enabled
+                ? const LinearGradient(
+                    colors: [Color(0xFF00B252), Color(0xFF00A651)],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  )
+                : null,
+            color: enabled ? null : const Color(0xFFCCCCCC),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: enabled ? Colors.white : const Color(0xFF9CA3AF),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
