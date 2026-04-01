@@ -3,14 +3,22 @@ import 'package:go_router/go_router.dart';
 import 'package:rimapay/features/BusinessScreens/BusinessHome.dart';
 import 'package:rimapay/features/NotificationScreen.dart';
 import 'package:rimapay/features/Tiers/AccountTierScreen.dart';
+import 'package:rimapay/features/add_money/presentation/screens/add_money_screen.dart';
 import 'package:rimapay/features/airtime/presentation/screens/airtime_purchase_screen.dart';
+import 'package:rimapay/features/airtime_cash/presentation/screens/airtime_cash_screen.dart';
 import 'package:rimapay/features/auth/presentation/screens/business_account_flow.dart';
 import 'package:rimapay/features/auth/presentation/screens/personal_account_flow.dart';
 import 'package:rimapay/features/bills/presentation/screens/bill_payments_screen.dart';
 import 'package:rimapay/features/cable/presentation/screens/cable_purchase_screen.dart';
 import 'package:rimapay/features/data/presentation/screens/data_purchase_screen.dart';
+import 'package:rimapay/features/education/presentation/screens/education_bills_screen.dart';
 import 'package:rimapay/features/electricity/presentation/screens/electricity_purchase_screen.dart';
+import 'package:rimapay/features/events/presentation/screens/events_screen.dart';
+import 'package:rimapay/features/flights/presentation/screens/flights_screen.dart';
+import 'package:rimapay/features/government/presentation/screens/government_screen.dart';
+import 'package:rimapay/features/pension/presentation/screens/pension_screen.dart';
 import 'package:rimapay/features/pin_verification/presentation/screens/pin_verification_screen.dart';
+import 'package:rimapay/features/transport/presentation/screens/transport_screen.dart';
 import 'package:rimapay/features/profile/presentation/screens/profile_screen.dart';
 import 'package:rimapay/features/receipt/presentation/screens/receipt_screen.dart' show ReceiptScreen, ReceiptData;
 import 'package:rimapay/features/success/presentation/screens/success_screen.dart';
@@ -151,42 +159,37 @@ class AppRouter {
       GoRoute(
         path: '/add-money',
         name: 'add-money',
-        builder: (context, state) =>
-            const ComingSoonScreen(title: 'Add Money', subtitle: 'Fund your account'),
+        builder: (context, state) => const AddMoneyScreen(),
       ),
 
-      // Coming-soon stubs for unlocked services
+      // Bill service screens
       GoRoute(
         path: '/education-bills',
-        builder: (_, __) => const ComingSoonScreen(title: 'Education', subtitle: 'School fee payments'),
+        builder: (_, __) => const EducationBillsScreen(),
       ),
       GoRoute(
         path: '/airtime-to-cash',
-        builder: (_, __) => const ComingSoonScreen(title: 'Airtime → Cash', subtitle: 'Convert airtime to cash'),
+        builder: (_, __) => const AirtimeCashScreen(),
       ),
       GoRoute(
         path: '/event-tickets',
-        builder: (_, __) => const ComingSoonScreen(title: 'Events', subtitle: 'Buy tickets & concert passes'),
-      ),
-      GoRoute(
-        path: '/betting-lottery',
-        builder: (_, __) => const ComingSoonScreen(title: 'Betting', subtitle: 'Betting & lottery top-up'),
+        builder: (_, __) => const EventsScreen(),
       ),
       GoRoute(
         path: '/voluntary-pension',
-        builder: (_, __) => const ComingSoonScreen(title: 'Pension', subtitle: 'Voluntary pension contributions'),
+        builder: (_, __) => const PensionScreen(),
       ),
       GoRoute(
         path: '/road-transport',
-        builder: (_, __) => const ComingSoonScreen(title: 'Transport', subtitle: 'Buy bus tickets'),
+        builder: (_, __) => const TransportScreen(),
       ),
       GoRoute(
         path: '/air-transport',
-        builder: (_, __) => const ComingSoonScreen(title: 'Flights', subtitle: 'Book flight tickets'),
+        builder: (_, __) => const FlightsScreen(),
       ),
       GoRoute(
         path: '/state-government',
-        builder: (_, __) => const ComingSoonScreen(title: 'Gov. Payments', subtitle: 'Taxes & government fees'),
+        builder: (_, __) => const GovernmentScreen(),
       ),
 
       // PIN Verification

@@ -262,512 +262,236 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildLoginForm() {
+    final bool canSubmit = _loginForm['phoneNumber']!.isNotEmpty &&
+        _loginForm['password']!.isNotEmpty &&
+        !_isLoading;
+
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/Onboarding2.png'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.black.withOpacity(0.2),
-                Colors.black.withOpacity(0.4),
-                Colors.black.withOpacity(0.8),
-                Colors.black.withOpacity(0.9),
-              ],
-            ),
-          ),
-          child: SafeArea(
-            child: FadeTransition(
-              opacity: _fadeAnimation,
-              child: Column(
-                children: [
-                  // Header with back button and floating biometric
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Back button
-                        GestureDetector(
-                          onTap: () {
-                            context.pop();
-                          },
-                          child: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: Colors.white.withOpacity(0.3),
-                                width: 1,
-                              ),
-                            ),
-                            child: const Icon(
-                              Icons.arrow_back_ios_new,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                          ),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: Column(
+            children: [
+              // Top bar
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GestureDetector(
+                      onTap: () => context.pop(),
+                      child: Container(
+                        width: 40, height: 40,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF3F4F6),
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        // Floating Biometric Button
-                        ScaleTransition(
-                          scale: _scaleAnimation,
-                          child: GestureDetector(
-                            onTap: _handleBiometricLogin,
-                            child: Container(
-                              width: 48,
-                              height: 48,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF00B252).withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(24),
-                                border: Border.all(
-                                  color: const Color(0xFF00B252).withOpacity(0.3),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Stack(
-                                children: [
-                                  // Pulse effect
-                                  AnimatedBuilder(
-                                    animation: _pulseAnimation,
-                                    builder: (context, child) {
-                                      return Center(
-                                        child: Container(
-                                          width: 48 * _pulseAnimation.value,
-                                          height: 48 * _pulseAnimation.value,
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFF00B252).withOpacity(0.1),
-                                            borderRadius: BorderRadius.circular(24 * _pulseAnimation.value),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                  // Icon
-                                  Center(
-                                    child: _isBiometricLoading
-                                        ? const SizedBox(
-                                            width: 20,
-                                            height: 20,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                            ),
-                                          )
-                                        : AnimatedBuilder(
-                                            animation: _rotationController,
-                                            builder: (context, child) {
-                                              return Transform.rotate(
-                                                angle: _rotationController.value * 0.1,
-                                                child: const Icon(
-                                                  Icons.fingerprint,
-                                                  color: Colors.white,
-                                                  size: 24,
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                        child: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF374151), size: 17),
+                      ),
                     ),
-                  ),
-                  // Scrollable Content
-                  Expanded(
-                    child: SingleChildScrollView(
-                      physics: BouncingScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom - 80, // Approximate header height
+                    GestureDetector(
+                      onTap: () => setState(() => _currentFlow = Flow.start),
+                      child: const Text(
+                        'Create Account',
+                        style: TextStyle(color: Color(0xFF00B252), fontWeight: FontWeight.w700, fontSize: 14),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Logo + wordmark
+                      ScaleTransition(
+                        scale: _scaleAnimation,
+                        child: Row(
+                          children: [
+                            Image.asset('assets/images/AppIcon.png', width: 48, height: 48),
+                            const SizedBox(width: 12),
+                            const Text(
+                              'RimaPay',
+                              style: TextStyle(color: Color(0xFF101828), fontSize: 26, fontWeight: FontWeight.w900, letterSpacing: -0.5),
+                            ),
+                          ],
                         ),
-                        child: IntrinsicHeight(
-                          child: Column(
+                      ),
+                      const SizedBox(height: 32),
+
+                      // Headline
+                      const Text(
+                        'Welcome\nBack 👋',
+                        style: TextStyle(color: Color(0xFF101828), fontSize: 34, height: 1.15, fontWeight: FontWeight.w900),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Sign in to your RimaPay account',
+                        style: TextStyle(color: Color(0xFF667085), fontSize: 15, height: 1.4),
+                      ),
+                      const SizedBox(height: 36),
+
+                      // Phone field
+                      const Text('Phone Number',
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF374151))),
+                      const SizedBox(height: 8),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF9FAFB),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: _loginForm['phoneNumber']!.isNotEmpty ? const Color(0xFF00B252).withOpacity(0.4) : const Color(0xFFE4E7EC)),
+                        ),
+                        child: TextFormField(
+                          controller: _phoneController,
+                          keyboardType: TextInputType.phone,
+                          onChanged: (value) => setState(() => _loginForm['phoneNumber'] = addLeadingZero(value)),
+                          style: const TextStyle(fontSize: 15, color: Color(0xFF101828), fontWeight: FontWeight.w500),
+                          decoration: const InputDecoration(
+                            hintText: '0801 234 5678',
+                            hintStyle: TextStyle(color: Color(0xFFD0D5DD), fontSize: 15),
+                            prefixIcon: Icon(Icons.phone_outlined, size: 18, color: Color(0xFF9CA3AF)),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+
+                      // Password field
+                      const Text('Password',
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF374151))),
+                      const SizedBox(height: 8),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF9FAFB),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: _loginForm['password']!.isNotEmpty ? const Color(0xFF00B252).withOpacity(0.4) : const Color(0xFFE4E7EC)),
+                        ),
+                        child: TextFormField(
+                          controller: _passwordController,
+                          obscureText: !_showPassword,
+                          onChanged: (value) => setState(() => _loginForm['password'] = value),
+                          style: const TextStyle(fontSize: 15, color: Color(0xFF101828), fontWeight: FontWeight.w500),
+                          decoration: InputDecoration(
+                            hintText: '••••••••',
+                            hintStyle: const TextStyle(color: Color(0xFFD0D5DD), fontSize: 15),
+                            prefixIcon: const Icon(Icons.lock_outline_rounded, size: 18, color: Color(0xFF9CA3AF)),
+                            suffixIcon: GestureDetector(
+                              onTap: () => setState(() => _showPassword = !_showPassword),
+                              child: Icon(
+                                _showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                                size: 18, color: const Color(0xFF9CA3AF),
+                              ),
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: GestureDetector(
+                          onTap: () {},
+                          child: const Text('Forgot Password?',
+                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF00B252))),
+                        ),
+                      ),
+                      const SizedBox(height: 28),
+
+                      // Sign In button
+                      GestureDetector(
+                        onTap: canSubmit ? _handleLoginSubmit : null,
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 150),
+                          width: double.infinity, height: 54,
+                          decoration: BoxDecoration(
+                            gradient: canSubmit
+                                ? const LinearGradient(colors: [Color(0xFF00B252), Color(0xFF00A651)], begin: Alignment.centerLeft, end: Alignment.centerRight)
+                                : null,
+                            color: canSubmit ? null : const Color(0xFFE4E7EC),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Center(
+                            child: _isLoading
+                                ? const SizedBox(width: 22, height: 22,
+                                    child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
+                                : Text('Sign In',
+                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700,
+                                        color: canSubmit ? Colors.white : const Color(0xFF9CA3AF))),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Divider
+                      Row(children: [
+                        const Expanded(child: Divider(color: Color(0xFFE4E7EC))),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text('or', style: TextStyle(fontSize: 13, color: Colors.grey.shade400)),
+                        ),
+                        const Expanded(child: Divider(color: Color(0xFFE4E7EC))),
+                      ]),
+                      const SizedBox(height: 12),
+
+                      // Biometric button
+                      GestureDetector(
+                        onTap: _handleBiometricLogin,
+                        child: Container(
+                          width: double.infinity, height: 54,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF9FAFB),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFFE4E7EC)),
+                          ),
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              // Logo and Title
-                              ScaleTransition(
-                                scale: _scaleAnimation,
-                                child: Column(
-                                  children: [
-                                    Image.asset(
-                                      "assets/images/AppIcon.png",
-                                      width: 96,
-                                      height: 96,
-                                    ),
-                                    const SizedBox(height: 16),
-                                    const Text(
-                                      'RimaPay',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 32,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
+                              if (_isBiometricLoading) ...[
+                                const SizedBox(width: 22, height: 22,
+                                    child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF00B252)))),
+                                const SizedBox(width: 12),
+                                const Text('Authenticating...', style: TextStyle(color: Color(0xFF374151), fontSize: 15, fontWeight: FontWeight.w600)),
+                              ] else ...[
+                                const Icon(Icons.fingerprint, color: Color(0xFF00B252), size: 24),
+                                const SizedBox(width: 10),
+                                Text(
+                                  _biometricSupported ? 'Login with Biometrics' : 'Set Up Biometrics',
+                                  style: const TextStyle(color: Color(0xFF374151), fontSize: 15, fontWeight: FontWeight.w600),
                                 ),
-                              ),
-                              const SizedBox(height: 16),
-                              const Text(
-                                'Welcome Back',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Sign in to your RimaPay account',
-                                style: TextStyle(
-                                  color: Colors.white.withOpacity(0.8),
-                                  fontSize: 14,
-                                ),
-                              ),
-                              const SizedBox(height: 40),
-                              // Form Fields
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Phone Number Field
-                                  Text(
-                                    'Phone Number',
-                                    style: TextStyle(
-                                      color: Colors.white.withOpacity(0.9),
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  TextFormField(
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _loginForm['phoneNumber'] = addLeadingZero(value);
-                                      });
-                                    },
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                    ),
-                                    decoration: InputDecoration(
-                                      hintText: 'Enter phone number',
-                                      // prefixIcon: Padding(
-                                      //   padding: EdgeInsets.only(
-                                      //     left: 20,
-                                      //     right: 5,
-                                      //   ),
-                                      //   child: Column(
-                                      //     mainAxisSize: MainAxisSize.min,
-                                      //     mainAxisAlignment: MainAxisAlignment.center,
-                                      //     crossAxisAlignment: CrossAxisAlignment.start,
-                                      //     children: [
-                                      //       Text(
-                                      //         "+234",
-                                      //         textAlign: TextAlign.center,
-                                      //         style: TextStyle(
-                                      //           color: Colors.white.withOpacity(0.6),
-                                      //           fontSize: 14,
-                                      //         ),
-                                      //       ),
-                                      //     ],
-                                      //   ),
-                                      // ),
-                                      hintStyle: TextStyle(
-                                        color: Colors.white.withOpacity(0.6),
-                                        fontSize: 14,
-                                      ),
-                                      fillColor: Colors.white.withOpacity(0.2),
-                                      filled: true,
-                                      border: InputBorder.none,
-                                      contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 12,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  // Password Field
-                                  Text(
-                                    'Password',
-                                    style: TextStyle(
-                                      color: Colors.white.withOpacity(0.9),
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  TextFormField(
-                                    obscureText: !_showPassword,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _loginForm['password'] = value;
-                                      });
-                                    },
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                    ),
-                                    decoration: InputDecoration(
-                                      hintText: 'Enter your password',
-                                      hintStyle: TextStyle(
-                                        color: Colors.white.withOpacity(0.6),
-                                        fontSize: 14,
-                                      ),
-                                      fillColor: Colors.white.withOpacity(0.2),
-                                      filled: true,
-                                      suffixIcon: GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            _showPassword = !_showPassword;
-                                          });
-                                        },
-                                        child: Icon(
-                                          _showPassword ? Icons.visibility_off : Icons.visibility,
-                                          color: Colors.white.withOpacity(0.6),
-                                          size: 16,
-                                        ),
-                                      ),
-                                      border: InputBorder.none,
-                                      contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 12,
-                                      ),
-                                    ),
-                                  ),
-                                  // Forgot Password
-                                  const SizedBox(height: 8),
-                                  Align(
-                                    alignment: Alignment.centerRight,
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        // Handle forgot password
-                                      },
-                                      child: const Text(
-                                        'Forgot Password?',
-                                        style: TextStyle(
-                                          color: Color(0xFF00B252),
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 24),
-                              // Login Buttons
-                              Column(
-                                children: [
-                                  // Regular Login Button
-                                  GestureDetector(
-                                    onTap: (_loginForm['phoneNumber']!.isNotEmpty && _loginForm['password']!.isNotEmpty && !_isLoading) ? _handleLoginSubmit : null,
-                                    child: AnimatedContainer(
-                                      duration: const Duration(milliseconds: 150),
-                                      width: double.infinity,
-                                      height: 54,
-                                      decoration: BoxDecoration(
-                                        gradient: (_loginForm['phoneNumber']!.isNotEmpty && _loginForm['password']!.isNotEmpty && !_isLoading)
-                                            ? const LinearGradient(
-                                                colors: [Color(0xFF00B252), Color(0xFF00A651)],
-                                                begin: Alignment.centerLeft,
-                                                end: Alignment.centerRight,
-                                              )
-                                            : null,
-                                        color: (_loginForm['phoneNumber']!.isNotEmpty && _loginForm['password']!.isNotEmpty && !_isLoading) ? null : Colors.grey.withOpacity(0.3),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Center(
-                                        child: _isLoading
-                                            ? const SizedBox(
-                                                height: 20,
-                                                width: 20,
-                                                child: CircularProgressIndicator(
-                                                  strokeWidth: 2,
-                                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                                ),
-                                              )
-                                            : const Text(
-                                                'Sign In',
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  // Biometric Login Button
-                                  SizedBox(
-                                    width: double.infinity,
-                                    height: 54,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.15),
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
-                                          color: Colors.white.withOpacity(0.4),
-                                          width: 1,
-                                        ),
-                                      ),
-                                      child: Stack(
-                                        children: [
-                                          // Shimmer effect
-                                          Positioned.fill(
-                                            child: ClipRRect(
-                                              borderRadius: BorderRadius.circular(12),
-                                              child: AnimatedBuilder(
-                                                animation: _shimmerAnimation,
-                                                builder: (context, child) {
-                                                  return Transform.translate(
-                                                    offset: Offset(
-                                                      _shimmerAnimation.value.dx * 200,
-                                                      0,
-                                                    ),
-                                                    child: Container(
-                                                      width: 100,
-                                                      decoration: BoxDecoration(
-                                                        gradient: LinearGradient(
-                                                          colors: [
-                                                            Colors.transparent,
-                                                            Colors.white.withOpacity(0.1),
-                                                            Colors.transparent,
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                              ),
-                                            ),
-                                          ),
-                                          // Button content
-                                          Positioned.fill(
-                                            child: Material(
-                                            color: Colors.transparent,
-                                            child: InkWell(
-                                              onTap: _handleBiometricLogin,
-                                              borderRadius: BorderRadius.circular(12),
-                                              child: Container(
-                                                child: Row(
-                                                  mainAxisAlignment: MainAxisAlignment.center,
-                                                  children: [
-                                                    if (_isBiometricLoading) ...[
-                                                      const SizedBox(
-                                                        height: 20,
-                                                        width: 20,
-                                                        child: CircularProgressIndicator(
-                                                          strokeWidth: 2,
-                                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                                        ),
-                                                      ),
-                                                      const SizedBox(width: 12),
-                                                      const Text(
-                                                        'Authenticating...',
-                                                        style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize: 16,
-                                                          fontWeight: FontWeight.w600,
-                                                        ),
-                                                      ),
-                                                    ] else ...[
-                                                      AnimatedBuilder(
-                                                        animation: _rotationController,
-                                                        builder: (context, child) {
-                                                          return Transform.rotate(
-                                                            angle: _rotationController.value * 0.1,
-                                                            child: const Icon(
-                                                              Icons.fingerprint,
-                                                              color: Colors.white,
-                                                              size: 20,
-                                                            ),
-                                                          );
-                                                        },
-                                                      ),
-                                                      const SizedBox(width: 12),
-                                                      Text(
-                                                        _biometricSupported ? 'Login with Biometrics' : 'Biometric Setup Available',
-                                                        style: const TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize: 16,
-                                                          fontWeight: FontWeight.w600,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          ), // closes Positioned.fill
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  // Biometric status
-                                  Text(
-                                    _biometricSupported ? '🔒 Touch the fingerprint icon to authenticate' : '👆 Tap to set up fingerprint or face ID login',
-                                    style: TextStyle(
-                                      color: Colors.white.withOpacity(0.6),
-                                      fontSize: 12,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 24),
-                              // Create Account Link
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    "Don't have an account? ",
-                                    style: TextStyle(
-                                      color: Colors.white.withOpacity(0.8),
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        _currentFlow = Flow.start;
-                                      });
-                                    },
-                                    child: const Text(
-                                      'Create Account',
-                                      style: TextStyle(
-                                        color: Color(0xFF00B252),
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 24),
+                              ],
                             ],
                           ),
                         ),
                       ),
-                    ),
+                      const SizedBox(height: 36),
+
+                      // Footer
+                      Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text("Don't have an account? ",
+                                style: TextStyle(color: Color(0xFF667085), fontSize: 14)),
+                            GestureDetector(
+                              onTap: () => setState(() => _currentFlow = Flow.start),
+                              child: const Text('Create Account',
+                                  style: TextStyle(color: Color(0xFF00B252), fontSize: 14, fontWeight: FontWeight.w700)),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),

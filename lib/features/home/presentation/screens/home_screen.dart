@@ -47,8 +47,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       route: '/bills/cable',
     ),
     _QuickAction(
-      label: 'Pay Bills',
-      icon: Icons.receipt_long_outlined,
+      label: 'More',
+      icon: Icons.apps_rounded,
       iconColor: Color(0xFF00B252),
       bgColor: Color(0xFFecfdf5),
       route: '/bills',

@@ -107,7 +107,7 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
       BillService(
         id: 'education',
         title: 'Education',
-        description: 'School fees',
+        description: 'WAEC, JAMB, NECO',
         icon: '🎓',
         color: const Color(0xFF3B82F6),
         bgColor: const Color(0xFFeff6ff),
@@ -130,15 +130,6 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
         color: const Color(0xFFEC4899),
         bgColor: const Color(0xFFfdf2f8),
         route: '/event-tickets',
-      ),
-      BillService(
-        id: 'betting',
-        title: 'Betting',
-        description: 'Betting & lottery',
-        icon: '🎰',
-        color: const Color(0xFFF97316),
-        bgColor: const Color(0xFFfff7ed),
-        route: '/betting-lottery',
       ),
       BillService(
         id: 'pension',
