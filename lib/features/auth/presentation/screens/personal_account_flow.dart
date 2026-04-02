@@ -1540,129 +1540,59 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   ),
                 ),
                 const SizedBox(height: 14),
-                _sectionLabel('Address'),
-                const SizedBox(height: 8),
-                GooglePlacesAutoCompleteTextFormField(
-                  textEditingController: _addressController,
-                  googleAPIKey: GOOGLE_API_KEY,
-                  debounceTime: 600,
-                  countries: const ['ng'],
-                  onSuggestionClicked: (p) {
-                    _addressController.text = p.description ?? '';
-                    setState(() {
-                      _personalInfo.residentialAddress = p.description ?? '';
-                    });
-                  },
-                  onChanged: (e) =>
-                      setState(() => _personalInfo.residentialAddress = e),
-                  onPlaceDetailsWithCoordinatesReceived: (p) async {
-                    setState(() {
-                      selectedCoordinate = Prediction(
-                        description: p.description,
-                        lat: p.lat,
-                        lng: p.lng,
-                        placeId: p.placeId,
-                      );
-                    });
-                    if (p.placeId != null) {
-                      final det = await ref.read(
-                          locationDetailsProvider(p.placeId ?? '').future);
-                      if (det != null) {
-                        final locs = getCountryLocation();
-                        final svc = ref.read(locationDetailsServiceProvider);
-                        final st = svc.findMatchingState(det.state, locs);
-                        if (st != null) {
-                          setState(() {
-                            selectedState = st;
-                            _personalInfo.state = st.state?.name ?? '';
-                            locals = st.state?.locals;
-                            if (det.localGovernment != null && locals != null) {
-                              selectedLga = svc.findMatchingLGA(
-                                  det.localGovernment!, locals!);
-                              _personalInfo.lga = selectedLga?.name ?? '';
-                            }
-                          });
-                        }
-                      }
-                    }
-                  },
-                  decoration: _inputDec(
-                      hint: 'e.g. 15, Adeola Odeku Street',
-                      suffix: _isGettingLocation
-                          ? const Padding(
-                              padding: EdgeInsets.all(12),
-                              child: SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation(
-                                          Color(0xFF16A34A)))))
-                          : IconButton(
-                              onPressed: _onLocateMePressed,
-                              icon: const Icon(Icons.my_location,
-                                  color: Color(0xFF16A34A), size: 20))),
-                ),
-                const SizedBox(height: 14),
-                _sectionLabel('State'),
-                const SizedBox(height: 8),
                 GestureDetector(
-                  onTap: () {
-                    final locs = getCountryLocation();
-                    final opts = locs
-                        .map((l) => l.state?.name ?? '')
-                        .where((n) => n.isNotEmpty)
-                        .toList();
-                    _showSearchSheet('Select State', opts, (v) {
-                      final match = locs.firstWhere((l) => l.state?.name == v,
-                          orElse: () => locs.first);
-                      setState(() {
-                        selectedState = match;
-                        _personalInfo.state = v;
-                        locals = match.state?.locals;
-                        selectedLga = null;
-                        _personalInfo.lga = '';
-                      });
-                    });
-                  },
-                  child: _dropdownField(
-                    label: '',
-                    value: selectedState?.state?.name,
-                    hint: 'Select State',
-                    icon: null,
+                  onTap: _showAddressPicker,
+                  child: _OFloatingFieldStatic(
+                    label: 'Address',
+                    value: _personalInfo.residentialAddress.isEmpty
+                        ? null
+                        : _personalInfo.residentialAddress,
+                    hint: 'Search address',
+                    suffix: _isGettingLocation
+                        ? const Padding(
+                            padding: EdgeInsets.all(12),
+                            child: SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation(
+                                        Color(0xFF16A34A)))))
+                        : IconButton(
+                            onPressed: _onLocateMePressed,
+                            icon: const Icon(Icons.my_location,
+                                color: Color(0xFF16A34A), size: 20)),
                   ),
                 ),
-                const SizedBox(height: 14),
-                _sectionLabel('L.G.A'),
-                const SizedBox(height: 8),
-                GestureDetector(
-                  onTap: selectedState == null
-                      ? null
-                      : () {
-                          final opts = (locals ?? [])
-                              .map((l) => l.name ?? '')
-                              .where((n) => n.isNotEmpty)
-                              .toList();
-                          _showSearchSheet('Select L.G.A', opts, (v) {
-                            final match = (locals ?? []).firstWhere(
-                                (l) => l.name == v,
-                                orElse: () => locals!.first);
-                            setState(() {
-                              selectedLga = match;
-                              _personalInfo.lga = v;
-                            });
-                          });
-                        },
-                  child: _dropdownField(
-                    label: '',
-                    value: selectedLga?.name,
-                    hint: selectedState == null
-                        ? 'Select state first'
-                        : 'Select L.G.A',
-                    icon: null,
-                    enabled: selectedState != null,
+                if (_personalInfo.residentialAddress.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  GestureDetector(
+                    onTap: _showStatePicker,
+                    child: _OFloatingFieldStatic(
+                      label: 'State',
+                      value: _personalInfo.state.isEmpty
+                          ? null
+                          : _personalInfo.state,
+                      hint: 'Select State',
+                      suffix: const Icon(Icons.keyboard_arrow_down,
+                          size: 20, color: Color(0xFF9CA3AF)),
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 12),
+                  GestureDetector(
+                    onTap: selectedState == null ? null : _showLgaPicker,
+                    child: _OFloatingFieldStatic(
+                      label: 'L.G.A',
+                      value:
+                          _personalInfo.lga.isEmpty ? null : _personalInfo.lga,
+                      hint: selectedState == null
+                          ? 'Select state first'
+                          : 'Select L.G.A',
+                      suffix: const Icon(Icons.keyboard_arrow_down,
+                          size: 20, color: Color(0xFF9CA3AF)),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 24),
               ],
             ),
@@ -2973,6 +2903,155 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
         ),
       ),
     );
+  }
+
+  void _showAddressPicker() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => Container(
+        height: MediaQuery.of(context).size.height * 0.85,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: EdgeInsets.only(
+            top: 12, bottom: MediaQuery.of(context).padding.bottom + 12),
+        child: Column(
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE5E7EB),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Search Address',
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: GooglePlacesAutoCompleteTextFormField(
+                textEditingController: _addressController,
+                googleAPIKey: GOOGLE_API_KEY,
+                debounceTime: 600,
+                countries: const ['ng'],
+                onSuggestionClicked: (p) {
+                  _addressController.text = p.description ?? '';
+                  setState(() {
+                    _personalInfo.residentialAddress = p.description ?? '';
+                  });
+                },
+                onChanged: (e) =>
+                    setState(() => _personalInfo.residentialAddress = e),
+                onPlaceDetailsWithCoordinatesReceived: (p) async {
+                  setState(() {
+                    selectedCoordinate = Prediction(
+                      description: p.description,
+                      lat: p.lat,
+                      lng: p.lng,
+                      placeId: p.placeId,
+                    );
+                  });
+                  if (p.placeId != null) {
+                    final det = await ref
+                        .read(locationDetailsProvider(p.placeId ?? '').future);
+                    if (det != null) {
+                      final locs = getCountryLocation();
+                      final svc = ref.read(locationDetailsServiceProvider);
+                      final st = svc.findMatchingState(det.state, locs);
+                      if (st != null) {
+                        setState(() {
+                          selectedState = st;
+                          _personalInfo.state = st.state?.name ?? '';
+                          locals = st.state?.locals;
+                          if (det.localGovernment != null && locals != null) {
+                            selectedLga = svc.findMatchingLGA(
+                                det.localGovernment!, locals!);
+                            _personalInfo.lga = selectedLga?.name ?? '';
+                          }
+                        });
+                      }
+                    }
+                  }
+                },
+                decoration: _inputDec(hint: 'Search address...').copyWith(
+                  prefixIcon: const Icon(Icons.search,
+                      color: Color(0xFF9CA3AF), size: 18),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Divider(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.my_location,
+                      color: Color(0xFF16A34A), size: 20),
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: () async {
+                      Navigator.pop(context);
+                      await _onLocateMePressed();
+                    },
+                    child: const Text(
+                      'Use current location',
+                      style: TextStyle(
+                        color: Color(0xFF16A34A),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showStatePicker() {
+    final locs = getCountryLocation();
+    final opts = locs
+        .map((l) => l.state?.name ?? '')
+        .where((n) => n.isNotEmpty)
+        .toList();
+    _showSearchSheet('Select State', opts, (v) {
+      final match =
+          locs.firstWhere((l) => l.state?.name == v, orElse: () => locs.first);
+      setState(() {
+        selectedState = match;
+        _personalInfo.state = v;
+        locals = match.state?.locals;
+        selectedLga = null;
+        _personalInfo.lga = '';
+      });
+    });
+  }
+
+  void _showLgaPicker() {
+    if (selectedState == null) return;
+    final opts = (locals ?? [])
+        .map((l) => l.name ?? '')
+        .where((n) => n.isNotEmpty)
+        .toList();
+    _showSearchSheet('Select L.G.A', opts, (v) {
+      final match = (locals ?? [])
+          .firstWhere((l) => l.name == v, orElse: () => locals!.first);
+      setState(() {
+        selectedLga = match;
+        _personalInfo.lga = v;
+      });
+    });
   }
 
   void _snack(String msg, {bool isError = false}) {
