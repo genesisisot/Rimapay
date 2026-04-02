@@ -1,28 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:rimapay/shared/widgets/bill_screen_widgets.dart';
 
-// Enum for tier levels
+// ─────────────────────────────────────────────────────────────────────────────
+// Models
+// ─────────────────────────────────────────────────────────────────────────────
+
 enum TierLevel { tier1, tier2, tier3 }
 
-// Tier information class
 class TierInfo {
   final String name;
   final String balanceLimit;
   final String transactionLimit;
-  final List<String> requirements;
   final List<String> benefits;
   final TierLevel level;
 
-  TierInfo({
+  const TierInfo({
     required this.name,
     required this.balanceLimit,
     required this.transactionLimit,
-    required this.requirements,
     required this.benefits,
     required this.level,
   });
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Main Screen
+// ─────────────────────────────────────────────────────────────────────────────
 
 class AccountTiersScreen extends StatefulWidget {
   const AccountTiersScreen({super.key});
@@ -31,96 +36,51 @@ class AccountTiersScreen extends StatefulWidget {
   State<AccountTiersScreen> createState() => _AccountTiersScreenState();
 }
 
-class _AccountTiersScreenState extends State<AccountTiersScreen>
-    with TickerProviderStateMixin {
-  late AnimationController _animationController;
-  TierLevel? currentUserTier = TierLevel.tier1; // Mock current tier
+class _AccountTiersScreenState extends State<AccountTiersScreen> {
+  // Mock: user is on Basic, and BVN was provided at onboarding
+  final TierLevel currentTier = TierLevel.tier1;
+  final bool onboardingProvidedBvn = true; // → Standard needs NIN
 
-  final Map<TierLevel, TierInfo> tierInfoMap = {
-    TierLevel.tier1: TierInfo(
+  static const tiers = [
+    TierInfo(
       name: 'Basic',
       balanceLimit: '₦50,000',
-      transactionLimit: '₦5,000',
+      transactionLimit: '₦5,000/day',
       level: TierLevel.tier1,
-      requirements: [
-        'Valid phone number',
-        'Email verification',
-        'Basic KYC information',
-      ],
       benefits: [
-        'Mobile payments',
-        'Bill payments',
-        'Basic transfers',
-        '24/7 customer support',
+        'Mobile top-up & bill payments',
+        'Basic peer-to-peer transfers',
+        '24/7 in-app support',
       ],
     ),
-    TierLevel.tier2: TierInfo(
+    TierInfo(
       name: 'Standard',
-      balanceLimit: '₦200,000',
-      transactionLimit: '₦50,000',
+      balanceLimit: '₦300,000',
+      transactionLimit: '₦100,000/day',
       level: TierLevel.tier2,
-      requirements: [
-        'Government-issued ID',
-        'Address verification',
-        'Enhanced KYC',
-        'Income verification',
-      ],
       benefits: [
-        'Higher transaction limits',
-        'International transfers',
-        'Investment options',
-        'Priority support',
+        'Higher transfer & balance limits',
+        'Bank transfers (NIP)',
+        'Scheduled & recurring payments',
+        'Priority customer support',
       ],
     ),
-    TierLevel.tier3: TierInfo(
+    TierInfo(
       name: 'Premium',
-      balanceLimit: '₦2,000,000',
-      transactionLimit: '₦500,000',
+      balanceLimit: '₦5,000,000',
+      transactionLimit: '₦1,000,000/day',
       level: TierLevel.tier3,
-      requirements: [
-        'Complete KYC verification',
-        'Bank statement',
-        'Proof of income',
-        'Biometric verification',
-      ],
       benefits: [
-        'Maximum limits',
-        'Premium features',
+        'Maximum transaction limits',
+        'International transfers',
         'Dedicated account manager',
-        'Exclusive rewards',
+        'Exclusive cashback & rewards',
       ],
     ),
-  };
+  ];
 
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 1200),
-      vsync: this,
-    );
-    _animationController.forward();
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  IconData _getTierIcon(TierLevel tier) {
-    switch (tier) {
-      case TierLevel.tier1:
-        return Icons.star;
-      case TierLevel.tier2:
-        return Icons.shield;
-      case TierLevel.tier3:
-        return Icons.shield;
-    }
-  }
-
-  Color _getTierColor(TierLevel tier) {
-    switch (tier) {
+  Color _tierColor(TierLevel t) {
+    switch (t) {
       case TierLevel.tier1:
         return const Color(0xFF00B252);
       case TierLevel.tier2:
@@ -130,619 +90,1676 @@ class _AccountTiersScreenState extends State<AccountTiersScreen>
     }
   }
 
-  void _handleUpgrade(TierLevel tier) {
-    // Handle tier upgrade logic here
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Upgrading to ${tierInfoMap[tier]!.name}...'),
-        backgroundColor: _getTierColor(tier),
+  IconData _tierIcon(TierLevel t) {
+    switch (t) {
+      case TierLevel.tier1:
+        return Icons.star_rounded;
+      case TierLevel.tier2:
+        return Icons.verified_rounded;
+      case TierLevel.tier3:
+        return Icons.workspace_premium_rounded;
+    }
+  }
+
+  void _startUpgrade(TierLevel target) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => target == TierLevel.tier2
+            ? _StandardUpgradeScreen(needsNin: onboardingProvidedBvn)
+            : const _PremiumUpgradeScreen(),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isTablet = screenWidth > 600;
-    
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.white,
-              Color(0xFFF0FDF4),
-              Color(0xFFE6FFFA),
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Header
-              _buildHeader(context),
-              
-              // Content
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isTablet ? 24.0 : 16.0,
-                  ),
-                  child: Column(
-                    children: [
-                      // Current Tier Display
-                      if (currentUserTier != null) ...[
-                        _buildCurrentTierCard(isTablet),
-                        const SizedBox(height: 16),
-                      ],
-                      
-                      // Tier Cards
-                      ...TierLevel.values.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final tier = entry.value;
-                        return _buildTierCard(tier, index, isTablet);
-                      }),
-                      
-                      const SizedBox(height: 16),
-                      
-                      // Footer Note
-                      _buildFooterNote(isTablet),
-                      
-                      const SizedBox(height: 24),
-                    ],
-                  ),
-                ),
+      backgroundColor: const Color(0xFFF9FAFB),
+      body: Column(
+        children: [
+          // ── Green header ──
+          Container(
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF001a0c), Color(0xFF003d1a), Color(0xFF005e27)],
               ),
-            ],
+            ),
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top + 14,
+              left: 20,
+              right: 20,
+              bottom: 24,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => context.pop(),
+                      child: Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.white.withOpacity(0.18)),
+                        ),
+                        child: const Icon(Icons.arrow_back_ios_new, size: 16, color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Account Tiers',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            fontFamily: 'Effra',
+                          ),
+                        ),
+                        Text(
+                          'Upgrade to unlock higher limits',
+                          style: TextStyle(
+                            color: Color(0x99FFFFFF),
+                            fontSize: 12,
+                            fontFamily: 'Effra',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                // Progress stepper
+                _TierStepper(current: currentTier),
+              ],
+            ),
           ),
-        ),
+
+          // ── Content ──
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+              children: tiers.map((t) => _TierCard(
+                info: t,
+                isCurrent: t.level == currentTier,
+                canUpgrade: t.level.index > currentTier.index,
+                color: _tierColor(t.level),
+                icon: _tierIcon(t.level),
+                onUpgrade: () => _startUpgrade(t.level),
+              )).toList(),
+            ),
+          ),
+        ],
       ),
     );
   }
+}
 
-  Widget _buildHeader(BuildContext context) {
-    return SlideTransition(
-      position: Tween<Offset>(
-        begin: const Offset(0, -1),
-        end: Offset.zero,
-      ).animate(CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.0, 0.3, curve: Curves.easeOut),
-      )),
-      child: Container(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.8),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.white.withOpacity(0.2)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: IconButton(
-                onPressed: () => context.pop(),
-                icon: const Icon(
-                  Icons.arrow_back,
-                  color: Color(0xFF6B7280),
-                  size: 20,
+// ─────────────────────────────────────────────────────────────────────────────
+// Tier Stepper
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _TierStepper extends StatelessWidget {
+  final TierLevel current;
+  const _TierStepper({required this.current});
+
+  @override
+  Widget build(BuildContext context) {
+    final labels = ['Basic', 'Standard', 'Premium'];
+    return Row(
+      children: List.generate(3, (i) {
+        final done = i <= current.index;
+        final isLast = i == 2;
+        return Expanded(
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  children: [
+                    Container(
+                      width: 28,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: done ? Colors.white : Colors.white.withOpacity(0.2),
+                        border: Border.all(
+                          color: done ? Colors.white : Colors.white.withOpacity(0.35),
+                          width: 2,
+                        ),
+                      ),
+                      child: Center(
+                        child: done
+                            ? Icon(
+                                i == current.index
+                                    ? Icons.radio_button_checked
+                                    : Icons.check_rounded,
+                                size: 14,
+                                color: i == current.index
+                                    ? const Color(0xFF003d1a)
+                                    : const Color(0xFF003d1a),
+                              )
+                            : Text(
+                                '${i + 1}',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white.withOpacity(0.5),
+                                  fontFamily: 'Effra',
+                                ),
+                              ),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      labels[i],
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: done ? Colors.white : Colors.white.withOpacity(0.45),
+                        fontFamily: 'Effra',
+                      ),
+                    ),
+                  ],
                 ),
-                padding: EdgeInsets.zero,
               ),
+              if (!isLast)
+                Expanded(
+                  child: Container(
+                    height: 2,
+                    margin: const EdgeInsets.only(bottom: 18),
+                    color: i < current.index
+                        ? Colors.white
+                        : Colors.white.withOpacity(0.2),
+                  ),
+                ),
+            ],
+          ),
+        );
+      }),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Tier Card
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _TierCard extends StatelessWidget {
+  final TierInfo info;
+  final bool isCurrent;
+  final bool canUpgrade;
+  final Color color;
+  final IconData icon;
+  final VoidCallback onUpgrade;
+
+  const _TierCard({
+    required this.info,
+    required this.isCurrent,
+    required this.canUpgrade,
+    required this.color,
+    required this.icon,
+    required this.onUpgrade,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isCurrent ? color : const Color(0xFFE4E7EC),
+          width: isCurrent ? 2 : 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Color accent top strip
+          Container(
+            height: 4,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
             ),
-            const SizedBox(width: 12),
-            const Column(
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Account Tiers',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF111827),
-                  ),
+                // Header row
+                Row(
+                  children: [
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: color.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(icon, color: color, size: 22),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            info.name,
+                            style: const TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF101828),
+                              fontFamily: 'Effra',
+                            ),
+                          ),
+                          Text(
+                            'Tier ${info.level.index + 1}',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF667085),
+                              fontFamily: 'Effra',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (isCurrent)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: color.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(color: color.withOpacity(0.3)),
+                        ),
+                        child: Text(
+                          'Active',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: color,
+                            fontFamily: 'Effra',
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
-                Text(
-                  'Choose your account level',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF6B7280),
-                  ),
+                const SizedBox(height: 14),
+
+                // Limits
+                Row(
+                  children: [
+                    _LimitBox(label: 'Balance Cap', value: info.balanceLimit, color: color),
+                    const SizedBox(width: 10),
+                    _LimitBox(label: 'Per Day', value: info.transactionLimit, color: color),
+                  ],
                 ),
+                const SizedBox(height: 14),
+
+                // Benefits
+                ...info.benefits.map((b) => Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 16,
+                        height: 16,
+                        margin: const EdgeInsets.only(top: 1),
+                        decoration: BoxDecoration(
+                          color: color.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(Icons.check_rounded, size: 10, color: color),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          b,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF374151),
+                            fontFamily: 'Effra',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
+                const SizedBox(height: 14),
+
+                // CTA
+                if (isCurrent)
+                  Container(
+                    width: double.infinity,
+                    height: 46,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF3F4F6),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'Current Plan',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF9CA3AF),
+                          fontFamily: 'Effra',
+                        ),
+                      ),
+                    ),
+                  )
+                else if (canUpgrade)
+                  GestureDetector(
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      onUpgrade();
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      height: 46,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [color, color.withOpacity(0.8)],
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: color.withOpacity(0.3),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Text(
+                          'Upgrade to ${info.name}',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                            fontFamily: 'Effra',
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  Container(
+                    width: double.infinity,
+                    height: 46,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF9FAFB),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFE4E7EC)),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'Complete lower tiers first',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF9CA3AF),
+                          fontFamily: 'Effra',
+                        ),
+                      ),
+                    ),
+                  ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LimitBox extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color color;
+  const _LimitBox({required this.label, required this.value, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: color.withOpacity(0.15)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 11,
+                color: Color(0xFF9CA3AF),
+                fontFamily: 'Effra',
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF101828),
+                fontFamily: 'Effra',
+              ),
             ),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildCurrentTierCard(bool isTablet) {
-    final currentTierInfo = tierInfoMap[currentUserTier]!;
-    
-    return SlideTransition(
-      position: Tween<Offset>(
-        begin: const Offset(0, 1),
-        end: Offset.zero,
-      ).animate(CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.1, 0.4, curve: Curves.easeOut),
-      )),
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.all(isTablet ? 20.0 : 16.0),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [
-              Color(0x1A00B252),
-              Color(0x1A00A047),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0x3300B252)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+// ─────────────────────────────────────────────────────────────────────────────
+// Standard Upgrade Screen (Tier 2)
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _StandardUpgradeScreen extends StatefulWidget {
+  /// true = user needs to provide NIN (BVN was given at onboarding)
+  /// false = user needs to provide BVN (NIN was given at onboarding)
+  final bool needsNin;
+  const _StandardUpgradeScreen({required this.needsNin});
+
+  @override
+  State<_StandardUpgradeScreen> createState() => _StandardUpgradeScreenState();
+}
+
+class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
+  int _step = 0; // 0 = ID input, 1 = OTP, 2 = success
+
+  final _idController = TextEditingController();
+  final _idFocus = FocusNode();
+  final _otpControllers = List.generate(6, (_) => TextEditingController());
+  final _otpFocuses = List.generate(6, (_) => FocusNode());
+
+  bool _loading = false;
+  String _enteredOtp = '';
+
+  @override
+  void dispose() {
+    _idController.dispose();
+    _idFocus.dispose();
+    for (final c in _otpControllers) c.dispose();
+    for (final f in _otpFocuses) f.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submitId() async {
+    if (_idController.text.length != 11) return;
+    setState(() => _loading = true);
+    await Future.delayed(const Duration(seconds: 2));
+    if (mounted) setState(() { _loading = false; _step = 1; });
+  }
+
+  Future<void> _submitOtp() async {
+    if (_enteredOtp.length != 6) return;
+    setState(() => _loading = true);
+    await Future.delayed(const Duration(seconds: 2));
+    if (mounted) setState(() { _loading = false; _step = 2; });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF9FAFB),
+      body: Column(
+        children: [
+          // Header
+          Container(
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF001a0c), Color(0xFF003d1a), Color(0xFF005e27)],
+              ),
+            ),
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top + 14,
+              left: 20,
+              right: 20,
+              bottom: 24,
+            ),
+            child: Row(
               children: [
-                Container(
-                  width: 24,
-                  height: 24,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF00B252),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.check,
-                    color: Colors.white,
-                    size: 12,
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.white.withOpacity(0.18)),
+                    ),
+                    child: const Icon(Icons.arrow_back_ios_new, size: 16, color: Colors.white),
                   ),
                 ),
-                const SizedBox(width: 8),
-                Column(
+                const SizedBox(width: 14),
+                const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "You're currently on",
+                    Text(
+                      'Upgrade to Standard',
                       style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF00B252),
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        fontFamily: 'Effra',
                       ),
                     ),
                     Text(
-                      currentTierInfo.name,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF111827),
+                      'Tier 2 · Identity Verification',
+                      style: TextStyle(
+                        color: Color(0x99FFFFFF),
+                        fontSize: 12,
+                        fontFamily: 'Effra',
                       ),
                     ),
                   ],
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Balance Limit',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF6B7280),
-                        ),
-                      ),
-                      Text(
-                        currentTierInfo.balanceLimit,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF111827),
-                        ),
-                      ),
-                    ],
+          ),
+
+          // Step dots
+          if (_step < 2) ...[
+            Container(
+              color: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(2, (i) => AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  width: i == _step ? 20 : 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: i == _step
+                        ? const Color(0xFF3B82F6)
+                        : const Color(0xFFD1D5DB),
+                    borderRadius: BorderRadius.circular(999),
                   ),
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Transaction Limit',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF6B7280),
-                        ),
-                      ),
-                      Text(
-                        currentTierInfo.transactionLimit,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF111827),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                )),
+              ),
             ),
+            const Divider(height: 1, color: Color(0xFFE4E7EC)),
           ],
-        ),
+
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: _step == 0
+                  ? _buildIdStep()
+                  : _step == 1
+                      ? _buildOtpStep()
+                      : _buildSuccess(),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildTierCard(TierLevel tier, int index, bool isTablet) {
-    final tierInfo = tierInfoMap[tier]!;
-    final isCurrentTier = currentUserTier == tier;
-    final canUpgrade = currentUserTier != null && 
-                      currentUserTier!.index < tier.index;
+  Widget _buildIdStep() {
+    final label = widget.needsNin ? 'National Identification Number (NIN)' : 'Bank Verification Number (BVN)';
+    final hint = '11-digit ${widget.needsNin ? "NIN" : "BVN"}';
+    final note = widget.needsNin
+        ? 'You provided your BVN during onboarding. Please enter your NIN to verify your identity.'
+        : 'You provided your NIN during onboarding. Please enter your BVN to verify your identity.';
 
-    return SlideTransition(
-      position: Tween<Offset>(
-        begin: const Offset(0, 1),
-        end: Offset.zero,
-      ).animate(CurvedAnimation(
-        parent: _animationController,
-        curve: Interval(0.2 + index * 0.1, 0.5 + index * 0.1, 
-                       curve: Curves.easeOut),
-      )),
-      child: Container(
-        width: double.infinity,
-        margin: const EdgeInsets.only(bottom: 12),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isCurrentTier 
-                ? const Color(0xFF00B252) 
-                : const Color(0xFFE5E7EB),
-            width: isCurrentTier ? 2 : 1,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Info banner
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: const Color(0xFFEFF6FF),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFBFDBFE)),
           ),
-          color: isCurrentTier 
-              ? const Color(0xFFF0FDF4) 
-              : Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: EdgeInsets.all(isTablet ? 20.0 : 16.0),
-          child: Column(
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Tier Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: _getTierColor(tier),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          _getTierIcon(tier),
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            tierInfo.name,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF111827),
-                            ),
-                          ),
-                          Text(
-                            'Tier ${tier.index + 1}',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF6B7280),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  if (isCurrentTier)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF00B252),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Text(
-                        '✅ Current',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-              
-              const SizedBox(height: 12),
-              
-              // Limits
-              Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF9FAFB),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Balance Cap',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF6B7280),
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            tierInfo.balanceLimit,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF111827),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF9FAFB),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Per Transaction',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF6B7280),
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            tierInfo.transactionLimit,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF111827),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              
-              const SizedBox(height: 12),
-              
-              // Requirements
-              const Text(
-                'Requirements',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF111827),
-                ),
-              ),
-              const SizedBox(height: 8),
-              ...tierInfo.requirements.take(2).map((requirement) => 
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 12,
-                        height: 12,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF00B252),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.check,
-                          color: Colors.white,
-                          size: 8,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          requirement,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF374151),
-                          ),
-                        ),
-                      ),
-                    ],
+              const Icon(Icons.info_outline_rounded, size: 18, color: Color(0xFF3B82F6)),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  note,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF1D4ED8),
+                    fontFamily: 'Effra',
+                    height: 1.4,
                   ),
                 ),
-              ),
-              
-              const SizedBox(height: 12),
-              
-              // Benefits
-              const Text(
-                'Key Benefits',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF111827),
-                ),
-              ),
-              const SizedBox(height: 8),
-              ...tierInfo.benefits.take(2).map((benefit) => 
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.star,
-                        color: Color(0xFFEAB308),
-                        size: 12,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          benefit,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF374151),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              
-              const SizedBox(height: 16),
-              
-              // CTA Button
-              SizedBox(
-                width: double.infinity,
-                child: canUpgrade
-                    ? ElevatedButton(
-                        onPressed: () => _handleUpgrade(tier),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _getTierColor(tier),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          elevation: 2,
-                        ),
-                        child: Text(
-                          'Upgrade to ${tierInfo.name}',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      )
-                    : Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF3F4F6),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            'Current Tier',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFF6B7280),
-                            ),
-                          ),
-                        ),
-                      ),
               ),
             ],
           ),
         ),
+        const SizedBox(height: 24),
+
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF101828),
+            fontFamily: 'Effra',
+          ),
+        ),
+        const SizedBox(height: 10),
+        BillFloatingField(
+          controller: _idController,
+          focusNode: _idFocus,
+          label: widget.needsNin ? 'NIN' : 'BVN',
+          hint: hint,
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(11),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Your ${widget.needsNin ? "NIN" : "BVN"} is used solely for identity verification and is encrypted.',
+          style: const TextStyle(
+            fontSize: 12,
+            color: Color(0xFF9CA3AF),
+            fontFamily: 'Effra',
+          ),
+        ),
+        const SizedBox(height: 32),
+
+        GestureDetector(
+          onTap: _loading ? null : _submitId,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            width: double.infinity,
+            height: 54,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF3B82F6), Color(0xFF2563EB)],
+              ),
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF3B82F6).withOpacity(0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Center(
+              child: _loading
+                  ? const SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
+                    )
+                  : const Text(
+                      'Continue',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                        fontFamily: 'Effra',
+                      ),
+                    ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOtpStep() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Enter Verification Code',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF101828),
+            fontFamily: 'Effra',
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'We sent a 6-digit code to verify your ${widget.needsNin ? "NIN" : "BVN"}. Check your registered phone number.',
+          style: const TextStyle(
+            fontSize: 14,
+            color: Color(0xFF667085),
+            fontFamily: 'Effra',
+            height: 1.5,
+          ),
+        ),
+        const SizedBox(height: 32),
+
+        // OTP boxes
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: List.generate(6, (i) => _OtpBox(
+            controller: _otpControllers[i],
+            focusNode: _otpFocuses[i],
+            onChanged: (v) {
+              if (v.isNotEmpty && i < 5) {
+                FocusScope.of(context).requestFocus(_otpFocuses[i + 1]);
+              }
+              if (v.isEmpty && i > 0) {
+                FocusScope.of(context).requestFocus(_otpFocuses[i - 1]);
+              }
+              _enteredOtp = _otpControllers.map((c) => c.text).join();
+            },
+          )),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            const Text(
+              "Didn't receive it? ",
+              style: TextStyle(fontSize: 13, color: Color(0xFF667085), fontFamily: 'Effra'),
+            ),
+            GestureDetector(
+              onTap: () {},
+              child: const Text(
+                'Resend Code',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF3B82F6),
+                  fontFamily: 'Effra',
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 32),
+
+        GestureDetector(
+          onTap: _loading ? null : _submitOtp,
+          child: Container(
+            width: double.infinity,
+            height: 54,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF3B82F6), Color(0xFF2563EB)],
+              ),
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF3B82F6).withOpacity(0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Center(
+              child: _loading
+                  ? const SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
+                    )
+                  : const Text(
+                      'Verify',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                        fontFamily: 'Effra',
+                      ),
+                    ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSuccess() {
+    return Column(
+      children: [
+        const SizedBox(height: 40),
+        Container(
+          width: 90,
+          height: 90,
+          decoration: BoxDecoration(
+            color: const Color(0xFF3B82F6).withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(Icons.verified_rounded, size: 48, color: Color(0xFF3B82F6)),
+        ),
+        const SizedBox(height: 24),
+        const Text(
+          'Upgrade Successful!',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF101828),
+            fontFamily: 'Effra',
+          ),
+        ),
+        const SizedBox(height: 12),
+        const Text(
+          'You are now on the Standard Tier.\nYour new limits are active immediately.',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 14,
+            color: Color(0xFF667085),
+            fontFamily: 'Effra',
+            height: 1.5,
+          ),
+        ),
+        const SizedBox(height: 16),
+        _SuccessBenefitRow(icon: Icons.account_balance_wallet_rounded, text: 'Balance cap: ₦300,000'),
+        _SuccessBenefitRow(icon: Icons.swap_horiz_rounded, text: 'Daily transfers: ₦100,000'),
+        _SuccessBenefitRow(icon: Icons.support_agent_rounded, text: 'Priority customer support'),
+        const SizedBox(height: 40),
+        GestureDetector(
+          onTap: () => Navigator.of(context).popUntil((r) => r.isFirst),
+          child: Container(
+            width: double.infinity,
+            height: 54,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF3B82F6), Color(0xFF2563EB)],
+              ),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Center(
+              child: Text(
+                'Back to Home',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                  fontFamily: 'Effra',
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Premium Upgrade Screen (Tier 3)
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _PremiumUpgradeScreen extends StatefulWidget {
+  const _PremiumUpgradeScreen();
+
+  @override
+  State<_PremiumUpgradeScreen> createState() => _PremiumUpgradeScreenState();
+}
+
+class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
+  int _step = 0; // 0 = govt doc, 1 = address doc, 2 = review, 3 = success
+
+  String? _govDocType;
+  String? _govDocName;
+  String? _addressDocType;
+  String? _addressDocName;
+
+  bool _loading = false;
+
+  static const govDocTypes = [
+    'National ID Card',
+    "International Passport",
+    "Driver's License",
+    "Voter's Card",
+  ];
+
+  static const addressDocTypes = [
+    'Utility Bill',
+    'Bank Statement',
+    'Tenancy Agreement',
+    'Government-Issued Letter',
+  ];
+
+  void _mockPickFile(String docType, bool isGov) {
+    // Mock file selection
+    setState(() {
+      if (isGov) {
+        _govDocType = docType;
+        _govDocName = '${docType.replaceAll(' ', '_')}_scan.pdf';
+      } else {
+        _addressDocType = docType;
+        _addressDocName = '${docType.replaceAll(' ', '_')}_scan.pdf';
+      }
+    });
+  }
+
+  Future<void> _submit() async {
+    setState(() => _loading = true);
+    await Future.delayed(const Duration(seconds: 2));
+    if (mounted) setState(() { _loading = false; _step = 3; });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final stepTitles = [
+      'Government ID',
+      'Address Document',
+      'Review & Submit',
+    ];
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF9FAFB),
+      body: Column(
+        children: [
+          // Header
+          Container(
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF001a0c), Color(0xFF003d1a), Color(0xFF005e27)],
+              ),
+            ),
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top + 14,
+              left: 20,
+              right: 20,
+              bottom: 24,
+            ),
+            child: Row(
+              children: [
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    if (_step > 0 && _step < 3) {
+                      setState(() => _step--);
+                    } else {
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  child: Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.white.withOpacity(0.18)),
+                    ),
+                    child: const Icon(Icons.arrow_back_ios_new, size: 16, color: Colors.white),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Upgrade to Premium',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        fontFamily: 'Effra',
+                      ),
+                    ),
+                    Text(
+                      _step < 3 ? 'Step ${_step + 1} of 3 · ${stepTitles[_step.clamp(0, 2)]}' : 'Complete',
+                      style: const TextStyle(
+                        color: Color(0x99FFFFFF),
+                        fontSize: 12,
+                        fontFamily: 'Effra',
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // Step progress
+          if (_step < 3) ...[
+            Container(
+              color: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              child: Row(
+                children: List.generate(3, (i) {
+                  final done = i <= _step;
+                  return Expanded(
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: done
+                                  ? const Color(0xFF8B5CF6)
+                                  : const Color(0xFFE4E7EC),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                          ),
+                        ),
+                        if (i < 2) const SizedBox(width: 4),
+                      ],
+                    ),
+                  );
+                }),
+              ),
+            ),
+            const Divider(height: 1, color: Color(0xFFE4E7EC)),
+          ],
+
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: _step == 0
+                  ? _buildDocStep(
+                      title: 'Government-Issued ID',
+                      subtitle: 'Upload a clear photo or scan of your government-issued ID.',
+                      docTypes: govDocTypes,
+                      selectedType: _govDocType,
+                      selectedFile: _govDocName,
+                      isGov: true,
+                      onNext: () => setState(() => _step = 1),
+                    )
+                  : _step == 1
+                      ? _buildDocStep(
+                          title: 'Proof of Address',
+                          subtitle: 'Upload a document showing your current address, dated within the last 3 months.',
+                          docTypes: addressDocTypes,
+                          selectedType: _addressDocType,
+                          selectedFile: _addressDocName,
+                          isGov: false,
+                          onNext: () => setState(() => _step = 2),
+                        )
+                      : _step == 2
+                          ? _buildReview()
+                          : _buildSuccess(),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildFooterNote(bool isTablet) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(isTablet ? 16.0 : 12.0),
-      decoration: BoxDecoration(
-        color: const Color(0xFFEFF6FF),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFBFDBFE)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 20,
-            height: 20,
-            decoration: const BoxDecoration(
-              color: Color(0xFF3B82F6),
-              shape: BoxShape.circle,
+  Widget _buildDocStep({
+    required String title,
+    required String subtitle,
+    required List<String> docTypes,
+    required String? selectedType,
+    required String? selectedFile,
+    required bool isGov,
+    required VoidCallback onNext,
+  }) {
+    final color = const Color(0xFF8B5CF6);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF101828),
+            fontFamily: 'Effra',
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          subtitle,
+          style: const TextStyle(
+            fontSize: 13,
+            color: Color(0xFF667085),
+            fontFamily: 'Effra',
+            height: 1.5,
+          ),
+        ),
+        const SizedBox(height: 24),
+
+        // Document type selector
+        const Text(
+          'Document Type',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF374151),
+            fontFamily: 'Effra',
+          ),
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: docTypes.map((type) {
+            final selected = selectedType == type;
+            return GestureDetector(
+              onTap: () => setState(() {
+                if (isGov) _govDocType = type;
+                else _addressDocType = type;
+              }),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                decoration: BoxDecoration(
+                  color: selected ? color.withOpacity(0.08) : Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: selected ? color : const Color(0xFFE4E7EC),
+                    width: selected ? 1.5 : 1,
+                  ),
+                ),
+                child: Text(
+                  type,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: selected ? color : const Color(0xFF374151),
+                    fontFamily: 'Effra',
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 24),
+
+        // Upload area
+        const Text(
+          'Upload Document',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF374151),
+            fontFamily: 'Effra',
+          ),
+        ),
+        const SizedBox(height: 10),
+        GestureDetector(
+          onTap: selectedType == null
+              ? null
+              : () => _mockPickFile(selectedType, isGov),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 28),
+            decoration: BoxDecoration(
+              color: selectedFile != null
+                  ? color.withOpacity(0.04)
+                  : const Color(0xFFF9FAFB),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: selectedFile != null
+                    ? color.withOpacity(0.3)
+                    : const Color(0xFFD1D5DB),
+                width: 1.5,
+                strokeAlign: BorderSide.strokeAlignInside,
+              ),
             ),
-            child: const Icon(
-              Icons.check,
-              color: Colors.white,
-              size: 12,
+            child: Column(
+              children: [
+                Container(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    color: selectedFile != null
+                        ? color.withOpacity(0.1)
+                        : const Color(0xFFEEEEEE),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    selectedFile != null
+                        ? Icons.check_circle_rounded
+                        : Icons.cloud_upload_outlined,
+                    size: 26,
+                    color: selectedFile != null ? color : const Color(0xFF9CA3AF),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  selectedFile != null ? selectedFile! : 'Tap to upload',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: selectedFile != null ? color : const Color(0xFF374151),
+                    fontFamily: 'Effra',
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  selectedFile != null
+                      ? 'Tap to change'
+                      : selectedType == null
+                          ? 'Select a document type first'
+                          : 'JPG, PNG or PDF · Max 5MB',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF9CA3AF),
+                    fontFamily: 'Effra',
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(width: 8),
-          const Expanded(
+        ),
+        const SizedBox(height: 32),
+
+        GestureDetector(
+          onTap: (selectedType != null && selectedFile != null) ? onNext : null,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            width: double.infinity,
+            height: 54,
+            decoration: BoxDecoration(
+              gradient: (selectedType != null && selectedFile != null)
+                  ? const LinearGradient(
+                      colors: [Color(0xFF8B5CF6), Color(0xFF7C3AED)],
+                    )
+                  : null,
+              color: (selectedType != null && selectedFile != null)
+                  ? null
+                  : const Color(0xFFD1D5DB),
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: (selectedType != null && selectedFile != null)
+                  ? [
+                      BoxShadow(
+                        color: const Color(0xFF8B5CF6).withOpacity(0.3),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Center(
+              child: Text(
+                'Continue',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: (selectedType != null && selectedFile != null)
+                      ? Colors.white
+                      : const Color(0xFF9CA3AF),
+                  fontFamily: 'Effra',
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildReview() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Review & Submit',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF101828),
+            fontFamily: 'Effra',
+          ),
+        ),
+        const SizedBox(height: 6),
+        const Text(
+          'Review the documents you uploaded before submitting for verification.',
+          style: TextStyle(
+            fontSize: 13,
+            color: Color(0xFF667085),
+            fontFamily: 'Effra',
+            height: 1.5,
+          ),
+        ),
+        const SizedBox(height: 24),
+
+        _ReviewItem(
+          icon: Icons.badge_rounded,
+          label: 'Government ID',
+          docType: _govDocType ?? '',
+          fileName: _govDocName ?? '',
+          color: const Color(0xFF8B5CF6),
+          onEdit: () => setState(() => _step = 0),
+        ),
+        const SizedBox(height: 12),
+        _ReviewItem(
+          icon: Icons.home_work_rounded,
+          label: 'Proof of Address',
+          docType: _addressDocType ?? '',
+          fileName: _addressDocName ?? '',
+          color: const Color(0xFF8B5CF6),
+          onEdit: () => setState(() => _step = 1),
+        ),
+        const SizedBox(height: 20),
+
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFF7ED),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFFED7AA)),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.schedule_rounded, size: 18, color: Color(0xFFea580c)),
+              const SizedBox(width: 10),
+              const Expanded(
+                child: Text(
+                  'Verification typically takes 1–2 business days. You will be notified once complete.',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF9a3412),
+                    fontFamily: 'Effra',
+                    height: 1.4,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 32),
+
+        GestureDetector(
+          onTap: _loading ? null : _submit,
+          child: Container(
+            width: double.infinity,
+            height: 54,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF8B5CF6), Color(0xFF7C3AED)],
+              ),
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF8B5CF6).withOpacity(0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Center(
+              child: _loading
+                  ? const SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
+                    )
+                  : const Text(
+                      'Submit for Verification',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                        fontFamily: 'Effra',
+                      ),
+                    ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSuccess() {
+    return Column(
+      children: [
+        const SizedBox(height: 40),
+        Container(
+          width: 90,
+          height: 90,
+          decoration: BoxDecoration(
+            color: const Color(0xFF8B5CF6).withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(Icons.workspace_premium_rounded, size: 48, color: Color(0xFF8B5CF6)),
+        ),
+        const SizedBox(height: 24),
+        const Text(
+          'Documents Submitted!',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF101828),
+            fontFamily: 'Effra',
+          ),
+        ),
+        const SizedBox(height: 12),
+        const Text(
+          'Your documents are under review.\nWe\'ll notify you within 1–2 business days.',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 14,
+            color: Color(0xFF667085),
+            fontFamily: 'Effra',
+            height: 1.5,
+          ),
+        ),
+        const SizedBox(height: 16),
+        _SuccessBenefitRow(icon: Icons.account_balance_wallet_rounded, text: 'Balance cap: ₦5,000,000 (after approval)'),
+        _SuccessBenefitRow(icon: Icons.swap_horiz_rounded, text: 'Daily transfers: ₦1,000,000'),
+        _SuccessBenefitRow(icon: Icons.star_rounded, text: 'Dedicated account manager'),
+        const SizedBox(height: 40),
+        GestureDetector(
+          onTap: () => Navigator.of(context).popUntil((r) => r.isFirst),
+          child: Container(
+            width: double.infinity,
+            height: 54,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF8B5CF6), Color(0xFF7C3AED)],
+              ),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Center(
+              child: Text(
+                'Back to Home',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                  fontFamily: 'Effra',
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Shared small widgets
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _OtpBox extends StatelessWidget {
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final ValueChanged<String> onChanged;
+
+  const _OtpBox({
+    required this.controller,
+    required this.focusNode,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 46,
+      height: 54,
+      child: TextField(
+        controller: controller,
+        focusNode: focusNode,
+        textAlign: TextAlign.center,
+        keyboardType: TextInputType.number,
+        maxLength: 1,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        onChanged: onChanged,
+        style: const TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.w700,
+          color: Color(0xFF101828),
+          fontFamily: 'Effra',
+        ),
+        decoration: InputDecoration(
+          counterText: '',
+          contentPadding: EdgeInsets.zero,
+          filled: true,
+          fillColor: Colors.white,
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFFE4E7EC), width: 1.5),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFF3B82F6), width: 2),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ReviewItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String docType;
+  final String fileName;
+  final Color color;
+  final VoidCallback onEdit;
+
+  const _ReviewItem({
+    required this.icon,
+    required this.label,
+    required this.docType,
+    required this.fileName,
+    required this.color,
+    required this.onEdit,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE4E7EC)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Instant Upgrades',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF1E3A8A),
+                  label,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF9CA3AF),
+                    fontFamily: 'Effra',
                   ),
                 ),
-                SizedBox(height: 2),
                 Text(
-                  'All tier upgrades are processed instantly with higher limits.',
-                  style: TextStyle(
+                  docType,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF101828),
+                    fontFamily: 'Effra',
+                  ),
+                ),
+                Text(
+                  fileName,
+                  style: const TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF1E40AF),
+                    color: Color(0xFF667085),
+                    fontFamily: 'Effra',
                   ),
                 ),
               ],
+            ),
+          ),
+          GestureDetector(
+            onTap: onEdit,
+            child: const Text(
+              'Edit',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF8B5CF6),
+                fontFamily: 'Effra',
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SuccessBenefitRow extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  const _SuccessBenefitRow({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+      child: Row(
+        children: [
+          const Icon(Icons.check_circle_rounded, size: 18, color: Color(0xFF00B252)),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xFF374151),
+                fontFamily: 'Effra',
+              ),
             ),
           ),
         ],

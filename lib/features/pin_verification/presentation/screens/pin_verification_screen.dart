@@ -244,6 +244,7 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> with Tick
       child: Row(
         children: [
           GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () => context.pop(),
             child: Container(
               width: 40,

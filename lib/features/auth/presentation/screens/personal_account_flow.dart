@@ -476,7 +476,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       },
       {
         'id': 'underbanking',
-        'title': 'Underbanking',
+        'title': 'Underbanked',
         'sub': 'Financial Inclusion',
         'icon': Icons.group,
         'color': const Color(0xFF2563EB),
@@ -2116,7 +2116,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   InputDecoration _inputDec({String hint = '', Widget? suffix}) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(color: Color(0xFFD1D5DB), fontSize: 14),
+      hintStyle: const TextStyle(color: Color(0xFFD1D5DB), fontSize: 14, fontFamily: 'Effra'),
       suffixIcon: suffix,
       filled: true,
       fillColor: Colors.white,
@@ -2150,7 +2150,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           validator: validator,
           keyboardType: keyboard,
           textCapitalization: capitalize,
-          style: const TextStyle(fontSize: 14, color: Color(0xFF111827)),
+          style: const TextStyle(fontSize: 14, color: Color(0xFF111827), fontFamily: 'Effra'),
           decoration: _inputDec(hint: hint, suffix: Padding(padding: const EdgeInsets.only(right: 12), child: Icon(icon, color: const Color(0xFF9CA3AF), size: 18))),
         ),
       ],
@@ -2174,7 +2174,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           obscureText: obscure,
           onChanged: onChanged,
           validator: validator,
-          style: const TextStyle(fontSize: 14, color: Color(0xFF111827)),
+          style: const TextStyle(fontSize: 14, color: Color(0xFF111827), fontFamily: 'Effra'),
           decoration: _inputDec(hint: hint).copyWith(
             suffixIcon: IconButton(
               onPressed: onToggle,

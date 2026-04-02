@@ -276,28 +276,20 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
               // Top bar
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    GestureDetector(
-                      onTap: () => context.pop(),
-                      child: Container(
-                        width: 40, height: 40,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF3F4F6),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF374151), size: 17),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => context.pop(),
+                    child: Container(
+                      width: 40, height: 40,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF3F4F6),
+                        borderRadius: BorderRadius.circular(10),
                       ),
+                      child: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF374151), size: 17),
                     ),
-                    GestureDetector(
-                      onTap: () => setState(() => _currentFlow = Flow.start),
-                      child: const Text(
-                        'Create Account',
-                        style: TextStyle(color: Color(0xFF00B252), fontWeight: FontWeight.w700, fontSize: 14),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
 
@@ -337,59 +329,29 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                       const SizedBox(height: 36),
 
                       // Phone field
-                      const Text('Phone Number',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF374151))),
-                      const SizedBox(height: 8),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF9FAFB),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: _loginForm['phoneNumber']!.isNotEmpty ? const Color(0xFF00B252).withOpacity(0.4) : const Color(0xFFE4E7EC)),
-                        ),
-                        child: TextFormField(
-                          controller: _phoneController,
-                          keyboardType: TextInputType.phone,
-                          onChanged: (value) => setState(() => _loginForm['phoneNumber'] = addLeadingZero(value)),
-                          style: const TextStyle(fontSize: 15, color: Color(0xFF101828), fontWeight: FontWeight.w500),
-                          decoration: const InputDecoration(
-                            hintText: '0801 234 5678',
-                            hintStyle: TextStyle(color: Color(0xFFD0D5DD), fontSize: 15),
-                            prefixIcon: Icon(Icons.phone_outlined, size: 18, color: Color(0xFF9CA3AF)),
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                          ),
-                        ),
+                      _AuthFloatingField(
+                        label: 'Phone Number',
+                        hint: '0801 234 5678',
+                        controller: _phoneController,
+                        keyboardType: TextInputType.phone,
+                        prefixIcon: Icons.phone_outlined,
+                        onChanged: (v) => setState(() => _loginForm['phoneNumber'] = addLeadingZero(v)),
                       ),
                       const SizedBox(height: 18),
 
                       // Password field
-                      const Text('Password',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF374151))),
-                      const SizedBox(height: 8),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF9FAFB),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: _loginForm['password']!.isNotEmpty ? const Color(0xFF00B252).withOpacity(0.4) : const Color(0xFFE4E7EC)),
-                        ),
-                        child: TextFormField(
-                          controller: _passwordController,
-                          obscureText: !_showPassword,
-                          onChanged: (value) => setState(() => _loginForm['password'] = value),
-                          style: const TextStyle(fontSize: 15, color: Color(0xFF101828), fontWeight: FontWeight.w500),
-                          decoration: InputDecoration(
-                            hintText: '••••••••',
-                            hintStyle: const TextStyle(color: Color(0xFFD0D5DD), fontSize: 15),
-                            prefixIcon: const Icon(Icons.lock_outline_rounded, size: 18, color: Color(0xFF9CA3AF)),
-                            suffixIcon: GestureDetector(
-                              onTap: () => setState(() => _showPassword = !_showPassword),
-                              child: Icon(
-                                _showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                                size: 18, color: const Color(0xFF9CA3AF),
-                              ),
-                            ),
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                      _AuthFloatingField(
+                        label: 'Password',
+                        hint: '••••••••',
+                        controller: _passwordController,
+                        obscureText: !_showPassword,
+                        prefixIcon: Icons.lock_outline_rounded,
+                        onChanged: (v) => setState(() => _loginForm['password'] = v),
+                        suffixIcon: GestureDetector(
+                          onTap: () => setState(() => _showPassword = !_showPassword),
+                          child: Icon(
+                            _showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                            size: 18, color: const Color(0xFF9CA3AF),
                           ),
                         ),
                       ),
@@ -480,7 +442,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                             const Text("Don't have an account? ",
                                 style: TextStyle(color: Color(0xFF667085), fontSize: 14)),
                             GestureDetector(
-                              onTap: () => setState(() => _currentFlow = Flow.start),
+                              onTap: () => context.pushNamed('personal-account'),
                               child: const Text('Create Account',
                                   style: TextStyle(color: Color(0xFF00B252), fontSize: 14, fontWeight: FontWeight.w700)),
                             ),
@@ -838,22 +800,141 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
-        ),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF1A1A1A),
-          ),
-        ),
+        Text(label, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+        Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF1A1A1A))),
       ],
+    );
+  }
+}
+
+// ── Floating Label Input ──────────────────────────────────────────────────────
+
+class _AuthFloatingField extends StatefulWidget {
+  final String label;
+  final String hint;
+  final TextEditingController controller;
+  final TextInputType keyboardType;
+  final IconData prefixIcon;
+  final bool obscureText;
+  final ValueChanged<String> onChanged;
+  final Widget? suffixIcon;
+
+  const _AuthFloatingField({
+    required this.label,
+    required this.hint,
+    required this.controller,
+    this.keyboardType = TextInputType.text,
+    required this.prefixIcon,
+    this.obscureText = false,
+    required this.onChanged,
+    this.suffixIcon,
+  });
+
+  @override
+  State<_AuthFloatingField> createState() => _AuthFloatingFieldState();
+}
+
+class _AuthFloatingFieldState extends State<_AuthFloatingField> {
+  final FocusNode _focus = FocusNode();
+  bool _focused = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _focus.addListener(() => setState(() => _focused = _focus.hasFocus));
+  }
+
+  @override
+  void dispose() {
+    _focus.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bool hasValue = widget.controller.text.isNotEmpty;
+    final bool active = _focused || hasValue;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      height: 56,
+      decoration: BoxDecoration(
+        color: _focused ? Colors.white : const Color(0xFFF9FAFB),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: _focused
+              ? const Color(0xFF00B252)
+              : hasValue
+                  ? const Color(0xFF00B252).withOpacity(0.35)
+                  : const Color(0xFFE4E7EC),
+          width: _focused ? 1.5 : 1,
+        ),
+        boxShadow: _focused
+            ? [BoxShadow(color: const Color(0xFF00B252).withOpacity(0.08), blurRadius: 10, offset: const Offset(0, 3))]
+            : [],
+      ),
+      child: Stack(
+        children: [
+          // Prefix icon
+          Positioned(
+            left: 14, top: 0, bottom: 0,
+            child: Center(
+              child: Icon(widget.prefixIcon, size: 18,
+                  color: _focused ? const Color(0xFF00B252) : const Color(0xFF9CA3AF)),
+            ),
+          ),
+          // Text field — always in tree so taps always register
+          Positioned(
+            left: 48,
+            right: widget.suffixIcon != null ? 44 : 16,
+            top: active ? 24 : 0,
+            bottom: active ? 6 : 0,
+            child: TextField(
+              controller: widget.controller,
+              focusNode: _focus,
+              keyboardType: widget.keyboardType,
+              obscureText: widget.obscureText,
+              onChanged: widget.onChanged,
+              style: const TextStyle(fontSize: 15, color: Color(0xFF101828), fontWeight: FontWeight.w500, fontFamily: 'Effra'),
+              decoration: InputDecoration(
+                hintText: active ? widget.hint : null,
+                hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 14, fontFamily: 'Effra'),
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                filled: false,
+                isDense: true,
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
+          ),
+          // Floating label — IgnorePointer so taps pass through to TextField
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOut,
+            top: active ? 8 : 20,
+            left: 48,
+            child: IgnorePointer(
+              child: AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 180),
+                style: TextStyle(
+                  fontSize: active ? 11 : 14,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: 'Effra',
+                  color: _focused ? const Color(0xFF00B252) : const Color(0xFF9CA3AF),
+                ),
+                child: Text(widget.label),
+              ),
+            ),
+          ),
+          // Suffix icon
+          if (widget.suffixIcon != null)
+            Positioned(
+              right: 12, top: 0, bottom: 0,
+              child: Center(child: widget.suffixIcon!),
+            ),
+        ],
+      ),
     );
   }
 }

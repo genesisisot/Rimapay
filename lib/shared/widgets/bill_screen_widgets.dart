@@ -60,6 +60,7 @@ class BillGreenHeader extends StatelessWidget {
                 child: Row(
                   children: [
                     GestureDetector(
+                      behavior: HitTestBehavior.opaque,
                       onTap: () => context.pop(),
                       child: Container(
                         width: 38,
@@ -538,14 +539,14 @@ class BillSimpleInput extends StatelessWidget {
                     fontSize: 15,
                     color: Color(0xFF9CA3AF),
                     fontWeight: FontWeight.normal,
+                    fontFamily: 'Effra',
                   ),
                   border: InputBorder.none,
                   enabledBorder: InputBorder.none,
                   focusedBorder: InputBorder.none,
                   errorBorder: InputBorder.none,
                   focusedErrorBorder: InputBorder.none,
-                  filled: true,
-                  fillColor: Colors.transparent,
+                  filled: false,
                   isDense: true,
                   contentPadding: EdgeInsets.zero,
                 ),
@@ -662,8 +663,8 @@ class BillAmountCard extends StatelessWidget {
   }
 }
 
-/// Floating label input field — kept for backward compatibility.
-class BillFloatingField extends StatelessWidget {
+/// Floating label input field with Stack+AnimatedPositioned for proper vertical centering.
+class BillFloatingField extends StatefulWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final String label;
@@ -688,79 +689,126 @@ class BillFloatingField extends StatelessWidget {
   });
 
   @override
+  State<BillFloatingField> createState() => _BillFloatingFieldState();
+}
+
+class _BillFloatingFieldState extends State<BillFloatingField> {
+  bool _isFocused = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.focusNode.addListener(_onFocusChange);
+    widget.controller.addListener(_onTextChange);
+  }
+
+  void _onFocusChange() {
+    setState(() => _isFocused = widget.focusNode.hasFocus);
+  }
+
+  void _onTextChange() {
+    setState(() {});
+  }
+
+  @override
+  void dispose() {
+    widget.focusNode.removeListener(_onFocusChange);
+    widget.controller.removeListener(_onTextChange);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final isFocused = focusNode.hasFocus;
-    final hasValue = controller.text.isNotEmpty;
-    final isActive = isFocused || hasValue;
+    final hasValue = widget.controller.text.isNotEmpty;
+    final isActive = _isFocused || hasValue;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 150),
+      height: 58,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isFocused
+          color: _isFocused
               ? const Color(0xFF00B252)
               : hasValue
                   ? const Color(0xFF00B252).withOpacity(0.4)
                   : const Color(0xFFE4E7EC),
-          width: isFocused ? 2 : 1,
+          width: _isFocused ? 2 : 1,
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AnimatedDefaultTextStyle(
-              duration: const Duration(milliseconds: 150),
-              style: TextStyle(
-                fontSize: isActive ? 11 : 14,
-                fontWeight: FontWeight.w500,
-                color: isActive
-                    ? const Color(0xFF00B252)
-                    : const Color(0xFF98A2B3),
-              ),
-              child: Padding(
-                padding: EdgeInsets.only(top: isActive ? 8 : 0),
-                child: Text(label),
-              ),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: controller,
-                    focusNode: focusNode,
-                    keyboardType: keyboardType,
-                    inputFormatters: inputFormatters,
-                    onChanged: onChanged,
-                    readOnly: readOnly,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF101828),
-                    ),
-                    decoration: InputDecoration(
-                      hintText: isActive ? hint : null,
-                      hintStyle: const TextStyle(
-                        fontSize: 15,
-                        color: Color(0xFFD0D5DD),
-                        fontWeight: FontWeight.normal,
-                      ),
-                      border: InputBorder.none,
-                      isDense: true,
-                      contentPadding: EdgeInsets.only(
-                        bottom: isActive ? 8 : 14,
-                      ),
-                    ),
-                  ),
+      child: Stack(
+        children: [
+          // Floating label
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 150),
+            curve: Curves.easeOut,
+            left: 14,
+            right: widget.suffix != null ? 48 : 14,
+            top: isActive ? 9 : 19,
+            child: IgnorePointer(
+              child: AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 150),
+                style: TextStyle(
+                  fontSize: isActive ? 11 : 15,
+                  fontWeight: FontWeight.w500,
+                  color: isActive
+                      ? const Color(0xFF00B252)
+                      : const Color(0xFF98A2B3),
+                  fontFamily: 'Effra',
                 ),
-                if (suffix != null) suffix!,
-              ],
+                child: Text(widget.label),
+              ),
             ),
-          ],
-        ),
+          ),
+          // TextField — always in tree so taps always register
+          Positioned(
+            left: 14,
+            right: widget.suffix != null ? 48 : 14,
+            top: isActive ? 28 : 0,
+            bottom: isActive ? 6 : 0,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: TextField(
+                controller: widget.controller,
+                focusNode: widget.focusNode,
+                keyboardType: widget.keyboardType,
+                inputFormatters: widget.inputFormatters,
+                onChanged: widget.onChanged,
+                readOnly: widget.readOnly,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF101828),
+                  fontFamily: 'Effra',
+                ),
+                decoration: InputDecoration(
+                  hintText: isActive ? widget.hint : null,
+                  hintStyle: const TextStyle(
+                    fontSize: 15,
+                    color: Color(0xFFD0D5DD),
+                    fontWeight: FontWeight.normal,
+                    fontFamily: 'Effra',
+                  ),
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  filled: false,
+                  isDense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+            ),
+          ),
+          // Suffix widget
+          if (widget.suffix != null)
+            Positioned(
+              right: 12,
+              top: 0,
+              bottom: 0,
+              child: Center(child: widget.suffix!),
+            ),
+        ],
       ),
     );
   }

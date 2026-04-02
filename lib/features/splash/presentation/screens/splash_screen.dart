@@ -281,6 +281,60 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                   },
                 ),
 
+                const SizedBox(height: 10),
+
+                // Deposit protection text
+                AnimatedBuilder(
+                  animation: _textController,
+                  builder: (context, child) {
+                    return Opacity(
+                      opacity: _textOpacity.value,
+                      child: Column(
+                        children: [
+                          Text(
+                            'YOUR DEPOSITS ARE PROTECTED',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.9),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Licensed by CBN',
+                                style: const TextStyle(
+                                  color: Color(0xFF4ADE80),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Text(
+                                ' • ',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.4),
+                                  fontSize: 11,
+                                ),
+                              ),
+                              Text(
+                                'Insured by NDIC',
+                                style: const TextStyle(
+                                  color: Color(0xFF4ADE80),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+
                 const SizedBox(height: 20),
 
                 // Loading indicator

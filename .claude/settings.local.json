@@ -47,7 +47,26 @@
       "Bash(vercel ls:*)",
       "Bash(vercel build:*)",
       "Bash(vercel pull:*)",
-      "Bash(vercel --prod --yes)"
+      "Bash(vercel --prod --yes)",
+      "Bash(find \"/c/Users/Spacecowblues/Downloads/New folder \\(13\\)\" -type f)",
+      "Bash(find c:UsersSpacecowbluesDownloadsrimapayrimapaylib -name profile* -o -name *profile*)",
+      "Bash(flutter doctor:*)",
+      "Bash(where vercel:*)",
+      "Bash(npx vercel:*)",
+      "Bash(vercel project:*)",
+      "Bash(vercel --prod --yes --project rimapay)",
+      "Bash(vercel link:*)",
+      "Bash(gh auth:*)",
+      "Bash(xargs grep:*)",
+      "Bash(sed -n '174,182p' \"c:/Users/Spacecowblues/Downloads/rimapay/rimapay/lib/features/NotificationScreen.dart\")",
+      "Bash(sed -n '243,252p' \"c:/Users/Spacecowblues/Downloads/rimapay/rimapay/lib/features/pin_verification/presentation/screens/pin_verification_screen.dart\")",
+      "Bash(sed -n '101,112p' \"c:/Users/Spacecowblues/Downloads/rimapay/rimapay/lib/features/profile/presentation/screens/profile_screen.dart\")",
+      "Bash(sed -n '257,268p' \"c:/Users/Spacecowblues/Downloads/rimapay/rimapay/lib/features/transactions/presentation/screens/transaction_history_screen.dart\")",
+      "Bash(sed -n '168,180p' \"c:/Users/Spacecowblues/Downloads/rimapay/rimapay/lib/features/transfer/presentation/screens/transfer_screen.dart\")",
+      "Bash(ls \"c:\\\\Users\\\\Spacecowblues\\\\Downloads\\\\rimapay\\\\rimapay\\\\lib\\\\main\"*)",
+      "Bash(gh workflow:*)",
+      "Bash(where gh:*)",
+      "Read(//c/Program Files/GitHub CLI/**)"
     ]
   }
 }

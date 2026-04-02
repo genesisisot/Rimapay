@@ -107,3 +107,29 @@ flutter:
           weight: 700
         - asset: assets/fonts/PlusJakartaSans-ExtraBold.ttf
           weight: 800
+
+    - family: Effra
+      fonts:
+        - asset: assets/fonts/Effra_Std_Rg.otf
+        - asset: assets/fonts/Effra_Std_It.otf
+          style: italic
+        - asset: assets/fonts/Effra_Std_Lt.otf
+          weight: 300
+        - asset: assets/fonts/Effra_Std_LtIt.otf
+          weight: 300
+          style: italic
+        - asset: assets/fonts/Effra_Std_Md.otf
+          weight: 500
+        - asset: assets/fonts/Effra_Std_MdIt.otf
+          weight: 500
+          style: italic
+        - asset: assets/fonts/Effra_Std_Bd.otf
+          weight: 700
+        - asset: assets/fonts/Effra_Std_BdIt.otf
+          weight: 700
+          style: italic
+        - asset: assets/fonts/Effra_Std_He.otf
+          weight: 900
+        - asset: assets/fonts/Effra_Std_HeIt.otf
+          weight: 900
+          style: italic

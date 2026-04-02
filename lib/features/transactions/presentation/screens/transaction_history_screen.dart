@@ -240,86 +240,71 @@ class _TransactionHistoryScreenState extends ConsumerState<TransactionHistoryScr
 
   Widget _buildHeader() {
     return Container(
-      color: AppColors.neutral0,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF001a0c), Color(0xFF003d1a), Color(0xFF005e27)],
+          stops: [0.0, 0.5, 1.0],
+        ),
+      ),
       child: SafeArea(
         bottom: false,
         child: Column(
           children: [
-            // Top bar with back button and title
+            // Top bar
             Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.md,
-                vertical: AppSpacing.sm,
-              ),
+              padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
               child: Row(
                 children: [
                   GestureDetector(
-                    onTap: () => context.pop(),
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => context.canPop() ? context.pop() : context.go('/home'),
                     child: Container(
-                      width: 32,
-                      height: 32,
+                      width: 36, height: 36,
                       decoration: BoxDecoration(
-                        color: AppColors.neutral100,
-                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.white.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.white.withOpacity(0.18)),
                       ),
-                      child: Center(
-                        child: Icon(
-                          Icons.arrow_back_ios_new,
-                          size: 16,
-                          color: AppColors.neutral700,
-                        ),
-                      ),
+                      child: const Icon(Icons.arrow_back_ios_new, size: 16, color: Colors.white),
                     ),
                   ),
-                  const SizedBox(width: AppSpacing.md),
-                  // Logo placeholder - you can replace with actual logo
-                  Image.asset(
-                    "assets/images/AppIcon.png",
-                    height: 24,
-                    width: 24,
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Text(
-                    'Activity',
-                    style: AppTextStyles.heading4.copyWith(
-                      color: AppColors.neutral900,
-                      fontWeight: FontWeight.w700,
-                    ),
+                  const SizedBox(width: 14),
+                  const Text(
+                    'Transaction History',
+                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w800),
                   ),
                 ],
               ),
             ),
+            const SizedBox(height: 16),
 
             // Search and Filter
             Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
               child: Row(
                 children: [
                   Expanded(
                     child: Container(
+                      height: 44,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Colors.white.withOpacity(0.12),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.neutral200),
+                        border: Border.all(color: Colors.white.withOpacity(0.18)),
                       ),
                       child: TextField(
                         controller: _searchController,
-                        style: AppTextStyles.bodyMedium,
+                        style: const TextStyle(color: Colors.white, fontSize: 14, fontFamily: 'Effra'),
                         decoration: InputDecoration(
-                          hintText: 'Search transactions',
-                          hintStyle: AppTextStyles.bodyMedium.copyWith(
-                            color: AppColors.neutral400,
-                          ),
-                          prefixIcon: Icon(
-                            Icons.search,
-                            color: AppColors.neutral400,
-                            size: 20,
-                          ),
+                          hintText: 'Search transactions...',
+                          hintStyle: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 14, fontFamily: 'Effra'),
+                          prefixIcon: Icon(Icons.search, color: Colors.white.withOpacity(0.6), size: 20),
                           border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.md,
-                            vertical: AppSpacing.sm,
-                          ),
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          filled: false,
+                          contentPadding: const EdgeInsets.symmetric(vertical: 12),
                         ),
                       ),
                     ),
@@ -338,8 +323,9 @@ class _TransactionHistoryScreenState extends ConsumerState<TransactionHistoryScr
                         vertical: AppSpacing.sm + 2,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.success500,
+                        color: Colors.white.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.white.withOpacity(0.25)),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -374,7 +360,7 @@ class _TransactionHistoryScreenState extends ConsumerState<TransactionHistoryScr
                     child: Text(
                       'TRANSACTIONS',
                       style: AppTextStyles.labelSmall.copyWith(
-                        color: AppColors.success500,
+                        color: Colors.white.withOpacity(0.55),
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.5,
                       ),
@@ -386,7 +372,7 @@ class _TransactionHistoryScreenState extends ConsumerState<TransactionHistoryScr
                       'TIME',
                       textAlign: TextAlign.center,
                       style: AppTextStyles.labelSmall.copyWith(
-                        color: AppColors.neutral500,
+                        color: Colors.white.withOpacity(0.55),
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.5,
                       ),
@@ -398,7 +384,7 @@ class _TransactionHistoryScreenState extends ConsumerState<TransactionHistoryScr
                       'AMOUNT',
                       textAlign: TextAlign.right,
                       style: AppTextStyles.labelSmall.copyWith(
-                        color: AppColors.neutral500,
+                        color: Colors.white.withOpacity(0.55),
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.5,
                       ),
@@ -473,7 +459,6 @@ class _TransactionHistoryScreenState extends ConsumerState<TransactionHistoryScr
               return AnimatedContainer(
                 duration: Duration(milliseconds: 200 + (txIndex * 50)),
                 curve: Curves.easeOut,
-                margin: const EdgeInsets.only(bottom: AppSpacing.xs),
                 child: _buildTransactionItem(transaction),
               );
             }),
@@ -507,91 +492,159 @@ class _TransactionHistoryScreenState extends ConsumerState<TransactionHistoryScr
     );
   }
 
+  String _formatNumber(double amount) {
+    if (amount >= 1000) {
+      final parts = amount.toStringAsFixed(2).split('.');
+      final whole = parts[0];
+      final dec = parts[1];
+      final withCommas = whole.replaceAllMapped(
+        RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+        (m) => '${m[1]},',
+      );
+      return '$withCommas.$dec';
+    }
+    return amount.toStringAsFixed(2);
+  }
+
   Widget _buildTransactionItem(Transaction transaction) {
+    final isIncoming = transaction.type == TransactionType.addMoney;
+    final isPending = transaction.status == TransactionStatus.pending;
+
     return GestureDetector(
       onTap: () => _handleTransactionTap(transaction),
       child: Container(
-        padding: const EdgeInsets.all(AppSpacing.sm + 2),
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.neutral100),
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Row(
           children: [
             // Icon
             Container(
-              width: 32,
-              height: 32,
+              width: 46,
+              height: 46,
               decoration: BoxDecoration(
                 color: _getTransactionBgColor(transaction.type),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(13),
               ),
               child: Center(
                 child: Text(
                   _getTransactionIcon(transaction.type),
-                  style: const TextStyle(fontSize: 16),
+                  style: const TextStyle(fontSize: 20),
                 ),
               ),
             ),
+            const SizedBox(width: 12),
 
-            const SizedBox(width: AppSpacing.sm),
-
-            // Transaction details
+            // Details
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    transaction.typeDisplayName,
-                    style: AppTextStyles.labelMedium.copyWith(
-                      color: AppColors.neutral900,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          transaction.typeDisplayName,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF101828),
+                            fontFamily: 'Effra',
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${isIncoming ? '+' : '-'}₦${_formatNumber(transaction.amount)}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          fontFamily: 'Effra',
+                          color: isIncoming
+                              ? const Color(0xFF00B252)
+                              : const Color(0xFF101828),
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    transaction.recipient,
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.neutral500,
-                    ),
+                  const SizedBox(height: 5),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          transaction.recipient,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF667085),
+                            fontFamily: 'Effra',
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        _formatTime(transaction.timestamp),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Color(0xFF98A2B3),
+                          fontFamily: 'Effra',
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 7, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: isPending
+                              ? const Color(0xFFFFF8EC)
+                              : const Color(0xFFECFDF5),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Text(
+                          isPending ? 'Pending' : 'Done',
+                          style: TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: 'Effra',
+                            color: isPending
+                                ? const Color(0xFFF59E0B)
+                                : const Color(0xFF00B252),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-
-            // Time
-            SizedBox(
-              width: 64,
-              child: Text(
-                _formatTime(transaction.timestamp),
-                textAlign: TextAlign.center,
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.neutral500,
-                ),
-              ),
-            ),
-
-            // Amount
-            SizedBox(
-              width: 80,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    '${transaction.type == TransactionType.addMoney ? '+' : ''}₦${transaction.amount.toStringAsFixed(2)}',
-                    style: AppTextStyles.labelMedium.copyWith(
-                      color: transaction.type == TransactionType.addMoney ? AppColors.success500 : AppColors.neutral900,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  if (transaction.plan != null)
-                    Text(
-                      transaction.plan ?? "",
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.neutral400,
-                        fontSize: 10,
+                  if (transaction.plan != null) ...[
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF5F3FF),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        transaction.plan!,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Color(0xFF7C3AED),
+                          fontFamily: 'Effra',
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
+                  ],
                 ],
               ),
             ),

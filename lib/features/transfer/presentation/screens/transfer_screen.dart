@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../../../core/providers/app_state_provider.dart';
-import '../../../../core/providers/auth_provider.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/localization/app_localizations.dart';
+import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
+import 'package:rimapay/shared/widgets/bill_screen_widgets.dart';
 
 class TransferScreen extends StatefulWidget {
   const TransferScreen({super.key});
@@ -13,239 +10,355 @@ class TransferScreen extends StatefulWidget {
   State<TransferScreen> createState() => _TransferScreenState();
 }
 
-class _TransferScreenState extends State<TransferScreen>
-    with TickerProviderStateMixin {
-  final _formKey = GlobalKey<FormState>();
+class _TransferScreenState extends State<TransferScreen> {
+  String _transferType = 'rimapay';
+
+  // RimaPay form
+  final _accountController = TextEditingController();
+  final _accountFocus = FocusNode();
+
+  // Shared
   final _amountController = TextEditingController();
-  final _accountNumberController = TextEditingController();
-  final _descriptionController = TextEditingController();
-  
-  late TabController _tabController;
+  final _amountFocus = FocusNode();
+  final _noteController = TextEditingController();
+  final _noteFocus = FocusNode();
+
+  // Bank form
+  final _bankAccountController = TextEditingController();
+  final _bankAccountFocus = FocusNode();
   String _selectedBank = '';
+  String _selectedBankLogo = '';
   String _recipientName = '';
-  bool _isValidatingAccount = false;
-  
-  final List<Map<String, String>> _popularBanks = [
-    {'name': 'Access Bank', 'code': '044', 'logo': '🏦'},
-    {'name': 'GTBank', 'code': '058', 'logo': '🏛️'},
-    {'name': 'First Bank', 'code': '011', 'logo': '🏢'},
-    {'name': 'Zenith Bank', 'code': '057', 'logo': '🏦'},
-    {'name': 'UBA', 'code': '033', 'logo': '🏛️'},
-    {'name': 'Kuda Bank', 'code': '090267', 'logo': '💳'},
-    {'name': 'Opay', 'code': '999992', 'logo': '📱'},
-    {'name': 'PalmPay', 'code': '999991', 'logo': '🌴'},
+  bool _validating = false;
+
+  final List<Map<String, String>> _banks = [
+    {'name': 'Access Bank', 'logo': '🏦'},
+    {'name': 'GTBank', 'logo': '🏛️'},
+    {'name': 'First Bank', 'logo': '🏢'},
+    {'name': 'Zenith Bank', 'logo': '🏦'},
+    {'name': 'UBA', 'logo': '🏛️'},
+    {'name': 'Kuda Bank', 'logo': '💳'},
+    {'name': 'Opay', 'logo': '📱'},
+    {'name': 'PalmPay', 'logo': '🌴'},
+    {'name': 'Moniepoint', 'logo': '💰'},
+    {'name': 'Wema Bank', 'logo': '🏦'},
+    {'name': 'Stanbic IBTC', 'logo': '🏛️'},
+    {'name': 'FCMB', 'logo': '🏢'},
+    {'name': 'Fidelity Bank', 'logo': '🏦'},
+    {'name': 'Ecobank', 'logo': '🌍'},
   ];
 
-  final List<Map<String, String>> _recentRecipients = [
-    {
-      'name': 'Funmi Adebayo',
-      'bank': 'GTBank',
-      'account': '0123456789',
-      'initials': 'FA',
-      'lastUsed': '2 days ago'
-    },
-    {
-      'name': 'David Okafor',
-      'bank': 'Access Bank', 
-      'account': '0987654321',
-      'initials': 'DO',
-      'lastUsed': '1 week ago'
-    },
-    {
-      'name': 'Sarah Johnson',
-      'bank': 'Zenith Bank',
-      'account': '1122334455',
-      'initials': 'SJ',
-      'lastUsed': '2 weeks ago'
-    },
+  final List<Map<String, String>> _rimaRecent = [
+    {'name': 'Funmi Adebayo', 'sub': '0123456789', 'initials': 'FA', 'color': 'purple'},
+    {'name': 'David Okafor', 'sub': '0987654321', 'initials': 'DO', 'color': 'blue'},
+    {'name': 'Sarah Johnson', 'sub': '0811223344', 'initials': 'SJ', 'color': 'orange'},
+  ];
+
+  final List<Map<String, String>> _bankRecent = [
+    {'name': 'Adebayo Okafor', 'bank': 'GTBank', 'account': '0987654321', 'initials': 'AO', 'color': 'blue'},
+    {'name': 'Chinwe Nwachukwu', 'bank': 'Zenith Bank', 'account': '1122334455', 'initials': 'CN', 'color': 'purple'},
+    {'name': 'Emeka Eze', 'bank': 'Access Bank', 'account': '3344556677', 'initials': 'EE', 'color': 'green'},
   ];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _showTypeSheet());
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
+    _accountController.dispose();
+    _accountFocus.dispose();
     _amountController.dispose();
-    _accountNumberController.dispose();
-    _descriptionController.dispose();
+    _amountFocus.dispose();
+    _noteController.dispose();
+    _noteFocus.dispose();
+    _bankAccountController.dispose();
+    _bankAccountFocus.dispose();
     super.dispose();
+  }
+
+  void _showTypeSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => _TransferTypeSheet(
+        current: _transferType,
+        onSelect: (type) {
+          setState(() => _transferType = type);
+          Navigator.pop(context);
+        },
+      ),
+    );
+  }
+
+  Future<void> _validateBankAccount() async {
+    if (_bankAccountController.text.length != 10 || _selectedBank.isEmpty) return;
+    setState(() => _validating = true);
+    await Future.delayed(const Duration(seconds: 2));
+    if (mounted) {
+      setState(() {
+        _validating = false;
+        _recipientName = 'John Doe';
+      });
+    }
+  }
+
+  void _showBankSelector() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _BankSelectorSheet(
+        banks: _banks,
+        onSelect: (bank, logo) {
+          setState(() {
+            _selectedBank = bank;
+            _selectedBankLogo = logo;
+            _recipientName = '';
+          });
+          if (_bankAccountController.text.length == 10) _validateBankAccount();
+        },
+      ),
+    );
+  }
+
+  Color _avatarColor(String colorKey) {
+    switch (colorKey) {
+      case 'purple':
+        return const Color(0xFF8B5CF6);
+      case 'blue':
+        return const Color(0xFF3B82F6);
+      case 'orange':
+        return const Color(0xFFF97316);
+      case 'green':
+        return const Color(0xFF00B252);
+      default:
+        return const Color(0xFF00B252);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
-    final appState = context.watch<AppStateProvider>();
-    
     return Scaffold(
-      appBar: AppBar(
-        title: Text(localizations.transfer),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            appState.navigateToHome();
-            //appState.setActiveTab('home');
-          },
-        ),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: [
-            Tab(text: localizations.translate('bankTransfer')),
-            Tab(text: localizations.translate('walletTransfer')),
-            Tab(text: localizations.translate('recent')),
-          ],
-        ),
-      ),
-      body: SafeArea(
-        child: TabBarView(
-          controller: _tabController,
-          children: [
-            _buildBankTransferTab(localizations, appState),
-            _buildWalletTransferTab(localizations, appState),
-            _buildRecentTab(localizations, appState),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBankTransferTab(AppLocalizations localizations, AppStateProvider appState) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+      backgroundColor: const Color(0xFFF9FAFB),
+      body: Column(
+        children: [
+          // ── Green header ──
+          Container(
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top + 14,
+              left: 20,
+              right: 20,
+              bottom: 24,
+            ),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF001a0c), Color(0xFF003d1a), Color(0xFF005e27)],
+                stops: [0.0, 0.5, 1.0],
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top bar
+                Row(
                   children: [
-                    _buildBankSelection(localizations),
-                    const SizedBox(height: 24),
-                    _buildAccountNumberInput(localizations),
-                    const SizedBox(height: 24),
-                    if (_recipientName.isNotEmpty) ...[
-                      _buildRecipientInfo(localizations),
-                      const SizedBox(height: 24),
-                    ],
-                    _buildAmountInput(localizations),
-                    const SizedBox(height: 24),
-                    _buildDescriptionInput(localizations),
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => context.canPop() ? context.pop() : context.go('/home'),
+                      child: Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.white.withOpacity(0.18)),
+                        ),
+                        child: const Icon(Icons.arrow_back_ios_new, size: 16, color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    const Text(
+                      'Send Money',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        fontFamily: 'Effra',
+                      ),
+                    ),
                   ],
+                ),
+                const SizedBox(height: 20),
+                // Toggle pill
+                Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(999),
+                    border: Border.all(color: Colors.white.withOpacity(0.18)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _toggleTab('To RimaPay', 'rimapay'),
+                      _toggleTab('To Other Banks', 'bank'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // ── Content ──
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: _transferType == 'rimapay'
+                  ? _buildRimaPayForm()
+                  : _buildBankForm(),
+            ),
+          ),
+
+          // ── CTA ──
+          Padding(
+            padding: EdgeInsets.fromLTRB(20, 0, 20, MediaQuery.of(context).padding.bottom + 16),
+            child: GestureDetector(
+              onTap: () {},
+              child: Container(
+                width: double.infinity,
+                height: 54,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF00B252), Color(0xFF009944)],
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF00B252).withOpacity(0.3),
+                      blurRadius: 14,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: const Center(
+                  child: Text(
+                    'Continue',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: 'Effra',
+                    ),
+                  ),
                 ),
               ),
             ),
-            _buildContinueButton(localizations, appState),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _toggleTab(String label, String value) {
+    final active = _transferType == value;
+    return GestureDetector(
+      onTap: () => setState(() => _transferType = value),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: active ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            fontFamily: 'Effra',
+            color: active ? const Color(0xFF003d1a) : Colors.white70,
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildWalletTransferTab(AppLocalizations localizations, AppStateProvider appState) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 24),
-          _buildWalletTransferOptions(localizations),
-          const Spacer(),
-          _buildContinueButton(localizations, appState),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRecentTab(AppLocalizations localizations, AppStateProvider appState) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            localizations.translate('recentRecipients'),
-            style: AppTextStyles.h6,
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: ListView.builder(
-              itemCount: _recentRecipients.length,
-              itemBuilder: (context, index) {
-                final recipient = _recentRecipients[index];
-                return _buildRecentRecipientCard(recipient, localizations, appState);
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBankSelection(AppLocalizations localizations) {
+  Widget _buildRimaPayForm() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          localizations.selectBank,
-          style: AppTextStyles.h6,
+        // Balance card
+        const BillAccountCard(),
+        const SizedBox(height: 6),
+        const BillPaginationDots(count: 2, active: 0),
+        const SizedBox(height: 20),
+
+        // Recent beneficiaries
+        const Text(
+          'Recent',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF374151),
+            fontFamily: 'Effra',
+          ),
         ),
         const SizedBox(height: 12),
         SizedBox(
-          height: 120,
-          child: GridView.builder(
+          height: 82,
+          child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 0.8,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
-            ),
-            itemCount: _popularBanks.length,
-            itemBuilder: (context, index) {
-              final bank = _popularBanks[index];
-              final isSelected = _selectedBank == bank['name'];
-              
+            itemCount: _rimaRecent.length,
+            itemBuilder: (_, i) {
+              final r = _rimaRecent[i];
+              final c = _avatarColor(r['color']!);
               return GestureDetector(
                 onTap: () {
-                  setState(() {
-                    _selectedBank = bank['name']!;
-                    _recipientName = ''; // Reset recipient when changing bank
-                  });
+                  HapticFeedback.lightImpact();
+                  setState(() => _accountController.text = r['sub']!);
                 },
                 child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: isSelected ? AppColors.primary500.withOpacity(0.1) : Colors.white,
-                    border: Border.all(
-                      color: isSelected ? AppColors.primary500 : AppColors.neutral200,
-                      width: isSelected ? 2 : 1,
-                    ),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                  width: 70,
+                  margin: const EdgeInsets.only(right: 12),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        bank['logo']!,
-                        style: const TextStyle(fontSize: 20),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        bank['name']!,
-                        style: AppTextStyles.caption.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: isSelected ? AppColors.primary500 : AppColors.neutral700,
-                          fontSize: 10,
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: c.withOpacity(0.15),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: c.withOpacity(0.25), width: 1.5),
                         ),
-                        textAlign: TextAlign.center,
-                        maxLines: 2,
+                        child: Center(
+                          child: Text(
+                            r['initials']!,
+                            style: TextStyle(
+                              color: c,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                              fontFamily: 'Effra',
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        r['name']!.split(' ').first,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Color(0xFF374151),
+                          fontFamily: 'Effra',
+                          fontWeight: FontWeight.w500,
+                        ),
                         overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
                       ),
                     ],
                   ),
@@ -254,349 +367,591 @@ class _TransferScreenState extends State<TransferScreen>
             },
           ),
         ),
+        const SizedBox(height: 20),
+
+        // Account/phone input
+        BillFloatingField(
+          controller: _accountController,
+          focusNode: _accountFocus,
+          label: 'RimaPay Account / Phone',
+          hint: 'Account number or phone',
+          keyboardType: TextInputType.number,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        ),
+        const SizedBox(height: 14),
+
+        // Amount
+        BillAmountCard(
+          controller: _amountController,
+          focusNode: _amountFocus,
+          minMax: 'Min ₦100 · Max ₦1,000,000',
+        ),
+        const SizedBox(height: 14),
+
+        // Note
+        BillFloatingField(
+          controller: _noteController,
+          focusNode: _noteFocus,
+          label: 'Note (optional)',
+          hint: 'What is this for?',
+          keyboardType: TextInputType.text,
+        ),
+        const SizedBox(height: 8),
       ],
     );
   }
 
-  Widget _buildAccountNumberInput(AppLocalizations localizations) {
+  Widget _buildBankForm() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          localizations.accountNumber,
-          style: AppTextStyles.h6,
-        ),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: _accountNumberController,
-          keyboardType: TextInputType.number,
-          maxLength: 10,
-          decoration: InputDecoration(
-            hintText: '0123456789',
-            prefixIcon: const Icon(Icons.account_balance),
-            suffixIcon: _isValidatingAccount
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: Padding(
-                      padding: EdgeInsets.all(12),
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                  )
-                : null,
-            counterText: '',
-          ),
-          onChanged: (value) {
-            if (value.length == 10 && _selectedBank.isNotEmpty) {
-              _validateAccount();
-            } else {
-              setState(() {
-                _recipientName = '';
-              });
-            }
-          },
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return localizations.translate('accountNumberRequired');
-            }
-            if (value.length != 10) {
-              return localizations.translate('invalidAccountNumber');
-            }
-            return null;
-          },
-        ),
-      ],
-    );
-  }
+        // Balance card
+        const BillAccountCard(),
+        const SizedBox(height: 6),
+        const BillPaginationDots(count: 2, active: 0),
+        const SizedBox(height: 20),
 
-  Widget _buildRecipientInfo(AppLocalizations localizations) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.primary500.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.primary500.withOpacity(0.3)),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 20,
-            backgroundColor: AppColors.primary500,
-            child: Text(
-              _recipientName.split(' ').map((word) => word.isNotEmpty ? word[0] : '').join('').toUpperCase(),
-              style: AppTextStyles.caption.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
+        // Recent beneficiaries
+        const Text(
+          'Recent',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF374151),
+            fontFamily: 'Effra',
+          ),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 82,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: _bankRecent.length,
+            itemBuilder: (_, i) {
+              final r = _bankRecent[i];
+              final c = _avatarColor(r['color']!);
+              return GestureDetector(
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  setState(() {
+                    _bankAccountController.text = r['account']!;
+                    _selectedBank = r['bank']!;
+                    _selectedBankLogo = '🏦';
+                    _recipientName = r['name']!;
+                  });
+                },
+                child: Container(
+                  width: 70,
+                  margin: const EdgeInsets.only(right: 12),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: c.withOpacity(0.15),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: c.withOpacity(0.25), width: 1.5),
+                        ),
+                        child: Center(
+                          child: Text(
+                            r['initials']!,
+                            style: TextStyle(
+                              color: c,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                              fontFamily: 'Effra',
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        r['name']!.split(' ').first,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Color(0xFF374151),
+                          fontFamily: 'Effra',
+                          fontWeight: FontWeight.w500,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        // Account number input
+        BillFloatingField(
+          controller: _bankAccountController,
+          focusNode: _bankAccountFocus,
+          label: 'Account Number',
+          hint: '0123456789',
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(10),
+          ],
+          onChanged: (_) => _validateBankAccount(),
+          suffix: _validating
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF00B252)),
+                )
+              : null,
+        ),
+        const SizedBox(height: 14),
+
+        // Bank selector button
+        GestureDetector(
+          onTap: _showBankSelector,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            height: 58,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: _selectedBank.isNotEmpty
+                    ? const Color(0xFF00B252).withOpacity(0.4)
+                    : const Color(0xFFE4E7EC),
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              child: Row(
+                children: [
+                  if (_selectedBank.isEmpty) ...[
+                    const Icon(Icons.account_balance_outlined, size: 18, color: Color(0xFF98A2B3)),
+                    const SizedBox(width: 10),
+                    const Text(
+                      'Select Bank',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Color(0xFF98A2B3),
+                        fontFamily: 'Effra',
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ] else ...[
+                    Text(_selectedBankLogo, style: const TextStyle(fontSize: 18)),
+                    const SizedBox(width: 10),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Bank',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Color(0xFF00B252),
+                            fontFamily: 'Effra',
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          _selectedBank,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            color: Color(0xFF101828),
+                            fontFamily: 'Effra',
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                  const Spacer(),
+                  const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF9CA3AF), size: 22),
+                ],
               ),
             ),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        ),
+
+        // Recipient info (after account validation)
+        if (_recipientName.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: const Color(0xFF00B252).withOpacity(0.06),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF00B252).withOpacity(0.2)),
+            ),
+            child: Row(
               children: [
-                Text(
-                  _recipientName,
-                  style: AppTextStyles.body2.copyWith(
-                    fontWeight: FontWeight.w600,
+                CircleAvatar(
+                  radius: 18,
+                  backgroundColor: const Color(0xFF00B252),
+                  child: Text(
+                    _recipientName[0],
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: 'Effra',
+                    ),
                   ),
                 ),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _recipientName,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                        fontFamily: 'Effra',
+                      ),
+                    ),
+                    Text(
+                      '$_selectedBank · ${_bankAccountController.text}',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF667085),
+                        fontFamily: 'Effra',
+                      ),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                const Icon(Icons.check_circle, color: Color(0xFF00B252), size: 20),
+              ],
+            ),
+          ),
+        ],
+
+        const SizedBox(height: 14),
+
+        // Amount
+        BillAmountCard(
+          controller: _amountController,
+          focusNode: _amountFocus,
+          minMax: 'Min ₦100 · Max ₦5,000,000',
+        ),
+        const SizedBox(height: 14),
+
+        // Note
+        BillFloatingField(
+          controller: _noteController,
+          focusNode: _noteFocus,
+          label: 'Note (optional)',
+          hint: 'What is this for?',
+          keyboardType: TextInputType.text,
+        ),
+        const SizedBox(height: 8),
+      ],
+    );
+  }
+}
+
+// ── Transfer Type Bottom Sheet ────────────────────────────────────────────────
+
+class _TransferTypeSheet extends StatelessWidget {
+  final String current;
+  final ValueChanged<String> onSelect;
+
+  const _TransferTypeSheet({required this.current, required this.onSelect});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 40,
+            height: 4,
+            margin: const EdgeInsets.only(bottom: 24),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE4E7EC),
+              borderRadius: BorderRadius.circular(999),
+            ),
+          ),
+          const Text(
+            'Send Money',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF101828),
+              fontFamily: 'Effra',
+            ),
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'Where would you like to send money?',
+            style: TextStyle(fontSize: 14, color: Color(0xFF667085), fontFamily: 'Effra'),
+          ),
+          const SizedBox(height: 28),
+          _SheetOption(
+            icon: Icons.account_balance_wallet_outlined,
+            iconBg: const Color(0xFFecfdf5),
+            iconColor: const Color(0xFF00B252),
+            title: 'To RimaPay',
+            subtitle: 'Send to any RimaPay account instantly',
+            onTap: () => onSelect('rimapay'),
+          ),
+          const SizedBox(height: 12),
+          _SheetOption(
+            icon: Icons.account_balance_outlined,
+            iconBg: const Color(0xFFeff6ff),
+            iconColor: const Color(0xFF3B82F6),
+            title: 'To Other Banks',
+            subtitle: 'Send to any Nigerian bank account',
+            onTap: () => onSelect('bank'),
+          ),
+          const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+}
+
+class _SheetOption extends StatelessWidget {
+  final IconData icon;
+  final Color iconBg;
+  final Color iconColor;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _SheetOption({
+    required this.icon,
+    required this.iconBg,
+    required this.iconColor,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFAFBFC),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFFE4E7EC)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 46,
+              height: 46,
+              decoration: BoxDecoration(color: iconBg, borderRadius: BorderRadius.circular(12)),
+              child: Icon(icon, color: iconColor, size: 22),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF101828),
+                      fontFamily: 'Effra',
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(fontSize: 13, color: Color(0xFF667085), fontFamily: 'Effra'),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, color: Colors.grey[400], size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Bank Selector Bottom Sheet ────────────────────────────────────────────────
+
+class _BankSelectorSheet extends StatefulWidget {
+  final List<Map<String, String>> banks;
+  final void Function(String name, String logo) onSelect;
+
+  const _BankSelectorSheet({required this.banks, required this.onSelect});
+
+  @override
+  State<_BankSelectorSheet> createState() => _BankSelectorSheetState();
+}
+
+class _BankSelectorSheetState extends State<_BankSelectorSheet> {
+  final _searchController = TextEditingController();
+  String _query = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  List<Map<String, String>> get _filtered {
+    if (_query.isEmpty) return widget.banks;
+    return widget.banks
+        .where((b) => b['name']!.toLowerCase().contains(_query.toLowerCase()))
+        .toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Handle
+          Container(
+            width: 40,
+            height: 4,
+            margin: const EdgeInsets.symmetric(vertical: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE4E7EC),
+              borderRadius: BorderRadius.circular(999),
+            ),
+          ),
+          // Title
+          const Padding(
+            padding: EdgeInsets.fromLTRB(20, 4, 20, 16),
+            child: Row(
+              children: [
                 Text(
-                  '$_selectedBank • ${_accountNumberController.text}',
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppColors.neutral600,
+                  'Select Bank',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF101828),
+                    fontFamily: 'Effra',
                   ),
                 ),
               ],
             ),
           ),
-          Icon(
-            Icons.check_circle,
-            color: AppColors.primary500,
-            size: 20,
+          // Search
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+            child: Container(
+              height: 46,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF9FAFB),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFE4E7EC)),
+              ),
+              child: Row(
+                children: [
+                  const SizedBox(width: 12),
+                  const Icon(Icons.search, size: 18, color: Color(0xFF9CA3AF)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      autofocus: false,
+                      onChanged: (v) => setState(() => _query = v),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF101828),
+                        fontFamily: 'Effra',
+                      ),
+                      decoration: const InputDecoration(
+                        hintText: 'Search banks…',
+                        hintStyle: TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF9CA3AF),
+                          fontFamily: 'Effra',
+                        ),
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
+          // Bank list
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.45,
+            ),
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: _filtered.length,
+              itemBuilder: (_, i) {
+                final bank = _filtered[i];
+                return InkWell(
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    widget.onSelect(bank['name']!, bank['logo']!);
+                    Navigator.pop(context);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 13),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF3F4F6),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Center(
+                            child: Text(
+                              bank['logo']!,
+                              style: const TextStyle(fontSize: 18),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Text(
+                          bank['name']!,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF101828),
+                            fontFamily: 'Effra',
+                          ),
+                        ),
+                        const Spacer(),
+                        const Icon(Icons.chevron_right, size: 18, color: Color(0xFFD0D5DD)),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 16),
         ],
       ),
     );
-  }
-
-  Widget _buildAmountInput(AppLocalizations localizations) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          localizations.amount,
-          style: AppTextStyles.h6,
-        ),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: _amountController,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            hintText: '0.00',
-            prefixText: '₦ ',
-            prefixIcon: const Icon(Icons.money),
-          ),
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return localizations.translate('amountRequired');
-            }
-            final amount = double.tryParse(value.replaceAll(',', ''));
-            if (amount == null || amount <= 0) {
-              return localizations.translate('invalidAmount');
-            }
-            if (amount < 100) {
-              return localizations.translate('minimumAmount100');
-            }
-            return null;
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDescriptionInput(AppLocalizations localizations) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '${localizations.description} (${localizations.translate('optional')})',
-          style: AppTextStyles.h6,
-        ),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: _descriptionController,
-          decoration: InputDecoration(
-            hintText: localizations.translate('enterDescription'),
-            prefixIcon: const Icon(Icons.description),
-          ),
-          maxLines: 2,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildWalletTransferOptions(AppLocalizations localizations) {
-    return Column(
-      children: [
-        _buildTransferOption(
-          icon: Icons.qr_code_scanner,
-          title: localizations.translate('scanQRCode'),
-          subtitle: localizations.translate('scanToTransfer'),
-          onTap: () {
-            // Handle QR code scan
-          },
-        ),
-        const SizedBox(height: 16),
-        _buildTransferOption(
-          icon: Icons.phone,
-          title: localizations.translate('phoneTransfer'),
-          subtitle: localizations.translate('transferUsingPhone'),
-          onTap: () {
-            // Handle phone transfer
-          },
-        ),
-        const SizedBox(height: 16),
-        _buildTransferOption(
-          icon: Icons.contacts,
-          title: localizations.translate('contacts'),
-          subtitle: localizations.translate('transferToContacts'),
-          onTap: () {
-            // Handle contacts transfer
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTransferOption({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-  }) {
-    return Card(
-      child: ListTile(
-        leading: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: AppColors.primary500.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(
-            icon,
-            color: AppColors.primary500,
-          ),
-        ),
-        title: Text(title),
-        subtitle: Text(subtitle),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-        onTap: onTap,
-      ),
-    );
-  }
-
-  Widget _buildRecentRecipientCard(Map<String, String> recipient, AppLocalizations localizations, AppStateProvider appState) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: AppColors.primary500,
-          child: Text(
-            recipient['initials']!,
-            style: AppTextStyles.caption.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-        title: Text(
-          recipient['name']!,
-          style: AppTextStyles.body2.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('${recipient['bank']} • ${recipient['account']}'),
-            Text(
-              '${localizations.translate('lastUsed')}: ${recipient['lastUsed']}',
-              style: AppTextStyles.caption.copyWith(
-                color: AppColors.neutral500,
-              ),
-            ),
-          ],
-        ),
-        trailing: IconButton(
-          icon: const Icon(Icons.send),
-          onPressed: () {
-            // Pre-fill form with recipient details
-            setState(() {
-              _selectedBank = recipient['bank']!;
-              _accountNumberController.text = recipient['account']!;
-              _recipientName = recipient['name']!;
-            });
-            _tabController.animateTo(0); // Switch to bank transfer tab
-          },
-        ),
-        isThreeLine: true,
-      ),
-    );
-  }
-
-  Widget _buildContinueButton(AppLocalizations localizations, AppStateProvider appState) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: () {
-          if (_tabController.index == 0) {
-            // Bank transfer
-            if (_formKey.currentState!.validate() && 
-                _selectedBank.isNotEmpty && 
-                _recipientName.isNotEmpty) {
-              
-              // final transactionDetails = TransactionDetails(
-              //   type: 'Bank Transfer',
-              //   amount: _amountController.text.replaceAll(',', ''),
-              //   recipient: _recipientName,
-              //   accountNumber: _accountNumberController.text,
-              //   bank: _selectedBank,
-              //   description: _descriptionController.text.isNotEmpty 
-              //       ? _descriptionController.text 
-              //       : 'Transfer to $_recipientName',
-              //   canSaveBeneficiary: true,
-              // );
-              
-              appState.navigateToBillPayments();
-            } else if (_selectedBank.isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(localizations.translate('selectBankFirst')),
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            } else if (_recipientName.isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(localizations.translate('validateAccountFirst')),
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            }
-          } else {
-            // Wallet transfer - handle other transfer types
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(localizations.translate('selectTransferMethod')),
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-          }
-        },
-        child: Text(localizations.translate('continue')),
-      ),
-    );
-  }
-
-  void _validateAccount() async {
-    if (_accountNumberController.text.length != 10 || _selectedBank.isEmpty) {
-      return;
-    }
-
-    setState(() {
-      _isValidatingAccount = true;
-    });
-
-    // Simulate account validation
-    await Future.delayed(const Duration(seconds: 2));
-
-    if (mounted) {
-      setState(() {
-        _isValidatingAccount = false;
-        // Mock recipient name based on account number
-        _recipientName = 'John Doe'; // This would come from API
-      });
-    }
   }
 }

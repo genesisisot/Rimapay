@@ -156,7 +156,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF003d1a),
+      backgroundColor: const Color(0xFF001f0d),
       body: Stack(
         children: [
           // ── Green gradient background ──
@@ -167,10 +167,10 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Color(0xFF001a0c),
-                    Color(0xFF003d1a),
-                    Color(0xFF005e27),
-                    Color(0xFF003d1a),
+                    Color(0xFF000d06),
+                    Color(0xFF001f0d),
+                    Color(0xFF003314),
+                    Color(0xFF001f0d),
                   ],
                   stops: [0.0, 0.3, 0.65, 1.0],
                 ),
@@ -261,13 +261,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                           ],
                         ),
                       ),
-                      // Center: Language toggle
-                      Center(
-                        child: _LangToggle(
-                          lang: _lang,
-                          onToggle: (l) => setState(() => _lang = l),
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -297,6 +290,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Language toggle above the title
+                        _LangToggle(
+                          lang: _lang,
+                          onToggle: (l) => setState(() => _lang = l),
+                        ),
+                        const SizedBox(height: 16),
                         Text(
                           slide.title,
                           style: const TextStyle(
@@ -391,12 +390,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             height: 52,
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
-                                colors: [Color(0xFFff6b35), Color(0xFFff8c42)],
+                                colors: [Color(0xFF00B252), Color(0xFF009944)],
                               ),
                               borderRadius: BorderRadius.circular(14),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFFff6b35).withOpacity(0.35),
+                                  color: const Color(0xFF00B252).withOpacity(0.35),
                                   blurRadius: 16,
                                   offset: const Offset(0, 6),
                                 ),
@@ -561,50 +560,93 @@ class _ComplianceBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.12)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // NDIC
-          Image.asset(
-            'assets/images/NDIC.png',
-            height: 48,
-            errorBuilder: (_, __, ___) => const SizedBox(),
+    return Column(
+      children: [
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.white.withOpacity(0.12)),
           ),
-          Container(
-            width: 1,
-            height: 36,
-            margin: const EdgeInsets.symmetric(horizontal: 14),
-            color: Colors.white.withOpacity(0.2),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // NDIC
+              Image.asset(
+                'assets/images/NDIC.png',
+                height: 48,
+                errorBuilder: (_, __, ___) => const SizedBox(),
+              ),
+              Container(
+                width: 1,
+                height: 36,
+                margin: const EdgeInsets.symmetric(horizontal: 14),
+                color: Colors.white.withOpacity(0.2),
+              ),
+              // Authorized text
+              Text(
+                'AUTHORIZED AND\nREGULATED BY',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.7),
+                  fontSize: 9,
+                  fontWeight: FontWeight.w700,
+                  height: 1.3,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(width: 10),
+              // CBN
+              Image.asset(
+                'assets/images/CBN.png',
+                height: 50,
+                errorBuilder: (_, __, ___) => const SizedBox(),
+              ),
+            ],
           ),
-          // Authorized text
-          Text(
-            'AUTHORIZED AND\nREGULATED BY',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
-              fontSize: 9,
-              fontWeight: FontWeight.w700,
-              height: 1.3,
-              letterSpacing: 0.5,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'YOUR DEPOSITS ARE PROTECTED',
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.9),
+            fontSize: 11,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.8,
+          ),
+        ),
+        const SizedBox(height: 3),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Licensed by CBN',
+              style: TextStyle(
+                color: const Color(0xFF00B252).withOpacity(0.9),
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-          ),
-          const SizedBox(width: 10),
-          // CBN
-          Image.asset(
-            'assets/images/CBN.png',
-            height: 50,
-            errorBuilder: (_, __, ___) => const SizedBox(),
-          ),
-        ],
-      ),
+            Text(
+              ' • ',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.4),
+                fontSize: 11,
+              ),
+            ),
+            Text(
+              'Insured by NDIC',
+              style: TextStyle(
+                color: const Color(0xFF00B252).withOpacity(0.9),
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

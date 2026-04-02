@@ -840,6 +840,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
           children: [
             // Back button
             GestureDetector(
+              behavior: HitTestBehavior.opaque,
               onTap: () => context.pop(),
               child: Container(
                 width: 32,

@@ -485,6 +485,7 @@ class _AddMoneyHeader extends StatelessWidget {
           Row(
             children: [
               GestureDetector(
+                behavior: HitTestBehavior.opaque,
                 onTap: onBack ?? () => Navigator.of(context).pop(),
                 child: Container(
                   width: 36, height: 36,

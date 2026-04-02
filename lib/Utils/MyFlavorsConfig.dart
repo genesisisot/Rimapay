@@ -83,13 +83,17 @@ class AppInitializer {
       DeviceOrientation.portraitDown,
     ]);
 
-    // Set system UI overlay style
+    // Enable edge-to-edge so content renders behind status bar and nav bar
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+
+    // Set system UI overlay style — transparent bars, light icons for dark headers
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
         statusBarIconBrightness: Brightness.light,
-        systemNavigationBarColor: Colors.white,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarDividerColor: Colors.transparent,
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
     );

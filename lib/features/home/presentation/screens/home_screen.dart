@@ -384,8 +384,38 @@ class _HeroSection extends StatelessWidget {
                       fontSize: 11,
                     ),
                   ),
+                  const SizedBox(height: 8),
+                  // Tier badge
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 9, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(
+                          color: Colors.white.withOpacity(0.22)),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.star_rounded,
+                            color: Color(0xFF4ADE80), size: 11),
+                        SizedBox(width: 4),
+                        Text(
+                          'Basic Tier',
+                          style: TextStyle(
+                            color: Color(0xFF4ADE80),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Effra',
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
 
                   // Add Money / Send Money buttons
                   Row(

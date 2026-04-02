@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
 class AppTextStyles {
-  static const String fontFamily = 'PlusJakartaSans';
+  static const String fontFamily = 'Effra';
   
   // Display Text Styles
   static const TextStyle display1 = TextStyle(

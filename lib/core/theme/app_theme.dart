@@ -81,8 +81,7 @@ class AppTheme {
       
       // Input decoration theme
       inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: AppColors.neutral50,
+        filled: false,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
           borderSide: const BorderSide(color: AppColors.neutral200),
@@ -100,10 +99,17 @@ class AppTheme {
           borderSide: const BorderSide(color: AppColors.error),
         ),
         contentPadding: const EdgeInsets.all(AppSpacing.lg),
-        hintStyle: AppTextStyles.bodyMedium.copyWith(
+        hintStyle: const TextStyle(
+          fontFamily: 'Effra',
+          fontSize: 14,
           color: AppColors.neutral400,
         ),
-        labelStyle: AppTextStyles.labelMedium,
+        labelStyle: const TextStyle(
+          fontFamily: 'Effra',
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: AppColors.neutral600,
+        ),
       ),
       
       // Card theme

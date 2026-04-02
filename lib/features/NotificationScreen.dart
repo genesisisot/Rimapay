@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 
 // Notification model
 class NotificationModel {
@@ -36,8 +37,7 @@ class NotificationScreen extends StatefulWidget {
   State<NotificationScreen> createState() => _NotificationScreenState();
 }
 
-class _NotificationScreenState extends State<NotificationScreen>
-    with TickerProviderStateMixin {
+class _NotificationScreenState extends State<NotificationScreen> {
   List<NotificationModel> notifications = [
     NotificationModel(
       id: '1',
@@ -51,7 +51,8 @@ class _NotificationScreenState extends State<NotificationScreen>
     NotificationModel(
       id: '2',
       title: 'New Feature Available',
-      message: 'Loan services are now available in your RimaPay app. Apply for instant loans up to ₦500,000',
+      message:
+          'Loan services are now available in your RimaPay app. Apply for instant loans up to ₦500,000',
       time: '1 hour ago',
       type: NotificationType.promotion,
       isRead: false,
@@ -60,7 +61,8 @@ class _NotificationScreenState extends State<NotificationScreen>
     NotificationModel(
       id: '3',
       title: 'Money Received',
-      message: 'You received ₦25,000 from Adebayo Okafor with reference: Split dinner bill',
+      message:
+          'You received ₦25,000 from Adebayo Okafor with reference: Split dinner bill',
       time: '3 hours ago',
       type: NotificationType.transaction,
       isRead: true,
@@ -69,7 +71,8 @@ class _NotificationScreenState extends State<NotificationScreen>
     NotificationModel(
       id: '4',
       title: 'Security Alert',
-      message: 'New device login detected from Lagos, Nigeria. If this wasn\'t you, please secure your account.',
+      message:
+          'New device login detected from Lagos, Nigeria. If this wasn\'t you, please secure your account.',
       time: '1 day ago',
       type: NotificationType.security,
       isRead: true,
@@ -78,7 +81,8 @@ class _NotificationScreenState extends State<NotificationScreen>
     NotificationModel(
       id: '5',
       title: 'System Maintenance',
-      message: 'Scheduled maintenance on Sunday 2AM - 4AM. Some services may be temporarily unavailable.',
+      message:
+          'Scheduled maintenance on Sunday 2AM - 4AM. Some services may be temporarily unavailable.',
       time: '2 days ago',
       type: NotificationType.system,
       isRead: true,
@@ -87,7 +91,8 @@ class _NotificationScreenState extends State<NotificationScreen>
     NotificationModel(
       id: '6',
       title: 'Cashback Earned',
-      message: 'You earned ₦50 cashback from your electricity bill payment. Total cashback this month: ₦350',
+      message:
+          'You earned ₦50 cashback from your electricity bill payment. Total cashback this month: ₦350',
       time: '3 days ago',
       type: NotificationType.promotion,
       isRead: true,
@@ -95,453 +100,265 @@ class _NotificationScreenState extends State<NotificationScreen>
     ),
   ];
 
-  String filter = 'all'; // 'all' or 'unread'
-  late AnimationController _slideController;
-  late Animation<Offset> _slideAnimation;
+  String _filter = 'all';
 
-  @override
-  void initState() {
-    super.initState();
-    _slideController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(-1.0, 0.0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.elasticOut,
-    ));
-    _slideController.forward();
+  List<NotificationModel> get _filteredNotifications {
+    return notifications
+        .where((n) => _filter == 'all' ? true : !n.isRead)
+        .toList();
   }
 
-  @override
-  void dispose() {
-    _slideController.dispose();
-    super.dispose();
-  }
+  int get unreadCount => notifications.where((n) => !n.isRead).length;
 
-  List<NotificationModel> get filteredNotifications {
-    return notifications.where((notification) {
-      return filter == 'all' ? true : !notification.isRead;
-    }).toList();
-  }
-
-  int get unreadCount {
-    return notifications.where((n) => !n.isRead).length;
-  }
-
-  Color getNotificationTypeColor(NotificationType type) {
-    switch (type) {
-      case NotificationType.transaction:
-        return Colors.green.shade100;
-      case NotificationType.promotion:
-        return Colors.blue.shade100;
-      case NotificationType.security:
-        return Colors.red.shade100;
-      case NotificationType.system:
-        return Colors.yellow.shade100;
-      default:
-        return Colors.grey.shade100;
-    }
-  }
-
-  Color getNotificationTypeTextColor(NotificationType type) {
-    switch (type) {
-      case NotificationType.transaction:
-        return Colors.green.shade700;
-      case NotificationType.promotion:
-        return Colors.blue.shade700;
-      case NotificationType.security:
-        return Colors.red.shade700;
-      case NotificationType.system:
-        return Colors.yellow.shade700;
-      default:
-        return Colors.grey.shade700;
-    }
-  }
-
-  String getNotificationTypeIcon(NotificationType type) {
-    switch (type) {
-      case NotificationType.transaction:
-        return '💳';
-      case NotificationType.promotion:
-        return '🎁';
-      case NotificationType.security:
-        return '🔒';
-      case NotificationType.system:
-        return '⚙️';
-      default:
-        return '📢';
-    }
-  }
-
-  void markAsRead(String id) {
+  void _markAsRead(String id) {
     setState(() {
-      final index = notifications.indexWhere((n) => n.id == id);
-      if (index != -1) {
-        notifications[index].isRead = true;
+      final i = notifications.indexWhere((n) => n.id == id);
+      if (i != -1) notifications[i].isRead = true;
+    });
+  }
+
+  void _markAllAsRead() {
+    setState(() {
+      for (var n in notifications) {
+        n.isRead = true;
       }
     });
   }
 
-  void markAllAsRead() {
-    setState(() {
-      for (var notification in notifications) {
-        notification.isRead = true;
-      }
-    });
+  void _deleteNotification(String id) {
+    setState(() => notifications.removeWhere((n) => n.id == id));
   }
 
-  void deleteNotification(String id) {
-    setState(() {
-      notifications.removeWhere((n) => n.id == id);
-    });
+  Color _typeAccent(NotificationType type) {
+    switch (type) {
+      case NotificationType.transaction:
+        return const Color(0xFF00B252);
+      case NotificationType.promotion:
+        return const Color(0xFF3B82F6);
+      case NotificationType.security:
+        return const Color(0xFFEF4444);
+      case NotificationType.system:
+        return const Color(0xFFF59E0B);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Stack(
+      backgroundColor: const Color(0xFFF9FAFB),
+      body: Column(
         children: [
-          // Backdrop
-          GestureDetector(
-            onTap: () => Navigator.of(context).pop(),
-            child: Container(
-              color: Colors.black.withOpacity(0.2),
-            ),
-          ),
-          
-          // Notification Panel
-          SlideTransition(
-            position: _slideAnimation,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Container(
-                width: MediaQuery.of(context).size.width * 0.85,
-                constraints: const BoxConstraints(maxWidth: 320),
-                height: double.infinity,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(16),
-                    bottomRight: Radius.circular(16),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 10,
-                      offset: Offset(2, 0),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    // Header
-                    Container(
-                      decoration: const BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(color: Colors.grey, width: 0.2),
-                        ),
-                      ),
-                      child: SafeArea(
-                        bottom: false,
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Row(
-                                children: [
-                                  GestureDetector(
-                                    onTap: () => Navigator.of(context).pop(),
-                                    child: Container(
-                                      width: 40,
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey.shade100,
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      child: const Icon(
-                                        Icons.close,
-                                        color: Colors.grey,
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        const Text(
-                                          'Notifications',
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black87,
-                                          ),
-                                        ),
-                                        if (unreadCount > 0)
-                                          Text(
-                                            '$unreadCount new notification${unreadCount > 1 ? 's' : ''}',
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.grey.shade600,
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-                                  if (unreadCount > 0)
-                                    GestureDetector(
-                                      onTap: markAllAsRead,
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 6,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFF00B252),
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                        child: const Text(
-                                          'Mark All Read',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                            
-                            // Filter Tabs
-                            Container(
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(
-                                    color: Colors.grey.shade100,
-                                    width: 1,
-                                  ),
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () => setState(() => filter = 'all'),
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 12,
-                                          horizontal: 16,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          border: Border(
-                                            bottom: BorderSide(
-                                              color: filter == 'all'
-                                                  ? const Color(0xFF00B252)
-                                                  : Colors.transparent,
-                                              width: 2,
-                                            ),
-                                          ),
-                                        ),
-                                        child: Text(
-                                          'All (${notifications.length})',
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            color: filter == 'all'
-                                                ? const Color(0xFF00B252)
-                                                : Colors.grey.shade600,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () => setState(() => filter = 'unread'),
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 12,
-                                          horizontal: 16,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          border: Border(
-                                            bottom: BorderSide(
-                                              color: filter == 'unread'
-                                                  ? const Color(0xFF00B252)
-                                                  : Colors.transparent,
-                                              width: 2,
-                                            ),
-                                          ),
-                                        ),
-                                        child: Text(
-                                          'Unread ($unreadCount)',
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            color: filter == 'unread'
-                                                ? const Color(0xFF00B252)
-                                                : Colors.grey.shade600,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    
-                    // Notification List
-                    Expanded(
-                      child: filteredNotifications.isEmpty
-                          ? _buildEmptyState()
-                          : ListView.separated(
-                              itemCount: filteredNotifications.length,
-                              separatorBuilder: (context, index) => Divider(
-                                height: 1,
-                                color: Colors.grey.shade100,
-                              ),
-                              itemBuilder: (context, index) {
-                                final notification = filteredNotifications[index];
-                                return _buildNotificationItem(notification);
-                              },
-                            ),
-                    ),
-                    
-                    // Footer
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border(
-                          top: BorderSide(color: Colors.grey.shade200),
-                        ),
-                      ),
-                      child: SafeArea(
-                        top: false,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.grey.shade100,
-                                foregroundColor: Colors.grey.shade800,
-                                elevation: 0,
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              child: const Text(
-                                'Close',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          _buildHeader(context),
+          _buildFilterTabs(),
+          Expanded(child: _buildList()),
         ],
       ),
     );
   }
 
-  Widget _buildEmptyState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(32),
-              ),
-              child: Icon(
-                Icons.notifications_none,
-                size: 32,
-                color: Colors.grey.shade400,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              filter == 'unread' ? 'All caught up!' : 'No notifications',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              filter == 'unread'
-                  ? 'You have no unread notifications'
-                  : 'When you have notifications, they\'ll appear here',
-              style: TextStyle(
-                color: Colors.grey.shade600,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+  Widget _buildHeader(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF001a0c), Color(0xFF003d1a), Color(0xFF005e27)],
+          stops: [0.0, 0.5, 1.0],
         ),
+      ),
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top + 12,
+        left: 20,
+        right: 20,
+        bottom: 20,
+      ),
+      child: Row(
+        children: [
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => context.pop(),
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.white.withOpacity(0.2)),
+              ),
+              child: const Icon(Icons.arrow_back_ios_new,
+                  color: Colors.white, size: 17),
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Notifications',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    fontFamily: 'Effra',
+                  ),
+                ),
+                if (unreadCount > 0)
+                  Text(
+                    '$unreadCount unread',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.65),
+                      fontSize: 12,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          if (unreadCount > 0)
+            GestureDetector(
+              onTap: _markAllAsRead,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.14),
+                  borderRadius: BorderRadius.circular(8),
+                  border:
+                      Border.all(color: Colors.white.withOpacity(0.22)),
+                ),
+                child: const Text(
+                  'Mark all read',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
 
-  Widget _buildNotificationItem(NotificationModel notification) {
+  Widget _buildFilterTabs() {
     return Container(
-      color: !notification.isRead 
-          ? Colors.blue.shade50.withOpacity(0.3) 
-          : Colors.transparent,
+      color: Colors.white,
+      child: Row(
+        children: ['all', 'unread'].map((tab) {
+          final selected = _filter == tab;
+          final label = tab == 'all'
+              ? 'All (${notifications.length})'
+              : 'Unread ($unreadCount)';
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => setState(() => _filter = tab),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 13),
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: selected
+                          ? const Color(0xFF00B252)
+                          : Colors.transparent,
+                      width: 2,
+                    ),
+                  ),
+                ),
+                child: Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Effra',
+                    color: selected
+                        ? const Color(0xFF00B252)
+                        : const Color(0xFF98A2B3),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildList() {
+    if (_filteredNotifications.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                color: const Color(0xFF00B252).withOpacity(0.08),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.notifications_none_rounded,
+                  size: 36, color: Color(0xFF00B252)),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              _filter == 'unread' ? 'All caught up!' : 'No notifications',
+              style: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF101828),
+                fontFamily: 'Effra',
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              _filter == 'unread'
+                  ? 'You have no unread notifications'
+                  : 'Notifications will appear here',
+              style: const TextStyle(
+                  fontSize: 13, color: Color(0xFF667085), fontFamily: 'Effra'),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      itemCount: _filteredNotifications.length,
+      separatorBuilder: (_, __) => const Divider(
+          height: 1, indent: 72, endIndent: 16, color: Color(0xFFE4E7EC)),
+      itemBuilder: (_, i) => _buildItem(_filteredNotifications[i]),
+    );
+  }
+
+  Widget _buildItem(NotificationModel n) {
+    final accent = _typeAccent(n.type);
+    return Container(
+      color: n.isRead ? Colors.white : const Color(0xFF00B252).withOpacity(0.03),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Icon
+            // Icon circle
             Container(
-              width: 40,
-              height: 40,
+              width: 44,
+              height: 44,
               decoration: BoxDecoration(
-                color: getNotificationTypeColor(notification.type),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: getNotificationTypeColor(notification.type),
-                  width: 1,
-                ),
+                color: accent.withOpacity(0.12),
+                shape: BoxShape.circle,
               ),
               child: Center(
                 child: Text(
-                  notification.icon ?? getNotificationTypeIcon(notification.type),
-                  style: const TextStyle(fontSize: 18),
+                  n.icon ?? '📢',
+                  style: const TextStyle(fontSize: 19),
                 ),
               ),
             ),
             const SizedBox(width: 12),
-            
             // Content
             Expanded(
               child: Column(
@@ -551,103 +368,88 @@ class _NotificationScreenState extends State<NotificationScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              notification.title,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                                color: !notification.isRead 
-                                    ? Colors.black87 
-                                    : Colors.black54,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              notification.message,
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: !notification.isRead 
-                                    ? Colors.grey.shade700 
-                                    : Colors.grey.shade600,
-                                height: 1.4,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Text(
-                                  notification.time,
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: Colors.grey.shade500,
-                                  ),
-                                ),
-                                if (!notification.isRead) ...[
-                                  const SizedBox(width: 8),
-                                  Container(
-                                    width: 8,
-                                    height: 8,
-                                    decoration: const BoxDecoration(
-                                      color: Color(0xFF00B252),
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ],
+                        child: Text(
+                          n.title,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight:
+                                n.isRead ? FontWeight.w600 : FontWeight.w700,
+                            color: const Color(0xFF101828),
+                            fontFamily: 'Effra',
+                          ),
                         ),
                       ),
-                      
-                      // Actions
-                      Row(
-                        children: [
-                          if (!notification.isRead)
-                            GestureDetector(
-                              onTap: () {
-                                HapticFeedback.lightImpact();
-                                markAsRead(notification.id);
-                              },
-                              child: Container(
-                                width: 32,
-                                height: 32,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  border: Border.all(color: Colors.grey.shade300),
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: const Icon(
-                                  Icons.check,
-                                  size: 16,
-                                  color: Colors.grey,
-                                ),
-                              ),
+                      if (!n.isRead)
+                        Container(
+                          width: 8,
+                          height: 8,
+                          margin: const EdgeInsets.only(top: 4, left: 4),
+                          decoration: BoxDecoration(
+                            color: accent,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    n.message,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF667085),
+                      height: 1.4,
+                      fontFamily: 'Effra',
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Text(
+                        n.time,
+                        style: const TextStyle(
+                            fontSize: 11, color: Color(0xFF98A2B3)),
+                      ),
+                      const Spacer(),
+                      if (!n.isRead)
+                        GestureDetector(
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            _markAsRead(n.id);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color:
+                                  const Color(0xFF00B252).withOpacity(0.08),
+                              borderRadius: BorderRadius.circular(6),
                             ),
-                          const SizedBox(width: 4),
-                          GestureDetector(
-                            onTap: () {
-                              HapticFeedback.lightImpact();
-                              deleteNotification(notification.id);
-                            },
-                            child: Container(
-                              width: 32,
-                              height: 32,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                border: Border.all(color: Colors.grey.shade300),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: const Icon(
-                                Icons.delete_outline,
-                                size: 16,
-                                color: Colors.grey,
+                            child: const Text(
+                              'Mark read',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF00B252),
                               ),
                             ),
                           ),
-                        ],
+                        ),
+                      const SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: () {
+                          HapticFeedback.lightImpact();
+                          _deleteNotification(n.id);
+                        },
+                        child: Container(
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFEF2F2),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Icon(Icons.delete_outline_rounded,
+                              size: 15, color: Color(0xFFEF4444)),
+                        ),
                       ),
                     ],
                   ),

@@ -298,6 +298,21 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            // Back button
+                            GestureDetector(
+                              onTap: () => Navigator.of(context).maybePop(),
+                              child: Container(
+                                width: 36,
+                                height: 36,
+                                margin: const EdgeInsets.only(bottom: 12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.12),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: Colors.white.withOpacity(0.18)),
+                                ),
+                                child: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 16),
+                              ),
+                            ),
                             const Text(
                               'Services',
                               style: TextStyle(
@@ -354,6 +369,9 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
                                         )
                                       : null,
                                   border: InputBorder.none,
+                                  enabledBorder: InputBorder.none,
+                                  focusedBorder: InputBorder.none,
+                                  filled: false,
                                   contentPadding:
                                       const EdgeInsets.symmetric(
                                           vertical: 12),
