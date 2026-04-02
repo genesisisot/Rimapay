@@ -243,7 +243,10 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
                 child: const Center(
                   child: Text(
                     'Upgrade Account',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white),
                   ),
                 ),
               ),
@@ -300,7 +303,7 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
                           children: [
                             // Back button
                             GestureDetector(
-                              onTap: () => Navigator.of(context).maybePop(),
+                              onTap: () => context.pop(),
                               child: Container(
                                 width: 36,
                                 height: 36,
@@ -308,9 +311,11 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
                                 decoration: BoxDecoration(
                                   color: Colors.white.withOpacity(0.12),
                                   borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: Colors.white.withOpacity(0.18)),
+                                  border: Border.all(
+                                      color: Colors.white.withOpacity(0.18)),
                                 ),
-                                child: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 16),
+                                child: const Icon(Icons.arrow_back_ios_new,
+                                    color: Colors.white, size: 16),
                               ),
                             ),
                             const Text(
@@ -352,19 +357,17 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
                                     fontSize: 14,
                                   ),
                                   prefixIcon: Icon(Icons.search,
-                                      color:
-                                          Colors.white.withOpacity(0.6),
+                                      color: Colors.white.withOpacity(0.6),
                                       size: 20),
                                   suffixIcon: _searchQuery.isNotEmpty
                                       ? IconButton(
                                           icon: Icon(Icons.clear,
-                                              color: Colors.white
-                                                  .withOpacity(0.6),
+                                              color:
+                                                  Colors.white.withOpacity(0.6),
                                               size: 18),
                                           onPressed: () {
                                             _searchController.clear();
-                                            setState(
-                                                () => _searchQuery = '');
+                                            setState(() => _searchQuery = '');
                                           },
                                         )
                                       : null,
@@ -373,8 +376,7 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
                                   focusedBorder: InputBorder.none,
                                   filled: false,
                                   contentPadding:
-                                      const EdgeInsets.symmetric(
-                                          vertical: 12),
+                                      const EdgeInsets.symmetric(vertical: 12),
                                 ),
                               ),
                             ),
@@ -401,8 +403,7 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
                   },
                   childCount: services.length,
                 ),
-                gridDelegate:
-                    const SliverGridDelegateWithFixedCrossAxisCount(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
@@ -467,8 +468,7 @@ class _ServiceCard extends StatelessWidget {
                         service.icon,
                         style: TextStyle(
                           fontSize: 22,
-                          color:
-                              service.isLocked ? null : null,
+                          color: service.isLocked ? null : null,
                         ),
                       ),
                     ),
@@ -514,9 +514,8 @@ class _ServiceCard extends StatelessWidget {
                   color: service.isLocked
                       ? const Color(0xFFff6b35)
                       : const Color(0xFF667085),
-                  fontWeight: service.isLocked
-                      ? FontWeight.w600
-                      : FontWeight.normal,
+                  fontWeight:
+                      service.isLocked ? FontWeight.w600 : FontWeight.normal,
                 ),
                 textAlign: TextAlign.center,
                 maxLines: 1,
