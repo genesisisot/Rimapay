@@ -24,19 +24,16 @@ import 'package:rimapay/shared/widgets/noise_painter.dart';
 // ─── Step enum ───────────────────────────────────────────────────────────────
 
 enum AccountStep {
-  accountType,
-  personalDetails,
-  phoneNumber,
-  otpVerification,
-  createPin,
-  confirmPin,
-  congratulations,
-  idVerification,
-  residentialAddress,
-  pep,
-  sourceOfIncome,
-  facialVerification,
-  kycComplete,
+  phoneIdEntry, // 1. Phone + BVN/NIN
+  otpVerification, // 2. OTP verification
+  facialVerification, // 3. Face validation
+  personalDetails, // 4. Personal details
+  occupation, // 5. Occupation
+  createPassword, // 6. Password creation
+  createPin, // 7. Create PIN
+  confirmPin, // 8. Confirm PIN
+  accountCreated, // 9. Account created
+  kycComplete, // Final completion
 }
 
 // ─── Data classes ─────────────────────────────────────────────────────────────
@@ -71,14 +68,14 @@ class PersonalAccountFlow extends ConsumerStatefulWidget {
   const PersonalAccountFlow({super.key});
 
   @override
-  ConsumerState<PersonalAccountFlow> createState() => _PersonalAccountFlowState();
+  ConsumerState<PersonalAccountFlow> createState() =>
+      _PersonalAccountFlowState();
 }
 
 class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     with TickerProviderStateMixin {
-
   // ── Step state ─────────────────────────────────────────────────────────────
-  AccountStep _currentStep = AccountStep.accountType;
+  AccountStep _currentStep = AccountStep.phoneIdEntry;
 
   // ── Personal info ──────────────────────────────────────────────────────────
   final PersonalInfo _personalInfo = PersonalInfo();
@@ -125,10 +122,13 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final TextEditingController _bvnController = TextEditingController();
   final TextEditingController _ninController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _idDigitsController = TextEditingController();
+  final FocusNode _idDigitsFocus = FocusNode();
 
   // ── FocusNodes ─────────────────────────────────────────────────────────────
   final FocusNode _firstNameFocus = FocusNode();
@@ -137,6 +137,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   final FocusNode _emailFocus = FocusNode();
   final FocusNode _passwordFocus = FocusNode();
   final FocusNode _confirmPasswordFocus = FocusNode();
+  final TextEditingController _phoneController = TextEditingController();
   CountryStateLgaModel? selectedState;
   Local? selectedLga;
   List<Local>? locals;
@@ -173,6 +174,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     _cameraController?.dispose();
     _resendTimer?.cancel();
     _addressController.dispose();
+    _idDigitsController.dispose();
+    _idDigitsFocus.dispose();
     _birthdayController.dispose();
     _firstNameController.dispose();
     _lastNameController.dispose();
@@ -203,7 +206,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   }
 
   void _animateTo(AccountStep step) {
-    if (step == AccountStep.congratulations || step == AccountStep.kycComplete) {
+    if (step == AccountStep.accountCreated || step == AccountStep.kycComplete) {
       _congratsConfettiCtrl.reset();
       _congratsConfettiCtrl.forward();
     }
@@ -224,44 +227,53 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
 
   String get _stepTitle {
     switch (_currentStep) {
-      case AccountStep.accountType:       return 'Choose Account Type';
-      case AccountStep.personalDetails:   return 'Personal Details';
-      case AccountStep.phoneNumber:       return 'Phone Verification';
-      case AccountStep.otpVerification:   return 'Verify Phone';
-      case AccountStep.createPin:         return 'Create PIN';
-      case AccountStep.confirmPin:        return 'Confirm PIN';
-      case AccountStep.congratulations:   return 'Profile Created';
-      case AccountStep.idVerification:    return 'ID Verification';
-      case AccountStep.residentialAddress:return 'Residential Address';
-      case AccountStep.pep:               return 'Compliance Check';
-      case AccountStep.sourceOfIncome:    return 'Source of Income';
-      case AccountStep.facialVerification:return 'Face Verification';
-      case AccountStep.kycComplete:       return 'Account Verified';
+      case AccountStep.phoneIdEntry:
+        return 'Phone & ID Verification';
+      case AccountStep.otpVerification:
+        return 'Verify Phone';
+      case AccountStep.facialVerification:
+        return 'Face Verification';
+      case AccountStep.personalDetails:
+        return 'Personal Details';
+      case AccountStep.occupation:
+        return 'Occupation';
+      case AccountStep.createPassword:
+        return 'Create Password';
+      case AccountStep.createPin:
+        return 'Create PIN';
+      case AccountStep.confirmPin:
+        return 'Confirm PIN';
+      case AccountStep.accountCreated:
+        return 'Account Created';
+      case AccountStep.kycComplete:
+        return 'Account Verified';
     }
   }
 
   bool get _showHeader =>
-      _currentStep != AccountStep.congratulations &&
+      _currentStep != AccountStep.accountCreated &&
       _currentStep != AccountStep.kycComplete;
 
   // ─── Build ───────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
-
     // Provider listeners (unchanged from original)
-    ref.listen<PersonalSignupResponse?>(signupResponseStateProvider, (previous, next) {
+    ref.listen<PersonalSignupResponse?>(signupResponseStateProvider,
+        (previous, next) {
       if (next != null) {
         setState(() => _isLoading = false);
         if (next.status == SUCCESS) {
           _animateTo(AccountStep.otpVerification);
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(next.errmessage ?? 'Verification code sent to your phone.'),
+            content: Text(
+                next.errmessage ?? 'Verification code sent to your phone.'),
             backgroundColor: const Color(0xFF00B252),
           ));
         } else {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(next.errmessage ?? 'Failed to create account. Please try again.'),
+            content: Text(next.errmessage ??
+                'Failed to create account. Please try again.'),
             backgroundColor: Colors.red,
           ));
         }
@@ -274,7 +286,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
         _animateTo(AccountStep.createPin);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(next?.errmessage ?? 'Failed to verify OTP. Please try again.'),
+          content: Text(
+              next?.errmessage ?? 'Failed to verify OTP. Please try again.'),
           backgroundColor: Colors.red,
         ));
       }
@@ -298,7 +311,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     ref.listen(createPinResponseStateProvider, (prev, next) {
       setState(() => _creatingPin = false);
       if (next?.model != null) {
-        _animateTo(AccountStep.congratulations);
+        _animateTo(AccountStep.accountCreated);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(next?.errmessage ?? ERROR_TEXT),
@@ -434,24 +447,31 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
 
   Widget _buildCurrentStep() {
     switch (_currentStep) {
-      case AccountStep.accountType:        return _buildAccountTypeStep();
-      case AccountStep.personalDetails:    return _buildPersonalDetailsStep();
-      case AccountStep.phoneNumber:        return _buildPhoneNumberStep();
-      case AccountStep.otpVerification:    return _buildOtpStep();
-      case AccountStep.createPin:          return _buildCreatePinStep();
-      case AccountStep.confirmPin:         return _buildConfirmPinStep();
-      case AccountStep.congratulations:    return _buildCongratsStep();
-      case AccountStep.idVerification:     return _buildIdVerificationStep();
-      case AccountStep.residentialAddress: return _buildResidentialAddressStep();
-      case AccountStep.pep:                return _buildPepStep();
-      case AccountStep.sourceOfIncome:     return _buildSourceOfIncomeStep();
-      case AccountStep.facialVerification: return _buildFacialVerificationStep();
-      case AccountStep.kycComplete:        return _buildKycCompleteStep();
+      case AccountStep.phoneIdEntry:
+        return _buildPhoneIdEntryStep();
+      case AccountStep.otpVerification:
+        return _buildOtpStep();
+      case AccountStep.facialVerification:
+        return _buildFacialVerificationStep();
+      case AccountStep.createPassword:
+        return _buildCreatePasswordStep();
+      case AccountStep.createPin:
+        return _buildCreatePinStep();
+      case AccountStep.confirmPin:
+        return _buildConfirmPinStep();
+      case AccountStep.accountCreated:
+        return _buildAccountCreatedStep();
+      case AccountStep.personalDetails:
+        return _buildPersonalDetailsStep();
+      case AccountStep.occupation:
+        return _buildOccupationStep();
+      case AccountStep.kycComplete:
+        return _buildKycCompleteStep();
     }
   }
 
   // ══════════════════════════════════════════════════════════════════════════════
-  // STEP 1 — Account Type
+  // STEP 0 — Account Type Selection
   // ══════════════════════════════════════════════════════════════════════════════
 
   Widget _buildAccountTypeStep() {
@@ -463,7 +483,11 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
         'icon': Icons.person,
         'color': const Color(0xFF16A34A),
         'badge': '',
-        'features': ['Send & receive money', 'Pay bills instantly', 'Save & invest'],
+        'features': [
+          'Send & receive money',
+          'Pay bills instantly',
+          'Save & invest'
+        ],
       },
       {
         'id': 'business',
@@ -472,7 +496,11 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
         'icon': Icons.business_center,
         'color': const Color(0xFF7C3AED),
         'badge': 'PRO',
-        'features': ['Accept payments', 'Invoice & track', 'Analytics & reports'],
+        'features': [
+          'Accept payments',
+          'Invoice & track',
+          'Analytics & reports'
+        ],
       },
       {
         'id': 'underbanking',
@@ -504,7 +532,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   final color = t['color'] as Color;
                   final features = t['features'] as List<String>;
                   return GestureDetector(
-                    onTap: () => setState(() => _accountType = t['id'] as String),
+                    onTap: () =>
+                        setState(() => _accountType = t['id'] as String),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 180),
                       margin: const EdgeInsets.only(bottom: 14),
@@ -516,13 +545,15 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                           color: selected ? color : const Color(0xFFE5E7EB),
                           width: selected ? 2 : 1,
                         ),
-                        boxShadow: selected ? [
-                          BoxShadow(
-                            color: color.withOpacity(0.12),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          )
-                        ] : [],
+                        boxShadow: selected
+                            ? [
+                                BoxShadow(
+                                  color: color.withOpacity(0.12),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                )
+                              ]
+                            : [],
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -534,7 +565,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                               color: color.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: Icon(t['icon'] as IconData, color: color, size: 24),
+                            child: Icon(t['icon'] as IconData,
+                                color: color, size: 24),
                           ),
                           const SizedBox(width: 14),
                           Expanded(
@@ -554,14 +586,19 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                                     if ((t['badge'] as String).isNotEmpty) ...[
                                       const SizedBox(width: 8),
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 2),
                                         decoration: BoxDecoration(
                                           color: const Color(0xFF7C3AED),
-                                          borderRadius: BorderRadius.circular(20),
+                                          borderRadius:
+                                              BorderRadius.circular(20),
                                         ),
                                         child: Text(
                                           t['badge'] as String,
-                                          style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700),
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w700),
                                         ),
                                       ),
                                     ],
@@ -569,20 +606,28 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                                 ),
                                 Text(
                                   t['sub'] as String,
-                                  style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+                                  style: const TextStyle(
+                                      fontSize: 12, color: Color(0xFF6B7280)),
                                 ),
                                 const SizedBox(height: 8),
                                 Wrap(
                                   spacing: 12,
                                   runSpacing: 4,
-                                  children: features.map((f) => Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(Icons.circle, size: 6, color: color),
-                                      const SizedBox(width: 4),
-                                      Text(f, style: const TextStyle(fontSize: 11, color: Color(0xFF374151))),
-                                    ],
-                                  )).toList(),
+                                  children: features
+                                      .map((f) => Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(Icons.circle,
+                                                  size: 6, color: color),
+                                              const SizedBox(width: 4),
+                                              Text(f,
+                                                  style: const TextStyle(
+                                                      fontSize: 11,
+                                                      color:
+                                                          Color(0xFF374151))),
+                                            ],
+                                          ))
+                                      .toList(),
                                 ),
                               ],
                             ),
@@ -595,10 +640,15 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                             decoration: BoxDecoration(
                               color: selected ? color : Colors.transparent,
                               shape: BoxShape.circle,
-                              border: Border.all(color: selected ? color : const Color(0xFFD1D5DB), width: 2),
+                              border: Border.all(
+                                  color: selected
+                                      ? color
+                                      : const Color(0xFFD1D5DB),
+                                  width: 2),
                             ),
                             child: selected
-                                ? const Icon(Icons.check, color: Colors.white, size: 14)
+                                ? const Icon(Icons.check,
+                                    color: Colors.white, size: 14)
                                 : null,
                           ),
                         ],
@@ -610,80 +660,473 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
             ),
           ),
         ),
-        _buildCTA(label: 'Continue →', onTap: _nextStep),
+        _buildCTA(label: 'Continue →', onTap: _onAccountTypeContinue),
+      ],
+    );
+  }
+
+  void _onAccountTypeContinue() {
+    if (_accountType == 'business') {
+      context.pushNamed('business-account');
+    } else {
+      // Navigate regardless of validation
+      _nextStep();
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════════
+  // STEP 1 — Phone/Email + BVN/NIN
+  // ══════════════════════════════════════════════════════════════════════════════
+
+  Widget _buildPhoneIdEntryStep() {
+    final isEmailMode = _idType == 'email';
+    final isPhoneMode = _idType == 'phone';
+    final isIdMode = _idType == 'bvn' || _idType == 'nin';
+
+    return Column(
+      key: const ValueKey('phoneIdEntry'),
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Enter your phone number and ID for verification',
+                  style: TextStyle(
+                      fontSize: 14, color: Color(0xFF6B7280), height: 1.5),
+                ),
+                const SizedBox(height: 24),
+
+                // ID VERIFICATION SECTION (BVN/NIN) - FIRST
+                const Text(
+                  'ID Verification',
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF111827)),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Your phone must match what is registered with your BVN/NIN',
+                  style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+                ),
+                const SizedBox(height: 16),
+
+                // BVN/NIN toggle
+                Container(
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF3F4F6),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    children: ['bvn', 'nin'].map((type) {
+                      final selected = _idType == type;
+                      return Expanded(
+                        child: GestureDetector(
+                          onTap: () => setState(() {
+                            _idType = type;
+                            _idDigits = '';
+                            _idDigitsController.clear();
+                          }),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 180),
+                            margin: const EdgeInsets.all(3),
+                            decoration: BoxDecoration(
+                              color: selected
+                                  ? const Color(0xFF16A34A)
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Center(
+                              child: Text(
+                                type.toUpperCase(),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: selected
+                                      ? Colors.white
+                                      : const Color(0xFF6B7280),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // ID digits input
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      _idType.toUpperCase(),
+                      style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF374151)),
+                    ),
+                    Text(
+                      _idType == 'bvn'
+                          ? 'Where to find BVN?'
+                          : 'Where to find NIN?',
+                      style: const TextStyle(
+                          fontSize: 11, color: Color(0xFF16A34A)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                // 11 digit boxes for BVN or NIN with hidden TextField
+                GestureDetector(
+                  onTap: () => _idDigitsFocus.requestFocus(),
+                  behavior: HitTestBehavior.opaque,
+                  child: Stack(
+                    children: [
+                      _buildIdDigitsInput(),
+                      Positioned.fill(
+                        child: Opacity(
+                          opacity: 0,
+                          child: TextField(
+                            controller: _idDigitsController,
+                            focusNode: _idDigitsFocus,
+                            keyboardType: TextInputType.number,
+                            maxLength: 11,
+                            buildCounter: (context,
+                                    {required currentLength,
+                                    required isFocused,
+                                    maxLength}) =>
+                                null,
+                            onChanged: (value) {
+                              setState(() {
+                                _idDigits = value;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // PHONE NUMBER SECTION
+                const Divider(color: Color(0xFFE5E7EB)),
+                const SizedBox(height: 16),
+                const Text(
+                  'Phone Number',
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF111827)),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Enter the phone number registered with your BVN/NIN',
+                  style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+                ),
+                const SizedBox(height: 16),
+
+                // Phone input using numpad style
+                _buildPhoneInput(),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        ),
+        _buildCTA(label: 'Continue →', onTap: _onPhoneIdContinue),
+      ],
+    );
+  }
+
+  Widget _buildIdDigitsInput() {
+    final maxLen = 11;
+    final filled = _idDigits.length;
+    return Column(
+      children: [
+        Row(
+          children: List.generate(maxLen, (i) {
+            final hasDigit = i < filled;
+            final isActive = i == filled;
+            return Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  // Focus on this box - will be handled by numpad
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 120),
+                  height: 44,
+                  margin: const EdgeInsets.symmetric(horizontal: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: isActive
+                          ? const Color(0xFF16A34A)
+                          : hasDigit
+                              ? const Color(0xFF16A34A).withOpacity(0.4)
+                              : const Color(0xFFE5E7EB),
+                      width: isActive ? 2 : 1,
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      hasDigit ? _idDigits[i] : '',
+                      style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF111827)),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPhoneInput() {
+    return Column(
+      children: [
+        // Phone display
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: _phoneDigits.isNotEmpty
+                  ? const Color(0xFF16A34A)
+                  : const Color(0xFFE5E7EB),
+              width: 1.5,
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0FDF4),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Text(
+                  '+234',
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF16A34A)),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Container(width: 1, height: 20, color: const Color(0xFFE5E7EB)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  _phoneDigits.isEmpty
+                      ? '801 234 5678'
+                      : _formatPhoneDisplay(_phoneDigits),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: _phoneDigits.isEmpty
+                        ? const Color(0xFFD1D5DB)
+                        : const Color(0xFF111827),
+                    letterSpacing: 1,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _formatPhoneDisplay(String digits) {
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 6)
+      return '${digits.substring(0, 3)} ${digits.substring(3)}';
+    return '${digits.substring(0, 3)} ${digits.substring(3, 6)} ${digits.substring(6)}';
+  }
+
+  void _onPhoneIdContinue() {
+    // Store ID if filled
+    if (_idDigits.length == 11) {
+      if (_idType == 'bvn') {
+        _personalInfo.bvn = _idDigits;
+      } else {
+        _personalInfo.nin = _idDigits;
+      }
+    }
+    // Store phone if filled
+    if (_phoneDigits.length == 10) {
+      _personalInfo.phoneNumber = '0$_phoneDigits';
+    }
+
+    // Navigate regardless of validation
+    _nextStep();
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════════
+  // STEP 3 — OTP Verification
+  // ══════════════════════════════════════════════════════════════════════════════
+
+  Widget _buildOtpStep() {
+    final filled = _otp.where((d) => d.isNotEmpty).length;
+    return Column(
+      key: const ValueKey('otpVerification'),
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 40),
+                Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF16A34A).withOpacity(0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.lock_outline,
+                      color: Color(0xFF16A34A), size: 34),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Enter verification code',
+                  style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF111827)),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'We sent a code to +234 $_phoneDigits',
+                  style:
+                      const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+                ),
+                const SizedBox(height: 20),
+                // 6 boxes
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(6, (i) {
+                    final hasDigit = _otp[i].isNotEmpty;
+                    final isActive = i == filled;
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      width: 46,
+                      height: 52,
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isActive
+                              ? const Color(0xFF16A34A)
+                              : hasDigit
+                                  ? const Color(0xFF16A34A).withOpacity(0.5)
+                                  : const Color(0xFFE5E7EB),
+                          width: isActive ? 2 : 1.5,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          hasDigit ? '•' : '',
+                          style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF111827)),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+                const SizedBox(height: 16),
+                // Resend
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Didn't receive code? ",
+                        style:
+                            TextStyle(fontSize: 14, color: Color(0xFF6B7280))),
+                    GestureDetector(
+                      onTap: (_resendCountdown > 0 || _isResending)
+                          ? null
+                          : _handleResendOtp,
+                      child: _isResending
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation(
+                                      Color(0xFF16A34A))))
+                          : Text(
+                              _resendCountdown > 0
+                                  ? 'Resend in ${_resendCountdown}s'
+                                  : 'Resend',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: _resendCountdown > 0
+                                    ? const Color(0xFF6B7280)
+                                    : const Color(0xFF16A34A),
+                              ),
+                            ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _buildNumPad(
+                  onDigit: (d) {
+                    final idx = _otp.indexWhere((o) => o.isEmpty);
+                    if (idx != -1) setState(() => _otp[idx] = d);
+                  },
+                  onDelete: () {
+                    final idx = _otp.lastIndexWhere((o) => o.isNotEmpty);
+                    if (idx != -1) setState(() => _otp[idx] = '');
+                  },
+                ),
+                const SizedBox(height: 40),
+              ],
+            ),
+          ),
+        ),
+        _buildCTA(
+          label: 'Verify',
+          onTap: _nextStep,
+        ),
       ],
     );
   }
 
   // ══════════════════════════════════════════════════════════════════════════════
-  // STEP 2 — Personal Details
+  // STEP 4 — Create Password
   // ══════════════════════════════════════════════════════════════════════════════
 
-  Widget _buildPersonalDetailsStep() {
+  Widget _buildCreatePasswordStep() {
     return Column(
-      key: const ValueKey('personalDetails'),
+      key: const ValueKey('createPassword'),
       children: [
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _OFloatingField(
-                  controller: _firstNameController,
-                  focusNode: _firstNameFocus,
-                  label: 'First Name',
-                  hint: 'e.g. Amina',
-                  keyboardType: TextInputType.name,
-                  textCapitalization: TextCapitalization.words,
-                  onChanged: (v) => _personalInfo.firstname = v.trim(),
+                const Text(
+                  'Create a password to secure your account',
+                  style: TextStyle(
+                      fontSize: 14, color: Color(0xFF6B7280), height: 1.5),
                 ),
-                const SizedBox(height: 12),
-                _OFloatingField(
-                  controller: _lastNameController,
-                  focusNode: _lastNameFocus,
-                  label: 'Last Name',
-                  hint: 'e.g. Ibrahim',
-                  keyboardType: TextInputType.name,
-                  textCapitalization: TextCapitalization.words,
-                  onChanged: (v) => _personalInfo.lastname = v.trim(),
-                ),
-                const SizedBox(height: 12),
-                // Date of birth — tappable floating field
-                GestureDetector(
-                  onTap: _pickDOB,
-                  child: _OFloatingField(
-                    controller: _birthdayController,
-                    focusNode: _birthdayFocus,
-                    label: 'Date of Birth',
-                    hint: 'DD-MM-YYYY',
-                    readOnly: true,
-                    suffix: const Icon(Icons.calendar_today_outlined, size: 18, color: Color(0xFF9CA3AF)),
-                    onChanged: (_) {},
-                  ),
-                ),
-                const SizedBox(height: 12),
-                // Gender — tappable floating field
-                GestureDetector(
-                  onTap: () => _showOptionsSheet('Gender', ['Male', 'Female', 'Other'], (v) {
-                    setState(() => _personalInfo.gender = v);
-                  }),
-                  child: _OFloatingFieldStatic(
-                    label: 'Gender',
-                    value: _personalInfo.gender.isEmpty ? null : _personalInfo.gender,
-                    hint: 'Select gender',
-                    suffix: const Icon(Icons.keyboard_arrow_down, size: 20, color: Color(0xFF9CA3AF)),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _OFloatingField(
-                  controller: _emailController,
-                  focusNode: _emailFocus,
-                  label: 'Email Address (Optional)',
-                  hint: 'you@example.com',
-                  keyboardType: TextInputType.emailAddress,
-                  onChanged: (v) => _personalInfo.emailAddress = v.trim(),
-                ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 24),
                 _OFloatingField(
                   controller: _passwordController,
                   focusNode: _passwordFocus,
@@ -708,7 +1151,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                     style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF)),
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
                 _OFloatingField(
                   controller: _confirmPasswordController,
                   focusNode: _confirmPasswordFocus,
@@ -716,9 +1159,12 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   hint: 'Re-enter your password',
                   obscureText: !_showConfirmPassword,
                   suffix: GestureDetector(
-                    onTap: () => setState(() => _showConfirmPassword = !_showConfirmPassword),
+                    onTap: () => setState(
+                        () => _showConfirmPassword = !_showConfirmPassword),
                     child: Icon(
-                      _showConfirmPassword ? Icons.visibility_off : Icons.visibility,
+                      _showConfirmPassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
                       size: 18,
                       color: const Color(0xFF9CA3AF),
                     ),
@@ -730,289 +1176,17 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
             ),
           ),
         ),
-        _buildCTA(label: 'Continue →', onTap: _nextStep),
-      ],
-    );
-  }
-
-  void _onPersonalDetailsContinue() {
-    if (_personalInfo.firstname.trim().isEmpty) { _snack('Please enter your first name', isError: true); return; }
-    if (_personalInfo.lastname.trim().isEmpty)  { _snack('Please enter your last name', isError: true);  return; }
-    if (_personalInfo.dateOfBirth.isEmpty)       { _snack('Please select your date of birth', isError: true); return; }
-    if (_personalInfo.gender.isEmpty)            { _snack('Please select your gender', isError: true); return; }
-    if (_password.length < 8 || !RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)').hasMatch(_password)) {
-      _snack('Password must be 8+ chars with uppercase, lowercase & number', isError: true);
-      return;
-    }
-    if (_confirmPassword != _password) { _snack('Passwords do not match', isError: true); return; }
-    _nextStep();
-  }
-
-  // ══════════════════════════════════════════════════════════════════════════════
-  // STEP 3 — Phone Number
-  // ══════════════════════════════════════════════════════════════════════════════
-
-  Widget _buildPhoneNumberStep() {
-    final isValid = _phoneDigits.length == 10;
-    return Column(
-      key: const ValueKey('phoneNumber'),
-      children: [
-        Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Icon
-              Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF16A34A).withOpacity(0.12),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.phone, color: Color(0xFF16A34A), size: 34),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Enter your number',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Color(0xFF111827)),
-              ),
-              const SizedBox(height: 6),
-              const Text(
-                "We'll send a verification code via SMS",
-                style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
-              ),
-              const SizedBox(height: 28),
-              // Display
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 24),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: _phoneDigits.isNotEmpty
-                        ? const Color(0xFF16A34A)
-                        : const Color(0xFFE5E7EB),
-                    width: 1.5,
-                  ),
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 6)],
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF0FDF4),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Text(
-                        '+234',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF16A34A)),
-                      ),
-                    ),
-                    Container(
-                      width: 1.5,
-                      height: 24,
-                      margin: const EdgeInsets.symmetric(horizontal: 12),
-                      color: const Color(0xFFE5E7EB),
-                    ),
-                    Expanded(
-                      child: Text(
-                        _phoneDigits.isEmpty
-                            ? '810 123 4567'
-                            : _formatPhoneDisplay(_phoneDigits),
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: _phoneDigits.isEmpty
-                              ? const Color(0xFFD1D5DB)
-                              : const Color(0xFF111827),
-                          letterSpacing: 1,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 28),
-              // Numpad
-              _buildNumPad(
-                onDigit: (d) {
-                  if (_phoneDigits.length < 10) {
-                    setState(() => _phoneDigits += d);
-                  }
-                },
-                onDelete: () {
-                  if (_phoneDigits.isNotEmpty) {
-                    setState(() => _phoneDigits = _phoneDigits.substring(0, _phoneDigits.length - 1));
-                  }
-                },
-              ),
-            ],
-          ),
-        ),
         _buildCTA(
           label: 'Continue →',
-          onTap: _nextStep,
+          onTap: _onPasswordContinue,
         ),
       ],
     );
   }
 
-  String _formatPhoneDisplay(String digits) {
-    if (digits.length <= 3) return digits;
-    if (digits.length <= 6) return '${digits.substring(0, 3)} ${digits.substring(3)}';
-    return '${digits.substring(0, 3)} ${digits.substring(3, 6)} ${digits.substring(6)}';
-  }
-
-  Future<void> _onPhoneContinue() async {
-    _personalInfo.phoneNumber = '0$_phoneDigits';
-    setState(() => _isLoading = true);
-    try {
-      final session = await ref.read(authenticateProvider.future);
-      if (session == null) {
-        setState(() => _isLoading = false);
-        _snack(AN_ERROR_OCCURED_WHILE_PROCESSING_YOUR_REQUEST_PLEASE_TRY_AGAIN, isError: true);
-        return;
-      }
-      final params = PersonalSignupParams(
-        sessionId: session.model?.data?.sessionId,
-        requestType: 'testDeployment',
-        method: 'signupPersonal',
-        acceptOurTerms: '1',
-        customerTitle: _personalInfo.gender.toLowerCase() == 'female' ? 'mrs' : 'mr',
-        customerFirstName: _personalInfo.firstname.trim(),
-        customerSurnameName: _personalInfo.lastname.trim(),
-        emailAddress: _personalInfo.emailAddress.trim(),
-        dateOfBirth: _personalInfo.dateOfBirth,
-        gender: _personalInfo.gender.toLowerCase(),
-        mobilePhoneNo: _personalInfo.phoneNumber.trim(),
-        password: _password,
-        confirmPassword: _confirmPassword,
-        nationality: 'Nigerian',
-        residentState: _personalInfo.state.isEmpty ? 'Lagos' : _personalInfo.state,
-        residentCity: selectedLga?.name ?? (_personalInfo.lga.isEmpty ? 'Ikeja' : _personalInfo.lga),
-        residentLga: _personalInfo.lga.isEmpty ? 'Ikeja' : _personalInfo.lga,
-        addressLine1: _personalInfo.residentialAddress.isEmpty ? 'Lagos, Nigeria' : _personalInfo.residentialAddress,
-        accountType: 'current',
-        customerBVN: _personalInfo.bvn.trim().isEmpty ? '' : _personalInfo.bvn.trim(),
-        customerNIN: _personalInfo.nin.trim().isEmpty ? '' : _personalInfo.nin.trim(),
-        latitude: selectedCoordinate?.lat ?? _personalInfo.currentLat?.toString(),
-        longitude: selectedCoordinate?.lng ?? _personalInfo.currentLng?.toString(),
-      );
-      await ref.read(signupProvider(params).future);
-    } catch (e) {
-      setState(() => _isLoading = false);
-      _snack('Network error: ${e.toString()}', isError: true);
-    }
-  }
-
-  // ══════════════════════════════════════════════════════════════════════════════
-  // STEP 4 — OTP Verification
-  // ══════════════════════════════════════════════════════════════════════════════
-
-  Widget _buildOtpStep() {
-    final filled = _otp.where((d) => d.isNotEmpty).length;
-    return Column(
-      key: const ValueKey('otpVerification'),
-      children: [
-        Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF16A34A).withOpacity(0.12),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.lock_outline, color: Color(0xFF16A34A), size: 34),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Enter verification code',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF111827)),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'We sent a code to +234 $_phoneDigits',
-                style: const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
-              ),
-              const SizedBox(height: 20),
-              // 6 boxes
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(6, (i) {
-                  final hasDigit = _otp[i].isNotEmpty;
-                  final isActive = i == filled;
-                  return AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
-                    width: 46,
-                    height: 52,
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: isActive
-                            ? const Color(0xFF16A34A)
-                            : hasDigit
-                                ? const Color(0xFF16A34A).withOpacity(0.5)
-                                : const Color(0xFFE5E7EB),
-                        width: isActive ? 2 : 1.5,
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        hasDigit ? '•' : '',
-                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF111827)),
-                      ),
-                    ),
-                  );
-                }),
-              ),
-              const SizedBox(height: 16),
-              // Resend
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text("Didn't receive code? ", style: TextStyle(fontSize: 14, color: Color(0xFF6B7280))),
-                  GestureDetector(
-                    onTap: (_resendCountdown > 0 || _isResending) ? null : _handleResendOtp,
-                    child: _isResending
-                        ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Color(0xFF16A34A))))
-                        : Text(
-                            _resendCountdown > 0 ? 'Resend in ${_resendCountdown}s' : 'Resend',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: _resendCountdown > 0 ? const Color(0xFF6B7280) : const Color(0xFF16A34A),
-                            ),
-                          ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              _buildNumPad(
-                onDigit: (d) {
-                  final idx = _otp.indexWhere((o) => o.isEmpty);
-                  if (idx != -1) setState(() => _otp[idx] = d);
-                },
-                onDelete: () {
-                  final idx = _otp.lastIndexWhere((o) => o.isNotEmpty);
-                  if (idx != -1) setState(() => _otp[idx] = '');
-                },
-              ),
-            ],
-          ),
-        ),
-        _buildCTA(
-          label: 'Verify',
-          onTap: _nextStep,
-        ),
-      ],
-    );
+  void _onPasswordContinue() {
+    // Navigate regardless of validation
+    _nextStep();
   }
 
   // ══════════════════════════════════════════════════════════════════════════════
@@ -1025,62 +1199,73 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       key: const ValueKey('createPin'),
       children: [
         Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF16A34A).withOpacity(0.12),
-                  shape: BoxShape.circle,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF16A34A).withOpacity(0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.shield_outlined,
+                      color: Color(0xFF16A34A), size: 34),
                 ),
-                child: const Icon(Icons.shield_outlined, color: Color(0xFF16A34A), size: 34),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Create a PIN',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF111827)),
-              ),
-              const SizedBox(height: 6),
-              const Text(
-                'Secure your account with a 4-digit PIN',
-                style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
-              ),
-              const SizedBox(height: 36),
-              // 4 dot indicators
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(4, (i) {
-                  final hasDot = i < filled;
-                  return AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
-                    width: 18,
-                    height: 18,
-                    margin: const EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: hasDot ? const Color(0xFF16A34A) : Colors.transparent,
-                      border: Border.all(
-                        color: hasDot ? const Color(0xFF16A34A) : const Color(0xFFD1D5DB),
-                        width: 2,
+                const SizedBox(height: 20),
+                const Text(
+                  'Create a PIN',
+                  style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF111827)),
+                ),
+                const SizedBox(height: 6),
+                const Text(
+                  'Secure your account with a 4-digit PIN',
+                  style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+                ),
+                const SizedBox(height: 36),
+                // 4 dot indicators
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(4, (i) {
+                    final hasDot = i < filled;
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      width: 18,
+                      height: 18,
+                      margin: const EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: hasDot
+                            ? const Color(0xFF16A34A)
+                            : Colors.transparent,
+                        border: Border.all(
+                          color: hasDot
+                              ? const Color(0xFF16A34A)
+                              : const Color(0xFFD1D5DB),
+                          width: 2,
+                        ),
                       ),
-                    ),
-                  );
-                }),
-              ),
-              const SizedBox(height: 40),
-              _buildNumPad(
-                onDigit: (d) {
-                  final idx = _pin.indexWhere((p) => p.isEmpty);
-                  if (idx != -1) setState(() => _pin[idx] = d);
-                },
-                onDelete: () {
-                  final idx = _pin.lastIndexWhere((p) => p.isNotEmpty);
-                  if (idx != -1) setState(() => _pin[idx] = '');
-                },
-              ),
-            ],
+                    );
+                  }),
+                ),
+                const SizedBox(height: 40),
+                _buildNumPad(
+                  onDigit: (d) {
+                    final idx = _pin.indexWhere((p) => p.isEmpty);
+                    if (idx != -1) setState(() => _pin[idx] = d);
+                  },
+                  onDelete: () {
+                    final idx = _pin.lastIndexWhere((p) => p.isNotEmpty);
+                    if (idx != -1) setState(() => _pin[idx] = '');
+                  },
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
         _buildCTA(
@@ -1101,61 +1286,73 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       key: const ValueKey('confirmPin'),
       children: [
         Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF16A34A).withOpacity(0.12),
-                  shape: BoxShape.circle,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF16A34A).withOpacity(0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.shield,
+                      color: Color(0xFF16A34A), size: 34),
                 ),
-                child: const Icon(Icons.shield, color: Color(0xFF16A34A), size: 34),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Confirm your PIN',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF111827)),
-              ),
-              const SizedBox(height: 6),
-              const Text(
-                'Re-enter your 4-digit PIN to confirm',
-                style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
-              ),
-              const SizedBox(height: 36),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(4, (i) {
-                  final hasDot = i < filled;
-                  return AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
-                    width: 18,
-                    height: 18,
-                    margin: const EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: hasDot ? const Color(0xFF16A34A) : Colors.transparent,
-                      border: Border.all(
-                        color: hasDot ? const Color(0xFF16A34A) : const Color(0xFFD1D5DB),
-                        width: 2,
+                const SizedBox(height: 20),
+                const Text(
+                  'Confirm your PIN',
+                  style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF111827)),
+                ),
+                const SizedBox(height: 6),
+                const Text(
+                  'Re-enter your 4-digit PIN to confirm',
+                  style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+                ),
+                const SizedBox(height: 36),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(4, (i) {
+                    final hasDot = i < filled;
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      width: 18,
+                      height: 18,
+                      margin: const EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: hasDot
+                            ? const Color(0xFF16A34A)
+                            : Colors.transparent,
+                        border: Border.all(
+                          color: hasDot
+                              ? const Color(0xFF16A34A)
+                              : const Color(0xFFD1D5DB),
+                          width: 2,
+                        ),
                       ),
-                    ),
-                  );
-                }),
-              ),
-              const SizedBox(height: 40),
-              _buildNumPad(
-                onDigit: (d) {
-                  final idx = _confirmPinEntry.indexWhere((p) => p.isEmpty);
-                  if (idx != -1) setState(() => _confirmPinEntry[idx] = d);
-                },
-                onDelete: () {
-                  final idx = _confirmPinEntry.lastIndexWhere((p) => p.isNotEmpty);
-                  if (idx != -1) setState(() => _confirmPinEntry[idx] = '');
-                },
-              ),
-            ],
+                    );
+                  }),
+                ),
+                const SizedBox(height: 40),
+                _buildNumPad(
+                  onDigit: (d) {
+                    final idx = _confirmPinEntry.indexWhere((p) => p.isEmpty);
+                    if (idx != -1) setState(() => _confirmPinEntry[idx] = d);
+                  },
+                  onDelete: () {
+                    final idx =
+                        _confirmPinEntry.lastIndexWhere((p) => p.isNotEmpty);
+                    if (idx != -1) setState(() => _confirmPinEntry[idx] = '');
+                  },
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
         _buildCTA(
@@ -1170,7 +1367,9 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     if (_confirmPinEntry.join() != _pin.join()) {
       _snack('PINs do not match. Please try again.', isError: true);
       setState(() {
-        for (int i = 0; i < _confirmPinEntry.length; i++) { _confirmPinEntry[i] = ''; }
+        for (int i = 0; i < _confirmPinEntry.length; i++) {
+          _confirmPinEntry[i] = '';
+        }
       });
       return;
     }
@@ -1178,12 +1377,12 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   }
 
   // ══════════════════════════════════════════════════════════════════════════════
-  // STEP 7 — Congratulations
+  // STEP 7 — Account Created (Congratulations)
   // ══════════════════════════════════════════════════════════════════════════════
 
-  Widget _buildCongratsStep() {
+  Widget _buildAccountCreatedStep() {
     return Stack(
-      key: const ValueKey('congratulations'),
+      key: const ValueKey('accountCreated'),
       children: [
         Container(
           decoration: const BoxDecoration(
@@ -1219,7 +1418,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   color: const Color(0xFF16A34A).withOpacity(0.15),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.check, color: Color(0xFF16A34A), size: 52),
+                child:
+                    const Icon(Icons.check, color: Color(0xFF16A34A), size: 52),
               ),
               const SizedBox(height: 28),
               const Text(
@@ -1236,7 +1436,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                 child: Text(
                   'Your profile has been created.\nContinue to complete your verification.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 15, color: Color(0xFF6B7280), height: 1.5),
+                  style: TextStyle(
+                      fontSize: 15, color: Color(0xFF6B7280), height: 1.5),
                 ),
               ),
               const Spacer(),
@@ -1255,7 +1456,11 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Center(
-                    child: Text('Continue', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)),
+                    child: Text('Continue',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white)),
                   ),
                 ),
               ),
@@ -1264,6 +1469,213 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
         ),
       ],
     );
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════════
+  // STEP 8 (Optional) — Personal Details
+  // ══════════════════════════════════════════════════════════════════════════════
+
+  Widget _buildPersonalDetailsStep() {
+    return Column(
+      key: const ValueKey('personalDetails'),
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Tell us about yourself',
+                  style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+                ),
+                const SizedBox(height: 20),
+                _OFloatingField(
+                  controller: _firstNameController,
+                  focusNode: _firstNameFocus,
+                  label: 'First Name',
+                  hint: 'e.g. Amina',
+                  keyboardType: TextInputType.name,
+                  textCapitalization: TextCapitalization.words,
+                  onChanged: (v) => _personalInfo.firstname = v.trim(),
+                ),
+                const SizedBox(height: 12),
+                _OFloatingField(
+                  controller: _lastNameController,
+                  focusNode: _lastNameFocus,
+                  label: 'Last Name',
+                  hint: 'e.g. Ibrahim',
+                  keyboardType: TextInputType.name,
+                  textCapitalization: TextCapitalization.words,
+                  onChanged: (v) => _personalInfo.lastname = v.trim(),
+                ),
+                const SizedBox(height: 12),
+                GestureDetector(
+                  onTap: _pickDOB,
+                  child: _OFloatingField(
+                    controller: _birthdayController,
+                    focusNode: _birthdayFocus,
+                    label: 'Date of Birth',
+                    hint: 'DD-MM-YYYY',
+                    readOnly: true,
+                    suffix: const Icon(Icons.calendar_today_outlined,
+                        size: 18, color: Color(0xFF9CA3AF)),
+                    onChanged: (_) {},
+                  ),
+                ),
+                const SizedBox(height: 12),
+                GestureDetector(
+                  onTap: () => _showOptionsSheet(
+                      'Gender', ['Male', 'Female', 'Other'], (v) {
+                    setState(() => _personalInfo.gender = v);
+                  }),
+                  child: _OFloatingFieldStatic(
+                    label: 'Gender',
+                    value: _personalInfo.gender.isEmpty
+                        ? null
+                        : _personalInfo.gender,
+                    hint: 'Select gender',
+                    suffix: const Icon(Icons.keyboard_arrow_down,
+                        size: 20, color: Color(0xFF9CA3AF)),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                _sectionLabel('Address'),
+                const SizedBox(height: 8),
+                GooglePlacesAutoCompleteTextFormField(
+                  textEditingController: _addressController,
+                  googleAPIKey: GOOGLE_API_KEY,
+                  debounceTime: 600,
+                  countries: const ['ng'],
+                  onSuggestionClicked: (p) {
+                    _addressController.text = p.description ?? '';
+                    setState(() {
+                      _personalInfo.residentialAddress = p.description ?? '';
+                    });
+                  },
+                  onChanged: (e) =>
+                      setState(() => _personalInfo.residentialAddress = e),
+                  onPlaceDetailsWithCoordinatesReceived: (p) async {
+                    setState(() {
+                      selectedCoordinate = Prediction(
+                        description: p.description,
+                        lat: p.lat,
+                        lng: p.lng,
+                        placeId: p.placeId,
+                      );
+                    });
+                    if (p.placeId != null) {
+                      final det = await ref.read(
+                          locationDetailsProvider(p.placeId ?? '').future);
+                      if (det != null) {
+                        final locs = getCountryLocation();
+                        final svc = ref.read(locationDetailsServiceProvider);
+                        final st = svc.findMatchingState(det.state, locs);
+                        if (st != null) {
+                          setState(() {
+                            selectedState = st;
+                            _personalInfo.state = st.state?.name ?? '';
+                            locals = st.state?.locals;
+                            if (det.localGovernment != null && locals != null) {
+                              selectedLga = svc.findMatchingLGA(
+                                  det.localGovernment!, locals!);
+                              _personalInfo.lga = selectedLga?.name ?? '';
+                            }
+                          });
+                        }
+                      }
+                    }
+                  },
+                  decoration: _inputDec(
+                      hint: 'e.g. 15, Adeola Odeku Street',
+                      suffix: _isGettingLocation
+                          ? const Padding(
+                              padding: EdgeInsets.all(12),
+                              child: SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation(
+                                          Color(0xFF16A34A)))))
+                          : IconButton(
+                              onPressed: _onLocateMePressed,
+                              icon: const Icon(Icons.my_location,
+                                  color: Color(0xFF16A34A), size: 20))),
+                ),
+                const SizedBox(height: 14),
+                _sectionLabel('State'),
+                const SizedBox(height: 8),
+                GestureDetector(
+                  onTap: () {
+                    final locs = getCountryLocation();
+                    final opts = locs
+                        .map((l) => l.state?.name ?? '')
+                        .where((n) => n.isNotEmpty)
+                        .toList();
+                    _showSearchSheet('Select State', opts, (v) {
+                      final match = locs.firstWhere((l) => l.state?.name == v,
+                          orElse: () => locs.first);
+                      setState(() {
+                        selectedState = match;
+                        _personalInfo.state = v;
+                        locals = match.state?.locals;
+                        selectedLga = null;
+                        _personalInfo.lga = '';
+                      });
+                    });
+                  },
+                  child: _dropdownField(
+                    label: '',
+                    value: selectedState?.state?.name,
+                    hint: 'Select State',
+                    icon: null,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                _sectionLabel('L.G.A'),
+                const SizedBox(height: 8),
+                GestureDetector(
+                  onTap: selectedState == null
+                      ? null
+                      : () {
+                          final opts = (locals ?? [])
+                              .map((l) => l.name ?? '')
+                              .where((n) => n.isNotEmpty)
+                              .toList();
+                          _showSearchSheet('Select L.G.A', opts, (v) {
+                            final match = (locals ?? []).firstWhere(
+                                (l) => l.name == v,
+                                orElse: () => locals!.first);
+                            setState(() {
+                              selectedLga = match;
+                              _personalInfo.lga = v;
+                            });
+                          });
+                        },
+                  child: _dropdownField(
+                    label: '',
+                    value: selectedLga?.name,
+                    hint: selectedState == null
+                        ? 'Select state first'
+                        : 'Select L.G.A',
+                    icon: null,
+                    enabled: selectedState != null,
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
+            ),
+          ),
+        ),
+        _buildCTA(label: 'Continue →', onTap: _onPersonalDetailsContinue),
+      ],
+    );
+  }
+
+  void _onPersonalDetailsContinue() {
+    // Navigate regardless of validation
+    _nextStep();
   }
 
   // ══════════════════════════════════════════════════════════════════════════════
@@ -1284,7 +1696,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
               children: [
                 const Text(
                   'Please provide your own BVN/NIN to verify your account opening application',
-                  style: TextStyle(fontSize: 13, color: Color(0xFF6B7280), height: 1.5),
+                  style: TextStyle(
+                      fontSize: 13, color: Color(0xFF6B7280), height: 1.5),
                 ),
                 const SizedBox(height: 20),
                 // NIN / BVN toggle
@@ -1307,7 +1720,9 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                             duration: const Duration(milliseconds: 180),
                             margin: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
-                              color: selected ? const Color(0xFF16A34A) : Colors.transparent,
+                              color: selected
+                                  ? const Color(0xFF16A34A)
+                                  : Colors.transparent,
                               borderRadius: BorderRadius.circular(9),
                             ),
                             child: Center(
@@ -1316,7 +1731,9 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700,
-                                  color: selected ? Colors.white : const Color(0xFF6B7280),
+                                  color: selected
+                                      ? Colors.white
+                                      : const Color(0xFF6B7280),
                                 ),
                               ),
                             ),
@@ -1333,11 +1750,15 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   children: [
                     Text(
                       _idType.toUpperCase(),
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF374151)),
+                      style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF374151)),
                     ),
                     Text(
                       'Bank Verification Number Sample >',
-                      style: const TextStyle(fontSize: 11, color: Color(0xFF16A34A)),
+                      style: const TextStyle(
+                          fontSize: 11, color: Color(0xFF16A34A)),
                     ),
                   ],
                 ),
@@ -1367,7 +1788,10 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                         child: Center(
                           child: Text(
                             hasDigit ? _idDigits[i] : '',
-                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF111827)),
+                            style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF111827)),
                           ),
                         ),
                       ),
@@ -1378,21 +1802,29 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                 Align(
                   alignment: Alignment.centerRight,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       border: Border.all(color: const Color(0xFF16A34A)),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Text('Forgot BVN?', style: TextStyle(fontSize: 11, color: Color(0xFF16A34A), fontWeight: FontWeight.w600)),
+                    child: const Text('Forgot BVN?',
+                        style: TextStyle(
+                            fontSize: 11,
+                            color: Color(0xFF16A34A),
+                            fontWeight: FontWeight.w600)),
                   ),
                 ),
                 const SizedBox(height: 24),
                 _buildNumPad(
                   onDigit: (d) {
-                    if (_idDigits.length < maxLen) setState(() => _idDigits += d);
+                    if (_idDigits.length < maxLen)
+                      setState(() => _idDigits += d);
                   },
                   onDelete: () {
-                    if (_idDigits.isNotEmpty) setState(() => _idDigits = _idDigits.substring(0, _idDigits.length - 1));
+                    if (_idDigits.isNotEmpty)
+                      setState(() => _idDigits =
+                          _idDigits.substring(0, _idDigits.length - 1));
                   },
                 ),
               ],
@@ -1438,7 +1870,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Where do you live?', style: TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
+                const Text('Where do you live?',
+                    style: TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
                 const SizedBox(height: 20),
                 _sectionLabel('Address'),
                 const SizedBox(height: 8),
@@ -1449,17 +1882,23 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   countries: const ['ng'],
                   onSuggestionClicked: (p) {
                     _addressController.text = p.description ?? '';
-                    setState(() => _personalInfo.residentialAddress = p.description ?? '');
+                    setState(() =>
+                        _personalInfo.residentialAddress = p.description ?? '');
                   },
-                  onChanged: (e) => setState(() => _personalInfo.residentialAddress = e),
+                  onChanged: (e) =>
+                      setState(() => _personalInfo.residentialAddress = e),
                   onPlaceDetailsWithCoordinatesReceived: (p) async {
                     setState(() {
                       selectedCoordinate = Prediction(
-                        description: p.description, lat: p.lat, lng: p.lng, placeId: p.placeId,
+                        description: p.description,
+                        lat: p.lat,
+                        lng: p.lng,
+                        placeId: p.placeId,
                       );
                     });
                     if (p.placeId != null) {
-                      final det = await ref.read(locationDetailsProvider(p.placeId ?? '').future);
+                      final det = await ref.read(
+                          locationDetailsProvider(p.placeId ?? '').future);
                       if (det != null) {
                         final locs = getCountryLocation();
                         final svc = ref.read(locationDetailsServiceProvider);
@@ -1470,7 +1909,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                             _personalInfo.state = st.state?.name ?? '';
                             locals = st.state?.locals;
                             if (det.localGovernment != null && locals != null) {
-                              selectedLga = svc.findMatchingLGA(det.localGovernment!, locals!);
+                              selectedLga = svc.findMatchingLGA(
+                                  det.localGovernment!, locals!);
                               _personalInfo.lga = selectedLga?.name ?? '';
                             }
                           });
@@ -1478,9 +1918,22 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                       }
                     }
                   },
-                  decoration: _inputDec(hint: 'e.g. 15, Adeola Odeku Street', suffix: _isGettingLocation
-                      ? const Padding(padding: EdgeInsets.all(12), child: SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Color(0xFF16A34A)))))
-                      : IconButton(onPressed: _onLocateMePressed, icon: const Icon(Icons.my_location, color: Color(0xFF16A34A), size: 20))),
+                  decoration: _inputDec(
+                      hint: 'e.g. 15, Adeola Odeku Street',
+                      suffix: _isGettingLocation
+                          ? const Padding(
+                              padding: EdgeInsets.all(12),
+                              child: SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation(
+                                          Color(0xFF16A34A)))))
+                          : IconButton(
+                              onPressed: _onLocateMePressed,
+                              icon: const Icon(Icons.my_location,
+                                  color: Color(0xFF16A34A), size: 20))),
                 ),
                 const SizedBox(height: 14),
                 Row(
@@ -1491,7 +1944,9 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                         children: [
                           _sectionLabel('House No.'),
                           const SizedBox(height: 8),
-                          TextField(controller: houseCtrl, decoration: _inputDec(hint: 'No.')),
+                          TextField(
+                              controller: houseCtrl,
+                              decoration: _inputDec(hint: 'No.')),
                         ],
                       ),
                     ),
@@ -1502,7 +1957,10 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                         children: [
                           _sectionLabel('Area / Landstack'),
                           const SizedBox(height: 8),
-                          TextField(controller: areaCtrl, decoration: _inputDec(hint: 'e.g. Victoria Island')),
+                          TextField(
+                              controller: areaCtrl,
+                              decoration:
+                                  _inputDec(hint: 'e.g. Victoria Island')),
                         ],
                       ),
                     ),
@@ -1513,9 +1971,14 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                 const SizedBox(height: 8),
                 GestureDetector(
                   onTap: () {
-                    final opts = locations.map((l) => l.state?.name ?? '').where((n) => n.isNotEmpty).toList();
+                    final opts = locations
+                        .map((l) => l.state?.name ?? '')
+                        .where((n) => n.isNotEmpty)
+                        .toList();
                     _showSearchSheet('Select State', opts, (v) {
-                      final match = locations.firstWhere((l) => l.state?.name == v, orElse: () => locations.first);
+                      final match = locations.firstWhere(
+                          (l) => l.state?.name == v,
+                          orElse: () => locations.first);
                       setState(() {
                         selectedState = match;
                         _personalInfo.state = v;
@@ -1526,26 +1989,39 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                     });
                   },
                   child: _dropdownField(
-                    label: '', value: selectedState?.state?.name, hint: 'Select State', icon: null,
+                    label: '',
+                    value: selectedState?.state?.name,
+                    hint: 'Select State',
+                    icon: null,
                   ),
                 ),
                 const SizedBox(height: 14),
                 _sectionLabel('L.G.A'),
                 const SizedBox(height: 8),
                 GestureDetector(
-                  onTap: selectedState == null ? null : () {
-                    final opts = (locals ?? []).map((l) => l.name ?? '').where((n) => n.isNotEmpty).toList();
-                    _showSearchSheet('Select L.G.A', opts, (v) {
-                      final match = (locals ?? []).firstWhere((l) => l.name == v, orElse: () => locals!.first);
-                      setState(() {
-                        selectedLga = match;
-                        _personalInfo.lga = v;
-                      });
-                    });
-                  },
+                  onTap: selectedState == null
+                      ? null
+                      : () {
+                          final opts = (locals ?? [])
+                              .map((l) => l.name ?? '')
+                              .where((n) => n.isNotEmpty)
+                              .toList();
+                          _showSearchSheet('Select L.G.A', opts, (v) {
+                            final match = (locals ?? []).firstWhere(
+                                (l) => l.name == v,
+                                orElse: () => locals!.first);
+                            setState(() {
+                              selectedLga = match;
+                              _personalInfo.lga = v;
+                            });
+                          });
+                        },
                   child: _dropdownField(
-                    label: '', value: selectedLga?.name,
-                    hint: selectedState == null ? 'Select state first' : 'Select L.G.A',
+                    label: '',
+                    value: selectedLga?.name,
+                    hint: selectedState == null
+                        ? 'Select state first'
+                        : 'Select L.G.A',
                     icon: null,
                     enabled: selectedState != null,
                   ),
@@ -1576,8 +2052,10 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                 Container(
                   width: 120,
                   height: 120,
-                  decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                  child: const Icon(Icons.group, color: Color(0xFF16A34A), size: 60),
+                  decoration: const BoxDecoration(
+                      color: Colors.white, shape: BoxShape.circle),
+                  child: const Icon(Icons.group,
+                      color: Color(0xFF16A34A), size: 60),
                 ),
                 const SizedBox(height: 28),
                 const Padding(
@@ -1585,7 +2063,11 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   child: Text(
                     'Are you a Politically Exposed Person or a family member/close associate of a PEP?',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF111827), height: 1.4),
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF111827),
+                        height: 1.4),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -1594,7 +2076,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   child: Text(
                     'A PEP (Politically Exposed Person) is someone who currently holds or has held an important public position, which gives them influence over public funds or decisions.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 13, color: Color(0xFF6B7280), height: 1.5),
+                    style: TextStyle(
+                        fontSize: 13, color: Color(0xFF6B7280), height: 1.5),
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -1612,10 +2095,14 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                             margin: const EdgeInsets.symmetric(horizontal: 6),
                             padding: const EdgeInsets.symmetric(vertical: 18),
                             decoration: BoxDecoration(
-                              color: selected ? const Color(0xFF16A34A) : Colors.white,
+                              color: selected
+                                  ? const Color(0xFF16A34A)
+                                  : Colors.white,
                               borderRadius: BorderRadius.circular(14),
                               border: Border.all(
-                                color: selected ? const Color(0xFF16A34A) : const Color(0xFFE5E7EB),
+                                color: selected
+                                    ? const Color(0xFF16A34A)
+                                    : const Color(0xFFE5E7EB),
                                 width: 1.5,
                               ),
                             ),
@@ -1625,7 +2112,9 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,
-                                  color: selected ? Colors.white : const Color(0xFF374151),
+                                  color: selected
+                                      ? Colors.white
+                                      : const Color(0xFF374151),
                                 ),
                               ),
                             ),
@@ -1646,12 +2135,25 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   }
 
   // ══════════════════════════════════════════════════════════════════════════════
-  // STEP 11 — Source of Income
+  // STEP 9 (Optional) — Occupation
   // ══════════════════════════════════════════════════════════════════════════════
 
-  Widget _buildSourceOfIncomeStep() {
-    const occupations = ['Farmer', 'Business man/woman', 'Civil servant', 'Teacher', 'Healthcare worker', 'Engineer', 'Others'];
-    const incomes = ['Below ₦100,000', '₦100,000 - ₦500,000', '₦500,000 - ₦1,000,000', 'Above ₦1,000,000'];
+  Widget _buildOccupationStep() {
+    const occupations = [
+      'Farmer',
+      'Business man/woman',
+      'Civil servant',
+      'Teacher',
+      'Healthcare worker',
+      'Engineer',
+      'Others'
+    ];
+    const incomes = [
+      'Below ₦100,000',
+      '₦100,000 - ₦500,000',
+      '₦500,000 - ₦1,000,000',
+      'Above ₦1,000,000'
+    ];
 
     return Column(
       key: const ValueKey('sourceOfIncome'),
@@ -1668,15 +2170,25 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                 _sectionLabel('Occupation'),
                 const SizedBox(height: 8),
                 GestureDetector(
-                  onTap: () => _showOptionsSheet('Occupation', occupations, (v) => setState(() => _occupation = v)),
-                  child: _dropdownField(label: '', value: _occupation, hint: 'Select your occupation', icon: null),
+                  onTap: () => _showOptionsSheet('Occupation', occupations,
+                      (v) => setState(() => _occupation = v)),
+                  child: _dropdownField(
+                      label: '',
+                      value: _occupation,
+                      hint: 'Select your occupation',
+                      icon: null),
                 ),
                 const SizedBox(height: 20),
                 _sectionLabel('Annual Income'),
                 const SizedBox(height: 8),
                 GestureDetector(
-                  onTap: () => _showOptionsSheet('Annual Income', incomes, (v) => setState(() => _annualIncome = v)),
-                  child: _dropdownField(label: '', value: _annualIncome, hint: 'Select your annual income', icon: null),
+                  onTap: () => _showOptionsSheet('Annual Income', incomes,
+                      (v) => setState(() => _annualIncome = v)),
+                  child: _dropdownField(
+                      label: '',
+                      value: _annualIncome,
+                      hint: 'Select your annual income',
+                      icon: null),
                 ),
                 const SizedBox(height: 20),
               ],
@@ -1704,7 +2216,9 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
             alignment: Alignment.center,
             children: [
               // Camera preview or dark background
-              if (_cameraActive && _cameraController != null && _cameraController!.value.isInitialized)
+              if (_cameraActive &&
+                  _cameraController != null &&
+                  _cameraController!.value.isInitialized)
                 Positioned.fill(child: CameraPreview(_cameraController!))
               else
                 Container(color: Colors.black87),
@@ -1722,11 +2236,15 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                 left: 16,
                 right: 16,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(14),
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8)],
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black.withOpacity(0.1), blurRadius: 8)
+                    ],
                   ),
                   child: Row(
                     children: [
@@ -1737,7 +2255,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                           color: const Color(0xFF16A34A).withOpacity(0.12),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.remove_red_eye_outlined, color: Color(0xFF16A34A), size: 18),
+                        child: const Icon(Icons.remove_red_eye_outlined,
+                            color: Color(0xFF16A34A), size: 18),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -1747,8 +2266,16 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: const [
-                                Text('Face Verification', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF111827))),
-                                Text('10%', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF16A34A))),
+                                Text('Face Verification',
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF111827))),
+                                Text('10%',
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF16A34A))),
                               ],
                             ),
                             const SizedBox(height: 4),
@@ -1758,7 +2285,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                                 value: 0.1,
                                 minHeight: 4,
                                 backgroundColor: const Color(0xFFE5E7EB),
-                                valueColor: const AlwaysStoppedAnimation(Color(0xFF16A34A)),
+                                valueColor: const AlwaysStoppedAnimation(
+                                    Color(0xFF16A34A)),
                               ),
                             ),
                           ],
@@ -1775,23 +2303,34 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                 left: 16,
                 right: 16,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8)],
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black.withOpacity(0.1), blurRadius: 8)
+                    ],
                   ),
                   child: Column(
                     children: [
                       const Text(
                         'Remove glasses if wearing any',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF111827)),
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF111827)),
                       ),
                       const SizedBox(height: 4),
-                      Text('Hold still...', style: TextStyle(fontSize: 13, color: Colors.grey.shade500)),
+                      Text('Hold still...',
+                          style: TextStyle(
+                              fontSize: 13, color: Colors.grey.shade500)),
                       const SizedBox(height: 16),
                       GestureDetector(
-                        onTap: _cameraActive ? _capturePhoto : _requestCameraPermission,
+                        onTap: _cameraActive
+                            ? _capturePhoto
+                            : _requestCameraPermission,
                         child: Container(
                           width: double.infinity,
                           height: 54,
@@ -1806,15 +2345,21 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                           child: Center(
                             child: Text(
                               _cameraActive ? 'Capture' : 'Start Camera',
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+                              style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white),
                             ),
                           ),
                         ),
                       ),
                       const SizedBox(height: 8),
                       TextButton(
-                        onPressed: () => _animateTo(AccountStep.kycComplete),
-                        child: const Text('Skip for now', style: TextStyle(color: Color(0xFF6B7280), fontSize: 13)),
+                        onPressed: () =>
+                            _animateTo(AccountStep.personalDetails),
+                        child: const Text('Skip for now',
+                            style: TextStyle(
+                                color: Color(0xFF6B7280), fontSize: 13)),
                       ),
                     ],
                   ),
@@ -1828,7 +2373,10 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                     child: Center(
                       child: Padding(
                         padding: const EdgeInsets.all(24),
-                        child: Text(_cameraError!, style: const TextStyle(color: Colors.white, fontSize: 14), textAlign: TextAlign.center),
+                        child: Text(_cameraError!,
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 14),
+                            textAlign: TextAlign.center),
                       ),
                     ),
                   ),
@@ -1846,9 +2394,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
 
   Widget _buildKycCompleteStep() {
     // Generate a display account number from the phone digits
-    final accountNumber = _phoneDigits.isNotEmpty
-        ? '0$_phoneDigits'
-        : '08XXXXXXXXX';
+    final accountNumber =
+        _phoneDigits.isNotEmpty ? '0$_phoneDigits' : '08XXXXXXXXX';
 
     return Stack(
       key: const ValueKey('kycComplete'),
@@ -1899,9 +2446,11 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.15),
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
+                  border: Border.all(
+                      color: Colors.white.withOpacity(0.3), width: 2),
                 ),
-                child: const Icon(Icons.verified_user, color: Colors.white, size: 54),
+                child: const Icon(Icons.verified_user,
+                    color: Colors.white, size: 54),
               ),
               const SizedBox(height: 24),
               const Text(
@@ -1919,7 +2468,10 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                 child: Text(
                   'Your identity has been confirmed.\nWelcome to RimaPay!',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 15, color: Colors.white.withOpacity(0.75), height: 1.5),
+                  style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.white.withOpacity(0.75),
+                      height: 1.5),
                 ),
               ),
               const SizedBox(height: 36),
@@ -1933,7 +2485,10 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
-                      BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 20, offset: const Offset(0, 8)),
+                      BoxShadow(
+                          color: Colors.black.withOpacity(0.15),
+                          blurRadius: 20,
+                          offset: const Offset(0, 8)),
                     ],
                   ),
                   child: Column(
@@ -1947,12 +2502,18 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                               color: const Color(0xFF16A34A).withOpacity(0.1),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.account_balance_wallet_outlined, color: Color(0xFF16A34A), size: 20),
+                            child: const Icon(
+                                Icons.account_balance_wallet_outlined,
+                                color: Color(0xFF16A34A),
+                                size: 20),
                           ),
                           const SizedBox(width: 12),
                           const Text(
                             'Your Account Number',
-                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF6B7280)),
+                            style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF6B7280)),
                           ),
                         ],
                       ),
@@ -1968,7 +2529,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                       ),
                       const SizedBox(height: 12),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 8),
                         decoration: BoxDecoration(
                           color: const Color(0xFFF0FDF4),
                           borderRadius: BorderRadius.circular(20),
@@ -1977,11 +2539,15 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: const [
-                            Icon(Icons.phone_outlined, size: 14, color: Color(0xFF16A34A)),
+                            Icon(Icons.phone_outlined,
+                                size: 14, color: Color(0xFF16A34A)),
                             SizedBox(width: 6),
                             Text(
                               'Your phone number is also your account number',
-                              style: TextStyle(fontSize: 11, color: Color(0xFF166534), fontWeight: FontWeight.w500),
+                              style: TextStyle(
+                                  fontSize: 11,
+                                  color: Color(0xFF166534),
+                                  fontWeight: FontWeight.w500),
                             ),
                           ],
                         ),
@@ -1991,12 +2557,16 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                       const SizedBox(height: 14),
                       Row(
                         children: const [
-                          Icon(Icons.info_outline, size: 14, color: Color(0xFF6B7280)),
+                          Icon(Icons.info_outline,
+                              size: 14, color: Color(0xFF6B7280)),
                           SizedBox(width: 6),
                           Expanded(
                             child: Text(
                               'You can receive transfers using your phone number or this account number',
-                              style: TextStyle(fontSize: 11, color: Color(0xFF6B7280), height: 1.4),
+                              style: TextStyle(
+                                  fontSize: 11,
+                                  color: Color(0xFF6B7280),
+                                  height: 1.4),
                             ),
                           ),
                         ],
@@ -2010,20 +2580,27 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
               GestureDetector(
                 onTap: () => context.go('/home'),
                 child: Container(
-                  margin: EdgeInsets.fromLTRB(24, 0, 24, MediaQuery.of(context).padding.bottom + 20),
+                  margin: EdgeInsets.fromLTRB(
+                      24, 0, 24, MediaQuery.of(context).padding.bottom + 20),
                   width: double.infinity,
                   height: 54,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
-                      BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 12, offset: const Offset(0, 4)),
+                      BoxShadow(
+                          color: Colors.black.withOpacity(0.15),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4)),
                     ],
                   ),
                   child: const Center(
                     child: Text(
                       'Go to Dashboard',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF00B252)),
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF00B252)),
                     ),
                   ),
                 ),
@@ -2041,7 +2618,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     // Always treat as enabled — onTap may be null only during loading
     final enabled = !loading;
     return Container(
-      padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
+      padding: EdgeInsets.fromLTRB(
+          20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
       decoration: const BoxDecoration(
         color: Colors.white,
         border: Border(top: BorderSide(color: Color(0xFFF3F4F6))),
@@ -2065,7 +2643,12 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           ),
           child: Center(
             child: loading
-                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)))
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation(Colors.white)))
                 : Text(
                     label ?? 'Continue',
                     style: TextStyle(
@@ -2080,35 +2663,54 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     );
   }
 
-  Widget _buildNumPad({required void Function(String) onDigit, required VoidCallback onDelete}) {
-    const rows = [['1','2','3'],['4','5','6'],['7','8','9'],['','0','⌫']];
+  Widget _buildNumPad(
+      {required void Function(String) onDigit,
+      required VoidCallback onDelete}) {
+    const rows = [
+      ['1', '2', '3'],
+      ['4', '5', '6'],
+      ['7', '8', '9'],
+      ['', '0', '⌫']
+    ];
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
-        children: rows.map((row) => Row(
-          children: row.map((key) {
-            if (key.isEmpty) return const Expanded(child: SizedBox());
-            return Expanded(
-              child: GestureDetector(
-                onTap: () => key == '⌫' ? onDelete() : onDigit(key),
-                child: Container(
-                  margin: const EdgeInsets.all(6),
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 4, offset: const Offset(0, 2))],
-                  ),
-                  child: Center(
-                    child: key == '⌫'
-                        ? const Icon(Icons.backspace_outlined, size: 20, color: Color(0xFF374151))
-                        : Text(key, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Color(0xFF111827))),
-                  ),
-                ),
-              ),
-            );
-          }).toList(),
-        )).toList(),
+        children: rows
+            .map((row) => Row(
+                  children: row.map((key) {
+                    if (key.isEmpty) return const Expanded(child: SizedBox());
+                    return Expanded(
+                      child: GestureDetector(
+                        onTap: () => key == '⌫' ? onDelete() : onDigit(key),
+                        child: Container(
+                          margin: const EdgeInsets.all(6),
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                  color: Colors.black.withOpacity(0.04),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2))
+                            ],
+                          ),
+                          child: Center(
+                            child: key == '⌫'
+                                ? const Icon(Icons.backspace_outlined,
+                                    size: 20, color: Color(0xFF374151))
+                                : Text(key,
+                                    style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFF111827))),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ))
+            .toList(),
       ),
     );
   }
@@ -2116,16 +2718,27 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   InputDecoration _inputDec({String hint = '', Widget? suffix}) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(color: Color(0xFFD1D5DB), fontSize: 14, fontFamily: 'Effra'),
+      hintStyle: const TextStyle(
+          color: Color(0xFFD1D5DB), fontSize: 14, fontFamily: 'Effra'),
       suffixIcon: suffix,
       filled: true,
       fillColor: Colors.white,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF16A34A), width: 1.5)),
-      errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.red)),
-      focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Colors.red, width: 1.5)),
+      border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+      enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+      focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFF16A34A), width: 1.5)),
+      errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.red)),
+      focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.red, width: 1.5)),
     );
   }
 
@@ -2150,8 +2763,13 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           validator: validator,
           keyboardType: keyboard,
           textCapitalization: capitalize,
-          style: const TextStyle(fontSize: 14, color: Color(0xFF111827), fontFamily: 'Effra'),
-          decoration: _inputDec(hint: hint, suffix: Padding(padding: const EdgeInsets.only(right: 12), child: Icon(icon, color: const Color(0xFF9CA3AF), size: 18))),
+          style: const TextStyle(
+              fontSize: 14, color: Color(0xFF111827), fontFamily: 'Effra'),
+          decoration: _inputDec(
+              hint: hint,
+              suffix: Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: Icon(icon, color: const Color(0xFF9CA3AF), size: 18))),
         ),
       ],
     );
@@ -2174,11 +2792,13 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           obscureText: obscure,
           onChanged: onChanged,
           validator: validator,
-          style: const TextStyle(fontSize: 14, color: Color(0xFF111827), fontFamily: 'Effra'),
+          style: const TextStyle(
+              fontSize: 14, color: Color(0xFF111827), fontFamily: 'Effra'),
           decoration: _inputDec(hint: hint).copyWith(
             suffixIcon: IconButton(
               onPressed: onToggle,
-              icon: Icon(obscure ? Icons.visibility_off : Icons.visibility, color: const Color(0xFF9CA3AF), size: 18),
+              icon: Icon(obscure ? Icons.visibility_off : Icons.visibility,
+                  color: const Color(0xFF9CA3AF), size: 18),
             ),
           ),
         ),
@@ -2211,21 +2831,31 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
               value ?? hint,
               style: TextStyle(
                 fontSize: 14,
-                color: value != null ? const Color(0xFF111827) : const Color(0xFFD1D5DB),
+                color: value != null
+                    ? const Color(0xFF111827)
+                    : const Color(0xFFD1D5DB),
               ),
             ),
           ),
-          Icon(Icons.keyboard_arrow_down, color: enabled ? const Color(0xFF6B7280) : const Color(0xFFD1D5DB), size: 20),
+          Icon(Icons.keyboard_arrow_down,
+              color:
+                  enabled ? const Color(0xFF6B7280) : const Color(0xFFD1D5DB),
+              size: 20),
         ],
       ),
     );
   }
 
   Widget _sectionLabel(String label) {
-    return Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF374151)));
+    return Text(label,
+        style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF374151)));
   }
 
-  void _showOptionsSheet(String title, List<String> options, void Function(String) onSelect) {
+  void _showOptionsSheet(
+      String title, List<String> options, void Function(String) onSelect) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -2235,34 +2865,46 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 20),
+        padding:
+            EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const SizedBox(height: 12),
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFE5E7EB), borderRadius: BorderRadius.circular(2))),
+            Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                    color: const Color(0xFFE5E7EB),
+                    borderRadius: BorderRadius.circular(2))),
             const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Text(title, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: Color(0xFF111827))),
+              child: Text(title,
+                  style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF111827))),
             ),
             const SizedBox(height: 8),
             const Divider(),
             ...options.map((o) => ListTile(
-              title: Text(o, style: const TextStyle(fontSize: 15)),
-              trailing: const Icon(Icons.chevron_right, color: Color(0xFFD1D5DB)),
-              onTap: () {
-                onSelect(o);
-                Navigator.pop(context);
-              },
-            )),
+                  title: Text(o, style: const TextStyle(fontSize: 15)),
+                  trailing:
+                      const Icon(Icons.chevron_right, color: Color(0xFFD1D5DB)),
+                  onTap: () {
+                    onSelect(o);
+                    Navigator.pop(context);
+                  },
+                )),
           ],
         ),
       ),
     );
   }
 
-  void _showSearchSheet(String title, List<String> options, void Function(String) onSelect) {
+  void _showSearchSheet(
+      String title, List<String> options, void Function(String) onSelect) {
     final searchCtrl = TextEditingController();
     List<String> filtered = List.from(options);
 
@@ -2280,11 +2922,18 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           child: Column(
             children: [
               const SizedBox(height: 12),
-              Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFE5E7EB), borderRadius: BorderRadius.circular(2))),
+              Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                      color: const Color(0xFFE5E7EB),
+                      borderRadius: BorderRadius.circular(2))),
               const SizedBox(height: 16),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Text(title, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+                child: Text(title,
+                    style: const TextStyle(
+                        fontSize: 17, fontWeight: FontWeight.w700)),
               ),
               const SizedBox(height: 12),
               Padding(
@@ -2292,11 +2941,15 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                 child: TextField(
                   controller: searchCtrl,
                   decoration: _inputDec(hint: 'Search...').copyWith(
-                    prefixIcon: const Icon(Icons.search, color: Color(0xFF9CA3AF), size: 18),
+                    prefixIcon: const Icon(Icons.search,
+                        color: Color(0xFF9CA3AF), size: 18),
                   ),
                   onChanged: (q) {
                     setS(() {
-                      filtered = options.where((o) => o.toLowerCase().contains(q.toLowerCase())).toList();
+                      filtered = options
+                          .where(
+                              (o) => o.toLowerCase().contains(q.toLowerCase()))
+                          .toList();
                     });
                   },
                 ),
@@ -2306,7 +2959,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                 child: ListView.builder(
                   itemCount: filtered.length,
                   itemBuilder: (_, i) => ListTile(
-                    title: Text(filtered[i], style: const TextStyle(fontSize: 14)),
+                    title:
+                        Text(filtered[i], style: const TextStyle(fontSize: 14)),
                     onTap: () {
                       onSelect(filtered[i]);
                       Navigator.pop(context);
@@ -2343,7 +2997,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       ),
     );
     if (picked != null) {
-      final formatted = '${picked.day.toString().padLeft(2, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.year}';
+      final formatted =
+          '${picked.day.toString().padLeft(2, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.year}';
       setState(() {
         _birthdayController.text = formatted;
         _personalInfo.dateOfBirth = formatted;
@@ -2411,22 +3066,27 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
 
   String? _validateEmail(String? value) {
     if (value == null || value.trim().isEmpty) return null;
-    final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
-    if (!emailRegex.hasMatch(value.trim())) return 'Please enter a valid email address';
+    final emailRegex =
+        RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+    if (!emailRegex.hasMatch(value.trim()))
+      return 'Please enter a valid email address';
     return null;
   }
 
   String? _validateName(String? value, String fieldName) {
     if (value == null || value.trim().isEmpty) return '$fieldName is required';
-    if (value.trim().length < 2) return '$fieldName must be at least 2 characters';
-    if (!RegExp(r"^[a-zA-Z\s\-']+$").hasMatch(value.trim())) return '$fieldName contains invalid characters';
+    if (value.trim().length < 2)
+      return '$fieldName must be at least 2 characters';
+    if (!RegExp(r"^[a-zA-Z\s\-']+$").hasMatch(value.trim()))
+      return '$fieldName contains invalid characters';
     return null;
   }
 
   String? _validatePassword(String? value) {
     if (value == null || value.isEmpty) return 'Password is required';
     if (value.length < 8) return 'Password must be at least 8 characters';
-    if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)').hasMatch(value)) return 'Must contain uppercase, lowercase, and number';
+    if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)').hasMatch(value))
+      return 'Must contain uppercase, lowercase, and number';
     return null;
   }
 
@@ -2437,7 +3097,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   }
 
   String? _validateDateOfBirth(String? value) {
-    if (value == null || value.trim().isEmpty) return 'Date of birth is required';
+    if (value == null || value.trim().isEmpty)
+      return 'Date of birth is required';
     try {
       final parts = value.split('-');
       if (parts.length != 3) return 'Please select a valid date';
@@ -2445,8 +3106,10 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       final month = int.parse(parts[1]);
       final year = int.parse(parts[2]);
       final birthDate = DateTime(year, month, day);
-      final eighteenYearsAgo = DateTime(DateTime.now().year - 18, DateTime.now().month, DateTime.now().day);
-      if (birthDate.isAfter(eighteenYearsAgo)) return 'You must be at least 18 years old';
+      final eighteenYearsAgo = DateTime(
+          DateTime.now().year - 18, DateTime.now().month, DateTime.now().day);
+      if (birthDate.isAfter(eighteenYearsAgo))
+        return 'You must be at least 18 years old';
       return null;
     } catch (_) {
       return 'Please select a valid date';
@@ -2457,14 +3120,24 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
 
   Future<Position?> getCurrentLocation() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) { _snack('Location services are disabled'); return null; }
+    if (!serviceEnabled) {
+      _snack('Location services are disabled');
+      return null;
+    }
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) { _snack('Location permissions are denied'); return null; }
+      if (permission == LocationPermission.denied) {
+        _snack('Location permissions are denied');
+        return null;
+      }
     }
-    if (permission == LocationPermission.deniedForever) { _snack('Location permissions are permanently denied'); return null; }
-    return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    if (permission == LocationPermission.deniedForever) {
+      _snack('Location permissions are permanently denied');
+      return null;
+    }
+    return await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
   }
 
   Future<void> _onLocateMePressed() async {
@@ -2473,22 +3146,32 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       final position = await getCurrentLocation();
       if (position != null) {
         try {
-          final placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+          final placemarks = await placemarkFromCoordinates(
+              position.latitude, position.longitude);
           if (placemarks.isNotEmpty) {
             final p = placemarks.first;
-            String address = [p.street, p.subLocality, p.locality, p.administrativeArea, p.country]
-                .where((s) => s?.isNotEmpty == true).join(', ');
+            String address = [
+              p.street,
+              p.subLocality,
+              p.locality,
+              p.administrativeArea,
+              p.country
+            ].where((s) => s?.isNotEmpty == true).join(', ');
             setState(() {
               _addressController.text = address;
               _personalInfo.residentialAddress = address;
-              selectedCoordinate = Prediction(lat: position.latitude.toString(), lng: position.longitude.toString(), description: address);
+              selectedCoordinate = Prediction(
+                  lat: position.latitude.toString(),
+                  lng: position.longitude.toString(),
+                  description: address);
               _personalInfo.currentLat = position.latitude;
               _personalInfo.currentLng = position.longitude;
             });
           }
         } catch (_) {
           setState(() {
-            _addressController.text = 'Current Location (${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)})';
+            _addressController.text =
+                'Current Location (${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)})';
             _personalInfo.residentialAddress = _addressController.text;
           });
         }
@@ -2505,13 +3188,25 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   Future<void> _initializeCamera() async {
     try {
       final cameras = await availableCameras();
-      if (cameras.isEmpty) { setState(() => _cameraError = 'No camera found'); return; }
-      final front = cameras.firstWhere((c) => c.lensDirection == CameraLensDirection.front, orElse: () => cameras.first);
+      if (cameras.isEmpty) {
+        setState(() => _cameraError = 'No camera found');
+        return;
+      }
+      final front = cameras.firstWhere(
+          (c) => c.lensDirection == CameraLensDirection.front,
+          orElse: () => cameras.first);
       _cameraController = CameraController(front, ResolutionPreset.medium);
       await _cameraController!.initialize();
-      if (mounted) setState(() { _cameraActive = true; _cameraError = null; });
+      if (mounted)
+        setState(() {
+          _cameraActive = true;
+          _cameraError = null;
+        });
     } catch (e) {
-      setState(() { _cameraError = 'Failed to initialize camera: $e'; _cameraActive = false; });
+      setState(() {
+        _cameraError = 'Failed to initialize camera: $e';
+        _cameraActive = false;
+      });
     }
   }
 
@@ -2520,19 +3215,26 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     if (status.isGranted) {
       await _initializeCamera();
     } else {
-      setState(() { _permissionDenied = true; _cameraError = 'Camera permission denied.'; });
+      setState(() {
+        _permissionDenied = true;
+        _cameraError = 'Camera permission denied.';
+      });
     }
   }
 
   Future<void> _capturePhoto() async {
-    if (_cameraController == null || !_cameraController!.value.isInitialized) return;
+    if (_cameraController == null || !_cameraController!.value.isInitialized)
+      return;
     try {
       final image = await _cameraController!.takePicture();
-      setState(() { _capturedImage = image.path; _cameraActive = false; });
+      setState(() {
+        _capturedImage = image.path;
+        _cameraActive = false;
+      });
       _cameraController?.dispose();
       _cameraController = null;
-      // Navigate to KYC complete screen
-      if (mounted) _animateTo(AccountStep.kycComplete);
+      // Navigate to personal details after face validation
+      if (mounted) _animateTo(AccountStep.personalDetails);
     } catch (e) {
       setState(() => _cameraError = 'Failed to capture photo: $e');
     }
@@ -2550,6 +3252,7 @@ class _OFloatingField extends StatefulWidget {
   final TextCapitalization textCapitalization;
   final void Function(String)? onChanged;
   final Widget? suffix;
+  final IconData? prefixIcon;
   final bool obscureText;
   final bool readOnly;
 
@@ -2562,6 +3265,7 @@ class _OFloatingField extends StatefulWidget {
     this.textCapitalization = TextCapitalization.none,
     this.onChanged,
     this.suffix,
+    this.prefixIcon,
     this.obscureText = false,
     this.readOnly = false,
   });
@@ -2631,7 +3335,9 @@ class _OFloatingFieldState extends State<_OFloatingField> {
                   fontSize: isActive ? 11 : 15,
                   fontWeight: FontWeight.w500,
                   height: 1.2,
-                  color: isActive ? const Color(0xFF16A34A) : const Color(0xFF9CA3AF),
+                  color: isActive
+                      ? const Color(0xFF16A34A)
+                      : const Color(0xFF9CA3AF),
                 ),
                 child: Text(widget.label),
               ),
@@ -2727,7 +3433,9 @@ class _OFloatingFieldStatic extends StatelessWidget {
                 fontSize: hasValue ? 11 : 15,
                 fontWeight: FontWeight.w500,
                 height: 1.2,
-                color: hasValue ? const Color(0xFF16A34A) : const Color(0xFF9CA3AF),
+                color: hasValue
+                    ? const Color(0xFF16A34A)
+                    : const Color(0xFF9CA3AF),
               ),
               child: Text(hasValue ? label : hint),
             ),
@@ -2775,7 +3483,11 @@ class _CbnFooter extends StatelessWidget {
         children: const [
           Icon(Icons.verified, color: Color(0xFF16A34A), size: 14),
           SizedBox(width: 5),
-          Text('Licensed by the CBN', style: TextStyle(fontSize: 12, color: Color(0xFF6B7280), fontWeight: FontWeight.w500)),
+          Text('Licensed by the CBN',
+              style: TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF6B7280),
+                  fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -2825,8 +3537,13 @@ class _CParticle {
   final double wobbleSpeed;
 
   static const _colors = [
-    Color(0xFF16A34A), Color(0xFF4ADE80), Color(0xFFFBBF24),
-    Color(0xFF60A5FA), Color(0xFFF472B6), Color(0xFFA78BFA), Color(0xFFFB7185),
+    Color(0xFF16A34A),
+    Color(0xFF4ADE80),
+    Color(0xFFFBBF24),
+    Color(0xFF60A5FA),
+    Color(0xFFF472B6),
+    Color(0xFFA78BFA),
+    Color(0xFFFB7185),
   ];
 
   _CParticle(math.Random rng)
@@ -2853,14 +3570,16 @@ class _CConfettiPainter extends CustomPainter {
       if (t <= 0) continue;
       final dy = p.startY + t * 1.3;
       if (dy > 1.1) continue;
-      final dx = p.x + math.sin(t * math.pi * 2 * p.wobbleSpeed) * p.wobble / size.width;
+      final dx = p.x +
+          math.sin(t * math.pi * 2 * p.wobbleSpeed) * p.wobble / size.width;
       paint.color = p.color.withOpacity((1 - t * 0.5).clamp(0.0, 1.0));
       canvas.save();
       canvas.translate(dx * size.width, dy * size.height);
       canvas.rotate(t * math.pi * 4);
       canvas.drawRRect(
         RRect.fromRectAndRadius(
-          Rect.fromCenter(center: Offset.zero, width: p.size, height: p.size * 0.5),
+          Rect.fromCenter(
+              center: Offset.zero, width: p.size, height: p.size * 0.5),
           const Radius.circular(2),
         ),
         paint,

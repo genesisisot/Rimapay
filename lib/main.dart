@@ -22,6 +22,27 @@ import 'core/localization/app_localizations.dart';
 
 //flutter build appbundle --release --flavor production -t lib/mainProd.dart
 
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Hive
+  await Hive.initFlutter();
+
+  // Set preferred orientations
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
+  // Set system UI overlay style
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.dark,
+  ));
+
+  runApp(const ProviderScope(child: RimaPayApp()));
+}
+
 class RimaPayApp extends ConsumerStatefulWidget {
   static late WidgetRef globalRef;
   const RimaPayApp({super.key});

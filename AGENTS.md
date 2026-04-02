@@ -1,434 +1,172 @@
-# AGENTS.md - Development Guide for RimaPay
+# AGENTS.md - RimaPay Development Guide
 
-This document provides guidelines for AI agents working on the RimaPay Flutter project.
+RimaPay is a Flutter mobile wallet app using Riverpod, go_router, and clean architecture.
 
-## Project Overview
-
-RimaPay is a modern mobile wallet and bill-pay app inspired by Chipper Cash, Kuda Bank, and Opay. Built with Flutter, it uses Riverpod for state management, go_router for navigation, and follows clean architecture principles.
-
-## Build Commands
-
-### Running the App
+## Build & Run Commands
 
 ```bash
-# Development (default entry point)
-flutter run
+# Run app
+flutter run                              # dev (default)
+flutter run -t lib/mainStaging.dart      # staging environment
+flutter run -t lib/mainProd.dart         # production environment
+flutter run -d chrome                    # specific device
+flutter devices                          # list available devices
 
-# Staging environment
-flutter run -t lib/mainStaging.dart
-
-# Production environment
-flutter run -t lib/mainProd.dart
-
-# Run on specific device
-flutter run -d chrome
-flutter run -d windows
-flutter run -d <device-id>
-
-# List available devices
-flutter devices
-```
-
-### Building
-
-```bash
-# Build debug APK
+# Build
 flutter build apk --debug
-
-# Build release APK
 flutter build apk --release
-
-# Build iOS (macOS only)
-flutter build ios --release
-
-# Build web
 flutter build web --release
 
-# Build for specific flavor
-flutter build apk --debug -t lib/mainStaging.dart
-```
+# Test
+flutter test                             # run all tests
+flutter test test/widget_test.dart       # run single test file
+flutter test --name "test name"          # run tests matching pattern
+flutter test test/path/to/file_test.dart -n "specific test name"  # single test
 
-### Testing
-
-```bash
-# Run all tests
-flutter test
-
-# Run a single test file
-flutter test test/widget_test.dart
-
-# Run a specific test by name
-flutter test --name "Counter increments"
-
-# Run tests with verbose output
-flutter test -v
-
-# Run tests with coverage
-flutter test --coverage
-```
-
-### Code Analysis & Linting
-
-```bash
-# Run static analysis
+# Lint & Analyze
 flutter analyze
-
-# Fix auto-fixable issues
 flutter analyze --fix
-```
 
-### Dependency Management
-
-```bash
-# Get dependencies
+# Dependencies & Code Generation
 flutter pub get
-
-# Upgrade dependencies
-flutter pub upgrade
-
-# Run build_runner for code generation
-dart run build_runner build
-
-# Clean and rebuild
-flutter clean && flutter pub get
+dart run build_runner build              # run code generation
+dart run build_runner build --delete-conflicting-outputs  # regenerate
 ```
 
-## Code Style Guidelines
-
-### Project Structure
+## Project Structure
 
 ```
 lib/
-├── core/                    # Shared utilities, theme, providers, services
-│   ├── providers/          # Riverpod providers
-│   ├── services/           # Core services (storage, biometric, etc.)
-│   ├── theme/              # App theme, colors, text styles, spacing
-│   ├── router/             # GoRouter configuration
-│   └── localization/       # Localization
-├── features/               # Feature modules (feature-driven architecture)
-│   ├── auth/
-│   │   ├── data/           # Data layer (repositories, data sources)
-│   │   ├── domain/         # Business logic (entities, use cases)
-│   │   └── presentation/  # UI layer (screens, widgets)
-│   ├── home/
-│   ├── bills/
-│   └── ...
-├── shared/                 # Shared widgets and components
-├── Services/              # Legacy services (being migrated)
-├── Models/                # Data models
-├── Utils/                 # Utility functions
-└── Constants/            # App constants and strings
+├── core/           # theme, providers, services, router, constants
+├── features/       # feature-driven modules (auth/, home/, bills/, wallet/)
+├── shared/         # reusable widgets, components
+├── Services/       # legacy services (migrating to features/)
+├── Models/         # data models
+└── Utils/         # helpers, extensions
 ```
+
+## Code Style
 
 ### Naming Conventions
+- Files: `snake_case.dart` (home_screen.dart, auth_provider.dart)
+- Classes/Widgets: `PascalCase` (HomeScreen, AuthProvider)
+- Variables/Methods: `camelCase` (userName, isLoading)
+- Private members: `_privateVariable` (leading underscore)
 
-**Files:**
-- Use snake_case: `home_screen.dart`, `auth_provider.dart`, `user_model.dart`
-- Screens: `{feature}_screen.dart` or `{name}_screen.dart`
-- Providers: `{name}_provider.dart`
-- Widgets: `{name}_widget.dart` or `{name}.dart`
-
-**Classes:**
-- PascalCase: `class HomeScreen`, `class AuthProvider`, `class User`
-- Use descriptive names: `OtpService`, `TransactionProvider`
-
-**Variables & Methods:**
-- camelCase: `userName`, `isLoading`, `getUserData()`
-- Private members: `_privateVariable`, `_privateMethod()`
-
-**Constants:**
-- PascalCase for class constants: `class AppConstants`
-- UPPER_SNAKE_CASE for enum values: `TierLevel.tier1`
-
-### Imports
-
-**Order (recommended):**
-1. Dart core imports
-2. Flutter/Third-party package imports
-3. Project imports (relative paths)
+### Imports (order matters)
+1. Dart core (`dart:convert`, `dart:async`)
+2. Flutter (`flutter/material.dart`)
+3. Third-party packages (`go_router`, `dio`)
+4. Project imports (relative paths)
 
 ```dart
-// Dart core
 import 'dart:convert';
-import 'dart:async';
-
-// Flutter
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-// Third-party
 import 'package:go_router/go_router.dart';
-
-// Project
-import '../../../core/theme/app_colors.dart';
-import '../../auth/presentation/providers/auth_provider.dart';
+import '../../core/theme/app_colors.dart';
 ```
 
-### Widgets & UI
-
-- Use `const` constructors where possible
-- Prefer `ConsumerStatefulWidget` when using Riverpod with state
-- Extract reusable widgets into separate files
+### Widget Guidelines
+- Use `const` constructors wherever possible
+- Use `ConsumerStatefulWidget` with Riverpod for stateful features
 - Use trailing commas for better formatting
+- Extract reusable UI into `shared/widgets/`
 
 ```dart
-// Good
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
-
   @override
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
-}
-
-// Use trailing commas
-Widget build(BuildContext context) {
-  return Column(
-    children: [
-      const Text('Hello'),
-      const SizedBox(height: 16),
-      ElevatedButton(
-        onPressed: () {},
-        child: const Text('Click'),
-      ),
-    ],
-  );
 }
 ```
 
 ### State Management (Riverpod)
-
-**Providers:**
 ```dart
-// Simple provider
-final authProvider = Provider<AuthService>((ref) => AuthService());
+// Provider (read-only)
+final authServiceProvider = Provider<AuthService>((ref) => AuthService());
 
-// StateNotifier provider
-final userProvider = StateNotifierProvider<UserNotifier, User?>((ref) {
-  return UserNotifier(ref.read(authProvider));
-});
+// StateNotifier (mutable state)
+final userProvider = StateNotifierProvider<UserNotifier, User?>((ref) => UserNotifier());
 
-// Future provider
-final userDataProvider = FutureProvider<User>((ref) async {
-  return await ref.read(authProvider).getUser();
-});
-```
-
-**Consumer Usage:**
-```dart
-// For reading providers
+// Usage
 final user = ref.watch(userProvider);
-final isLoading = ref.watch(isLoadingProvider);
-
-// For actions
 ref.read(userProvider.notifier).updateUser(newUser);
 ```
 
 ### Error Handling
 
-**Service Layer:**
+**Services** - return typed responses:
 ```dart
-Future<OtpResponse> verifyOtp(OtpParams params) async {
+Future<OtpResponse> verifyOtp(params) async {
   try {
-    final response = await http.post(...);
-    
-    if (response.statusCode == 200) {
-      // Handle success
-      return OtpResponse(status: "success", model: data);
-    } else {
-      // Handle API error
-      return OtpResponse(
-        errmessage: errorMessage,
-        status: "failed",
-      );
-    }
-  } on SocketException catch (_) {
-    return OtpResponse(errmessage: NETWORK_ERROR, status: "failed");
-  } on TimeoutException catch (_) {
-    return OtpResponse(errmessage: TIME_OUT_ERROR, status: "failed");
-  } catch (e) {
-    return OtpResponse(
-      errmessage: AN_ERROR_OCCURED_WHILE_PROCESSING_YOUR_REQUEST_PLEASE_TRY_AGAIN,
-      status: "failed",
-    );
-  }
+    final response = await dio.post('/otp/verify', data: params);
+    if (response.statusCode == 200) return OtpResponse(status: "success");
+    return OtpResponse(errmessage: "error", status: "failed");
+  } on SocketException catch (_) => OtpResponse(errmessage: NETWORK_ERROR);
 }
 ```
 
-**Provider Layer:**
+**Providers/Notifiers** - manage UI state:
 ```dart
 Future<bool> login(String email, String password) async {
-  _isLoading = true;
-  _error = null;
-  notifyListeners();
-  
+  _isLoading = true; notifyListeners();
   try {
-    // API call
     _user = await authService.login(email, password);
-    await StorageService.saveUser(_user!);
     return true;
-  } catch (e) {
-    _error = e.toString();
-    return false;
-  } finally {
-    _isLoading = false;
-    notifyListeners();
-  }
+  } catch (e) { _error = e.toString(); return false; }
+  finally { _isLoading = false; notifyListeners(); }
 }
 ```
 
-### Models & Data
-
-**JSON Serialization:**
+### Models
 ```dart
 class User {
-  final String id;
-  final String email;
-  
+  final String id, email;
   User({required this.id, required this.email});
   
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      id: json['id'],
-      email: json['email'],
-    );
-  }
+  factory User.fromJson(Map<String, dynamic> json) => 
+      User(id: json['id'], email: json['email']);
   
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'email': email,
-  };
+  Map<String, dynamic> toJson() => {'id': id, 'email': email};
   
-  User copyWith({String? id, String? email}) {
-    return User(
-      id: id ?? this.id,
-      email: email ?? this.email,
-    );
-  }
+  User copyWith({String? id, String? email}) => 
+      User(id: id ?? this.id, email: email ?? this.email);
 }
 ```
 
-### Theme & Styling
-
-**Colors:** Use `AppColors` from `core/theme/app_colors.dart`
-**Text Styles:** Use `AppTextStyles` from `core/theme/app_text_styles.dart`
-**Spacing:** Use `AppSpacing` from `core/theme/app_spacing.dart`
-
-```dart
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_text_styles.dart';
-
-// Usage
-Text(
-  'Hello',
-  style: AppTextStyles.heading1.copyWith(color: AppColors.primary),
-)
-```
-
-### Navigation
-
-**GoRouter:**
-```dart
-final router = GoRouter(
-  initialLocation: '/',
-  routes: [
-    GoRoute(
-      path: '/home',
-      builder: (context, state) => const HomeScreen(),
-    ),
-  ],
-);
-```
-
-**Navigation:**
-```dart
-// Push
-context.push('/route');
-
-// Replace
-context.go('/route');
-
-// With parameters
-context.push('/user/${user.id}');
-```
-
-### Testing Guidelines
-
-- Place tests in `test/` directory mirroring `lib/` structure
-- Use `flutter_test` package
-- Follow naming: `feature_name_test.dart`
-
-```dart
-import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-void main() {
-  testWidgets('Home screen displays balance', (WidgetTester tester) async {
-    await tester.pumpWidget(
-      const ProviderScope(
-        child: MyApp(),
-      ),
-    );
-    
-    expect(find.text('Available Balance'), findsOneWidget);
-  });
-}
-```
-
-### Linting
-
-The project uses `flutter_lints` with the default recommended set. Key rules:
-- Avoid print statements (use `dart:developer` logging)
-- Use `const` where possible
-- Prefer single quotes for strings
-- Sort imports alphabetically within groups
-
-### API Patterns
-
-**Base URL:** Configured via flavor configs (see `mainStaging.dart`, `mainProd.dart`)
-
-**Error Responses:** Return typed response objects with status and message
-```dart
-class ApiResponse<T> {
-  final T? data;
-  final String? error;
-  final bool isSuccess;
-}
-```
-
-## Common Issues & Solutions
-
-### Build Runner Issues
-If code generation fails:
-```bash
-flutter clean
-flutter pub get
-dart run build_runner build --delete-conflicting-outputs
-```
-
-### Android Build Issues
-```bash
-# Clean gradle cache
-cd android && ./gradlew clean
-```
-
-### Web Build Issues
-```bash
-flutter clean
-flutter pub get
-flutter build web
-```
+### Theme & Navigation
+- Colors: `AppColors` (`core/theme/app_colors.dart`)
+- Text: `AppTextStyles` (`core/theme/app_text_styles.dart`)
+- Spacing: `AppSpacing` (`core/theme/app_spacing.dart`)
+- Navigation: Use GoRouter `context.push('/home')` or `context.push('/user/${user.id}')`
 
 ## Key Dependencies
+- State: `flutter_riverpod ^2.4.9`
+- Router: `go_router ^16.2.1`
+- HTTP: `dio ^5.3.3`, `retrofit ^4.0.3`
+- Storage: `shared_preferences`, `hive`
 
-- **State Management:** `flutter_riverpod: ^2.4.9`
-- **Navigation:** `go_router: ^16.2.1`
-- **HTTP:** `dio: ^5.3.3`, `retrofit: ^4.0.3`
-- **Storage:** `shared_preferences: ^2.2.2`, `hive: ^2.2.3`
-- **UI:** `flutter_svg`, `cached_network_image`, `flutter_animate`
-- **Forms:** `flutter_form_builder`, `form_builder_validators`
+## Linting Rules
+- Uses `flutter_lints`
+- Avoid `print` statements (use `dart:developer` package)
+- Prefer `const` constructors and single quotes
+- Sort imports alphabetically
+- Use explicit return types on public methods
 
-## Environment Entry Points
+## Formatting & Typing
+- Avoid `dynamic` - use specific types or `Object?`
+- Use `late` for late-initialized fields
+- Nullable types: `String?` not `String | null`
 
-- `lib/main.dart` - Default/dev environment
-- `lib/mainStaging.dart` - Staging environment
-- `lib/mainProd.dart` - Production environment
+## Testing
+- Tests live in `test/` matching lib structure
+- Use `flutter_test` matchers: `expect(find.byType(Text), findsOneWidget)`
+- Mock services with `Mocktail` or manual mocks
+- Test Riverpod providers with `ProviderScope` overrides
+
+## Widget Performance Tips
+- Use `CustomScrollView` with `Sliver` lists for long lists
+- Wrap complex custom paints in `RepaintBoundary`
+- Use `const` constructors everywhere possible
+- Avoid rebuilding widgets unnecessarily with `select` or `selectAll`

@@ -134,18 +134,23 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: _fadeController, curve: Curves.easeOut));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+        CurvedAnimation(parent: _fadeController, curve: Curves.easeOut));
 
-    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: _scaleController, curve: Curves.easeOut));
+    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+        CurvedAnimation(parent: _scaleController, curve: Curves.easeOut));
 
-    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.3).animate(CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut));
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.3).animate(
+        CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut));
 
-    _rotationAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: _rotationController, curve: Curves.linear));
+    _rotationAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+        CurvedAnimation(parent: _rotationController, curve: Curves.linear));
 
     _shimmerAnimation = Tween<Offset>(
       begin: const Offset(-1.0, 0.0),
       end: const Offset(1.0, 0.0),
-    ).animate(CurvedAnimation(parent: _shimmerController, curve: Curves.linear));
+    ).animate(
+        CurvedAnimation(parent: _shimmerController, curve: Curves.linear));
 
     _fadeController.forward();
     _scaleController.forward();
@@ -161,7 +166,8 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
       final availableBiometrics = await _localAuth.getAvailableBiometrics();
 
       setState(() {
-        _biometricSupported = isAvailable && isDeviceSupported && availableBiometrics.isNotEmpty;
+        _biometricSupported =
+            isAvailable && isDeviceSupported && availableBiometrics.isNotEmpty;
       });
     } catch (e) {
       setState(() {
@@ -175,7 +181,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
       _showErrorMessage('Please fill in all fields');
       return;
     }
-   
+
     setState(() {
       _isLoading = true;
     });
@@ -194,7 +200,8 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
 
   Future<void> _handleBiometricLogin() async {
     if (!_biometricSupported) {
-      _showErrorMessage('Biometric authentication is not supported on this device');
+      _showErrorMessage(
+          'Biometric authentication is not supported on this device');
       return;
     }
 
@@ -282,12 +289,14 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                     behavior: HitTestBehavior.opaque,
                     onTap: () => context.pop(),
                     child: Container(
-                      width: 40, height: 40,
+                      width: 40,
+                      height: 40,
                       decoration: BoxDecoration(
                         color: const Color(0xFFF3F4F6),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF374151), size: 17),
+                      child: const Icon(Icons.arrow_back_ios_new,
+                          color: Color(0xFF374151), size: 17),
                     ),
                   ),
                 ),
@@ -305,11 +314,16 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                         scale: _scaleAnimation,
                         child: Row(
                           children: [
-                            Image.asset('assets/images/AppIcon.png', width: 48, height: 48),
+                            Image.asset('assets/images/AppIcon.png',
+                                width: 48, height: 48),
                             const SizedBox(width: 12),
                             const Text(
                               'RimaPay',
-                              style: TextStyle(color: Color(0xFF101828), fontSize: 26, fontWeight: FontWeight.w900, letterSpacing: -0.5),
+                              style: TextStyle(
+                                  color: Color(0xFF101828),
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: -0.5),
                             ),
                           ],
                         ),
@@ -319,12 +333,19 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                       // Headline
                       const Text(
                         'Welcome\nBack 👋',
-                        style: TextStyle(color: Color(0xFF101828), fontSize: 34, height: 1.15, fontWeight: FontWeight.w900),
+                        style: TextStyle(
+                            color: Color(0xFF101828),
+                            fontSize: 34,
+                            height: 1.15,
+                            fontWeight: FontWeight.w900),
                       ),
                       const SizedBox(height: 8),
                       const Text(
                         'Sign in to your RimaPay account',
-                        style: TextStyle(color: Color(0xFF667085), fontSize: 15, height: 1.4),
+                        style: TextStyle(
+                            color: Color(0xFF667085),
+                            fontSize: 15,
+                            height: 1.4),
                       ),
                       const SizedBox(height: 36),
 
@@ -335,7 +356,8 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                         controller: _phoneController,
                         keyboardType: TextInputType.phone,
                         prefixIcon: Icons.phone_outlined,
-                        onChanged: (v) => setState(() => _loginForm['phoneNumber'] = addLeadingZero(v)),
+                        onChanged: (v) => setState(() =>
+                            _loginForm['phoneNumber'] = addLeadingZero(v)),
                       ),
                       const SizedBox(height: 18),
 
@@ -346,12 +368,17 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                         controller: _passwordController,
                         obscureText: !_showPassword,
                         prefixIcon: Icons.lock_outline_rounded,
-                        onChanged: (v) => setState(() => _loginForm['password'] = v),
+                        onChanged: (v) =>
+                            setState(() => _loginForm['password'] = v),
                         suffixIcon: GestureDetector(
-                          onTap: () => setState(() => _showPassword = !_showPassword),
+                          onTap: () =>
+                              setState(() => _showPassword = !_showPassword),
                           child: Icon(
-                            _showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                            size: 18, color: const Color(0xFF9CA3AF),
+                            _showPassword
+                                ? Icons.visibility_off_outlined
+                                : Icons.visibility_outlined,
+                            size: 18,
+                            color: const Color(0xFF9CA3AF),
                           ),
                         ),
                       ),
@@ -361,7 +388,10 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                         child: GestureDetector(
                           onTap: () {},
                           child: const Text('Forgot Password?',
-                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF00B252))),
+                              style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF00B252))),
                         ),
                       ),
                       const SizedBox(height: 28),
@@ -371,21 +401,38 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                         onTap: canSubmit ? _handleLoginSubmit : null,
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 150),
-                          width: double.infinity, height: 54,
+                          width: double.infinity,
+                          height: 54,
                           decoration: BoxDecoration(
                             gradient: canSubmit
-                                ? const LinearGradient(colors: [Color(0xFF00B252), Color(0xFF00A651)], begin: Alignment.centerLeft, end: Alignment.centerRight)
+                                ? const LinearGradient(
+                                    colors: [
+                                        Color(0xFF00B252),
+                                        Color(0xFF00A651)
+                                      ],
+                                    begin: Alignment.centerLeft,
+                                    end: Alignment.centerRight)
                                 : null,
                             color: canSubmit ? null : const Color(0xFFE4E7EC),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Center(
                             child: _isLoading
-                                ? const SizedBox(width: 22, height: 22,
-                                    child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
+                                ? const SizedBox(
+                                    width: 22,
+                                    height: 22,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.white)))
                                 : Text('Sign In',
-                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700,
-                                        color: canSubmit ? Colors.white : const Color(0xFF9CA3AF))),
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                        color: canSubmit
+                                            ? Colors.white
+                                            : const Color(0xFF9CA3AF))),
                           ),
                         ),
                       ),
@@ -393,12 +440,16 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
 
                       // Divider
                       Row(children: [
-                        const Expanded(child: Divider(color: Color(0xFFE4E7EC))),
+                        const Expanded(
+                            child: Divider(color: Color(0xFFE4E7EC))),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Text('or', style: TextStyle(fontSize: 13, color: Colors.grey.shade400)),
+                          child: Text('or',
+                              style: TextStyle(
+                                  fontSize: 13, color: Colors.grey.shade400)),
                         ),
-                        const Expanded(child: Divider(color: Color(0xFFE4E7EC))),
+                        const Expanded(
+                            child: Divider(color: Color(0xFFE4E7EC))),
                       ]),
                       const SizedBox(height: 12),
 
@@ -406,7 +457,8 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                       GestureDetector(
                         onTap: _handleBiometricLogin,
                         child: Container(
-                          width: double.infinity, height: 54,
+                          width: double.infinity,
+                          height: 54,
                           decoration: BoxDecoration(
                             color: const Color(0xFFF9FAFB),
                             borderRadius: BorderRadius.circular(12),
@@ -416,16 +468,32 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               if (_isBiometricLoading) ...[
-                                const SizedBox(width: 22, height: 22,
-                                    child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF00B252)))),
+                                const SizedBox(
+                                    width: 22,
+                                    height: 22,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Color(0xFF00B252)))),
                                 const SizedBox(width: 12),
-                                const Text('Authenticating...', style: TextStyle(color: Color(0xFF374151), fontSize: 15, fontWeight: FontWeight.w600)),
+                                const Text('Authenticating...',
+                                    style: TextStyle(
+                                        color: Color(0xFF374151),
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600)),
                               ] else ...[
-                                const Icon(Icons.fingerprint, color: Color(0xFF00B252), size: 24),
+                                const Icon(Icons.fingerprint,
+                                    color: Color(0xFF00B252), size: 24),
                                 const SizedBox(width: 10),
                                 Text(
-                                  _biometricSupported ? 'Login with Biometrics' : 'Set Up Biometrics',
-                                  style: const TextStyle(color: Color(0xFF374151), fontSize: 15, fontWeight: FontWeight.w600),
+                                  _biometricSupported
+                                      ? 'Login with Biometrics'
+                                      : 'Set Up Biometrics',
+                                  style: const TextStyle(
+                                      color: Color(0xFF374151),
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600),
                                 ),
                               ],
                             ],
@@ -440,11 +508,16 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const Text("Don't have an account? ",
-                                style: TextStyle(color: Color(0xFF667085), fontSize: 14)),
+                                style: TextStyle(
+                                    color: Color(0xFF667085), fontSize: 14)),
                             GestureDetector(
-                              onTap: () => context.pushNamed('personal-account'),
+                              onTap: () => context.pushNamed('auth',
+                                  queryParameters: {'mode': 'signup'}),
                               child: const Text('Create Account',
-                                  style: TextStyle(color: Color(0xFF00B252), fontSize: 14, fontWeight: FontWeight.w700)),
+                                  style: TextStyle(
+                                      color: Color(0xFF00B252),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700)),
                             ),
                           ],
                         ),
@@ -479,7 +552,9 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
             physics: BouncingScrollPhysics(),
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                minHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom,
+                minHeight: MediaQuery.of(context).size.height -
+                    MediaQuery.of(context).padding.top -
+                    MediaQuery.of(context).padding.bottom,
               ),
               child: IntrinsicHeight(
                 child: Padding(
@@ -548,17 +623,25 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                             ),
                             child: Column(
                               children: [
-                                _buildInfoRow('Account Number:', _accountData!['accountNumber'] ?? ''),
+                                _buildInfoRow('Account Number:',
+                                    _accountData!['accountNumber'] ?? ''),
                                 const SizedBox(height: 12),
-                                _buildInfoRow('Account Type:', _accountData!['accountType'] ?? _accountData!['tier'] ?? ''),
+                                _buildInfoRow(
+                                    'Account Type:',
+                                    _accountData!['accountType'] ??
+                                        _accountData!['tier'] ??
+                                        ''),
                                 const SizedBox(height: 12),
-                                _buildInfoRow('Daily Limit:', _accountData!['dailyLimit'] ?? '₦50,000'),
+                                _buildInfoRow('Daily Limit:',
+                                    _accountData!['dailyLimit'] ?? '₦50,000'),
                               ],
                             ),
                           ),
                         ),
                       ],
-                      const SizedBox(height: 24), // Added bottom padding for better scroll experience
+                      const SizedBox(
+                          height:
+                              24), // Added bottom padding for better scroll experience
                     ],
                   ),
                 ),
@@ -693,8 +776,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                         const SizedBox(height: 14),
                         _buildAccountTypeCard(
                           title: 'Business Account',
-                          subtitle:
-                              'For businesses and organizations',
+                          subtitle: 'For businesses and organizations',
                           icon: Icons.business_outlined,
                           onTap: () {
                             setState(() => _currentFlow = Flow.business);
@@ -801,7 +883,11 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
-        Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF1A1A1A))),
+        Text(value,
+            style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1A1A1A))),
       ],
     );
   }
@@ -870,17 +956,27 @@ class _AuthFloatingFieldState extends State<_AuthFloatingField> {
           width: _focused ? 1.5 : 1,
         ),
         boxShadow: _focused
-            ? [BoxShadow(color: const Color(0xFF00B252).withOpacity(0.08), blurRadius: 10, offset: const Offset(0, 3))]
+            ? [
+                BoxShadow(
+                    color: const Color(0xFF00B252).withOpacity(0.08),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3))
+              ]
             : [],
       ),
       child: Stack(
         children: [
           // Prefix icon
           Positioned(
-            left: 14, top: 0, bottom: 0,
+            left: 14,
+            top: 0,
+            bottom: 0,
             child: Center(
-              child: Icon(widget.prefixIcon, size: 18,
-                  color: _focused ? const Color(0xFF00B252) : const Color(0xFF9CA3AF)),
+              child: Icon(widget.prefixIcon,
+                  size: 18,
+                  color: _focused
+                      ? const Color(0xFF00B252)
+                      : const Color(0xFF9CA3AF)),
             ),
           ),
           // Text field — always in tree so taps always register
@@ -895,10 +991,17 @@ class _AuthFloatingFieldState extends State<_AuthFloatingField> {
               keyboardType: widget.keyboardType,
               obscureText: widget.obscureText,
               onChanged: widget.onChanged,
-              style: const TextStyle(fontSize: 15, color: Color(0xFF101828), fontWeight: FontWeight.w500, fontFamily: 'Effra'),
+              style: const TextStyle(
+                  fontSize: 15,
+                  color: Color(0xFF101828),
+                  fontWeight: FontWeight.w500,
+                  fontFamily: 'Effra'),
               decoration: InputDecoration(
                 hintText: active ? widget.hint : null,
-                hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 14, fontFamily: 'Effra'),
+                hintStyle: const TextStyle(
+                    color: Color(0xFF9CA3AF),
+                    fontSize: 14,
+                    fontFamily: 'Effra'),
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
@@ -921,7 +1024,9 @@ class _AuthFloatingFieldState extends State<_AuthFloatingField> {
                   fontSize: active ? 11 : 14,
                   fontWeight: FontWeight.w500,
                   fontFamily: 'Effra',
-                  color: _focused ? const Color(0xFF00B252) : const Color(0xFF9CA3AF),
+                  color: _focused
+                      ? const Color(0xFF00B252)
+                      : const Color(0xFF9CA3AF),
                 ),
                 child: Text(widget.label),
               ),
@@ -930,7 +1035,9 @@ class _AuthFloatingFieldState extends State<_AuthFloatingField> {
           // Suffix icon
           if (widget.suffixIcon != null)
             Positioned(
-              right: 12, top: 0, bottom: 0,
+              right: 12,
+              top: 0,
+              bottom: 0,
               child: Center(child: widget.suffixIcon!),
             ),
         ],
