@@ -246,14 +246,14 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
         children: [
           // Background
           Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
                   Color(0xFFF8FAFC),
                   Color(0xFFF0FDF4),
-                  Color(0xFFECFDF5),
+                  Color(0xFFF2F7F3),
                 ],
               ),
             ),
@@ -357,7 +357,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          Color(0xFF4ADE80), // green-400
+                          Color(0xFFD4AF37), // green-400
                           Color(0xFF16A34A), // green-600
                         ],
                       ),
@@ -534,7 +534,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                 width: 8,
                 height: 8,
                 decoration: const BoxDecoration(
-                  color: Color(0xFF10B981), // green-500
+                  color: Color(0xFF166C46), // green-500
                   shape: BoxShape.circle,
                 ),
               ),
@@ -544,7 +544,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF059669), // green-600
+                  color: Color(0xFF0E5C37), // green-600
                 ),
               ),
             ],
@@ -811,7 +811,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFF10B981)), // green-500
+                            borderSide: const BorderSide(color: Color(0xFF166C46)), // green-500
                           ),
                           contentPadding: const EdgeInsets.all(12),
                         ),
@@ -918,7 +918,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                         child: ElevatedButton(
                           onPressed: _handleSaveBeneficiary,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF10B981), // green-500
+                            backgroundColor: const Color(0xFF166C46), // green-500
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -969,7 +969,7 @@ class _ConfettiParticle {
 
   static const _confettiColors = [
     Color(0xFF16A34A),
-    Color(0xFF4ADE80),
+    Color(0xFFD4AF37),
     Color(0xFFFBBF24),
     Color(0xFF60A5FA),
     Color(0xFFF472B6),

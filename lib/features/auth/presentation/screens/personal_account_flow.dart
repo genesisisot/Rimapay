@@ -20,6 +20,7 @@ import 'package:rimapay/core/Models/CountryStateLgaModel.dart';
 import 'package:rimapay/core/Utils/En.dart';
 import 'package:rimapay/core/services/GetPlaceDetailsService.dart';
 import 'package:rimapay/shared/widgets/noise_painter.dart';
+import 'package:rimapay/core/theme/app_colors.dart';
 
 // ─── Step enum ───────────────────────────────────────────────────────────────
 
@@ -268,7 +269,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(
                 next.errmessage ?? 'Verification code sent to your phone.'),
-            backgroundColor: const Color(0xFF00B252),
+            backgroundColor: const Color(0xFF166C46),
           ));
         } else {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -351,9 +352,9 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
 
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF001a0c), Color(0xFF003d1a), Color(0xFF005e27)],
+          colors: [Color(0xFF073D25), Color(0xFF0B4F2F), Color(0xFF073D25)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -404,7 +405,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                               height: 5,
                               decoration: BoxDecoration(
                                 color: done
-                                    ? const Color(0xFF4ADE80)
+                                    ? const Color(0xFFD4AF37)
                                     : Colors.white.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(3),
                               ),
@@ -1385,7 +1386,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       key: const ValueKey('accountCreated'),
       children: [
         Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
@@ -1448,11 +1449,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   width: double.infinity,
                   height: 54,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF00B252), Color(0xFF00A651)],
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                    ),
+                    gradient: AppColors.goldGradient,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Center(
@@ -2156,7 +2153,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
               // Oval cutout overlay
               Positioned.fill(
                 child: CustomPaint(
-                  painter: _OvalOverlayPainter(color: const Color(0xFF4ADE80)),
+                  painter: _OvalOverlayPainter(color: const Color(0xFFD4AF37)),
                 ),
               ),
 
@@ -2265,11 +2262,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                           width: double.infinity,
                           height: 54,
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF00B252), Color(0xFF00A651)],
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                            ),
+                            gradient: AppColors.goldGradient,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Center(
@@ -2332,11 +2325,11 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       children: [
         // Green gradient background
         Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Color(0xFF003d1a), Color(0xFF005e27), Color(0xFF1a6b35)],
+              colors: [Color(0xFF0B4F2F), Color(0xFF073D25), Color(0xFF166C46)],
             ),
           ),
         ),
@@ -2530,7 +2523,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF00B252)),
+                          color: Color(0xFF166C46)),
                     ),
                   ),
                 ),
@@ -2562,11 +2555,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           height: 54,
           decoration: BoxDecoration(
             gradient: enabled
-                ? const LinearGradient(
-                    colors: [Color(0xFF00B252), Color(0xFF00A651)],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  )
+                ? AppColors.goldGradient
                 : null,
             color: enabled ? null : const Color(0xFFCCCCCC),
             borderRadius: BorderRadius.circular(12),
@@ -3617,7 +3606,7 @@ class _CParticle {
 
   static const _colors = [
     Color(0xFF16A34A),
-    Color(0xFF4ADE80),
+    Color(0xFFD4AF37),
     Color(0xFFFBBF24),
     Color(0xFF60A5FA),
     Color(0xFFF472B6),

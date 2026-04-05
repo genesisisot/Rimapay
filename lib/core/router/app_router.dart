@@ -32,6 +32,22 @@ import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
 import '../../shared/presentation/screens/main_navigation_screen.dart';
 
+// Shared fade page builder
+Page<void> _fadePage(GoRouterState state, Widget child) {
+  return CustomTransitionPage(
+    key: state.pageKey,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 280),
+    reverseTransitionDuration: const Duration(milliseconds: 200),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeTransition(
+        opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
+        child: child,
+      );
+    },
+  );
+}
+
 class AppRouter {
   static final GoRouter router = GoRouter(
     initialLocation: '/splash',
@@ -63,12 +79,12 @@ class AppRouter {
       GoRoute(
         path: '/personal-account',
         name: 'personal-account',
-        builder: (context, state) => PersonalAccountFlow(),
+        pageBuilder: (context, state) => _fadePage(state, PersonalAccountFlow()),
       ),
       GoRoute(
         path: '/business-account',
         name: 'business-account',
-        builder: (context, state) => BusinessAccountFlow(),
+        pageBuilder: (context, state) => _fadePage(state, BusinessAccountFlow()),
       ),
       // Main Navigation Shell
       ShellRoute(
@@ -117,90 +133,93 @@ class AppRouter {
       GoRoute(
         path: '/bills/airtime',
         name: 'airtime',
-        builder: (context, state) => const AirtimePurchaseScreen(),
+        pageBuilder: (context, state) {
+          final initialTab = state.extra as int? ?? 0;
+          return _fadePage(state, AirtimePurchaseScreen(initialTab: initialTab));
+        },
       ),
       GoRoute(
         path: '/bills/data',
         name: 'data',
-        builder: (context, state) => const DataPurchaseScreen(),
+        redirect: (context, state) => '/bills/airtime',
       ),
       GoRoute(
         path: '/bills/cable',
         name: 'cable',
-        builder: (context, state) => const CablePurchaseScreen(),
+        pageBuilder: (context, state) => _fadePage(state, const CablePurchaseScreen()),
       ),
       GoRoute(
         path: '/bills/electricity',
         name: 'electricity',
-        builder: (context, state) => const ElectricityPurchaseScreen(),
+        pageBuilder: (context, state) => _fadePage(state, const ElectricityPurchaseScreen()),
       ),
 
       // Settings (outside main navigation)
       GoRoute(
         path: '/settings',
         name: 'settings',
-        builder: (context, state) => const SettingsScreen(),
+        pageBuilder: (context, state) => _fadePage(state, const SettingsScreen()),
       ),
 
       // Account Tiers (NEW ROUTE)
       GoRoute(
         path: '/tiers',
         name: 'tiers',
-        builder: (context, state) => const AccountTiersScreen(),
+        pageBuilder: (context, state) => _fadePage(state, const AccountTiersScreen()),
       ),
 
-     GoRoute(
+      GoRoute(
         path: '/business',
         name: 'business',
-        builder: (context, state) => BusinessHome(),
+        pageBuilder: (context, state) => _fadePage(state, BusinessHome()),
       ),
 
       // Add Money
       GoRoute(
         path: '/add-money',
         name: 'add-money',
-        builder: (context, state) => const AddMoneyScreen(),
+        pageBuilder: (context, state) => _fadePage(state, const AddMoneyScreen()),
       ),
 
       // Bill service screens
       GoRoute(
         path: '/education-bills',
-        builder: (_, __) => const EducationBillsScreen(),
+        pageBuilder: (context, state) => _fadePage(state, const EducationBillsScreen()),
       ),
       GoRoute(
         path: '/airtime-to-cash',
-        builder: (_, __) => const AirtimeCashScreen(),
+        pageBuilder: (context, state) => _fadePage(state, const AirtimeCashScreen()),
       ),
       GoRoute(
         path: '/event-tickets',
-        builder: (_, __) => const EventsScreen(),
+        pageBuilder: (context, state) => _fadePage(state, const EventsScreen()),
       ),
       GoRoute(
         path: '/voluntary-pension',
-        builder: (_, __) => const PensionScreen(),
+        pageBuilder: (context, state) => _fadePage(state, const PensionScreen()),
       ),
       GoRoute(
         path: '/road-transport',
-        builder: (_, __) => const TransportScreen(),
+        pageBuilder: (context, state) => _fadePage(state, const TransportScreen()),
       ),
       GoRoute(
         path: '/air-transport',
-        builder: (_, __) => const FlightsScreen(),
+        pageBuilder: (context, state) => _fadePage(state, const FlightsScreen()),
       ),
       GoRoute(
         path: '/state-government',
-        builder: (_, __) => const GovernmentScreen(),
+        pageBuilder: (context, state) => _fadePage(state, const GovernmentScreen()),
       ),
 
       // PIN Verification
       GoRoute(
         path: '/pin-verification',
         name: 'pin-verification',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final transactionData = state.extra as Map<String, dynamic>?;
-          return PinVerificationScreen(
+          return _fadePage(state, PinVerificationScreen(
             transactionData: transactionData ?? {},
-          );
+          ));
         },
       ),
 
@@ -208,39 +227,35 @@ class AppRouter {
       GoRoute(
         path: '/success',
         name: 'success',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final extra = state.extra;
           if (extra is SuccessScreenProps) {
-            return SuccessScreen(props: extra);
+            return _fadePage(state, SuccessScreen(props: extra));
           }
           if (extra is Map<String, dynamic>) {
-            return SuccessScreen(
+            return _fadePage(state, SuccessScreen(
               props: SuccessScreenProps(
                 transactionType: extra['type']?.toString() ?? 'Payment',
                 amount: extra['amount']?.toString() ?? '0',
                 recipient: extra['recipient']?.toString() ?? '',
               ),
-            );
+            ));
           }
-          return SuccessScreen(props: SuccessScreenProps());
+          return _fadePage(state, SuccessScreen(props: SuccessScreenProps()));
         },
       ),
       GoRoute(
         path: '/notifications',
         name: 'notifications',
-        builder: (context, state) {
-          return NotificationScreen();
-        },
+        pageBuilder: (context, state) => _fadePage(state, NotificationScreen()),
       ),
       // Receipt Screen
       GoRoute(
         path: '/receipt',
         name: 'receipt',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final receiptData = state.extra as ReceiptData;
-          return ReceiptScreen(
-            receiptData: receiptData,
-          );
+          return _fadePage(state, ReceiptScreen(receiptData: receiptData));
         },
       ),
     ],
@@ -308,14 +323,14 @@ class ComingSoonScreen extends StatelessWidget {
               right: 20,
               bottom: 20,
             ),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFF001a0c),
-                  Color(0xFF003d1a),
-                  Color(0xFF005e27),
+                  Color(0xFF073D25),
+                  Color(0xFF0B4F2F),
+                  Color(0xFF073D25),
                 ],
               ),
             ),

@@ -82,7 +82,7 @@ class _AccountTiersScreenState extends State<AccountTiersScreen> {
   Color _tierColor(TierLevel t) {
     switch (t) {
       case TierLevel.tier1:
-        return const Color(0xFF00B252);
+        return const Color(0xFF166C46);
       case TierLevel.tier2:
         return const Color(0xFF3B82F6);
       case TierLevel.tier3:
@@ -120,11 +120,11 @@ class _AccountTiersScreenState extends State<AccountTiersScreen> {
           // ── Green header ──
           Container(
             width: double.infinity,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF001a0c), Color(0xFF003d1a), Color(0xFF005e27)],
+                colors: [Color(0xFF073D25), Color(0xFF0B4F2F), Color(0xFF073D25)],
               ),
             ),
             padding: EdgeInsets.only(
@@ -244,8 +244,8 @@ class _TierStepper extends StatelessWidget {
                                     : Icons.check_rounded,
                                 size: 14,
                                 color: i == current.index
-                                    ? const Color(0xFF003d1a)
-                                    : const Color(0xFF003d1a),
+                                    ? const Color(0xFF0B4F2F)
+                                    : const Color(0xFF0B4F2F),
                               )
                             : Text(
                                 '${i + 1}',
@@ -631,11 +631,11 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
           // Header
           Container(
             width: double.infinity,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF001a0c), Color(0xFF003d1a), Color(0xFF005e27)],
+                colors: [Color(0xFF073D25), Color(0xFF0B4F2F), Color(0xFF073D25)],
               ),
             ),
             padding: EdgeInsets.only(
@@ -1082,11 +1082,11 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
           // Header
           Container(
             width: double.infinity,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF001a0c), Color(0xFF003d1a), Color(0xFF005e27)],
+                colors: [Color(0xFF073D25), Color(0xFF0B4F2F), Color(0xFF073D25)],
               ),
             ),
             padding: EdgeInsets.only(
@@ -1750,7 +1750,7 @@ class _SuccessBenefitRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
       child: Row(
         children: [
-          const Icon(Icons.check_circle_rounded, size: 18, color: Color(0xFF00B252)),
+          const Icon(Icons.check_circle_rounded, size: 18, color: Color(0xFF166C46)),
           const SizedBox(width: 10),
           Expanded(
             child: Text(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import '../core/theme/app_colors.dart';
 
 // Notification model
 class NotificationModel {
@@ -132,11 +133,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
   Color _typeAccent(NotificationType type) {
     switch (type) {
       case NotificationType.transaction:
-        return const Color(0xFF00B252);
+        return const Color(0xFF166C46);
       case NotificationType.promotion:
         return const Color(0xFF3B82F6);
       case NotificationType.security:
-        return const Color(0xFFEF4444);
+        return const Color(0xFFD33B31);
       case NotificationType.system:
         return const Color(0xFFF59E0B);
     }
@@ -158,11 +159,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   Widget _buildHeader(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF001a0c), Color(0xFF003d1a), Color(0xFF005e27)],
+          colors: [Color(0xFF073D25), Color(0xFF0B4F2F), Color(0xFF073D25)],
           stops: [0.0, 0.5, 1.0],
         ),
       ),
@@ -259,7 +260,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   border: Border(
                     bottom: BorderSide(
                       color: selected
-                          ? const Color(0xFF00B252)
+                          ? AppColors.goldPrimary
                           : Colors.transparent,
                       width: 2,
                     ),
@@ -273,7 +274,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     fontWeight: FontWeight.w600,
                     fontFamily: 'Effra',
                     color: selected
-                        ? const Color(0xFF00B252)
+                        ? AppColors.goldPrimary
                         : const Color(0xFF98A2B3),
                   ),
                 ),
@@ -295,11 +296,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
               width: 72,
               height: 72,
               decoration: BoxDecoration(
-                color: const Color(0xFF00B252).withOpacity(0.08),
+                color: const Color(0xFF166C46).withOpacity(0.08),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.notifications_none_rounded,
-                  size: 36, color: Color(0xFF00B252)),
+                  size: 36, color: Color(0xFF166C46)),
             ),
             const SizedBox(height: 16),
             Text(
@@ -337,7 +338,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
   Widget _buildItem(NotificationModel n) {
     final accent = _typeAccent(n.type);
     return Container(
-      color: n.isRead ? Colors.white : const Color(0xFF00B252).withOpacity(0.03),
+      color: n.isRead ? Colors.white : const Color(0xFF166C46).withOpacity(0.03),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
@@ -421,7 +422,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                 horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
                               color:
-                                  const Color(0xFF00B252).withOpacity(0.08),
+                                  const Color(0xFF166C46).withOpacity(0.08),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: const Text(
@@ -429,7 +430,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
-                                color: Color(0xFF00B252),
+                                color: Color(0xFF166C46),
                               ),
                             ),
                           ),
@@ -448,7 +449,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: const Icon(Icons.delete_outline_rounded,
-                              size: 15, color: Color(0xFFEF4444)),
+                              size: 15, color: Color(0xFFD33B31)),
                         ),
                       ),
                     ],

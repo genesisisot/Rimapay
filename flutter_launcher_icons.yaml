@@ -1,0 +1,29 @@
+# RIMA MFB — App Icon Configuration
+# Run: dart run flutter_launcher_icons
+# Requires: assets/images/AppIcon.png (1024x1024, PNG, with centered RIMA MFB logo)
+#
+# ICON CENTERING NOTE:
+# The old icon had the logo off-center. For the new icon PNG, ensure:
+#   - Canvas: 1024x1024
+#   - The gold celtic-knot + WiFi arc logo is centered on the canvas
+#   - Leave ~15% safe-zone padding on all sides (~154px each side)
+#   - Background should be transparent (the background color below is applied automatically)
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  image_path: "assets/images/AppIcon.png"
+
+  # Android adaptive icon (API 26+)
+  adaptive_icon_background: "#073D25"
+  adaptive_icon_foreground: "assets/images/AppIcon.png"
+
+  # Web
+  web:
+    generate: true
+    image_path: "assets/images/AppIcon.png"
+    background_color: "#073D25"
+    theme_color: "#166C46"
+
+  min_sdk_android: 21

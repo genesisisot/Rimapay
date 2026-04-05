@@ -358,7 +358,7 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> with Tick
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF059669),
+                  color: Color(0xFF0E5C37),
                 ),
               ),
             ],
@@ -443,7 +443,7 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> with Tick
             ),
             child: const Icon(
               Icons.shield_outlined,
-              color: Color(0xFF059669),
+              color: Color(0xFF0E5C37),
               size: 24,
             ),
           ),
@@ -503,7 +503,7 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> with Tick
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: const BorderSide(
-                          color: Color(0xFF10B981),
+                          color: Color(0xFF166C46),
                           width: 2,
                         ),
                       ),

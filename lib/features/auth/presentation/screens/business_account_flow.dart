@@ -1,3 +1,4 @@
+import 'package:rimapay/core/theme/app_colors.dart';
 import 'dart:async';
 import 'dart:io';
 
@@ -591,12 +592,8 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
           Container(
             width: 40,
             height: 40,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF00B252), Color(0xFF00A047)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+            decoration: BoxDecoration(
+              gradient: AppColors.goldGradient,
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -773,7 +770,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                 Container(
                   width: 40,
                   height: 40,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [Color(0xFF3B82F6), Color(0xFF2563EB)],
                       begin: Alignment.topLeft,
@@ -844,7 +841,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
               suffixIcon: _cacDetails != null
                   ? const Icon(
                       Icons.check_circle,
-                      color: Color(0xFF10B981),
+                      color: Color(0xFF166C46),
                       size: 16,
                     )
                   : null,
@@ -856,7 +853,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color(0xFF00B252), width: 2),
+                borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
@@ -905,20 +902,20 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                         height: 16,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF00B252)),
+                          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF166C46)),
                         ),
                       ),
                     )
                   : _rcLookupStatus == 'success'
                       ? const Icon(
                           Icons.check_circle,
-                          color: Color(0xFF10B981),
+                          color: Color(0xFF166C46),
                           size: 16,
                         )
                       : _rcLookupStatus == 'error' || _rcLookupStatus == 'not-found'
                           ? const Icon(
                               Icons.cancel,
-                              color: Color(0xFFEF4444),
+                              color: Color(0xFFD33B31),
                               size: 16,
                             )
                           : null,
@@ -928,9 +925,9 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(
                   color: _rcLookupStatus == 'success'
-                      ? const Color(0xFF10B981)
+                      ? AppColors.goldPrimary
                       : _rcLookupStatus == 'error' || _rcLookupStatus == 'not-found'
-                          ? const Color(0xFFEF4444)
+                          ? const Color(0xFFD33B31)
                           : const Color(0xFFE5E7EB),
                 ),
               ),
@@ -938,10 +935,10 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(
                   color: _rcLookupStatus == 'success'
-                      ? const Color(0xFF10B981)
+                      ? AppColors.goldPrimary
                       : _rcLookupStatus == 'error' || _rcLookupStatus == 'not-found'
-                          ? const Color(0xFFEF4444)
-                          : const Color(0xFF00B252),
+                          ? const Color(0xFFD33B31)
+                          : const Color(0xFF166C46),
                   width: 2,
                 ),
               ),
@@ -964,7 +961,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                 children: [
                   const Icon(
                     Icons.check_circle,
-                    color: Color(0xFF059669),
+                    color: Color(0xFF0E5C37),
                     size: 12,
                   ),
                   const SizedBox(width: 6),
@@ -974,7 +971,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF059669),
+                        color: Color(0xFF0E5C37),
                       ),
                     ),
                   ),
@@ -1105,7 +1102,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                         height: 20,
                         child: const CircularProgressIndicator.adaptive(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF00B252)),
+                          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF166C46)),
                         ),
                       ),
                     )
@@ -1113,7 +1110,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                       onPressed: _onLocateMePressed,
                       icon: const Icon(
                         Icons.my_location,
-                        color: Color(0xFF00B252),
+                        color: Color(0xFF166C46),
                         size: 20,
                       ),
                       tooltip: "Use my current location",
@@ -1126,7 +1123,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color(0xFF00B252), width: 2),
+                borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
@@ -1164,7 +1161,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color(0xFF00B252), width: 2),
+                borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
@@ -1210,7 +1207,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color(0xFF00B252), width: 2),
+                borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
@@ -1275,7 +1272,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color(0xFF00B252), width: 2),
+                borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
@@ -1314,7 +1311,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color(0xFF00B252), width: 2),
+                borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
@@ -1354,7 +1351,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color(0xFF00B252), width: 2),
+                borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
@@ -1373,7 +1370,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                   ? _handleBusinessInfoSubmit
                   : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00B252),
+                backgroundColor: const Color(0xFF166C46),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
@@ -1479,7 +1476,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF00B252),
+                      color: Color(0xFF166C46),
                     ),
                   ),
                 ],
@@ -1509,7 +1506,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                 minHeight: 2,
                 backgroundColor: const Color(0xFFE5E7EB),
                 valueColor: const AlwaysStoppedAnimation<Color>(
-                  Color(0xFF00B252), // green progress
+                  Color(0xFF166C46), // green progress
                 ),
               ),
             ),
@@ -1572,7 +1569,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                 Container(
                   width: 40,
                   height: 40,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [Color(0xFF7C3AED), Color(0xFF6D28D9)],
                       begin: Alignment.topLeft,
@@ -1632,7 +1629,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(8)),
-                borderSide: BorderSide(color: Color(0xFF00B252), width: 2),
+                borderSide: BorderSide(color: Color(0xFF166C46), width: 2),
               ),
             ),
           ),
@@ -1661,7 +1658,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(8)),
-                borderSide: BorderSide(color: Color(0xFF00B252), width: 2),
+                borderSide: BorderSide(color: Color(0xFF166C46), width: 2),
               ),
             ),
             maxLength: 9,
@@ -1691,7 +1688,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
               prefixIcon: const Icon(Icons.location_on_outlined, color: Color(0xFF9CA3AF), size: 16),
               suffixIcon: IconButton(
                 onPressed: _onLocateMePressed,
-                icon: const Icon(Icons.my_location, color: Color(0xFF00B252), size: 20),
+                icon: const Icon(Icons.my_location, color: Color(0xFF166C46), size: 20),
               ),
               fillColor: Colors.white,
               filled: true,
@@ -1701,7 +1698,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
               ),
               focusedBorder: const OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(8)),
-                borderSide: BorderSide(color: Color(0xFF00B252), width: 2),
+                borderSide: BorderSide(color: Color(0xFF166C46), width: 2),
               ),
             ),
           ),
@@ -1731,7 +1728,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(8)),
-                borderSide: BorderSide(color: Color(0xFF00B252), width: 2),
+                borderSide: BorderSide(color: Color(0xFF166C46), width: 2),
               ),
             ),
           ),
@@ -1761,7 +1758,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(8)),
-                borderSide: BorderSide(color: Color(0xFF00B252), width: 2),
+                borderSide: BorderSide(color: Color(0xFF166C46), width: 2),
               ),
             ),
           ),
@@ -1787,7 +1784,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                       _businessInfo.tinApplicable = value ?? false;
                       if (_businessInfo.tinApplicable) _businessInfo.tin = '';
                     }),
-                    activeColor: const Color(0xFF00B252),
+                    activeColor: const Color(0xFF166C46),
                   ),
                   const Text(
                     'Not applicable',
@@ -1812,7 +1809,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(8)),
-                  borderSide: BorderSide(color: Color(0xFF00B252), width: 2),
+                  borderSide: BorderSide(color: Color(0xFF166C46), width: 2),
                 ),
               ),
             ),
@@ -1825,7 +1822,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
             child: ElevatedButton(
               onPressed: _canContinueLLC() ? _handleBusinessLCCInfoSubmit : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00B252),
+                backgroundColor: const Color(0xFF166C46),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -1858,12 +1855,8 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
           Container(
             width: 40,
             height: 40,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF00B252), Color(0xFF00A047)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+            decoration: BoxDecoration(
+              gradient: AppColors.goldGradient,
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.shield, color: Colors.white, size: 20),
@@ -1911,7 +1904,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: Color(0xFF00B252), width: 2),
+                      borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
                     ),
                   ),
                 ),
@@ -1932,7 +1925,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
             },
             child: const Text(
               'Resend Code',
-              style: TextStyle(fontSize: 12, color: Color(0xFF00B252), fontWeight: FontWeight.w500),
+              style: TextStyle(fontSize: 12, color: Color(0xFF166C46), fontWeight: FontWeight.w500),
             ),
           ),
           const SizedBox(height: 32),
@@ -1943,7 +1936,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
             child: ElevatedButton(
               onPressed: (_isLoading || _otp.any((digit) => digit.isEmpty)) ? null : _handleOtpSubmit,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00B252),
+                backgroundColor: const Color(0xFF166C46),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -1984,7 +1977,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
           Container(
             width: 40,
             height: 40,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [Color(0xFF3B82F6), Color(0xFF2563EB)],
                 begin: Alignment.topLeft,
@@ -2056,7 +2049,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
             child: ElevatedButton(
               onPressed: _canContinueBNDocs() ? _handleDocumentsSubmit : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00B252),
+                backgroundColor: const Color(0xFF166C46),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -2085,7 +2078,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
           Container(
             width: 40,
             height: 40,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [Color(0xFF7C3AED), Color(0xFF6D28D9)],
                 begin: Alignment.topLeft,
@@ -2157,7 +2150,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
             child: ElevatedButton(
               onPressed: _canContinueLLCDocs() ? _handleDocumentsSubmit : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00B252),
+                backgroundColor: const Color(0xFF166C46),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -2210,10 +2203,10 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
               ),
               if (isRequired) ...[
                 const SizedBox(width: 4),
-                const Text(' *', style: TextStyle(fontSize: 12, color: Color(0xFFEF4444))),
+                const Text(' *', style: TextStyle(fontSize: 12, color: Color(0xFFD33B31))),
               ],
               const Spacer(),
-              if (isUploaded) const Icon(Icons.check_circle, size: 16, color: Color(0xFF10B981)) else const Icon(Icons.upload_file, size: 16, color: Color(0xFF6B7280)),
+              if (isUploaded) const Icon(Icons.check_circle, size: 16, color: Color(0xFF166C46)) else const Icon(Icons.upload_file, size: 16, color: Color(0xFF6B7280)),
             ],
           ),
           const SizedBox(height: 4),
@@ -2232,12 +2225,12 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.insert_drive_file, size: 12, color: Color(0xFF059669)),
+                  const Icon(Icons.insert_drive_file, size: 12, color: Color(0xFF0E5C37)),
                   const SizedBox(width: 4),
                   Flexible(
                     child: Text(
                       fileName,
-                      style: const TextStyle(fontSize: 10, color: Color(0xFF059669)),
+                      style: const TextStyle(fontSize: 10, color: Color(0xFF0E5C37)),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -2254,7 +2247,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                   style: OutlinedButton.styleFrom(
                     backgroundColor: isUploaded ? const Color(0xFFD1FAE5) : Colors.white,
                     side: BorderSide(
-                      color: isUploaded ? const Color(0xFF10B981) : const Color(0xFF00B252),
+                      color: isUploaded ? AppColors.goldPrimary : const Color(0xFF166C46),
                     ),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                     padding: const EdgeInsets.symmetric(vertical: 8),
@@ -2263,7 +2256,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                     isUploaded ? 'Change File' : 'Choose File',
                     style: TextStyle(
                       fontSize: 12,
-                      color: isUploaded ? const Color(0xFF059669) : const Color(0xFF00B252),
+                      color: isUploaded ? const Color(0xFF0E5C37) : const Color(0xFF166C46),
                     ),
                   ),
                 ),
@@ -2274,18 +2267,18 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                   child: OutlinedButton(
                     onPressed: () => _captureDocs(docKey),
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFF00B252)),
+                      side: const BorderSide(color: Color(0xFF166C46)),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                       padding: const EdgeInsets.symmetric(vertical: 8),
                     ),
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.camera_alt, size: 14, color: Color(0xFF00B252)),
+                        Icon(Icons.camera_alt, size: 14, color: Color(0xFF166C46)),
                         SizedBox(width: 4),
                         Text(
                           'Take Photo',
-                          style: TextStyle(fontSize: 12, color: Color(0xFF00B252)),
+                          style: TextStyle(fontSize: 12, color: Color(0xFF166C46)),
                         ),
                       ],
                     ),
@@ -2296,7 +2289,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                 const SizedBox(width: 8),
                 IconButton(
                   onPressed: () => _removeDocument(docKey),
-                  icon: const Icon(Icons.delete_outline, size: 16, color: Color(0xFFEF4444)),
+                  icon: const Icon(Icons.delete_outline, size: 16, color: Color(0xFFD33B31)),
                   constraints: const BoxConstraints(),
                   padding: const EdgeInsets.all(4),
                 ),
@@ -2337,11 +2330,11 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                 ),
               ),
               isUploaded
-                  ? const Icon(Icons.check_circle, color: Color(0xFF10B981), size: 16)
+                  ? const Icon(Icons.check_circle, color: Color(0xFF166C46), size: 16)
                   : TextButton(
                       onPressed: onTap,
                       style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(0, 0)),
-                      child: const Text('Upload', style: TextStyle(fontSize: 12, color: Color(0xFF00B252))),
+                      child: const Text('Upload', style: TextStyle(fontSize: 12, color: Color(0xFF166C46))),
                     ),
             ],
           ),
@@ -2379,7 +2372,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
           Container(
             width: 40,
             height: 40,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [Color(0xFF8B5CF6), Color(0xFF7C3AED)],
                 begin: Alignment.topLeft,
@@ -2443,7 +2436,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
             child: ElevatedButton(
               onPressed: _canContinueDirectors() ? _handleDirectorsInfoSubmit : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00B252),
+                backgroundColor: const Color(0xFF166C46),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -2507,7 +2500,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(8)),
-                borderSide: BorderSide(color: Color(0xFF00B252), width: 2),
+                borderSide: BorderSide(color: Color(0xFF166C46), width: 2),
               ),
               contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             ),
@@ -2529,7 +2522,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(8)),
-                borderSide: BorderSide(color: Color(0xFF00B252), width: 2),
+                borderSide: BorderSide(color: Color(0xFF166C46), width: 2),
               ),
               contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             ),
@@ -2560,7 +2553,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(8)),
-                borderSide: BorderSide(color: Color(0xFF00B252), width: 2),
+                borderSide: BorderSide(color: Color(0xFF166C46), width: 2),
               ),
               contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               counterText: '',
@@ -2593,7 +2586,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                           director.photoUploaded ? '✓ Uploaded' : 'Upload Photo',
                           style: TextStyle(
                             fontSize: 12,
-                            color: director.photoUploaded ? const Color(0xFF059669) : const Color(0xFF6B7280),
+                            color: director.photoUploaded ? const Color(0xFF0E5C37) : const Color(0xFF6B7280),
                           ),
                         ),
                       ),
@@ -2624,7 +2617,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                           director.idUploaded ? '✓ Uploaded' : 'Upload ID',
                           style: TextStyle(
                             fontSize: 12,
-                            color: director.idUploaded ? const Color(0xFF059669) : const Color(0xFF6B7280),
+                            color: director.idUploaded ? const Color(0xFF0E5C37) : const Color(0xFF6B7280),
                           ),
                         ),
                       ),
@@ -2692,12 +2685,8 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
           Container(
             width: 40,
             height: 40,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF00B252), Color(0xFF00A047)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+            decoration: BoxDecoration(
+              gradient: AppColors.goldGradient,
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.person, color: Colors.white, size: 20),
@@ -2744,7 +2733,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                   ElevatedButton(
                     onPressed: _startCamera,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00B252),
+                      backgroundColor: const Color(0xFF166C46),
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
@@ -2763,7 +2752,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                       height: 300,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: const Color(0xFF00B252), width: 4),
+                        border: Border.all(color: const Color(0xFF166C46), width: 4),
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(4),
@@ -2787,7 +2776,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                         ElevatedButton(
                           onPressed: _capturePhoto,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF00B252),
+                            backgroundColor: const Color(0xFF166C46),
                             shape: const CircleBorder(),
                             padding: const EdgeInsets.all(16),
                           ),
@@ -2808,7 +2797,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                   height: 200,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFF00B252), width: 2),
+                    border: Border.all(color: const Color(0xFF166C46), width: 2),
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(6),
@@ -2830,7 +2819,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                     ElevatedButton(
                       onPressed: _handleVerificationComplete,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF00B252),
+                        backgroundColor: const Color(0xFF166C46),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
@@ -2856,7 +2845,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                 children: [
                   Row(
                     children: const [
-                      Icon(Icons.error_outline, color: Color(0xFFEF4444), size: 16),
+                      Icon(Icons.error_outline, color: Color(0xFFD33B31), size: 16),
                       SizedBox(width: 8),
                       Text('Camera Error', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF991B1B))),
                     ],
@@ -2903,7 +2892,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
             height: 8,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: isMet ? const Color(0xFF10B981) : const Color(0xFFD1D5DB),
+              color: isMet ? AppColors.goldPrimary : const Color(0xFFD1D5DB),
             ),
           ),
           const SizedBox(width: 8),
@@ -2911,7 +2900,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
             requirement,
             style: TextStyle(
               fontSize: 12,
-              color: isMet ? const Color(0xFF059669) : const Color(0xFF9CA3AF),
+              color: isMet ? const Color(0xFF0E5C37) : const Color(0xFF9CA3AF),
             ),
           ),
         ],
@@ -2929,12 +2918,8 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
           Container(
             width: 40,
             height: 40,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF00B252), Color(0xFF00A047)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+            decoration: BoxDecoration(
+              gradient: AppColors.goldGradient,
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.shield, color: Colors.white, size: 20),
@@ -2978,7 +2963,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
               ),
               focusedBorder: const OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(8)),
-                borderSide: BorderSide(color: Color(0xFF00B252), width: 2),
+                borderSide: BorderSide(color: Color(0xFF166C46), width: 2),
               ),
             ),
           ),
@@ -3010,7 +2995,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
               ),
               focusedBorder: const OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(8)),
-                borderSide: BorderSide(color: Color(0xFF00B252), width: 2),
+                borderSide: BorderSide(color: Color(0xFF166C46), width: 2),
               ),
             ),
           ),
@@ -3042,7 +3027,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
             child: ElevatedButton(
               onPressed: _canCreateAccount() ? _handlePinSet : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00B252),
+                backgroundColor: const Color(0xFF166C46),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -3071,12 +3056,8 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
           Container(
             width: 40,
             height: 40,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF00B252), Color(0xFF00A047)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+            decoration: BoxDecoration(
+              gradient: AppColors.goldGradient,
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.person, color: Colors.white, size: 20),
@@ -3123,7 +3104,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                   ElevatedButton(
                     onPressed: _startCamera,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00B252),
+                      backgroundColor: const Color(0xFF166C46),
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
@@ -3142,7 +3123,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                       height: 300,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: const Color(0xFF00B252), width: 4),
+                        border: Border.all(color: const Color(0xFF166C46), width: 4),
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(4),
@@ -3166,7 +3147,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                         ElevatedButton(
                           onPressed: _capturePhoto,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF00B252),
+                            backgroundColor: const Color(0xFF166C46),
                             shape: const CircleBorder(),
                             padding: const EdgeInsets.all(16),
                           ),
@@ -3187,7 +3168,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                   height: 200,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFF00B252), width: 2),
+                    border: Border.all(color: const Color(0xFF166C46), width: 2),
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(6),
@@ -3209,7 +3190,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                     ElevatedButton(
                       onPressed: _handleVerificationComplete,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF00B252),
+                        backgroundColor: const Color(0xFF166C46),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
@@ -3235,7 +3216,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                 children: [
                   Row(
                     children: const [
-                      Icon(Icons.error_outline, color: Color(0xFFEF4444), size: 16),
+                      Icon(Icons.error_outline, color: Color(0xFFD33B31), size: 16),
                       SizedBox(width: 8),
                       Text('Camera Error', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF991B1B))),
                     ],
@@ -3280,12 +3261,8 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
           Container(
             width: 40,
             height: 40,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF00B252), Color(0xFF00A047)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+            decoration: BoxDecoration(
+              gradient: AppColors.goldGradient,
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.shield, color: Colors.white, size: 20),
@@ -3314,7 +3291,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                   value: _verificationProgress / 100,
                   strokeWidth: 8,
                   backgroundColor: const Color(0xFFE5E7EB),
-                  valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF00B252)),
+                  valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF166C46)),
                 ),
               ),
               Text(
@@ -3337,7 +3314,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
                   width: 8,
                   height: 8,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF00B252),
+                    color: const Color(0xFF166C46),
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -3361,9 +3338,9 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
   //         Container(
   //           width: 40,
   //           height: 40,
-  //           decoration: const BoxDecoration(
+  //           decoration: BoxDecoration(
   //             gradient: LinearGradient(
-  //               colors: [Color(0xFF00B252), Color(0xFF00A047)],
+  //               colors: [Color(0xFF166C46), Color(0xFF0E5C37)],
   //               begin: Alignment.topLeft,
   //               end: Alignment.bottomRight,
   //             ),
@@ -3411,7 +3388,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
   //             ),
   //             focusedBorder: const OutlineInputBorder(
   //               borderRadius: BorderRadius.all(Radius.circular(8)),
-  //               borderSide: BorderSide(color: Color(0xFF00B252), width: 2),
+  //               borderSide: BorderSide(color: Color(0xFF166C46), width: 2),
   //             ),
   //           ),
   //         ),
@@ -3444,7 +3421,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
   //             ),
   //             focusedBorder: const OutlineInputBorder(
   //               borderRadius: BorderRadius.all(Radius.circular(8)),
-  //               borderSide: BorderSide(color: Color(0xFF00B252), width: 2),
+  //               borderSide: BorderSide(color: Color(0xFF166C46), width: 2),
   //             ),
   //           ),
   //         ),
@@ -3476,7 +3453,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow> with 
   //           child: ElevatedButton(
   //             onPressed: _canCreateAccount() ? _handlePinSet : null,
   //             style: ElevatedButton.styleFrom(
-  //               backgroundColor: const Color(0xFF00B252),
+  //               backgroundColor: const Color(0xFF166C46),
   //               foregroundColor: Colors.white,
   //               padding: const EdgeInsets.symmetric(vertical: 12),
   //               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),

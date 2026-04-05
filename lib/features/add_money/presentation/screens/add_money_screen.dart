@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rimapay/core/theme/app_colors.dart';
 import 'package:flutter/services.dart';
 
 enum _AddMoneyStep { methodList, bankTransfer }
@@ -79,13 +80,13 @@ class _MethodListView extends StatelessWidget {
                       const SizedBox(height: 14),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(color: const Color(0xFFECFDF5), borderRadius: BorderRadius.circular(8)),
+                        decoration: BoxDecoration(color: const Color(0xFFF2F7F3), borderRadius: BorderRadius.circular(8)),
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.account_circle_outlined, size: 14, color: Color(0xFF00B252)),
+                            Icon(Icons.account_circle_outlined, size: 14, color: Color(0xFF166C46)),
                             SizedBox(width: 6),
-                            Text('Adebayo Okafor · 0123456789', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF00B252))),
+                            Text('Adebayo Okafor · 0123456789', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF166C46))),
                           ],
                         ),
                       ),
@@ -99,13 +100,13 @@ class _MethodListView extends StatelessWidget {
 
                 _MethodCard(
                   icon: Icons.account_balance_outlined,
-                  iconBg: const Color(0xFFECFDF5),
-                  iconColor: const Color(0xFF00B252),
+                  iconBg: const Color(0xFFF2F7F3),
+                  iconColor: const Color(0xFF166C46),
                   title: 'Bank Transfer',
                   subtitle: 'Transfer from any bank account',
                   badge: 'Free · Instant',
-                  badgeColor: const Color(0xFF00B252),
-                  badgeBg: const Color(0xFFECFDF5),
+                  badgeColor: const Color(0xFF166C46),
+                  badgeBg: const Color(0xFFF2F7F3),
                   onTap: onBankTransfer,
                 ),
                 const SizedBox(height: 10),
@@ -263,7 +264,7 @@ class _BankTransferView extends StatelessWidget {
           SizedBox(width: 8),
           Text("We'll notify you when funds arrive"),
         ]),
-        backgroundColor: const Color(0xFF00B252),
+        backgroundColor: const Color(0xFF166C46),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -297,8 +298,8 @@ class _BankTransferView extends StatelessWidget {
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(colors: [Color(0xFF00B252), Color(0xFF00A651)]),
+                        decoration: BoxDecoration(
+                          gradient: AppColors.goldGradient,
                           borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
                         ),
                         child: const Row(
@@ -335,14 +336,14 @@ class _BankTransferView extends StatelessWidget {
                             width: double.infinity, height: 44,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: const Color(0xFF00B252), width: 1.5),
+                              border: Border.all(color: const Color(0xFF166C46), width: 1.5),
                             ),
                             child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.copy_rounded, size: 16, color: Color(0xFF00B252)),
+                                Icon(Icons.copy_rounded, size: 16, color: Color(0xFF166C46)),
                                 SizedBox(width: 8),
-                                Text('Copy All Details', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF00B252))),
+                                Text('Copy All Details', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF166C46))),
                               ],
                             ),
                           ),
@@ -363,7 +364,7 @@ class _BankTransferView extends StatelessWidget {
                   ),
                   child: const Column(
                     children: [
-                      _InfoRow(icon: Icons.bolt_rounded, iconColor: Color(0xFF00B252), text: 'Funds reflect instantly after transfer'),
+                      _InfoRow(icon: Icons.bolt_rounded, iconColor: Color(0xFF166C46), text: 'Funds reflect instantly after transfer'),
                       SizedBox(height: 10),
                       _InfoRow(icon: Icons.person_outline_rounded, iconColor: Color(0xFFF59E0B), text: 'Use your registered name when transferring'),
                       SizedBox(height: 10),
@@ -388,7 +389,7 @@ class _BankTransferView extends StatelessWidget {
             child: Container(
               width: double.infinity, height: 54,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [Color(0xFF00B252), Color(0xFF00A651)], begin: Alignment.centerLeft, end: Alignment.centerRight),
+                gradient: AppColors.goldGradient,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Row(
@@ -476,8 +477,8 @@ class _AddMoneyHeader extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.fromLTRB(20, topPad + 16, 20, 24),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(colors: [Color(0xFF00B252), Color(0xFF007A35)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+      decoration: BoxDecoration(
+        gradient: AppColors.goldGradient,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -391,7 +391,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                               style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
-                                  color: Color(0xFF00B252))),
+                                  color: Color(0xFF166C46))),
                         ),
                       ),
                       const SizedBox(height: 28),
@@ -407,8 +407,8 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                             gradient: canSubmit
                                 ? const LinearGradient(
                                     colors: [
-                                        Color(0xFF00B252),
-                                        Color(0xFF00A651)
+                                        Color(0xFF166C46),
+                                        Color(0xFF166C46)
                                       ],
                                     begin: Alignment.centerLeft,
                                     end: Alignment.centerRight)
@@ -475,7 +475,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                                         strokeWidth: 2,
                                         valueColor:
                                             AlwaysStoppedAnimation<Color>(
-                                                Color(0xFF00B252)))),
+                                                Color(0xFF166C46)))),
                                 const SizedBox(width: 12),
                                 const Text('Authenticating...',
                                     style: TextStyle(
@@ -484,7 +484,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                                         fontWeight: FontWeight.w600)),
                               ] else ...[
                                 const Icon(Icons.fingerprint,
-                                    color: Color(0xFF00B252), size: 24),
+                                    color: Color(0xFF166C46), size: 24),
                                 const SizedBox(width: 10),
                                 Text(
                                   _biometricSupported
@@ -515,7 +515,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                                   queryParameters: {'mode': 'signup'}),
                               child: const Text('Create Account',
                                   style: TextStyle(
-                                      color: Color(0xFF00B252),
+                                      color: Color(0xFF166C46),
                                       fontSize: 14,
                                       fontWeight: FontWeight.w700)),
                             ),
@@ -536,7 +536,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
   Widget _buildSuccessScreen() {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -567,12 +567,8 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                         child: Container(
                           width: 96,
                           height: 96,
-                          decoration: const BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Color(0xFF00B252), Color(0xFF00A047)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
+                          decoration: BoxDecoration(
+                            gradient: AppColors.goldGradient,
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
@@ -660,15 +656,15 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
           // Green gradient background
           Positioned.fill(
             child: Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Color(0xFF001a0c),
-                    Color(0xFF003d1a),
-                    Color(0xFF005e27),
-                    Color(0xFF003d1a),
+                    Color(0xFF073D25),
+                    Color(0xFF0B4F2F),
+                    Color(0xFF073D25),
+                    Color(0xFF0B4F2F),
                   ],
                   stops: [0.0, 0.3, 0.65, 1.0],
                 ),
@@ -783,6 +779,16 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                             context.pushNamed("business-account");
                           },
                         ),
+                        const SizedBox(height: 14),
+                        _buildAccountTypeCard(
+                          title: 'Underbanked',
+                          subtitle: 'Financial inclusion — micro-loans & savings groups',
+                          icon: Icons.people_outline,
+                          onTap: () {
+                            setState(() => _currentFlow = Flow.underbanking);
+                            context.pushNamed("personal-account");
+                          },
+                        ),
                       ],
                     ),
                   ),
@@ -834,12 +840,12 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
               width: 46,
               height: 46,
               decoration: BoxDecoration(
-                color: const Color(0xFFecfdf5),
+                color: const Color(0xFFF2F7F3),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 icon,
-                color: const Color(0xFF00B252),
+                color: const Color(0xFF166C46),
                 size: 22,
               ),
             ),
@@ -949,16 +955,16 @@ class _AuthFloatingFieldState extends State<_AuthFloatingField> {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: _focused
-              ? const Color(0xFF00B252)
+              ? AppColors.goldPrimary
               : hasValue
-                  ? const Color(0xFF00B252).withOpacity(0.35)
+                  ? AppColors.goldPrimary.withOpacity(0.35)
                   : const Color(0xFFE4E7EC),
           width: _focused ? 1.5 : 1,
         ),
         boxShadow: _focused
             ? [
                 BoxShadow(
-                    color: const Color(0xFF00B252).withOpacity(0.08),
+                    color: const Color(0xFF166C46).withOpacity(0.08),
                     blurRadius: 10,
                     offset: const Offset(0, 3))
               ]
@@ -975,7 +981,7 @@ class _AuthFloatingFieldState extends State<_AuthFloatingField> {
               child: Icon(widget.prefixIcon,
                   size: 18,
                   color: _focused
-                      ? const Color(0xFF00B252)
+                      ? AppColors.goldPrimary
                       : const Color(0xFF9CA3AF)),
             ),
           ),
@@ -1025,7 +1031,7 @@ class _AuthFloatingFieldState extends State<_AuthFloatingField> {
                   fontWeight: FontWeight.w500,
                   fontFamily: 'Effra',
                   color: _focused
-                      ? const Color(0xFF00B252)
+                      ? AppColors.goldPrimary
                       : const Color(0xFF9CA3AF),
                 ),
                 child: Text(widget.label),

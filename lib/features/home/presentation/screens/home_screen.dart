@@ -49,8 +49,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     _QuickAction(
       label: 'More',
       icon: Icons.apps_rounded,
-      iconColor: Color(0xFF00B252),
-      bgColor: Color(0xFFecfdf5),
+      iconColor: Color(0xFF166C46),
+      bgColor: Color(0xFFF2F7F3),
       route: '/bills',
     ),
   ];
@@ -195,15 +195,15 @@ class _HeroSection extends StatelessWidget {
             right: 20,
             bottom: 60, // extra space for the curve overlap
           ),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Color(0xFF001a0c),
-                Color(0xFF003d1a),
-                Color(0xFF005e27),
-                Color(0xFF003d1a),
+                Color(0xFF073D25),
+                Color(0xFF0B4F2F),
+                Color(0xFF073D25),
+                Color(0xFF0B4F2F),
               ],
               stops: [0.0, 0.3, 0.65, 1.0],
             ),
@@ -279,7 +279,7 @@ class _HeroSection extends StatelessWidget {
                               width: 8,
                               height: 8,
                               decoration: const BoxDecoration(
-                                color: Color(0xFFEF4444),
+                                color: Color(0xFFD33B31),
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -309,7 +309,7 @@ class _HeroSection extends StatelessWidget {
                           CircleAvatar(
                             radius: 13,
                             backgroundColor:
-                                const Color(0xFF00B252).withOpacity(0.8),
+                                const Color(0xFF166C46).withOpacity(0.8),
                             child: const Text(
                               'AO',
                               style: TextStyle(
@@ -399,12 +399,12 @@ class _HeroSection extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(Icons.star_rounded,
-                            color: Color(0xFF4ADE80), size: 11),
+                            color: Color(0xFFD4AF37), size: 11),
                         SizedBox(width: 4),
                         Text(
                           'Basic Tier',
                           style: TextStyle(
-                            color: Color(0xFF4ADE80),
+                            color: Color(0xFFD4AF37),
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Effra',
@@ -417,26 +417,33 @@ class _HeroSection extends StatelessWidget {
 
                   const SizedBox(height: 20),
 
-                  // Add Money / Send Money buttons
+                  // Transfer / Add Money buttons (Transfer first, gold CTA)
                   Row(
                     children: [
                       Expanded(
                         child: GestureDetector(
-                          onTap: () => context.push('/add-money'),
+                          onTap: () => context.push('/transfer'),
                           child: Container(
                             height: 46,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF00B252),
+                              gradient: AppColors.goldGradient,
                               borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.goldPrimary.withOpacity(0.3),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
                             ),
                             child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.add_circle_outline,
-                                    color: Colors.white, size: 18),
+                                Icon(Icons.send_rounded,
+                                    color: Colors.white, size: 17),
                                 SizedBox(width: 7),
                                 Text(
-                                  'Add Money',
+                                  'Transfer',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 14,
@@ -451,7 +458,7 @@ class _HeroSection extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: GestureDetector(
-                          onTap: () => context.push('/transfer'),
+                          onTap: () => context.push('/add-money'),
                           child: Container(
                             height: 46,
                             decoration: BoxDecoration(
@@ -463,11 +470,11 @@ class _HeroSection extends StatelessWidget {
                             child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.send_rounded,
-                                    color: Colors.white, size: 17),
+                                Icon(Icons.add_circle_outline,
+                                    color: Colors.white, size: 18),
                                 SizedBox(width: 7),
                                 Text(
-                                  'Send Money',
+                                  'Add Money',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 14,
@@ -836,7 +843,7 @@ class _RecentTransactionsSection extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF00B252),
+                  color: Color(0xFF166C46),
                 ),
               ),
             ),
@@ -911,8 +918,8 @@ class _TransactionRow extends StatelessWidget {
             height: 42,
             decoration: BoxDecoration(
               color: tx.sent
-                  ? const Color(0xFFEF4444).withOpacity(0.12)
-                  : const Color(0xFF00B252).withOpacity(0.12),
+                  ? const Color(0xFFD33B31).withOpacity(0.12)
+                  : const Color(0xFF166C46).withOpacity(0.12),
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -922,8 +929,8 @@ class _TransactionRow extends StatelessWidget {
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
                   color: tx.sent
-                      ? const Color(0xFFEF4444)
-                      : const Color(0xFF00B252),
+                      ? const Color(0xFFD33B31)
+                      : const Color(0xFF166C46),
                 ),
               ),
             ),
@@ -961,8 +968,8 @@ class _TransactionRow extends StatelessWidget {
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: tx.sent
-                      ? const Color(0xFFEF4444)
-                      : const Color(0xFF00B252),
+                      ? const Color(0xFFD33B31)
+                      : const Color(0xFF166C46),
                 ),
               ),
               const SizedBox(height: 2),
@@ -1004,12 +1011,12 @@ class _AccountTile extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: isActive
-            ? const Color(0xFF00B252).withOpacity(0.06)
+            ? AppColors.goldPrimary.withOpacity(0.06)
             : const Color(0xFFF9FAFB),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isActive
-              ? const Color(0xFF00B252).withOpacity(0.3)
+              ? AppColors.goldPrimary.withOpacity(0.3)
               : const Color(0xFFE4E7EC),
         ),
       ),
@@ -1018,12 +1025,12 @@ class _AccountTile extends StatelessWidget {
           CircleAvatar(
             radius: 20,
             backgroundColor:
-                const Color(0xFF00B252).withOpacity(0.15),
+                const Color(0xFF166C46).withOpacity(0.15),
             child: Text(
               initials,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF00B252),
+                color: Color(0xFF166C46),
                 fontSize: 13,
               ),
             ),
@@ -1046,7 +1053,7 @@ class _AccountTile extends StatelessWidget {
           ),
           if (isActive)
             const Icon(Icons.check_circle,
-                color: Color(0xFF00B252), size: 20),
+                color: Color(0xFF166C46), size: 20),
         ],
       ),
     );

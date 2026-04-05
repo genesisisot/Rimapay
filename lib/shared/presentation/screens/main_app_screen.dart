@@ -627,7 +627,7 @@ import '../../../core/providers/auth_provider.dart';
 //                 'View All',
 //                 style: TextStyle(
 //                   fontSize: 12,
-//                   color: Color(0xFF00B252),
+//                   color: Color(0xFF166C46),
 //                 ),
 //               ),
 //             ),
@@ -771,7 +771,7 @@ import '../../../core/providers/auth_provider.dart';
 //           child: ElevatedButton(
 //             onPressed: () => _showSnackBar('Physical card request coming soon'),
 //             style: ElevatedButton.styleFrom(
-//               backgroundColor: const Color(0xFF00B252),
+//               backgroundColor: const Color(0xFF166C46),
 //               foregroundColor: Colors.white,
 //               padding: const EdgeInsets.symmetric(vertical: 16),
 //               shape: RoundedRectangleBorder(
@@ -794,8 +794,8 @@ import '../../../core/providers/auth_provider.dart';
 //           child: OutlinedButton(
 //             onPressed: () => _showSnackBar('Card activation coming soon'),
 //             style: OutlinedButton.styleFrom(
-//               foregroundColor: const Color(0xFF00B252),
-//               side: const BorderSide(color: Color(0xFF00B252), width: 2),
+//               foregroundColor: const Color(0xFF166C46),
+//               side: const BorderSide(color: Color(0xFF166C46), width: 2),
 //               padding: const EdgeInsets.symmetric(vertical: 16),
 //               shape: RoundedRectangleBorder(
 //                 borderRadius: BorderRadius.circular(12),
@@ -836,9 +836,9 @@ import '../../../core/providers/auth_provider.dart';
 //                     child: Container(
 //                       width: 64,
 //                       height: 64,
-//                       decoration: const BoxDecoration(
+//                       decoration: BoxDecoration(
 //                         gradient: LinearGradient(
-//                           colors: [Color(0xFF00B252), Color(0xFF00A048)],
+//                           colors: [Color(0xFF166C46), Color(0xFF0E5C37)],
 //                         ),
 //                         shape: BoxShape.circle,
 //                       ),
@@ -892,7 +892,7 @@ import '../../../core/providers/auth_provider.dart';
 //                         _handleBiometricSuccess();
 //                       },
 //                       style: ElevatedButton.styleFrom(
-//                         backgroundColor: const Color(0xFF00B252),
+//                         backgroundColor: const Color(0xFF166C46),
 //                         foregroundColor: Colors.white,
 //                         padding: const EdgeInsets.symmetric(vertical: 12),
 //                         shape: RoundedRectangleBorder(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rimapay/core/theme/app_colors.dart';
 import 'package:flutter/services.dart';
 
 class ToDoItem {
@@ -207,7 +208,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
           description: 'Transfer to banks & wallets',
           icon: Icons.send,
           gradient: const LinearGradient(
-            colors: [Color(0xFF4ADE80), Color(0xFF059669)],
+            colors: [Color(0xFFD4AF37), Color(0xFF0E5C37)],
           ),
           action: () {},
         ),
@@ -371,7 +372,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: Colors.white.withOpacity(0.4), width: 2),
             ),
-            child: const Icon(Icons.business, color: Color(0xFF00B252)),
+            child: const Icon(Icons.business, color: Color(0xFF166C46)),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -562,7 +563,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF00B252),
+                  color: Color(0xFF166C46),
                 ),
               ),
             ),
@@ -741,11 +742,11 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Color(0xFF003d1a),
-                Color(0xFF005e27),
-                Color(0xFF007432),
-                Color(0xFF005e27),
-                Color(0xFF003d1a),
+                Color(0xFF0B4F2F),
+                Color(0xFF073D25),
+                Color(0xFF09422A),
+                Color(0xFF073D25),
+                Color(0xFF0B4F2F),
               ],
             ),
             borderRadius: BorderRadius.circular(16),
@@ -881,19 +882,17 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
         decoration: BoxDecoration(
-          color: const Color(0xFF00B252).withOpacity(0.08),
+          color: const Color(0xFF166C46).withOpacity(0.08),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: const Color(0xFF00B252).withOpacity(0.15)),
+          border: Border.all(color: const Color(0xFF166C46).withOpacity(0.15)),
         ),
         child: Column(
           children: [
             Container(
               width: 28,
               height: 28,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF00B252), Color(0xFF00A047)],
-                ),
+              decoration: BoxDecoration(
+                gradient: AppColors.goldGradient,
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: Colors.white, size: 14),
@@ -1053,7 +1052,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF00B252),
+                  color: Color(0xFF166C46),
                 ),
               ),
             ),
@@ -1196,7 +1195,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF00B252),
+                  color: Color(0xFF166C46),
                 ),
               ),
             ),

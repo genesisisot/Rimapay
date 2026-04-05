@@ -115,8 +115,8 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
       id: 'glo',
       name: 'GLO',
       code: 'GLO',
-      color: const Color(0xFF00A651),
-      bgColor: const Color(0xFFE8F5E8),
+      color: const Color(0xFF166C46),
+      bgColor: const Color(0xFFF2F7F3),
       logo: 'assets/images/Glo.png',
     ),
     NetworkProvider(
@@ -495,9 +495,9 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                       itemBuilder: (_, i) {
                         final c = _recentPurchases[i];
                         final colors = [
-                          const Color(0xFF00B252),
+                          const Color(0xFF166C46),
                           const Color(0xFF7C3AED),
-                          const Color(0xFFEF4444),
+                          const Color(0xFFD33B31),
                         ];
                         final bgColor = colors[i % colors.length];
                         return GestureDetector(
@@ -650,7 +650,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: _selectedPlan != null
-                                ? const Color(0xFF00B252).withOpacity(0.5)
+                                ? AppColors.goldPrimary.withOpacity(0.5)
                                 : const Color(0xFFE4E7EC),
                           ),
                         ),
@@ -664,7 +664,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: 8, vertical: 4),
                                           decoration: BoxDecoration(
-                                            color: const Color(0xFFECFDF5),
+                                            color: const Color(0xFFF2F7F3),
                                             borderRadius:
                                                 BorderRadius.circular(6),
                                           ),
@@ -673,7 +673,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                                             style: const TextStyle(
                                               fontSize: 12,
                                               fontWeight: FontWeight.w700,
-                                              color: Color(0xFF00B252),
+                                              color: Color(0xFF166C46),
                                             ),
                                           ),
                                         ),
@@ -903,7 +903,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  gradient: _isFormValid ? AppColors.primaryGradient : null,
+                  gradient: _isFormValid ? AppColors.goldGradient : null,
                   color: _isFormValid ? null : const Color(0xFFF5F5F5),
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -1143,7 +1143,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
               },
               child: Container(
                 decoration: BoxDecoration(
-                  gradient: isSelected ? AppColors.primaryGradient : null,
+                  gradient: isSelected ? AppColors.goldGradient : null,
                   color: isSelected ? null : Colors.white,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
@@ -1212,7 +1212,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
               child: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  gradient: isSelected ? AppColors.primaryGradient : null,
+                  gradient: isSelected ? AppColors.goldGradient : null,
                   color: isSelected ? null : Colors.white,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
@@ -1308,7 +1308,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                             width: 32,
                             height: 32,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFE8F5E8),
+                              color: const Color(0xFFF2F7F3),
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Center(
@@ -1391,7 +1391,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                 child: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE8F5E8).withOpacity(0.5),
+                    color: const Color(0xFFF2F7F3).withOpacity(0.5),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Center(
@@ -1570,12 +1570,12 @@ class _PlanPickerSheetState extends State<_PlanPickerSheet> {
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? const Color(0xFFECFDF5)
+                                ? const Color(0xFFF2F7F3)
                                 : const Color(0xFFF9FAFB),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: isSelected
-                                  ? const Color(0xFF00B252)
+                                  ? AppColors.goldPrimary
                                   : const Color(0xFFE5E7EB),
                               width: isSelected ? 2 : 1,
                             ),
@@ -1587,7 +1587,7 @@ class _PlanPickerSheetState extends State<_PlanPickerSheet> {
                                 height: 44,
                                 decoration: BoxDecoration(
                                   color: isSelected
-                                      ? const Color(0xFF00B252)
+                                      ? AppColors.goldPrimary
                                           .withOpacity(0.12)
                                       : Colors.white,
                                   borderRadius:
@@ -1600,7 +1600,7 @@ class _PlanPickerSheetState extends State<_PlanPickerSheet> {
                                       fontSize: 11,
                                       fontWeight: FontWeight.w700,
                                       color: isSelected
-                                          ? const Color(0xFF00B252)
+                                          ? AppColors.goldPrimary
                                           : const Color(0xFF374151),
                                     ),
                                   ),
@@ -1618,7 +1618,7 @@ class _PlanPickerSheetState extends State<_PlanPickerSheet> {
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
                                         color: isSelected
-                                            ? const Color(0xFF00B252)
+                                            ? AppColors.goldPrimary
                                             : const Color(0xFF101828),
                                       ),
                                     ),
@@ -1638,14 +1638,14 @@ class _PlanPickerSheetState extends State<_PlanPickerSheet> {
                                   fontSize: 15,
                                   fontWeight: FontWeight.w700,
                                   color: isSelected
-                                      ? const Color(0xFF00B252)
+                                      ? AppColors.goldPrimary
                                       : const Color(0xFF101828),
                                 ),
                               ),
                               if (isSelected) ...[
                                 const SizedBox(width: 8),
                                 const Icon(Icons.check_circle,
-                                    color: Color(0xFF00B252), size: 18),
+                                    color: Color(0xFF166C46), size: 18),
                               ],
                             ],
                           ),
@@ -1671,7 +1671,7 @@ class _PlanPickerSheetState extends State<_PlanPickerSheet> {
             const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
           color:
-              isSelected ? const Color(0xFF00B252) : const Color(0xFFF3F4F6),
+              isSelected ? AppColors.goldPrimary : const Color(0xFFF3F4F6),
           borderRadius: BorderRadius.circular(999),
         ),
         child: Text(
@@ -1746,9 +1746,9 @@ class _DataFloatingFieldState extends State<_DataFloatingField> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: _focused
-              ? const Color(0xFF00B252)
+              ? AppColors.goldPrimary
               : _hasValue
-                  ? const Color(0xFF00B252).withOpacity(0.4)
+                  ? const Color(0xFF166C46).withOpacity(0.4)
                   : const Color(0xFFE4E7EC),
           width: _focused ? 2 : 1,
         ),
@@ -1769,7 +1769,7 @@ class _DataFloatingFieldState extends State<_DataFloatingField> {
                   fontWeight: FontWeight.w500,
                   height: 1.2,
                   color: isActive
-                      ? const Color(0xFF00B252)
+                      ? AppColors.goldPrimary
                       : const Color(0xFF9CA3AF),
                 ),
                 child: Text(widget.label),
@@ -1852,11 +1852,7 @@ class _DataCTA extends StatelessWidget {
           height: 54,
           decoration: BoxDecoration(
             gradient: enabled
-                ? const LinearGradient(
-                    colors: [Color(0xFF00B252), Color(0xFF00A651)],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  )
+                ? AppColors.goldGradient
                 : null,
             color: enabled ? null : const Color(0xFFCCCCCC),
             borderRadius: BorderRadius.circular(12),

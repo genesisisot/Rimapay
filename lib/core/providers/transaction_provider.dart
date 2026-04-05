@@ -94,11 +94,11 @@ class Transaction {
   Color get statusColor {
     switch (status) {
       case TransactionStatus.success:
-        return const Color(0xFF00B252);
+        return const Color(0xFF166C46);
       case TransactionStatus.pending:
         return const Color(0xFFEAB308);
       case TransactionStatus.failed:
-        return const Color(0xFFEF4444);
+        return const Color(0xFFD33B31);
     }
   }
 }

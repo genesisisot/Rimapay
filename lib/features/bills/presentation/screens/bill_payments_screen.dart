@@ -118,8 +118,8 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
         title: 'Airtime→Cash',
         description: 'Convert airtime',
         icon: '💰',
-        color: const Color(0xFF00B252),
-        bgColor: const Color(0xFFecfdf5),
+        color: const Color(0xFF166C46),
+        bgColor: const Color(0xFFF2F7F3),
         route: '/airtime-to-cash',
       ),
       BillService(
@@ -163,8 +163,8 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
         title: 'Gov. Payments',
         description: 'Taxes & fees',
         icon: '🏛️',
-        color: const Color(0xFF00B252),
-        bgColor: const Color(0xFFecfdf5),
+        color: const Color(0xFF166C46),
+        bgColor: const Color(0xFFF2F7F3),
         route: '/state-government',
       ),
     ];
@@ -185,7 +185,11 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
       _showUpgradeSheet(service);
       return;
     }
-    context.push(service.route);
+    if (service.id == 'data') {
+      context.push('/bills/airtime', extra: 1);
+    } else {
+      context.push(service.route);
+    }
   }
 
   void _showUpgradeSheet(BillService service) {
@@ -279,14 +283,14 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
                       right: 20,
                       bottom: 28,
                     ),
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          Color(0xFF001a0c),
-                          Color(0xFF003d1a),
-                          Color(0xFF005e27),
+                          Color(0xFF073D25),
+                          Color(0xFF0B4F2F),
+                          Color(0xFF073D25),
                         ],
                         stops: [0.0, 0.5, 1.0],
                       ),
@@ -303,7 +307,13 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
                           children: [
                             // Back button
                             GestureDetector(
-                              onTap: () => context.pop(),
+                              onTap: () {
+                                if (context.canPop()) {
+                                  context.pop();
+                                } else {
+                                  context.go('/home');
+                                }
+                              },
                               child: Container(
                                 width: 36,
                                 height: 36,

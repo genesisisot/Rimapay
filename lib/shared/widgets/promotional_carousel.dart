@@ -113,7 +113,7 @@ class _PromotionalCarouselState extends ConsumerState<PromotionalCarousel> with 
         icon: Icons.credit_card,
         iconColor: Colors.white,
         bgGradient: const LinearGradient(
-          colors: [Color(0xFFEF4444), Color(0xFFDC2626), Color(0xFFB91C1C)],
+          colors: [Color(0xFFD33B31), Color(0xFFDC2626), Color(0xFFB91C1C)],
         ),
         title: language('getLoansToday'),
         description: language('quickApprovalProcess'),

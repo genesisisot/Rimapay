@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'noise_painter.dart';
+import '../../core/theme/app_colors.dart';
 
 export 'package:flutter/services.dart' show TextInputFormatter;
 
@@ -28,14 +29,14 @@ class BillGreenHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFF001a0c),
-            Color(0xFF003d1a),
-            Color(0xFF005e27),
+            Color(0xFF073D25),
+            Color(0xFF0B4F2F),
+            Color(0xFF073D25),
           ],
         ),
       ),
@@ -184,7 +185,7 @@ class BillAccountCard extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF003d1a), Color(0xFF006B2E)],
+          colors: [Color(0xFF0B4F2F), Color(0xFF006B2E)],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white.withOpacity(0.15)),
@@ -297,7 +298,7 @@ class BillPaginationDots extends StatelessWidget {
           height: 6,
           decoration: BoxDecoration(
             color: isActive
-                ? const Color(0xFF00B252)
+                ? AppColors.goldPrimary
                 : const Color(0xFFD1D5DB),
             borderRadius: BorderRadius.circular(999),
           ),
@@ -462,7 +463,7 @@ class BillOrangeCTA extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: enabled
                 ? const LinearGradient(
-                    colors: [Color(0xFF00B252), Color(0xFF00A651)],
+                    colors: [Color(0xFF166C46), Color(0xFF166C46)],
                   )
                 : null,
             color: enabled ? null : const Color(0xFFD1D5DB),
@@ -730,9 +731,9 @@ class _BillFloatingFieldState extends State<BillFloatingField> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: _isFocused
-              ? const Color(0xFF00B252)
+              ? AppColors.goldPrimary
               : hasValue
-                  ? const Color(0xFF00B252).withOpacity(0.4)
+                  ? const Color(0xFF166C46).withOpacity(0.4)
                   : const Color(0xFFE4E7EC),
           width: _isFocused ? 2 : 1,
         ),
@@ -753,7 +754,7 @@ class _BillFloatingFieldState extends State<BillFloatingField> {
                   fontSize: isActive ? 11 : 15,
                   fontWeight: FontWeight.w500,
                   color: isActive
-                      ? const Color(0xFF00B252)
+                      ? AppColors.goldPrimary
                       : const Color(0xFF98A2B3),
                   fontFamily: 'Effra',
                 ),
@@ -956,7 +957,7 @@ class _PinConfirmSheetState extends State<_PinConfirmSheet> {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: filled
-                      ? const Color(0xFF00B252)
+                      ? AppColors.goldPrimary
                       : const Color(0xFFE4E7EC),
                 ),
               );
@@ -983,12 +984,12 @@ class _PinConfirmSheetState extends State<_PinConfirmSheet> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFECFDF5),
+                    color: const Color(0xFFF2F7F3),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
                     Icons.fingerprint,
-                    color: Color(0xFF00B252),
+                    color: Color(0xFF166C46),
                     size: 22,
                   ),
                 ),
@@ -998,7 +999,7 @@ class _PinConfirmSheetState extends State<_PinConfirmSheet> {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF00B252),
+                    color: Color(0xFF166C46),
                   ),
                 ),
               ],

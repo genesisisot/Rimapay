@@ -66,7 +66,19 @@
       "Bash(ls \"c:\\\\Users\\\\Spacecowblues\\\\Downloads\\\\rimapay\\\\rimapay\\\\lib\\\\main\"*)",
       "Bash(gh workflow:*)",
       "Bash(where gh:*)",
-      "Read(//c/Program Files/GitHub CLI/**)"
+      "Read(//c/Program Files/GitHub CLI/**)",
+      "Bash(find lib:*)",
+      "Bash(dart run:*)",
+      "Bash(python3 -)",
+      "Bash(pip install:*)",
+      "Bash(python -m pip install Pillow --quiet)",
+      "Bash(python -c \"from PIL import Image; print\\('OK'\\)\")",
+      "Bash(python -)",
+      "Bash(sed -n '828,840p' lib/features/airtime/presentation/screens/airtime_purchase_screen.dart)",
+      "Bash(sed -n '82,92p' lib/features/electricity/presentation/screens/electricity_purchase_screen.dart)",
+      "Bash(sed -n '268,278p' lib/features/electricity/presentation/screens/electricity_purchase_screen.dart)",
+      "Bash(sed -n '740,750p' lib/features/electricity/presentation/screens/electricity_purchase_screen.dart)",
+      "Bash(grep -v \"^--$\")"
     ]
   }
 }

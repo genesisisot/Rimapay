@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rimapay/core/theme/app_colors.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
 import '../../../success/presentation/screens/success_screen.dart';
@@ -103,9 +104,9 @@ class _TransportScreenState extends State<TransportScreen> {
                         margin: const EdgeInsets.only(bottom: 8),
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFFECFDF5) : const Color(0xFFFAFBFC),
+                          color: isSelected ? const Color(0xFFF2F7F3) : const Color(0xFFFAFBFC),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: isSelected ? const Color(0xFF00B252).withOpacity(0.4) : const Color(0xFFE4E7EC)),
+                          border: Border.all(color: isSelected ? AppColors.goldPrimary.withOpacity(0.4) : const Color(0xFFE4E7EC)),
                         ),
                         child: Row(
                           children: [
@@ -115,7 +116,7 @@ class _TransportScreenState extends State<TransportScreen> {
                               Text(city.name, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF101828))),
                               Text(city.state, style: const TextStyle(fontSize: 12, color: Color(0xFF667085))),
                             ])),
-                            if (isSelected) const Icon(Icons.check_circle, color: Color(0xFF00B252), size: 20),
+                            if (isSelected) const Icon(Icons.check_circle, color: Color(0xFF166C46), size: 20),
                           ],
                         ),
                       ),
@@ -152,9 +153,9 @@ class _TransportScreenState extends State<TransportScreen> {
                 margin: const EdgeInsets.only(bottom: 10),
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: _selectedOperator?.id == op.id ? const Color(0xFFECFDF5) : const Color(0xFFFAFBFC),
+                  color: _selectedOperator?.id == op.id ? const Color(0xFFF2F7F3) : const Color(0xFFFAFBFC),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: _selectedOperator?.id == op.id ? const Color(0xFF00B252).withOpacity(0.4) : const Color(0xFFE4E7EC)),
+                  border: Border.all(color: _selectedOperator?.id == op.id ? const Color(0xFF166C46).withOpacity(0.4) : const Color(0xFFE4E7EC)),
                 ),
                 child: Row(
                   children: [
@@ -165,7 +166,7 @@ class _TransportScreenState extends State<TransportScreen> {
                       Text(op.name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF101828))),
                       Text(op.description, style: const TextStyle(fontSize: 12, color: Color(0xFF667085))),
                     ])),
-                    Text('₦${op.pricePerSeat}/seat', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF00B252))),
+                    Text('₦${op.pricePerSeat}/seat', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF166C46))),
                   ],
                 ),
               ),
@@ -183,7 +184,7 @@ class _TransportScreenState extends State<TransportScreen> {
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 90)),
       builder: (ctx, child) => Theme(
-        data: Theme.of(ctx).copyWith(colorScheme: const ColorScheme.light(primary: Color(0xFF00B252))),
+        data: Theme.of(ctx).copyWith(colorScheme: const ColorScheme.light(primary: Color(0xFF166C46))),
         child: child!,
       ),
     );
@@ -236,7 +237,7 @@ class _TransportScreenState extends State<TransportScreen> {
                         border: Border.all(color: const Color(0xFFE4E7EC))),
                     child: Column(
                       children: [
-                        _RouteSelector(label: 'From', icon: Icons.trip_origin_rounded, iconColor: const Color(0xFF00B252),
+                        _RouteSelector(label: 'From', icon: Icons.trip_origin_rounded, iconColor: const Color(0xFF166C46),
                             value: _origin != null ? '${_origin!.name}, ${_origin!.state}' : null,
                             hint: 'Select departure city', onTap: () => _openCitySheet(true)),
                         Padding(
@@ -246,13 +247,13 @@ class _TransportScreenState extends State<TransportScreen> {
                             Container(
                               margin: const EdgeInsets.symmetric(horizontal: 12),
                               padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(color: const Color(0xFFECFDF5), shape: BoxShape.circle),
-                              child: const Icon(Icons.swap_vert_rounded, color: Color(0xFF00B252), size: 16),
+                              decoration: BoxDecoration(color: const Color(0xFFF2F7F3), shape: BoxShape.circle),
+                              child: const Icon(Icons.swap_vert_rounded, color: Color(0xFF166C46), size: 16),
                             ),
                             const Expanded(child: Divider(color: Color(0xFFE4E7EC))),
                           ]),
                         ),
-                        _RouteSelector(label: 'To', icon: Icons.location_on_rounded, iconColor: const Color(0xFFEF4444),
+                        _RouteSelector(label: 'To', icon: Icons.location_on_rounded, iconColor: const Color(0xFFD33B31),
                             value: _destination != null ? '${_destination!.name}, ${_destination!.state}' : null,
                             hint: 'Select arrival city', onTap: () => _openCitySheet(false)),
                       ],
@@ -270,10 +271,10 @@ class _TransportScreenState extends State<TransportScreen> {
                           border: Border.all(color: const Color(0xFFE4E7EC))),
                       child: Row(
                         children: [
-                          const Icon(Icons.calendar_today_outlined, color: Color(0xFF00B252), size: 20),
+                          const Icon(Icons.calendar_today_outlined, color: Color(0xFF166C46), size: 20),
                           const SizedBox(width: 12),
                           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
-                            const Text('Travel Date', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF00B252))),
+                            const Text('Travel Date', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF166C46))),
                             Text('${_travelDate.day}/${_travelDate.month}/${_travelDate.year}',
                                 style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF101828))),
                           ])),
@@ -303,15 +304,15 @@ class _TransportScreenState extends State<TransportScreen> {
                           GestureDetector(
                             onTap: () { if (_passengers > 1) setState(() => _passengers--); },
                             child: Container(width: 32, height: 32,
-                                decoration: BoxDecoration(color: _passengers > 1 ? const Color(0xFFECFDF5) : const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(8)),
-                                child: Icon(Icons.remove, size: 16, color: _passengers > 1 ? const Color(0xFF00B252) : const Color(0xFFD0D5DD))),
+                                decoration: BoxDecoration(color: _passengers > 1 ? const Color(0xFFF2F7F3) : const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(8)),
+                                child: Icon(Icons.remove, size: 16, color: _passengers > 1 ? AppColors.goldPrimary : const Color(0xFFD0D5DD))),
                           ),
                           SizedBox(width: 20, child: Center(child: Text('$_passengers', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)))),
                           GestureDetector(
                             onTap: () { if (_passengers < 4) setState(() => _passengers++); },
                             child: Container(width: 32, height: 32,
-                                decoration: BoxDecoration(color: const Color(0xFFECFDF5), borderRadius: BorderRadius.circular(8)),
-                                child: const Icon(Icons.add, size: 16, color: Color(0xFF00B252))),
+                                decoration: BoxDecoration(color: const Color(0xFFF2F7F3), borderRadius: BorderRadius.circular(8)),
+                                child: const Icon(Icons.add, size: 16, color: Color(0xFF166C46))),
                           ),
                         ]),
                       ],
@@ -323,14 +324,14 @@ class _TransportScreenState extends State<TransportScreen> {
                     const SizedBox(height: 12),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      decoration: BoxDecoration(color: const Color(0xFFECFDF5), borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFF00B252).withOpacity(0.2))),
+                      decoration: BoxDecoration(color: const Color(0xFFF2F7F3), borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFF166C46).withOpacity(0.2))),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text('$_passengers seat${_passengers > 1 ? 's' : ''} × ₦${_selectedOperator!.pricePerSeat}',
                               style: const TextStyle(fontSize: 13, color: Color(0xFF667085))),
-                          Text('₦$_totalPrice', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF00B252))),
+                          Text('₦$_totalPrice', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF166C46))),
                         ],
                       ),
                     ),
@@ -394,11 +395,11 @@ class _SelectorTile extends StatelessWidget {
       child: Container(
         height: 60, padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: hasValue ? const Color(0xFF00B252).withOpacity(0.4) : const Color(0xFFE4E7EC))),
+            border: Border.all(color: hasValue ? AppColors.goldPrimary.withOpacity(0.4) : const Color(0xFFE4E7EC))),
         child: Row(
           children: [
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
-              Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: hasValue ? const Color(0xFF00B252) : const Color(0xFF9CA3AF))),
+              Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: hasValue ? AppColors.goldPrimary : const Color(0xFF9CA3AF))),
               const SizedBox(height: 2),
               Text(value ?? hint, style: TextStyle(fontSize: 15, fontWeight: hasValue ? FontWeight.w600 : FontWeight.normal,
                   color: hasValue ? const Color(0xFF101828) : const Color(0xFFD0D5DD))),
@@ -430,7 +431,7 @@ class _TransportCTA extends StatelessWidget {
           duration: const Duration(milliseconds: 150),
           width: double.infinity, height: 54,
           decoration: BoxDecoration(
-            gradient: enabled ? const LinearGradient(colors: [Color(0xFF00B252), Color(0xFF00A651)], begin: Alignment.centerLeft, end: Alignment.centerRight) : null,
+            gradient: enabled ? AppColors.goldGradient : null,
             color: enabled ? null : const Color(0xFFCCCCCC),
             borderRadius: BorderRadius.circular(12),
           ),

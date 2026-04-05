@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rimapay/core/theme/app_colors.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
@@ -344,12 +345,12 @@ class _CableProviderSheet extends StatelessWidget {
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
                                 color: isSelected
-                                    ? const Color(0xFF00B252)
+                                    ? AppColors.goldPrimary
                                     : const Color(0xFF101828))),
                       ),
                       if (isSelected)
                         const Icon(Icons.check_circle_rounded,
-                            color: Color(0xFF00B252), size: 20),
+                            color: Color(0xFF166C46), size: 20),
                     ],
                   ),
                 ),
@@ -441,7 +442,7 @@ class _PackageSheet extends StatelessWidget {
                                           fontSize: 14,
                                           fontWeight: FontWeight.w700,
                                           color: isSelected
-                                              ? const Color(0xFF00B252)
+                                              ? AppColors.goldPrimary
                                               : const Color(0xFF101828))),
                                   if (pkg.popular) ...[
                                     const SizedBox(width: 6),
@@ -477,11 +478,11 @@ class _PackageSheet extends StatelessWidget {
                                     fontSize: 15,
                                     fontWeight: FontWeight.w800,
                                     color: isSelected
-                                        ? const Color(0xFF00B252)
+                                        ? AppColors.goldPrimary
                                         : const Color(0xFF101828))),
                             if (isSelected)
                               const Icon(Icons.check_circle_rounded,
-                                  color: Color(0xFF00B252), size: 18),
+                                  color: Color(0xFF166C46), size: 18),
                           ],
                         ),
                       ],
@@ -536,7 +537,7 @@ class _CDropdownField extends StatelessWidget {
             color: !enabled
                 ? const Color(0xFFE4E7EC)
                 : hasValue
-                    ? const Color(0xFF00B252).withOpacity(0.4)
+                    ? const Color(0xFF166C46).withOpacity(0.4)
                     : const Color(0xFFE4E7EC),
             width: hasValue ? 1.5 : 1,
           ),
@@ -575,7 +576,7 @@ class _CDropdownField extends StatelessWidget {
                     color: !enabled
                         ? const Color(0xFFD0D5DD)
                         : hasValue
-                            ? const Color(0xFF00B252)
+                            ? const Color(0xFF166C46)
                             : const Color(0xFF9CA3AF),
                   ),
                   child: Text(label),
@@ -621,7 +622,7 @@ class _CDropdownField extends StatelessWidget {
                   color: !enabled
                       ? const Color(0xFFD0D5DD)
                       : hasValue
-                          ? const Color(0xFF00B252)
+                          ? const Color(0xFF166C46)
                           : const Color(0xFF9CA3AF),
                   size: 22,
                 ),
@@ -698,9 +699,9 @@ class _CFloatingFieldState extends State<_CFloatingField> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: _focused
-              ? const Color(0xFF00B252)
+              ? AppColors.goldPrimary
               : _hasValue
-                  ? const Color(0xFF00B252).withOpacity(0.4)
+                  ? const Color(0xFF166C46).withOpacity(0.4)
                   : const Color(0xFFE4E7EC),
           width: _focused ? 2 : 1,
         ),
@@ -721,7 +722,7 @@ class _CFloatingFieldState extends State<_CFloatingField> {
                   fontWeight: FontWeight.w500,
                   height: 1.2,
                   color: isActive
-                      ? const Color(0xFF00B252)
+                      ? AppColors.goldPrimary
                       : const Color(0xFF9CA3AF),
                 ),
                 child: Text(widget.label),
@@ -800,11 +801,7 @@ class _CCta extends StatelessWidget {
           height: 54,
           decoration: BoxDecoration(
             gradient: enabled
-                ? const LinearGradient(
-                    colors: [Color(0xFF00B252), Color(0xFF00A651)],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  )
+                ? AppColors.goldGradient
                 : null,
             color: enabled ? null : const Color(0xFFF3F4F6),
             borderRadius: BorderRadius.circular(12),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rimapay/core/theme/app_colors.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
 import '../../../success/presentation/screens/success_screen.dart';
@@ -39,7 +40,7 @@ class _EventsScreenState extends State<EventsScreen> {
     _Event(id: 'e1', name: 'Afrobeats Festival Lagos', venue: 'Eko Convention Centre, Lagos', date: 'Sat, 15 Feb 2026',
         category: 'Music', price: 15000, emoji: '🎵', color: Color(0xFFEC4899), bgColor: Color(0xFFfdf2f8)),
     _Event(id: 'e2', name: 'Super Eagles vs Cameroon', venue: 'Moshood Abiola Stadium, Abuja', date: 'Wed, 19 Feb 2026',
-        category: 'Sports', price: 5000, emoji: '⚽', color: Color(0xFF00B252), bgColor: Color(0xFFECFDF5)),
+        category: 'Sports', price: 5000, emoji: '⚽', color: Color(0xFF166C46), bgColor: Color(0xFFF2F7F3)),
     _Event(id: 'e3', name: 'Night of A Thousand Laughs', venue: 'Civic Centre, Lagos', date: 'Fri, 28 Feb 2026',
         category: 'Comedy', price: 10000, emoji: '😂', color: Color(0xFFF59E0B), bgColor: Color(0xFFFFFBEB)),
     _Event(id: 'e4', name: 'TechFest Nigeria 2026', venue: 'Landmark Event Centre, Lagos', date: 'Thu, 6 Mar 2026',
@@ -116,9 +117,9 @@ class _EventsScreenState extends State<EventsScreen> {
                             margin: EdgeInsets.only(right: i == _categories.length - 1 ? 0 : 8),
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                             decoration: BoxDecoration(
-                              color: isSelected ? const Color(0xFF00B252) : Colors.white,
+                              color: isSelected ? AppColors.goldPrimary : Colors.white,
                               borderRadius: BorderRadius.circular(999),
-                              border: Border.all(color: isSelected ? const Color(0xFF00B252) : const Color(0xFFE4E7EC)),
+                              border: Border.all(color: isSelected ? AppColors.goldPrimary : const Color(0xFFE4E7EC)),
                             ),
                             child: Text(cat, style: TextStyle(
                               fontSize: 13, fontWeight: FontWeight.w600,
@@ -188,7 +189,7 @@ class _EventsScreenState extends State<EventsScreen> {
                                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: event.color)),
                                 const Text('/ticket', style: TextStyle(fontSize: 10, color: Color(0xFF9CA3AF))),
                                 if (isSelected)
-                                  const Icon(Icons.check_circle, color: Color(0xFF00B252), size: 18),
+                                  const Icon(Icons.check_circle, color: Color(0xFF166C46), size: 18),
                               ],
                             ),
                           ],
@@ -225,10 +226,10 @@ class _EventsScreenState extends State<EventsScreen> {
                                 child: Container(
                                   width: 32, height: 32,
                                   decoration: BoxDecoration(
-                                    color: _quantity > 1 ? const Color(0xFFECFDF5) : const Color(0xFFF3F4F6),
+                                    color: _quantity > 1 ? const Color(0xFFF2F7F3) : const Color(0xFFF3F4F6),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: Icon(Icons.remove, size: 16, color: _quantity > 1 ? const Color(0xFF00B252) : const Color(0xFFD0D5DD)),
+                                  child: Icon(Icons.remove, size: 16, color: _quantity > 1 ? AppColors.goldPrimary : const Color(0xFFD0D5DD)),
                                 ),
                               ),
                               SizedBox(width: 16, child: Center(child: Text('$_quantity', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)))),
@@ -236,8 +237,8 @@ class _EventsScreenState extends State<EventsScreen> {
                                 onTap: () { if (_quantity < 10) setState(() => _quantity++); },
                                 child: Container(
                                   width: 32, height: 32,
-                                  decoration: BoxDecoration(color: const Color(0xFFECFDF5), borderRadius: BorderRadius.circular(8)),
-                                  child: const Icon(Icons.add, size: 16, color: Color(0xFF00B252)),
+                                  decoration: BoxDecoration(color: const Color(0xFFF2F7F3), borderRadius: BorderRadius.circular(8)),
+                                  child: const Icon(Icons.add, size: 16, color: Color(0xFF166C46)),
                                 ),
                               ),
                             ],
@@ -249,16 +250,16 @@ class _EventsScreenState extends State<EventsScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFECFDF5),
+                        color: const Color(0xFFF2F7F3),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFF00B252).withOpacity(0.2)),
+                        border: Border.all(color: const Color(0xFF166C46).withOpacity(0.2)),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text('$_quantity ticket${_quantity > 1 ? 's' : ''} × ₦${_selectedEvent!.price}',
                               style: const TextStyle(fontSize: 13, color: Color(0xFF667085))),
-                          Text('₦$_totalPrice', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF00B252))),
+                          Text('₦$_totalPrice', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF166C46))),
                         ],
                       ),
                     ),
@@ -296,7 +297,7 @@ class _EventCTA extends StatelessWidget {
           duration: const Duration(milliseconds: 150),
           width: double.infinity, height: 54,
           decoration: BoxDecoration(
-            gradient: enabled ? const LinearGradient(colors: [Color(0xFF00B252), Color(0xFF00A651)], begin: Alignment.centerLeft, end: Alignment.centerRight) : null,
+            gradient: enabled ? AppColors.goldGradient : null,
             color: enabled ? null : const Color(0xFFCCCCCC),
             borderRadius: BorderRadius.circular(12),
           ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rimapay/core/theme/app_colors.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
@@ -272,7 +273,7 @@ class _DropdownField extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: hasValue
-                ? const Color(0xFF00B252).withOpacity(0.4)
+                ? AppColors.goldPrimary.withOpacity(0.4)
                 : enabled
                     ? const Color(0xFFE4E7EC)
                     : const Color(0xFFF3F4F6),
@@ -290,7 +291,7 @@ class _DropdownField extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
-                      color: hasValue ? const Color(0xFF00B252) : const Color(0xFF9CA3AF),
+                      color: hasValue ? AppColors.goldPrimary : const Color(0xFF9CA3AF),
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -330,9 +331,9 @@ class _AmountDisplay extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFECFDF5),
+        color: const Color(0xFFF2F7F3),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF00B252).withOpacity(0.2)),
+        border: Border.all(color: const Color(0xFF166C46).withOpacity(0.2)),
       ),
       child: Row(
         children: [
@@ -340,10 +341,10 @@ class _AmountDisplay extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: const Color(0xFF00B252).withOpacity(0.15),
+              color: const Color(0xFF166C46).withOpacity(0.15),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.school_rounded, color: Color(0xFF00B252), size: 20),
+            child: const Icon(Icons.school_rounded, color: Color(0xFF166C46), size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -357,7 +358,7 @@ class _AmountDisplay extends StatelessWidget {
           ),
           Text(
             '₦$amount',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF00B252)),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF166C46)),
           ),
         ],
       ),
@@ -396,10 +397,10 @@ class _ProviderSheet extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 10),
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: selected?.id == p.id ? const Color(0xFFECFDF5) : const Color(0xFFFAFBFC),
+                color: selected?.id == p.id ? const Color(0xFFF2F7F3) : const Color(0xFFFAFBFC),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: selected?.id == p.id ? const Color(0xFF00B252).withOpacity(0.4) : const Color(0xFFE4E7EC),
+                  color: selected?.id == p.id ? const Color(0xFF166C46).withOpacity(0.4) : const Color(0xFFE4E7EC),
                 ),
               ),
               child: Row(
@@ -416,7 +417,7 @@ class _ProviderSheet extends StatelessWidget {
                     ),
                   ),
                   if (selected?.id == p.id)
-                    const Icon(Icons.check_circle, color: Color(0xFF00B252), size: 20),
+                    const Icon(Icons.check_circle, color: Color(0xFF166C46), size: 20),
                 ],
               ),
             ),
@@ -458,10 +459,10 @@ class _ExamSheet extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 10),
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: selected?.id == e.id ? const Color(0xFFECFDF5) : const Color(0xFFFAFBFC),
+                color: selected?.id == e.id ? const Color(0xFFF2F7F3) : const Color(0xFFFAFBFC),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: selected?.id == e.id ? const Color(0xFF00B252).withOpacity(0.4) : const Color(0xFFE4E7EC),
+                  color: selected?.id == e.id ? const Color(0xFF166C46).withOpacity(0.4) : const Color(0xFFE4E7EC),
                 ),
               ),
               child: Row(
@@ -480,7 +481,7 @@ class _ExamSheet extends StatelessWidget {
                     children: [
                       Text('₦${e.price}', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF101828))),
                       if (selected?.id == e.id)
-                        const Icon(Icons.check_circle, color: Color(0xFF00B252), size: 16),
+                        const Icon(Icons.check_circle, color: Color(0xFF166C46), size: 16),
                     ],
                   ),
                 ],
@@ -517,7 +518,7 @@ class _EduCTA extends StatelessWidget {
           height: 54,
           decoration: BoxDecoration(
             gradient: enabled
-                ? const LinearGradient(colors: [Color(0xFF00B252), Color(0xFF00A651)], begin: Alignment.centerLeft, end: Alignment.centerRight)
+                ? AppColors.goldGradient
                 : null,
             color: enabled ? null : const Color(0xFFCCCCCC),
             borderRadius: BorderRadius.circular(12),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rimapay/core/theme/app_colors.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -82,8 +83,8 @@ class _ElectricityPurchaseScreenState
       name: 'Port Harcourt Electricity Distribution',
       shortName: 'PHED',
       logo: 'assets/images/PHED.png',
-      color: const Color(0xFF10B981),
-      bgColor: const Color(0xFFECFDF5),
+      color: const Color(0xFF166C46),
+      bgColor: const Color(0xFFF2F7F3),
     ),
     ElectricityProvider(
       id: 'kedco',
@@ -98,7 +99,7 @@ class _ElectricityPurchaseScreenState
       name: 'Jos Electricity Distribution Company',
       shortName: 'JEDC',
       logo: 'assets/images/JEDC.png',
-      color: const Color(0xFFEF4444),
+      color: const Color(0xFFD33B31),
       bgColor: const Color(0xFFFEF2F2),
     ),
   ];
@@ -253,7 +254,7 @@ class _ElectricityPurchaseScreenState
                               height: 16,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation(Color(0xFF00B252)),
+                                valueColor: AlwaysStoppedAnimation(AppColors.goldPrimary),
                               ),
                             ),
                           )
@@ -266,14 +267,14 @@ class _ElectricityPurchaseScreenState
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFECFDF5),
+                        color: const Color(0xFFF2F7F3),
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: const Color(0xFF00B252).withOpacity(0.3)),
+                        border: Border.all(color: AppColors.goldPrimary.withOpacity(0.3)),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.check_circle_rounded,
-                              color: Color(0xFF00B252), size: 16),
+                          Icon(Icons.check_circle_rounded,
+                              color: AppColors.goldPrimary, size: 16),
                           const SizedBox(width: 8),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -287,7 +288,7 @@ class _ElectricityPurchaseScreenState
                                   style: const TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
-                                      color: Color(0xFF059669))),
+                                      color: Color(0xFF0E5C37))),
                             ],
                           ),
                         ],
@@ -326,12 +327,12 @@ class _ElectricityPurchaseScreenState
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? const Color(0xFFECFDF5)
+                                  ? const Color(0xFFF2F7F3)
                                   : const Color(0xFFF9FAFB),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: isSelected
-                                    ? const Color(0xFF00B252)
+                                    ? AppColors.goldPrimary
                                     : const Color(0xFFE5E7EB),
                                 width: isSelected ? 2 : 1,
                               ),
@@ -343,7 +344,7 @@ class _ElectricityPurchaseScreenState
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
                                   color: isSelected
-                                      ? const Color(0xFF00B252)
+                                      ? AppColors.goldPrimary
                                       : const Color(0xFF374151),
                                 ),
                               ),
@@ -478,7 +479,7 @@ class _ProviderSheet extends StatelessWidget {
                                     fontSize: 14,
                                     fontWeight: FontWeight.w700,
                                     color: isSelected
-                                        ? const Color(0xFF00B252)
+                                        ? AppColors.goldPrimary
                                         : const Color(0xFF101828))),
                             Text(p.name,
                                 style: const TextStyle(
@@ -490,8 +491,8 @@ class _ProviderSheet extends StatelessWidget {
                         ),
                       ),
                       if (isSelected)
-                        const Icon(Icons.check_circle_rounded,
-                            color: Color(0xFF00B252), size: 20),
+                        Icon(Icons.check_circle_rounded,
+                            color: AppColors.goldPrimary, size: 20),
                     ],
                   ),
                 ),
@@ -535,7 +536,7 @@ class _DropdownField extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: hasValue
-                ? const Color(0xFF00B252).withOpacity(0.4)
+                ? AppColors.goldPrimary.withOpacity(0.4)
                 : const Color(0xFFE4E7EC),
             width: hasValue ? 1.5 : 1,
           ),
@@ -574,7 +575,7 @@ class _DropdownField extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                     height: 1.2,
                     color: hasValue
-                        ? const Color(0xFF00B252)
+                        ? AppColors.goldPrimary
                         : const Color(0xFF9CA3AF),
                   ),
                   child: Text(label),
@@ -609,7 +610,7 @@ class _DropdownField extends StatelessWidget {
                 child: Icon(
                   Icons.keyboard_arrow_down_rounded,
                   color: hasValue
-                      ? const Color(0xFF00B252)
+                      ? AppColors.goldPrimary
                       : const Color(0xFF9CA3AF),
                   size: 22,
                 ),
@@ -646,10 +647,10 @@ class _MeterTypeBtn extends StatelessWidget {
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: selected ? const Color(0xFFECFDF5) : Colors.white,
+            color: selected ? const Color(0xFFF2F7F3) : Colors.white,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: selected ? const Color(0xFF00B252) : const Color(0xFFE5E7EB),
+              color: selected ? AppColors.goldPrimary : const Color(0xFFE5E7EB),
               width: selected ? 2 : 1,
             ),
           ),
@@ -663,7 +664,7 @@ class _MeterTypeBtn extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: selected ? const Color(0xFF00B252) : const Color(0xFF6B7280),
+                  color: selected ? AppColors.goldPrimary : const Color(0xFF6B7280),
                 ),
               ),
             ],
@@ -738,9 +739,9 @@ class _EFloatingFieldState extends State<_EFloatingField> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: _focused
-              ? const Color(0xFF00B252)
+              ? AppColors.goldPrimary
               : _hasValue
-                  ? const Color(0xFF00B252).withOpacity(0.4)
+                  ? AppColors.goldPrimary.withOpacity(0.4)
                   : const Color(0xFFE4E7EC),
           width: _focused ? 2 : 1,
         ),
@@ -761,7 +762,7 @@ class _EFloatingFieldState extends State<_EFloatingField> {
                   fontWeight: FontWeight.w500,
                   height: 1.2,
                   color: isActive
-                      ? const Color(0xFF00B252)
+                      ? AppColors.goldPrimary
                       : const Color(0xFF9CA3AF),
                 ),
                 child: Text(widget.label),
@@ -851,7 +852,7 @@ class _AmountCardState extends State<_AmountCard> {
         color: _focused ? Colors.white : const Color(0xFFF9FAFB),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: _focused ? const Color(0xFF00B252) : const Color(0xFFE5E7EB),
+          color: _focused ? AppColors.goldPrimary : const Color(0xFFE5E7EB),
           width: _focused ? 2 : 1,
         ),
       ),
@@ -946,11 +947,7 @@ class _BillCTA extends StatelessWidget {
           height: 54,
           decoration: BoxDecoration(
             gradient: enabled
-                ? const LinearGradient(
-                    colors: [Color(0xFF00B252), Color(0xFF00A651)],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  )
+                ? AppColors.goldGradient
                 : null,
             color: enabled ? null : const Color(0xFFF3F4F6),
             borderRadius: BorderRadius.circular(12),

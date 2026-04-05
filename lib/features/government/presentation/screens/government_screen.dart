@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rimapay/core/theme/app_colors.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
@@ -45,7 +46,7 @@ class _GovernmentScreenState extends State<GovernmentScreen> {
     _GovService(
       id: 'lirs_tax', name: 'Personal Income Tax', agency: 'LIRS',
       description: 'Lagos Internal Revenue Service', refLabel: 'LIRS Tax ID',
-      refHint: 'Enter your LIRS ID', color: Color(0xFF059669), icon: Icons.person_outline_rounded,
+      refHint: 'Enter your LIRS ID', color: Color(0xFF0E5C37), icon: Icons.person_outline_rounded,
     ),
     _GovService(
       id: 'vehicle_reg', name: 'Vehicle Registration', agency: 'FRSC',
@@ -141,9 +142,9 @@ class _GovernmentScreenState extends State<GovernmentScreen> {
                         margin: const EdgeInsets.only(bottom: 10),
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFFECFDF5) : const Color(0xFFFAFBFC),
+                          color: isSelected ? const Color(0xFFF2F7F3) : const Color(0xFFFAFBFC),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: isSelected ? const Color(0xFF00B252).withOpacity(0.4) : const Color(0xFFE4E7EC)),
+                          border: Border.all(color: isSelected ? AppColors.goldPrimary.withOpacity(0.4) : const Color(0xFFE4E7EC)),
                         ),
                         child: Row(
                           children: [
@@ -170,7 +171,7 @@ class _GovernmentScreenState extends State<GovernmentScreen> {
                               const Icon(Icons.keyboard_arrow_right_rounded, color: Color(0xFF9CA3AF), size: 18),
                             if (isSelected) ...[
                               const SizedBox(width: 6),
-                              const Icon(Icons.check_circle, color: Color(0xFF00B252), size: 20),
+                              const Icon(Icons.check_circle, color: Color(0xFF166C46), size: 20),
                             ],
                           ],
                         ),
@@ -289,25 +290,25 @@ class _GovernmentScreenState extends State<GovernmentScreen> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFECFDF5),
+                          color: const Color(0xFFF2F7F3),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFF00B252).withOpacity(0.2)),
+                          border: Border.all(color: const Color(0xFF166C46).withOpacity(0.2)),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.receipt_outlined, color: Color(0xFF00B252), size: 20),
+                            const Icon(Icons.receipt_outlined, color: Color(0xFF166C46), size: 20),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                                 const Text('Payment Amount', style: TextStyle(fontSize: 12, color: Color(0xFF667085))),
                                 Text('₦${_selectedService!.fixedAmount}',
-                                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF00B252))),
+                                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF166C46))),
                               ]),
                             ),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(color: const Color(0xFF00B252).withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
-                              child: const Text('Fixed Fee', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF00B252))),
+                              decoration: BoxDecoration(color: const Color(0xFF166C46).withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
+                              child: const Text('Fixed Fee', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF166C46))),
                             ),
                           ],
                         ),
@@ -356,7 +357,7 @@ class _SelectorTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: hasValue ? const Color(0xFF00B252).withOpacity(0.4) : const Color(0xFFE4E7EC)),
+          border: Border.all(color: hasValue ? AppColors.goldPrimary.withOpacity(0.4) : const Color(0xFFE4E7EC)),
         ),
         child: Row(
           children: [
@@ -368,7 +369,7 @@ class _SelectorTile extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500,
-                      color: hasValue ? const Color(0xFF00B252) : const Color(0xFF9CA3AF))),
+                      color: hasValue ? AppColors.goldPrimary : const Color(0xFF9CA3AF))),
                   const SizedBox(height: 2),
                   Text(value ?? hint, style: TextStyle(fontSize: 14,
                       fontWeight: hasValue ? FontWeight.w600 : FontWeight.normal,
@@ -406,7 +407,7 @@ class _GovCTA extends StatelessWidget {
           duration: const Duration(milliseconds: 150),
           width: double.infinity, height: 54,
           decoration: BoxDecoration(
-            gradient: enabled ? const LinearGradient(colors: [Color(0xFF00B252), Color(0xFF00A651)], begin: Alignment.centerLeft, end: Alignment.centerRight) : null,
+            gradient: enabled ? AppColors.goldGradient : null,
             color: enabled ? null : const Color(0xFFCCCCCC),
             borderRadius: BorderRadius.circular(12),
           ),

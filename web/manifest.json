@@ -1,11 +1,11 @@
 {
-    "name": "rimapay",
-    "short_name": "rimapay",
+    "name": "RIMA MFB",
+    "short_name": "RIMA MFB",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#073D25",
+    "theme_color": "#166C46",
+    "description": "Nigeria's Premier Microfinance Bank — Made by us, for us.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

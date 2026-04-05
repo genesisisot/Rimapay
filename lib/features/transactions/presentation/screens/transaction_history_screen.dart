@@ -240,11 +240,11 @@ class _TransactionHistoryScreenState extends ConsumerState<TransactionHistoryScr
 
   Widget _buildHeader() {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF001a0c), Color(0xFF003d1a), Color(0xFF005e27)],
+          colors: [Color(0xFF073D25), Color(0xFF0B4F2F), Color(0xFF073D25)],
           stops: [0.0, 0.5, 1.0],
         ),
       ),
@@ -572,7 +572,7 @@ class _TransactionHistoryScreenState extends ConsumerState<TransactionHistoryScr
                           fontWeight: FontWeight.w700,
                           fontFamily: 'Effra',
                           color: isIncoming
-                              ? const Color(0xFF00B252)
+                              ? AppColors.goldPrimary
                               : const Color(0xFF101828),
                         ),
                       ),
@@ -608,7 +608,7 @@ class _TransactionHistoryScreenState extends ConsumerState<TransactionHistoryScr
                         decoration: BoxDecoration(
                           color: isPending
                               ? const Color(0xFFFFF8EC)
-                              : const Color(0xFFECFDF5),
+                              : const Color(0xFFF2F7F3),
                           borderRadius: BorderRadius.circular(5),
                         ),
                         child: Text(
@@ -619,7 +619,7 @@ class _TransactionHistoryScreenState extends ConsumerState<TransactionHistoryScr
                             fontFamily: 'Effra',
                             color: isPending
                                 ? const Color(0xFFF59E0B)
-                                : const Color(0xFF00B252),
+                                : const Color(0xFF166C46),
                           ),
                         ),
                       ),
@@ -888,7 +888,7 @@ class _TransactionHistoryScreenState extends ConsumerState<TransactionHistoryScr
       case TransactionType.transfer:
         return const Color(0xFFE3F2FD);
       case TransactionType.addMoney:
-        return const Color(0xFFE8F5E8);
+        return const Color(0xFFF2F7F3);
       default:
         return const Color(0xFFF5F5F5);
     }

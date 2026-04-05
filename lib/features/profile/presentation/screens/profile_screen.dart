@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:rimapay/core/theme/app_colors.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -78,14 +79,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               // Green gradient
               Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Color(0xFF001a0c),
-                      Color(0xFF003d1a),
-                      Color(0xFF005e27),
+                      Color(0xFF073D25),
+                      Color(0xFF0B4F2F),
+                      Color(0xFF073D25),
                     ],
                     stops: [0.0, 0.5, 1.0],
                   ),
@@ -164,8 +165,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             height: 88,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: const LinearGradient(
-                  colors: [Color(0xFF00B252), Color(0xFF00A047)]),
+              gradient: AppColors.goldGradient,
               border: Border.all(color: Colors.white, width: 3),
               boxShadow: [
                 BoxShadow(
@@ -180,10 +180,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ? Image.file(File(_profileImage!),
                       width: 88, height: 88, fit: BoxFit.cover)
                   : Container(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Color(0xFF00B252), Color(0xFF00A047)],
-                        ),
+                      decoration: BoxDecoration(
+                        gradient: AppColors.goldGradient,
                       ),
                       child: const Icon(Icons.person,
                           color: Colors.white, size: 40),
@@ -198,7 +196,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 width: 26,
                 height: 26,
                 decoration: const BoxDecoration(
-                  color: Color(0xFF00B252),
+                  color: Color(0xFF166C46),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.camera_alt,
@@ -228,8 +226,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           // Info cards
           _buildInfoCard(
             icon: Icons.phone_outlined,
-            iconColor: const Color(0xFF00B252),
-            bgColor: const Color(0xFFecfdf5),
+            iconColor: const Color(0xFF166C46),
+            bgColor: const Color(0xFFF2F7F3),
             label: 'PHONE NUMBER',
             value: _data['phone']!,
             subtitle:
@@ -293,11 +291,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   decoration: const InputDecoration(
                     border: UnderlineInputBorder(
                       borderSide:
-                          BorderSide(color: Color(0xFF00B252), width: 2),
+                          BorderSide(color: Color(0xFF166C46), width: 2),
                     ),
                     focusedBorder: UnderlineInputBorder(
                       borderSide:
-                          BorderSide(color: Color(0xFF00B252), width: 2),
+                          BorderSide(color: Color(0xFF166C46), width: 2),
                     ),
                     enabledBorder: UnderlineInputBorder(
                       borderSide:
@@ -329,21 +327,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
-            color: const Color(0xFF00B252).withOpacity(0.1),
+            color: const Color(0xFF166C46).withOpacity(0.1),
             borderRadius: BorderRadius.circular(999),
             border: Border.all(
-                color: const Color(0xFF00B252).withOpacity(0.3)),
+                color: const Color(0xFF166C46).withOpacity(0.3)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: const [
               Icon(Icons.star_rounded,
-                  color: Color(0xFF00B252), size: 12),
+                  color: Color(0xFF166C46), size: 12),
               SizedBox(width: 4),
               Text(
                 _tierName,
                 style: TextStyle(
-                  color: Color(0xFF00B252),
+                  color: Color(0xFF166C46),
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   fontFamily: 'Effra',
@@ -363,14 +361,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFF001a0c), Color(0xFF003d1a)],
+            colors: [Color(0xFF073D25), Color(0xFF0B4F2F)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF00B252).withOpacity(0.2),
+              color: const Color(0xFF166C46).withOpacity(0.2),
               blurRadius: 14,
               offset: const Offset(0, 4),
             ),
@@ -427,7 +425,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
               decoration: BoxDecoration(
-                color: const Color(0xFF00B252),
+                color: const Color(0xFF166C46),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Text(
@@ -509,11 +507,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     decoration: const InputDecoration(
                       border: UnderlineInputBorder(
                         borderSide:
-                            BorderSide(color: Color(0xFF00B252)),
+                            BorderSide(color: Color(0xFF166C46)),
                       ),
                       focusedBorder: UnderlineInputBorder(
                         borderSide:
-                            BorderSide(color: Color(0xFF00B252), width: 2),
+                            BorderSide(color: Color(0xFF166C46), width: 2),
                       ),
                       enabledBorder: UnderlineInputBorder(
                         borderSide:
@@ -611,12 +609,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Profile updated'),
-                    backgroundColor: Color(0xFF00B252),
+                    backgroundColor: Color(0xFF166C46),
                   ),
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00B252),
+                backgroundColor: const Color(0xFF166C46),
                 foregroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(

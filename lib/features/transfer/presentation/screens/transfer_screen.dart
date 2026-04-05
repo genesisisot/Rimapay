@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rimapay/core/theme/app_colors.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rimapay/shared/widgets/bill_screen_widgets.dart';
@@ -32,20 +33,20 @@ class _TransferScreenState extends State<TransferScreen> {
   bool _validating = false;
 
   final List<Map<String, String>> _banks = [
-    {'name': 'Access Bank', 'logo': '🏦'},
-    {'name': 'GTBank', 'logo': '🏛️'},
-    {'name': 'First Bank', 'logo': '🏢'},
-    {'name': 'Zenith Bank', 'logo': '🏦'},
-    {'name': 'UBA', 'logo': '🏛️'},
-    {'name': 'Kuda Bank', 'logo': '💳'},
-    {'name': 'Opay', 'logo': '📱'},
-    {'name': 'PalmPay', 'logo': '🌴'},
-    {'name': 'Moniepoint', 'logo': '💰'},
-    {'name': 'Wema Bank', 'logo': '🏦'},
-    {'name': 'Stanbic IBTC', 'logo': '🏛️'},
-    {'name': 'FCMB', 'logo': '🏢'},
-    {'name': 'Fidelity Bank', 'logo': '🏦'},
-    {'name': 'Ecobank', 'logo': '🌍'},
+    {'name': 'Access Bank',   'logo': '🏦', 'rate': '98'},
+    {'name': 'GTBank',        'logo': '🏛️', 'rate': '97'},
+    {'name': 'Zenith Bank',   'logo': '🏦', 'rate': '97'},
+    {'name': 'First Bank',    'logo': '🏢', 'rate': '95'},
+    {'name': 'UBA',           'logo': '🏛️', 'rate': '96'},
+    {'name': 'Kuda Bank',     'logo': '💳', 'rate': '99'},
+    {'name': 'Opay',          'logo': '📱', 'rate': '98'},
+    {'name': 'PalmPay',       'logo': '🌴', 'rate': '97'},
+    {'name': 'Moniepoint',    'logo': '💰', 'rate': '98'},
+    {'name': 'Wema Bank',     'logo': '🏦', 'rate': '94'},
+    {'name': 'Stanbic IBTC', 'logo': '🏛️', 'rate': '96'},
+    {'name': 'FCMB',          'logo': '🏢', 'rate': '93'},
+    {'name': 'Fidelity Bank', 'logo': '🏦', 'rate': '94'},
+    {'name': 'Ecobank',       'logo': '🌍', 'rate': '92'},
   ];
 
   final List<Map<String, String>> _rimaRecent = [
@@ -134,9 +135,9 @@ class _TransferScreenState extends State<TransferScreen> {
       case 'orange':
         return const Color(0xFFF97316);
       case 'green':
-        return const Color(0xFF00B252);
+        return const Color(0xFF166C46);
       default:
-        return const Color(0xFF00B252);
+        return const Color(0xFF166C46);
     }
   }
 
@@ -154,11 +155,11 @@ class _TransferScreenState extends State<TransferScreen> {
               right: 20,
               bottom: 24,
             ),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFF001a0c), Color(0xFF003d1a), Color(0xFF005e27)],
+                colors: [Color(0xFF073D25), Color(0xFF0B4F2F), Color(0xFF073D25)],
                 stops: [0.0, 0.5, 1.0],
               ),
             ),
@@ -234,13 +235,11 @@ class _TransferScreenState extends State<TransferScreen> {
                 width: double.infinity,
                 height: 54,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF00B252), Color(0xFF009944)],
-                  ),
+                  gradient: AppColors.goldGradient,
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF00B252).withOpacity(0.3),
+                      color: const Color(0xFF166C46).withOpacity(0.3),
                       blurRadius: 14,
                       offset: const Offset(0, 5),
                     ),
@@ -282,7 +281,7 @@ class _TransferScreenState extends State<TransferScreen> {
             fontSize: 13,
             fontWeight: FontWeight.w700,
             fontFamily: 'Effra',
-            color: active ? const Color(0xFF003d1a) : Colors.white70,
+            color: active ? const Color(0xFF0B4F2F) : Colors.white70,
           ),
         ),
       ),
@@ -502,7 +501,7 @@ class _TransferScreenState extends State<TransferScreen> {
               ? const SizedBox(
                   width: 18,
                   height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF00B252)),
+                  child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF166C46)),
                 )
               : null,
         ),
@@ -519,7 +518,7 @@ class _TransferScreenState extends State<TransferScreen> {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: _selectedBank.isNotEmpty
-                    ? const Color(0xFF00B252).withOpacity(0.4)
+                    ? AppColors.goldPrimary.withOpacity(0.4)
                     : const Color(0xFFE4E7EC),
               ),
             ),
@@ -550,7 +549,7 @@ class _TransferScreenState extends State<TransferScreen> {
                           'Bank',
                           style: TextStyle(
                             fontSize: 11,
-                            color: Color(0xFF00B252),
+                            color: Color(0xFF166C46),
                             fontFamily: 'Effra',
                             fontWeight: FontWeight.w500,
                           ),
@@ -581,15 +580,15 @@ class _TransferScreenState extends State<TransferScreen> {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: const Color(0xFF00B252).withOpacity(0.06),
+              color: const Color(0xFF166C46).withOpacity(0.06),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF00B252).withOpacity(0.2)),
+              border: Border.all(color: const Color(0xFF166C46).withOpacity(0.2)),
             ),
             child: Row(
               children: [
                 CircleAvatar(
                   radius: 18,
-                  backgroundColor: const Color(0xFF00B252),
+                  backgroundColor: const Color(0xFF166C46),
                   child: Text(
                     _recipientName[0],
                     style: const TextStyle(
@@ -622,7 +621,7 @@ class _TransferScreenState extends State<TransferScreen> {
                   ],
                 ),
                 const Spacer(),
-                const Icon(Icons.check_circle, color: Color(0xFF00B252), size: 20),
+                const Icon(Icons.check_circle, color: Color(0xFF166C46), size: 20),
               ],
             ),
           ),
@@ -697,8 +696,8 @@ class _TransferTypeSheet extends StatelessWidget {
           const SizedBox(height: 28),
           _SheetOption(
             icon: Icons.account_balance_wallet_outlined,
-            iconBg: const Color(0xFFecfdf5),
-            iconColor: const Color(0xFF00B252),
+            iconBg: const Color(0xFFF2F7F3),
+            iconColor: const Color(0xFF166C46),
             title: 'To RimaPay',
             subtitle: 'Send to any RimaPay account instantly',
             onTap: () => onSelect('rimapay'),
@@ -786,6 +785,42 @@ class _SheetOption extends StatelessWidget {
 }
 
 // ── Bank Selector Bottom Sheet ────────────────────────────────────────────────
+
+class _SuccessRateBadge extends StatelessWidget {
+  final int rate;
+  const _SuccessRateBadge({required this.rate});
+
+  @override
+  Widget build(BuildContext context) {
+    final Color color = rate >= 97
+        ? AppColors.goldPrimary
+        : rate >= 94
+            ? const Color(0xFFD4AF37)
+            : const Color(0xFFD33B31);
+    final Color bg = rate >= 97
+        ? const Color(0xFFF2F7F3)
+        : rate >= 94
+            ? const Color(0xFFFDF8E7)
+            : const Color(0xFFFEF2F2);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        '$rate%',
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: color,
+          fontFamily: 'Effra',
+        ),
+      ),
+    );
+  }
+}
 
 class _BankSelectorSheet extends StatefulWidget {
   final List<Map<String, String>> banks;
@@ -913,7 +948,7 @@ class _BankSelectorSheetState extends State<_BankSelectorSheet> {
                     Navigator.pop(context);
                   },
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 13),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 11),
                     child: Row(
                       children: [
                         Container(
@@ -931,16 +966,23 @@ class _BankSelectorSheetState extends State<_BankSelectorSheet> {
                           ),
                         ),
                         const SizedBox(width: 14),
-                        Text(
-                          bank['name']!,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF101828),
-                            fontFamily: 'Effra',
+                        Expanded(
+                          child: Text(
+                            bank['name']!,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF101828),
+                              fontFamily: 'Effra',
+                            ),
                           ),
                         ),
-                        const Spacer(),
+                        // Success rate badge
+                        if (bank['rate'] != null) ...[
+                          const SizedBox(width: 8),
+                          _SuccessRateBadge(rate: int.parse(bank['rate']!)),
+                        ],
+                        const SizedBox(width: 8),
                         const Icon(Icons.chevron_right, size: 18, color: Color(0xFFD0D5DD)),
                       ],
                     ),

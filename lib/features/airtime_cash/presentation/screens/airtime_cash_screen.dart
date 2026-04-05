@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rimapay/core/theme/app_colors.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
@@ -31,7 +32,7 @@ class _AirtimeCashScreenState extends State<AirtimeCashScreen> {
   final List<_Network> _networks = const [
     _Network(id: 'mtn', name: 'MTN', color: Color(0xFFFFCC02), bgColor: Color(0xFFFFF8E1), emoji: '📶'),
     _Network(id: 'airtel', name: 'Airtel', color: Color(0xFFFF0000), bgColor: Color(0xFFFFEBEE), emoji: '📡'),
-    _Network(id: 'glo', name: 'Glo', color: Color(0xFF00A651), bgColor: Color(0xFFE8F5E8), emoji: '🌐'),
+    _Network(id: 'glo', name: 'Glo', color: Color(0xFF166C46), bgColor: Color(0xFFF2F7F3), emoji: '🌐'),
     _Network(id: '9mobile', name: '9mobile', color: Color(0xFF00A86B), bgColor: Color(0xFFE8F6F3), emoji: '📱'),
   ];
 
@@ -183,13 +184,13 @@ class _AirtimeCashScreenState extends State<AirtimeCashScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFECFDF5),
+                        color: const Color(0xFFF2F7F3),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFF00B252).withOpacity(0.2)),
+                        border: Border.all(color: const Color(0xFF166C46).withOpacity(0.2)),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.swap_horiz_rounded, color: Color(0xFF00B252), size: 24),
+                          const Icon(Icons.swap_horiz_rounded, color: Color(0xFF166C46), size: 24),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Column(
@@ -202,7 +203,7 @@ class _AirtimeCashScreenState extends State<AirtimeCashScreen> {
                             ),
                           ),
                           Text('₦${_convertedAmount.toStringAsFixed(0)}',
-                              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF00B252))),
+                              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF166C46))),
                         ],
                       ),
                     ),
@@ -242,7 +243,7 @@ class _AirtimeCashCTA extends StatelessWidget {
           width: double.infinity,
           height: 54,
           decoration: BoxDecoration(
-            gradient: enabled ? const LinearGradient(colors: [Color(0xFF00B252), Color(0xFF00A651)], begin: Alignment.centerLeft, end: Alignment.centerRight) : null,
+            gradient: enabled ? AppColors.goldGradient : null,
             color: enabled ? null : const Color(0xFFCCCCCC),
             borderRadius: BorderRadius.circular(12),
           ),

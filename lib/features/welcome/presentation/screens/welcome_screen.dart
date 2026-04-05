@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:rimapay/core/theme/app_colors.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../../shared/widgets/noise_painter.dart';
@@ -156,21 +157,21 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF001f0d),
+      backgroundColor: const Color(0xFF073D25),
       body: Stack(
         children: [
           // ── Green gradient background ──
           Positioned.fill(
             child: Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Color(0xFF000d06),
-                    Color(0xFF001f0d),
-                    Color(0xFF003314),
-                    Color(0xFF001f0d),
+                    Color(0xFF052219),
+                    Color(0xFF073D25),
+                    Color(0xFF0B4F2F),
+                    Color(0xFF073D25),
                   ],
                   stops: [0.0, 0.3, 0.65, 1.0],
                 ),
@@ -194,7 +195,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               return Positioned(
                 top: size.height * 0.08 + dy,
                 right: -60 + dx,
-                child: _buildOrb(260, const Color(0xFF00B252), 0.18),
+                child: _buildOrb(260, const Color(0xFF166C46), 0.18),
               );
             },
           ),
@@ -207,7 +208,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               return Positioned(
                 bottom: size.height * 0.18 - dy,
                 left: -80,
-                child: _buildOrb(220, const Color(0xFF008A3C), 0.22),
+                child: _buildOrb(220, const Color(0xFF0B4F2F), 0.22),
               );
             },
           ),
@@ -367,47 +368,47 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
                 const SizedBox(height: 28),
 
-                // Buttons
+                // Buttons — side by side
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
+                  child: Row(
                     children: [
                       // Sign up
-                      GestureDetector(
-                        onTapDown: (_) =>
-                            setState(() => _getStartedPressed = true),
-                        onTapUp: (_) {
-                          setState(() => _getStartedPressed = false);
-                          context.push('/personal-account');
-                        },
-                        onTapCancel: () =>
-                            setState(() => _getStartedPressed = false),
-                        child: AnimatedScale(
-                          scale: _getStartedPressed ? 0.97 : 1.0,
-                          duration: const Duration(milliseconds: 100),
-                          child: Container(
-                            width: double.infinity,
-                            height: 52,
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFF00B252), Color(0xFF009944)],
+                      Expanded(
+                        child: GestureDetector(
+                          onTapDown: (_) =>
+                              setState(() => _getStartedPressed = true),
+                          onTapUp: (_) {
+                            setState(() => _getStartedPressed = false);
+                            context.pushNamed('auth',
+                                queryParameters: {'mode': 'signup'});
+                          },
+                          onTapCancel: () =>
+                              setState(() => _getStartedPressed = false),
+                          child: AnimatedScale(
+                            scale: _getStartedPressed ? 0.97 : 1.0,
+                            duration: const Duration(milliseconds: 100),
+                            child: Container(
+                              height: 52,
+                              decoration: BoxDecoration(
+                                gradient: AppColors.goldGradient,
+                                borderRadius: BorderRadius.circular(14),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.goldPrimary.withOpacity(0.35),
+                                    blurRadius: 16,
+                                    offset: const Offset(0, 6),
+                                  ),
+                                ],
                               ),
-                              borderRadius: BorderRadius.circular(14),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: const Color(0xFF00B252).withOpacity(0.35),
-                                  blurRadius: 16,
-                                  offset: const Offset(0, 6),
-                                ),
-                              ],
-                            ),
-                            child: Center(
-                              child: Text(
-                                _lang == 'ha' ? 'Yi Rajista' : 'Sign up',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                              child: Center(
+                                child: Text(
+                                  _lang == 'ha' ? 'Yi Rajista' : 'Sign up',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ),
@@ -415,29 +416,28 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                         ),
                       ),
 
-                      const SizedBox(height: 12),
+                      const SizedBox(width: 12),
 
-                      // I already have an account
-                      GestureDetector(
-                        onTap: () => context.pushNamed('auth',
-                            queryParameters: {'mode': 'login'}),
-                        child: Container(
-                          width: double.infinity,
-                          height: 52,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.13),
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: Colors.white.withOpacity(0.22)),
-                          ),
-                          child: Center(
-                            child: Text(
-                              _lang == 'ha'
-                                  ? 'Ina da asusun riga'
-                                  : 'I already have an account',
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
+                      // Log in
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => context.pushNamed('auth',
+                              queryParameters: {'mode': 'login'}),
+                          child: Container(
+                            height: 52,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.13),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: Colors.white.withOpacity(0.22)),
+                            ),
+                            child: Center(
+                              child: Text(
+                                _lang == 'ha' ? 'Ina da asusun riga' : 'Log in',
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ),
@@ -469,7 +469,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 minHeight: 3,
                 backgroundColor: Colors.white12,
                 valueColor: const AlwaysStoppedAnimation<Color>(
-                    Color(0xFF00B252)),
+                    Color(0xFF166C46)),
               ),
             ),
           ),
@@ -545,7 +545,7 @@ class _LangToggle extends StatelessWidget {
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
-            color: active ? const Color(0xFF003d1a) : Colors.white70,
+            color: active ? const Color(0xFF0B4F2F) : Colors.white70,
           ),
         ),
       ),
@@ -624,7 +624,7 @@ class _ComplianceBar extends StatelessWidget {
             Text(
               'Licensed by CBN',
               style: TextStyle(
-                color: const Color(0xFF00B252).withOpacity(0.9),
+                color: const Color(0xFF166C46).withOpacity(0.9),
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
               ),
@@ -639,7 +639,7 @@ class _ComplianceBar extends StatelessWidget {
             Text(
               'Insured by NDIC',
               style: TextStyle(
-                color: const Color(0xFF00B252).withOpacity(0.9),
+                color: const Color(0xFF166C46).withOpacity(0.9),
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
               ),
@@ -697,8 +697,8 @@ class _GetStartedSheet extends StatelessWidget {
 
           _SheetOption(
             icon: Icons.person_add_outlined,
-            iconBg: const Color(0xFFecfdf5),
-            iconColor: const Color(0xFF00B252),
+            iconBg: const Color(0xFFF2F7F3),
+            iconColor: const Color(0xFF166C46),
             title: 'Open New Account',
             subtitle: 'Create a new RimaPay account',
             onTap: () {

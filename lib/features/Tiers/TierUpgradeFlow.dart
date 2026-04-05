@@ -295,14 +295,14 @@
 //   Widget build(BuildContext context) {
 //     return Scaffold(
 //       body: Container(
-//         decoration: const BoxDecoration(
+//         decoration: BoxDecoration(
 //           gradient: LinearGradient(
 //             begin: Alignment.topLeft,
 //             end: Alignment.bottomRight,
 //             colors: [
 //               Color(0xFFFFFFFF),
 //               Color(0xFFF0FDF4),
-//               Color(0xFFECFDF5),
+//               Color(0xFFF2F7F3),
 //             ],
 //           ),
 //         ),
@@ -410,12 +410,12 @@
 //                 begin: Alignment.topLeft,
 //                 end: Alignment.bottomRight,
 //                 colors: [
-//                   Color(0x1A00B252),
-//                   Color(0x1A00A047),
+//                   Color(0x1A166C46),
+//                   Color(0x1A0E5C37),
 //                 ],
 //               ),
 //               borderRadius: BorderRadius.circular(12),
-//               border: Border.all(color: const Color(0x3300B252)),
+//               border: Border.all(color: const Color(0x33166C46)),
 //             ),
 //             child: Column(
 //               crossAxisAlignment: CrossAxisAlignment.start,
@@ -468,7 +468,7 @@
 //                     children: [
 //                       const Icon(
 //                         Icons.description,
-//                         color: Color(0xFF00B252),
+//                         color: Color(0xFF166C46),
 //                         size: 16,
 //                       ),
 //                       const SizedBox(width: 8),
@@ -527,7 +527,7 @@
 //           ElevatedButton(
 //             onPressed: handleNext,
 //             style: ElevatedButton.styleFrom(
-//               backgroundColor: const Color(0xFF00B252),
+//               backgroundColor: const Color(0xFF166C46),
 //               foregroundColor: Colors.white,
 //               padding: const EdgeInsets.symmetric(vertical: 16),
 //               shape: RoundedRectangleBorder(
@@ -560,7 +560,7 @@
 //             width: 24,
 //             height: 24,
 //             decoration: const BoxDecoration(
-//               color: Color(0xFF00B252),
+//               color: Color(0xFF166C46),
 //               shape: BoxShape.circle,
 //             ),
 //             child: const Icon(
@@ -782,7 +782,7 @@
 //           ElevatedButton(
 //             onPressed: _canContinue() ? handleNext : null,
 //             style: ElevatedButton.styleFrom(
-//               backgroundColor: const Color(0xFF00B252),
+//               backgroundColor: const Color(0xFF166C46),
 //               foregroundColor: Colors.white,
 //               padding: const EdgeInsets.symmetric(vertical: 16),
 //               shape: RoundedRectangleBorder(
@@ -815,7 +815,7 @@
 //             width: 64,
 //             height: 64,
 //             decoration: const BoxDecoration(
-//               color: Color(0xFF00B252),
+//               color: Color(0xFF166C46),
 //               shape: BoxShape.circle,
 //             ),
 //             child: const Icon(
@@ -895,7 +895,7 @@
 //             child: ElevatedButton(
 //               onPressed: (isLoading || formData.otp.length != 6) ? null : handleNext,
 //               style: ElevatedButton.styleFrom(
-//                 backgroundColor: const Color(0xFF00B252),
+//                 backgroundColor: const Color(0xFF166C46),
 //                 foregroundColor: Colors.white,
 //                 padding: const EdgeInsets.symmetric(vertical: 16),
 //                 shape: RoundedRectangleBorder(
@@ -942,13 +942,13 @@
 //           Container(
 //             width: 80,
 //             height: 80,
-//             decoration: const BoxDecoration(
+//             decoration: BoxDecoration(
 //               gradient: LinearGradient(
 //                 begin: Alignment.topLeft,
 //                 end: Alignment.bottomRight,
 //                 colors: [
-//                   Color(0xFF00B252),
-//                   Color(0xFF00A047),
+//                   Color(0xFF166C46),
+//                   Color(0xFF0E5C37),
 //                 ],
 //               ),
 //               shape: BoxShape.circle,
@@ -1095,7 +1095,7 @@
 //             ),
 //             focusedBorder: OutlineInputBorder(
 //               borderRadius: BorderRadius.circular(8),
-//               borderSide: const BorderSide(color: Color(0xFF00B252), width: 2),
+//               borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
 //             ),
 //             filled: true,
 //             fillColor: Colors.white,
@@ -1140,7 +1140,7 @@
 //             ),
 //             focusedBorder: OutlineInputBorder(
 //               borderRadius: BorderRadius.circular(8),
-//               borderSide: const BorderSide(color: Color(0xFF00B252), width: 2),
+//               borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
 //             ),
 //             filled: true,
 //             fillColor: Colors.white,
@@ -1210,7 +1210,7 @@
 //         children: [
 //           const Icon(
 //             Icons.check,
-//             color: Color(0xFF00B252),
+//             color: Color(0xFF166C46),
 //             size: 16,
 //           ),
 //           const SizedBox(width: 8),
@@ -1246,7 +1246,7 @@
 //             style: TextStyle(
 //               fontSize: 14,
 //               fontWeight: FontWeight.bold,
-//               color: label == 'Account Number:' ? const Color(0xFF111827) : const Color(0xFF00B252),
+//               color: label == 'Account Number:' ? const Color(0xFF111827) : const Color(0xFF166C46),
 //             ),
 //           ),
 //         ],

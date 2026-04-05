@@ -178,12 +178,23 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                       opacity: _logoOpacity.value,
                       child: Transform.scale(
                         scale: _logoScale.value,
-                        child: Center(
-                              child: Image.asset(
-                            "assets/images/AppIcon.png",
-                            height: 120,
-                            width: 120,
-                          )),
+                        child: Container(
+                          width: 140,
+                          height: 140,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0B4F2F),
+                            borderRadius: BorderRadius.circular(32),
+                            border: Border.all(
+                              color: const Color(0xFFD4AF37).withOpacity(0.35),
+                              width: 1.5,
+                            ),
+                          ),
+                          padding: const EdgeInsets.all(24),
+                          child: Image.asset(
+                            'assets/images/AppIcon.png',
+                            fit: BoxFit.contain,
+                          ),
+                        ),
                       ),
                     );
                   },
@@ -211,7 +222,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                             ),
                             const SizedBox(height: AppSpacing.sm),
                             Text(
-                              'Your Modern Mobile Wallet',
+                              'Made by Us, For Us',
                               style: AppTextStyles.bodyLarge.copyWith(
                                 color: Colors.white.withOpacity(0.9),
                                 fontSize: 16,
@@ -307,7 +318,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                               Text(
                                 'Licensed by CBN',
                                 style: const TextStyle(
-                                  color: Color(0xFF4ADE80),
+                                  color: Color(0xFFD4AF37),
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -322,7 +333,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                               Text(
                                 'Insured by NDIC',
                                 style: const TextStyle(
-                                  color: Color(0xFF4ADE80),
+                                  color: Color(0xFFD4AF37),
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
                                 ),

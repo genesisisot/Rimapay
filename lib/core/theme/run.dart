@@ -158,7 +158,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(next.errmessage ?? 'Registration successful! Please verify your phone number.'),
-              backgroundColor: const Color(0xFF00B252),
+              backgroundColor: const Color(0xFF166C46),
               duration: const Duration(seconds: 3),
             ),
           );
@@ -242,7 +242,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF00B252),
+                                color: Color(0xFF166C46),
                               ),
                             ),
                           ],
@@ -269,7 +269,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                         minHeight: 2,
                         backgroundColor: const Color(0xFFE5E7EB),
                         valueColor: const AlwaysStoppedAnimation<Color>(
-                          Color(0xFF00B252),
+                          Color(0xFF166C46),
                         ),
                       ),
                     ),
@@ -797,7 +797,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: Color(0xFF00B252), width: 2),
+                  borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
                 ),
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -854,7 +854,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: Color(0xFF00B252), width: 2),
+                  borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
                 ),
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -898,7 +898,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(color: Color(0xFF00B252), width: 2),
+                            borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
                           ),
                           errorBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -963,7 +963,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(color: Color(0xFF00B252), width: 2),
+                            borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
                           ),
                           errorBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -1026,7 +1026,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: Color(0xFF00B252), width: 2),
+                  borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
                 ),
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -1079,7 +1079,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: Color(0xFF00B252), width: 2),
+                  borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
                 ),
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -1143,7 +1143,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: Color(0xFF00B252), width: 2),
+                  borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
                 ),
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -1214,7 +1214,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: Color(0xFF00B252), width: 2),
+                  borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
                 ),
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -1320,7 +1320,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                           height: 20,
                           child: const CircularProgressIndicator.adaptive(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF00B252)),
+                            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF166C46)),
                           ),
                         ),
                       )
@@ -1328,7 +1328,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                         onPressed: _onLocateMePressed,
                         icon: const Icon(
                           Icons.my_location,
-                          color: Color(0xFF00B252),
+                          color: Color(0xFF166C46),
                           size: 20,
                         ),
                         tooltip: "Use my current location",
@@ -1341,7 +1341,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: Color(0xFF00B252), width: 2),
+                  borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
                 ),
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -1391,7 +1391,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: Color(0xFF00B252), width: 2),
+                  borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
                 ),
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -1446,7 +1446,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: Color(0xFF00B252), width: 2),
+                  borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
                 ),
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -1559,7 +1559,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: Color(0xFF00B252), width: 2),
+                  borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
                 ),
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -1630,7 +1630,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: Color(0xFF00B252), width: 2),
+                  borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
                 ),
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -1665,7 +1665,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                       _acceptTerms = value ?? false;
                     });
                   },
-                  activeColor: const Color(0xFF00B252),
+                  activeColor: const Color(0xFF166C46),
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
                 const SizedBox(width: 8),
@@ -1687,7 +1687,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                           TextSpan(
                             text: 'Terms and Conditions',
                             style: TextStyle(
-                              color: Color(0xFF00B252),
+                              color: Color(0xFF166C46),
                               fontWeight: FontWeight.w500,
                               decoration: TextDecoration.underline,
                             ),
@@ -1696,7 +1696,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                           TextSpan(
                             text: 'Privacy Policy',
                             style: TextStyle(
-                              color: Color(0xFF00B252),
+                              color: Color(0xFF166C46),
                               fontWeight: FontWeight.w500,
                               decoration: TextDecoration.underline,
                             ),
@@ -1716,7 +1716,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
               child: ElevatedButton(
                 onPressed: _isLoading ? null : _handlePersonalInfoSubmit,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00B252),
+                  backgroundColor: const Color(0xFF166C46),
                   foregroundColor: Colors.white,
                   disabledBackgroundColor: Colors.grey.withOpacity(0.3),
                   elevation: 0,
@@ -1773,10 +1773,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
           Container(
             width: 48,
             height: 48,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF00B252), Color(0xFF00A047)],
-              ),
+            decoration: BoxDecoration(
+              gradient: AppColors.goldGradient,
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -1864,7 +1862,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: Color(0xFF00B252), width: 2),
+                      borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
                     ),
                     counterText: '',
                     contentPadding: EdgeInsets.zero,
@@ -1879,7 +1877,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
             child: ElevatedButton(
               onPressed: (_isLoading || _otp.any((digit) => digit.isEmpty)) ? null : _handleOtpSubmit,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00B252),
+                backgroundColor: const Color(0xFF166C46),
                 foregroundColor: Colors.white,
                 disabledBackgroundColor: Colors.grey.withOpacity(0.3),
                 elevation: 0,
@@ -1998,10 +1996,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
           Container(
             width: 48,
             height: 48,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF00B252), Color(0xFF00A047)],
-              ),
+            decoration: BoxDecoration(
+              gradient: AppColors.goldGradient,
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -2168,7 +2164,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                   ElevatedButton(
                     onPressed: _requestCameraPermission,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00B252),
+                      backgroundColor: const Color(0xFF166C46),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       shape: RoundedRectangleBorder(
@@ -2193,7 +2189,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                     height: 150,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: const Color(0xFF00B252), width: 2),
+                      border: Border.all(color: const Color(0xFF166C46), width: 2),
                     ),
                     child: _cameraController != null && _cameraController!.value.isInitialized
                         ? ClipRRect(
@@ -2205,7 +2201,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                           )
                         : const Center(
                             child: CircularProgressIndicator(
-                              color: Color(0xFF00B252),
+                              color: Color(0xFF166C46),
                             ),
                           ),
                   ),
@@ -2235,7 +2231,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                       ElevatedButton(
                         onPressed: _capturePhoto,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00B252),
+                          backgroundColor: const Color(0xFF166C46),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                           shape: RoundedRectangleBorder(
@@ -2253,7 +2249,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                     height: 150,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: const Color(0xFF00B252), width: 2),
+                      border: Border.all(color: const Color(0xFF166C46), width: 2),
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(6),
@@ -2292,7 +2288,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                       ElevatedButton(
                         onPressed: _handleLivenessCheck,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00B252),
+                          backgroundColor: const Color(0xFF166C46),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           shape: RoundedRectangleBorder(
@@ -2330,7 +2326,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
         children: [
           const Icon(
             Icons.check,
-            color: Color(0xFF00B252),
+            color: Color(0xFF166C46),
             size: 16,
           ),
           const SizedBox(width: 8),
@@ -2356,10 +2352,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
           Container(
             width: 48,
             height: 48,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF10B981), Color(0xFF059669)],
-              ),
+            decoration: BoxDecoration(
+              gradient: AppColors.goldGradient,
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -2440,7 +2434,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: Color(0xFF00B252), width: 2),
+                      borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
                     ),
                     counterText: '',
                     contentPadding: EdgeInsets.zero,
@@ -2456,7 +2450,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
             child: ElevatedButton(
               onPressed: _pin.any((digit) => digit.isEmpty) ? null : _handlePinSet,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00B252),
+                backgroundColor: const Color(0xFF166C46),
                 foregroundColor: Colors.white,
                 disabledBackgroundColor: Colors.grey.withOpacity(0.3),
                 elevation: 0,
@@ -2491,10 +2485,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
             child: Container(
               width: 64,
               height: 64,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF00B252), Color(0xFF00A047)],
-                ),
+              decoration: BoxDecoration(
+                gradient: AppColors.goldGradient,
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -2529,12 +2521,12 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  const Color(0xFF00B252).withOpacity(0.1),
-                  const Color(0xFF00A047).withOpacity(0.1),
+                  const Color(0xFF166C46).withOpacity(0.1),
+                  const Color(0xFF0E5C37).withOpacity(0.1),
                 ],
               ),
               border: Border.all(
-                color: const Color(0xFF00B252).withOpacity(0.2),
+                color: const Color(0xFF166C46).withOpacity(0.2),
               ),
               borderRadius: BorderRadius.circular(12),
             ),
@@ -2570,7 +2562,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
             child: ElevatedButton(
               onPressed: () => context.go("/home"),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00B252),
+                backgroundColor: const Color(0xFF166C46),
                 foregroundColor: Colors.white,
                 elevation: 0,
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -2610,9 +2602,9 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
             fontSize: 14,
             fontWeight: isHighlight ? FontWeight.bold : FontWeight.w600,
             color: isHighlight
-                ? const Color(0xFF00B252)
+                ? AppColors.goldPrimary
                 : isUpgrade
-                    ? const Color(0xFF00B252)
+                    ? const Color(0xFF166C46)
                     : const Color(0xFF111827),
           ),
         ),
@@ -2646,7 +2638,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
           Container(
             width: 48,
             height: 48,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [Color(0xFF3B82F6), Color(0xFF2563EB)],
               ),
@@ -2701,7 +2693,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
             child: ElevatedButton(
               onPressed: _handleBvnVerification,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00B252),
+                backgroundColor: const Color(0xFF166C46),
                 foregroundColor: Colors.white,
                 elevation: 0,
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -2765,7 +2757,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
             ),
             child: const Icon(
               Icons.shield_outlined,
-              color: Color(0xFF059669),
+              color: Color(0xFF0E5C37),
               size: 24,
             ),
           ),
@@ -2821,7 +2813,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                 child: ElevatedButton(
                   onPressed: _handleUnderbanking,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00B252),
+                    backgroundColor: const Color(0xFF166C46),
                     foregroundColor: Colors.white,
                     elevation: 0,
                     padding: const EdgeInsets.symmetric(vertical: 12),

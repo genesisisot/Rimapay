@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rimapay/core/theme/app_colors.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
@@ -87,9 +88,9 @@ class _PensionScreenState extends State<PensionScreen> {
                         margin: const EdgeInsets.only(bottom: 10),
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFFECFDF5) : const Color(0xFFFAFBFC),
+                          color: isSelected ? const Color(0xFFF2F7F3) : const Color(0xFFFAFBFC),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: isSelected ? const Color(0xFF00B252).withOpacity(0.4) : const Color(0xFFE4E7EC)),
+                          border: Border.all(color: isSelected ? AppColors.goldPrimary.withOpacity(0.4) : const Color(0xFFE4E7EC)),
                         ),
                         child: Row(
                           children: [
@@ -106,7 +107,7 @@ class _PensionScreenState extends State<PensionScreen> {
                                 Text(pfa.description, style: const TextStyle(fontSize: 12, color: Color(0xFF667085))),
                               ]),
                             ),
-                            if (isSelected) const Icon(Icons.check_circle, color: Color(0xFF00B252), size: 20),
+                            if (isSelected) const Icon(Icons.check_circle, color: Color(0xFF166C46), size: 20),
                           ],
                         ),
                       ),
@@ -226,14 +227,14 @@ class _PensionScreenState extends State<PensionScreen> {
                             margin: EdgeInsets.only(right: type == 'Voluntary' ? 8 : 0),
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             decoration: BoxDecoration(
-                              color: isSelected ? const Color(0xFFECFDF5) : Colors.white,
+                              color: isSelected ? const Color(0xFFF2F7F3) : Colors.white,
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: isSelected ? const Color(0xFF00B252) : const Color(0xFFE4E7EC), width: isSelected ? 2 : 1),
+                              border: Border.all(color: isSelected ? AppColors.goldPrimary : const Color(0xFFE4E7EC), width: isSelected ? 2 : 1),
                             ),
                             child: Column(
                               children: [
                                 Text(type, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700,
-                                    color: isSelected ? const Color(0xFF00B252) : const Color(0xFF374151))),
+                                    color: isSelected ? AppColors.goldPrimary : const Color(0xFF374151))),
                                 Text(type == 'Voluntary' ? 'Standard contribution' : 'Additional Voluntary',
                                     style: const TextStyle(fontSize: 10, color: Color(0xFF9CA3AF))),
                               ],
@@ -284,7 +285,7 @@ class _SelectorField extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: hasValue ? const Color(0xFF00B252).withOpacity(0.4) : const Color(0xFFE4E7EC)),
+          border: Border.all(color: hasValue ? AppColors.goldPrimary.withOpacity(0.4) : const Color(0xFFE4E7EC)),
         ),
         child: Row(
           children: [
@@ -294,7 +295,7 @@ class _SelectorField extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500,
-                      color: hasValue ? const Color(0xFF00B252) : const Color(0xFF9CA3AF))),
+                      color: hasValue ? AppColors.goldPrimary : const Color(0xFF9CA3AF))),
                   const SizedBox(height: 2),
                   Text(value ?? hint, style: TextStyle(fontSize: 15,
                       fontWeight: hasValue ? FontWeight.w600 : FontWeight.normal,
@@ -329,7 +330,7 @@ class _PensionCTA extends StatelessWidget {
           duration: const Duration(milliseconds: 150),
           width: double.infinity, height: 54,
           decoration: BoxDecoration(
-            gradient: enabled ? const LinearGradient(colors: [Color(0xFF00B252), Color(0xFF00A651)], begin: Alignment.centerLeft, end: Alignment.centerRight) : null,
+            gradient: enabled ? AppColors.goldGradient : null,
             color: enabled ? null : const Color(0xFFCCCCCC),
             borderRadius: BorderRadius.circular(12),
           ),
