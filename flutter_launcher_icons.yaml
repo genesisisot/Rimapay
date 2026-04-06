@@ -17,7 +17,7 @@ flutter_launcher_icons:
 
   # Android adaptive icon (API 26+)
   adaptive_icon_background: "#073D25"
-  adaptive_icon_foreground: "assets/images/AppIcon.png"
+  adaptive_icon_foreground: "assets/images/AppIconForeground.png"
 
   # Web
   web:

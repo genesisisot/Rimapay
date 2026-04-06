@@ -50,7 +50,7 @@ android {
         }
         create("production") {
             dimension = "flavors"
-            resValue("string", "app_name", "RimaPay")
+            resValue("string", "app_name", "RIMA MFB")
         }
     }
 }
