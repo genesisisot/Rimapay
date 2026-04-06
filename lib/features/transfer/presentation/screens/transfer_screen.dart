@@ -64,6 +64,9 @@ class _TransferScreenState extends State<TransferScreen> {
   @override
   void initState() {
     super.initState();
+    _accountController.addListener(() => setState(() {}));
+    _amountController.addListener(() => setState(() {}));
+    _bankAccountController.addListener(() => setState(() {}));
     WidgetsBinding.instance.addPostFrameCallback((_) => _showTypeSheet());
   }
 
@@ -229,35 +232,62 @@ class _TransferScreenState extends State<TransferScreen> {
           // ── CTA ──
           Padding(
             padding: EdgeInsets.fromLTRB(20, 0, 20, MediaQuery.of(context).padding.bottom + 16),
-            child: GestureDetector(
-              onTap: () {},
-              child: Container(
-                width: double.infinity,
-                height: 54,
-                decoration: BoxDecoration(
-                  gradient: AppColors.goldGradient,
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF166C46).withOpacity(0.3),
-                      blurRadius: 14,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: const Center(
-                  child: Text(
-                    'Continue',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      fontFamily: 'Effra',
+            child: Builder(builder: (context) {
+              final isRima = _transferType == 'rimapay';
+              final canContinue = isRima
+                  ? _accountController.text.isNotEmpty && _amountController.text.isNotEmpty
+                  : _bankAccountController.text.length == 10 &&
+                      _selectedBank.isNotEmpty &&
+                      _amountController.text.isNotEmpty;
+              return GestureDetector(
+                onTap: canContinue
+                    ? () {
+                        final recipient = isRima
+                            ? _accountController.text
+                            : _recipientName.isNotEmpty
+                                ? _recipientName
+                                : _bankAccountController.text;
+                        context.push('/pin-verification', extra: {
+                          'type': 'transfer',
+                          'amount': _amountController.text,
+                          'recipient': recipient,
+                          'bank': isRima ? 'RimaPay' : _selectedBank,
+                          'note': _noteController.text,
+                        });
+                      }
+                    : null,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: double.infinity,
+                  height: 54,
+                  decoration: BoxDecoration(
+                    gradient: canContinue ? AppColors.goldGradient : null,
+                    color: canContinue ? null : const Color(0xFFE4E7EC),
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: canContinue
+                        ? [
+                            BoxShadow(
+                              color: AppColors.goldPrimary.withOpacity(0.3),
+                              blurRadius: 14,
+                              offset: const Offset(0, 5),
+                            ),
+                          ]
+                        : null,
+                  ),
+                  child: Center(
+                    child: Text(
+                      'Continue',
+                      style: TextStyle(
+                        color: canContinue ? Colors.white : const Color(0xFF98A2B3),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        fontFamily: 'Effra',
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
+              );
+            }),
           ),
         ],
       ),
@@ -490,8 +520,8 @@ class _TransferScreenState extends State<TransferScreen> {
           controller: _bankAccountController,
           focusNode: _bankAccountFocus,
           label: 'Account Number',
-          hint: '0123456789',
-          keyboardType: TextInputType.number,
+          hint: 'Enter 10-digit account number',
+          keyboardType: TextInputType.phone,
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,
             LengthLimitingTextInputFormatter(10),

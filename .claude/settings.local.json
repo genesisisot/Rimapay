@@ -78,7 +78,9 @@
       "Bash(sed -n '82,92p' lib/features/electricity/presentation/screens/electricity_purchase_screen.dart)",
       "Bash(sed -n '268,278p' lib/features/electricity/presentation/screens/electricity_purchase_screen.dart)",
       "Bash(sed -n '740,750p' lib/features/electricity/presentation/screens/electricity_purchase_screen.dart)",
-      "Bash(grep -v \"^--$\")"
+      "Bash(grep -v \"^--$\")",
+      "Bash(python -c ':*)",
+      "Bash(gh run:*)"
     ]
   }
 }

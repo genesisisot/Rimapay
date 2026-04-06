@@ -422,7 +422,7 @@ class _HeroSection extends StatelessWidget {
                     children: [
                       Expanded(
                         child: GestureDetector(
-                          onTap: () => context.push('/transfer'),
+                          onTap: () => context.go('/transfer'),
                           child: Container(
                             height: 46,
                             decoration: BoxDecoration(

@@ -610,15 +610,17 @@ class BillAmountCard extends StatelessWidget {
                     onChanged: onChanged,
                     style: const TextStyle(
                       fontSize: 32,
-                      fontWeight: FontWeight.w300,
+                      fontWeight: FontWeight.w700,
                       color: Color(0xFF101828),
+                      fontFamily: 'Effra',
                     ),
                     decoration: const InputDecoration(
                       hintText: '0',
                       hintStyle: TextStyle(
                         fontSize: 32,
                         color: Color(0xFFD0D5DD),
-                        fontWeight: FontWeight.w300,
+                        fontWeight: FontWeight.w700,
+                        fontFamily: 'Effra',
                       ),
                       border: InputBorder.none,
                       enabledBorder: InputBorder.none,
