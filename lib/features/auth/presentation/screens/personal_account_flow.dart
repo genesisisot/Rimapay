@@ -893,83 +893,18 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   }
 
   Widget _buildPhoneInput() {
-    return Column(
-      children: [
-        GestureDetector(
-          onTap: () => _phoneFocusNode.requestFocus(),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: _phoneDigits.isNotEmpty
-                    ? const Color(0xFF16A34A)
-                    : const Color(0xFFE5E7EB),
-                width: 1.5,
-              ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF0FDF4),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: const Text(
-                    '+234',
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF16A34A)),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Container(width: 1, height: 20, color: const Color(0xFFE5E7EB)),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    _phoneDigits.isEmpty
-                        ? '801 234 5678'
-                        : _formatPhoneDisplay(_phoneDigits),
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: _phoneDigits.isEmpty
-                          ? const Color(0xFFD1D5DB)
-                          : const Color(0xFF111827),
-                      letterSpacing: 1,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: 0,
-          child: TextField(
-            focusNode: _phoneFocusNode,
-            keyboardType: TextInputType.phone,
-            maxLength: 10,
-            controller: _phoneController,
-            onChanged: (value) {
-              final digits = value.replaceAll(RegExp(r'\D'), '');
-              if (digits.length <= 10) {
-                setState(() => _phoneDigits = digits);
-              }
-            },
-            decoration: const InputDecoration(
-              counterText: '',
-              border: InputBorder.none,
-            ),
-            style: const TextStyle(color: Colors.transparent),
-          ),
-        ),
-      ],
+    return _OFloatingField(
+      controller: _phoneController,
+      focusNode: _phoneFocusNode,
+      label: 'Phone Number',
+      hint: '+234 801 234 5678',
+      keyboardType: TextInputType.phone,
+      onChanged: (value) {
+        final digits = value.replaceAll(RegExp(r'\D'), '');
+        if (digits.length <= 10) {
+          setState(() => _phoneDigits = digits);
+        }
+      },
     );
   }
 
