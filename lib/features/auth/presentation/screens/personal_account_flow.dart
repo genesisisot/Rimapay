@@ -25,16 +25,18 @@ import 'package:rimapay/core/theme/app_colors.dart';
 // ─── Step enum ───────────────────────────────────────────────────────────────
 
 enum AccountStep {
-  phoneIdEntry, // 1. Phone + BVN/NIN
+  phoneEntry, // 1. Enter phone number
   otpVerification, // 2. OTP verification
-  facialVerification, // 3. Face validation
-  personalDetails, // 4. Personal details
-  occupation, // 5. Occupation
-  createPassword, // 6. Password creation
-  createPin, // 7. Create PIN
-  confirmPin, // 8. Confirm PIN
-  accountCreated, // 9. Account created
-  kycComplete, // Final completion
+  idEntry, // 3. Enter BVN/NIN
+  facialVerification, // 4. Face validation
+  createPassword, // 5. Create & Confirm password
+  createPin, // 6. Create PIN
+  confirmPin, // 7. Confirm PIN
+  accountCreated, // 8. Account created (Congratulations)
+  residentialAddress, // 9. Optional: Address
+  pepDeclaration, // 10. Optional: PEP
+  sourceOfIncome, // 11. Optional: Occupation/Income
+  kycComplete, // 12. Final - go to dashboard
 }
 
 // ─── Data classes ─────────────────────────────────────────────────────────────
@@ -76,7 +78,7 @@ class PersonalAccountFlow extends ConsumerStatefulWidget {
 class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     with TickerProviderStateMixin {
   // ── Step state ─────────────────────────────────────────────────────────────
-  AccountStep _currentStep = AccountStep.phoneIdEntry;
+  AccountStep _currentStep = AccountStep.phoneEntry;
 
   // ── Personal info ──────────────────────────────────────────────────────────
   final PersonalInfo _personalInfo = PersonalInfo();
@@ -229,16 +231,14 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
 
   String get _stepTitle {
     switch (_currentStep) {
-      case AccountStep.phoneIdEntry:
-        return 'Phone & ID Verification';
+      case AccountStep.phoneEntry:
+        return 'Phone Number';
       case AccountStep.otpVerification:
         return 'Verify Phone';
+      case AccountStep.idEntry:
+        return 'ID Verification';
       case AccountStep.facialVerification:
         return 'Face Verification';
-      case AccountStep.personalDetails:
-        return 'Personal Details';
-      case AccountStep.occupation:
-        return 'Occupation';
       case AccountStep.createPassword:
         return 'Create Password';
       case AccountStep.createPin:
@@ -247,6 +247,12 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
         return 'Confirm PIN';
       case AccountStep.accountCreated:
         return 'Account Created';
+      case AccountStep.residentialAddress:
+        return 'Residential Address';
+      case AccountStep.pepDeclaration:
+        return 'PEP Declaration';
+      case AccountStep.sourceOfIncome:
+        return 'Source of Income';
       case AccountStep.kycComplete:
         return 'Account Verified';
     }
@@ -449,10 +455,12 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
 
   Widget _buildCurrentStep() {
     switch (_currentStep) {
-      case AccountStep.phoneIdEntry:
-        return _buildPhoneIdEntryStep();
+      case AccountStep.phoneEntry:
+        return _buildPhoneEntryStep();
       case AccountStep.otpVerification:
         return _buildOtpStep();
+      case AccountStep.idEntry:
+        return _buildIdVerificationStep();
       case AccountStep.facialVerification:
         return _buildFacialVerificationStep();
       case AccountStep.createPassword:
@@ -463,9 +471,11 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
         return _buildConfirmPinStep();
       case AccountStep.accountCreated:
         return _buildAccountCreatedStep();
-      case AccountStep.personalDetails:
-        return _buildPersonalDetailsStep();
-      case AccountStep.occupation:
+      case AccountStep.residentialAddress:
+        return _buildResidentialAddressStep();
+      case AccountStep.pepDeclaration:
+        return _buildPepStep();
+      case AccountStep.sourceOfIncome:
         return _buildOccupationStep();
       case AccountStep.kycComplete:
         return _buildKycCompleteStep();
@@ -680,13 +690,9 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   // STEP 1 — Phone/Email + BVN/NIN
   // ══════════════════════════════════════════════════════════════════════════════
 
-  Widget _buildPhoneIdEntryStep() {
-    final isEmailMode = _idType == 'email';
-    final isPhoneMode = _idType == 'phone';
-    final isIdMode = _idType == 'bvn' || _idType == 'nin';
-
+  Widget _buildPhoneEntryStep() {
     return Column(
-      key: const ValueKey('phoneIdEntry'),
+      key: const ValueKey('phoneEntry'),
       children: [
         Expanded(
           child: SingleChildScrollView(
@@ -695,153 +701,27 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Enter your phone number and ID for verification',
+                  'Enter your phone number to get started',
                   style: TextStyle(
                       fontSize: 14, color: Color(0xFF6B7280), height: 1.5),
                 ),
                 const SizedBox(height: 24),
-
-                // ID VERIFICATION SECTION (BVN/NIN) - FIRST
-                const Text(
-                  'ID Verification',
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF111827)),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  'Your phone must match what is registered with your BVN/NIN',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
-                ),
-                const SizedBox(height: 16),
-
-                // BVN/NIN toggle
-                Container(
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF3F4F6),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    children: ['bvn', 'nin'].map((type) {
-                      final selected = _idType == type;
-                      return Expanded(
-                        child: GestureDetector(
-                          onTap: () => setState(() {
-                            _idType = type;
-                            _idDigits = '';
-                            _idDigitsController.clear();
-                          }),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 180),
-                            margin: const EdgeInsets.all(3),
-                            decoration: BoxDecoration(
-                              color: selected
-                                  ? const Color(0xFF16A34A)
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Center(
-                              child: Text(
-                                type.toUpperCase(),
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
-                                  color: selected
-                                      ? Colors.white
-                                      : const Color(0xFF6B7280),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // ID digits input
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      _idType.toUpperCase(),
-                      style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF374151)),
-                    ),
-                    Text(
-                      _idType == 'bvn'
-                          ? 'Where to find BVN?'
-                          : 'Where to find NIN?',
-                      style: const TextStyle(
-                          fontSize: 11, color: Color(0xFF16A34A)),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                // 11 digit boxes for BVN or NIN with hidden TextField
-                GestureDetector(
-                  onTap: () => _idDigitsFocus.requestFocus(),
-                  behavior: HitTestBehavior.opaque,
-                  child: Stack(
-                    children: [
-                      _buildIdDigitsInput(),
-                      Positioned.fill(
-                        child: Opacity(
-                          opacity: 0,
-                          child: TextField(
-                            controller: _idDigitsController,
-                            focusNode: _idDigitsFocus,
-                            keyboardType: TextInputType.number,
-                            maxLength: 11,
-                            buildCounter: (context,
-                                    {required currentLength,
-                                    required isFocused,
-                                    maxLength}) =>
-                                null,
-                            onChanged: (value) {
-                              setState(() {
-                                _idDigits = value;
-                              });
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // PHONE NUMBER SECTION
-                const Divider(color: Color(0xFFE5E7EB)),
-                const SizedBox(height: 16),
-                const Text(
-                  'Phone Number',
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF111827)),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  'Enter the phone number registered with your BVN/NIN',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
-                ),
-                const SizedBox(height: 16),
-
-                // Phone input using numpad style
                 _buildPhoneInput(),
                 const SizedBox(height: 20),
               ],
             ),
           ),
         ),
-        _buildCTA(label: 'Continue →', onTap: _onPhoneIdContinue),
+        _buildCTA(label: 'Continue →', onTap: _onPhoneContinue),
       ],
     );
+  }
+
+  void _onPhoneContinue() {
+    if (_phoneDigits.length == 10) {
+      _personalInfo.phoneNumber = '0$_phoneDigits';
+    }
+    _nextStep();
   }
 
   Widget _buildIdDigitsInput() {
@@ -1146,12 +1026,15 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   }
 
   void _onPasswordContinue() {
-    // Navigate regardless of validation
+    if (_password != _confirmPassword) {
+      _snack('Passwords do not match. Please try again.', isError: true);
+      return;
+    }
     _nextStep();
   }
 
   // ══════════════════════════════════════════════════════════════════════════════
-  // STEP 5 — Create PIN
+  // STEP 7 — Create PIN
   // ══════════════════════════════════════════════════════════════════════════════
 
   Widget _buildCreatePinStep() {
@@ -2238,8 +2121,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                       ),
                       const SizedBox(height: 8),
                       TextButton(
-                        onPressed: () =>
-                            _animateTo(AccountStep.personalDetails),
+                        onPressed: () => _animateTo(AccountStep.createPassword),
                         child: const Text('Skip for now',
                             style: TextStyle(
                                 color: Color(0xFF6B7280), fontSize: 13)),
@@ -3259,8 +3141,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       });
       _cameraController?.dispose();
       _cameraController = null;
-      // Navigate to personal details after face validation
-      if (mounted) _animateTo(AccountStep.personalDetails);
+      // Navigate to password after face validation
+      if (mounted) _animateTo(AccountStep.createPassword);
     } catch (e) {
       setState(() => _cameraError = 'Failed to capture photo: $e');
     }

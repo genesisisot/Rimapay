@@ -1,6 +1,6 @@
 # AGENTS.md - RimaPay
 
-Flutter mobile wallet app with Riverpod, go_router, clean architecture.
+Flutter mobile wallet app (Riverpod, go_router, clean architecture).
 
 ## Run Commands
 
@@ -8,14 +8,11 @@ Flutter mobile wallet app with Riverpod, go_router, clean architecture.
 # Dev (default)
 flutter run
 
-# Staging
+# Staging / Production (requires flavor)
 flutter run -t lib/mainStaging.dart --flavor staging --debug
-
-# Production
 flutter run -t lib/mainProd.dart --flavor production --debug
 
-# Specific device
-flutter run -d chrome
+# List available devices
 flutter devices
 ```
 
@@ -25,29 +22,21 @@ flutter devices
 # Debug APK
 flutter build apk --debug
 
-# Release APK with flavor (used in CI)
+# Release APK (flavor required for staging/prod)
 flutter build apk --release --flavor production -t lib/mainProd.dart --no-tree-shake-icons
-
-# Release APK for staging
 flutter build apk --release --flavor staging -t lib/mainStaging.dart
 
 # Web release
 flutter build web --release
 ```
 
-## CI/CD
-
-- **Workflow**: `.github/workflows/build.yml`
-- **Flutter version**: 3.41.2
-- **Java version**: 17
-- **Build output**: `build/app/outputs/flutter-apk/app-production-release.apk`
-- **Triggers**: push to main, manual dispatch
+**Important**: `--no-tree-shake-icons` is required for release builds (preserves icon font).
 
 ## Test & Lint
 
 ```bash
 flutter test
-flutter test test/widget_test.dart -n "specific test name"
+flutter test test/widget_test.dart -n "test_name"
 flutter analyze
 flutter analyze --fix
 ```
@@ -59,26 +48,31 @@ flutter pub get
 dart run build_runner build --delete-conflicting-outputs
 ```
 
+## CI/CD
+
+- Workflow: `.github/workflows/build.yml`
+- Flutter: 3.41.2, Java: 17
+- Trigger: push to main, manual dispatch
+
 ## Project Structure
 
 ```
 lib/
 ├── core/           # theme, providers, services, router
-├── features/       # auth/, home/, bills/, wallet/
+├── features/       # auth/, home/, bills/, wallet/, etc.
 ├── shared/         # reusable widgets
 ├── Services/       # legacy (migrating to features/)
 ├── Models/         # data models
-├── Utils/          # helpers
-└── main*.dart      # entry points: main.dart, mainStaging.dart, mainProd.dart
+└── main*.dart      # entry points
 ```
 
 ## Entry Points
 
-- `lib/main.dart` - dev (default)
-- `lib/mainStaging.dart` - staging environment
-- `lib/mainProd.dart` - production environment
+- `main.dart` - dev (default)
+- `mainStaging.dart` - staging
+- `mainProd.dart` - production
 
-Uses `AppInitializer` from `lib/Utils/MyFlavorsConfig.dart` for staging/prod setup.
+Uses `AppInitializer` from `lib/Utils/MyFlavorsConfig.dart`.
 
 ## Key Dependencies
 
@@ -86,22 +80,14 @@ Uses `AppInitializer` from `lib/Utils/MyFlavorsConfig.dart` for staging/prod set
 - Router: `go_router ^16.2.1`
 - HTTP: `dio ^5.3.3`, `retrofit ^4.0.3`
 - Storage: `hive`, `hive_flutter`, `shared_preferences`
-- Lint: `flutter_lints ^6.0.0`
 
-## Naming Conventions
+## Conventions
 
-- Files: `snake_case.dart`
-- Classes: `PascalCase`
+- Files: `snake_case.dart`, Classes: `PascalCase`
 - Private: `_leadingUnderscore`
+- Import order: Dart core → Flutter → third-party → project (relative)
 
-## Import Order
-
-1. Dart core
-2. Flutter
-3. Third-party
-4. Project (relative paths)
-
-## Theme
+## Theme Files
 
 - Colors: `core/theme/app_colors.dart`
 - Text: `core/theme/app_text_styles.dart`
@@ -109,4 +95,4 @@ Uses `AppInitializer` from `lib/Utils/MyFlavorsConfig.dart` for staging/prod set
 
 ## Navigation
 
-Use GoRouter: `context.push('/home')` or `context.push('/user/${user.id}')`
+GoRouter: `context.push('/home')` or `context.push('/user/${user.id}')`
