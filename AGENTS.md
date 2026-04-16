@@ -35,8 +35,9 @@ flutter build web --release
 ## Test & Lint
 
 ```bash
-flutter test
-flutter test test/widget_test.dart -n "test_name"
+flutter test                 # all tests
+flutter test -n "test_name"  # single test by name
+flutter test test/widget_test.dart  # single file
 flutter analyze
 flutter analyze --fix
 ```

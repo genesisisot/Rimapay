@@ -32,11 +32,11 @@ enum AccountStep {
   createPassword, // 5. Create & Confirm password
   createPin, // 6. Create PIN
   confirmPin, // 7. Confirm PIN
-  accountCreated, // 8. Account created (Congratulations)
-  residentialAddress, // 9. Optional: Address
-  pepDeclaration, // 10. Optional: PEP
-  sourceOfIncome, // 11. Optional: Occupation/Income
-  kycComplete, // 12. Final - go to dashboard
+  accountCreatedSuccess, // 8. After PIN - with account number + 2 CTAs
+  residentialAddress, // 9. Complete Profile flow
+  pepDeclaration, // 10. Complete Profile flow
+  sourceOfIncome, // 11. Complete Profile flow
+  profileCompletedSuccess, // 12. Final - Profile completed
 }
 
 // ─── Data classes ─────────────────────────────────────────────────────────────
@@ -210,7 +210,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   }
 
   void _animateTo(AccountStep step) {
-    if (step == AccountStep.accountCreated || step == AccountStep.kycComplete) {
+    if (step == AccountStep.accountCreatedSuccess ||
+        step == AccountStep.profileCompletedSuccess) {
       _congratsConfettiCtrl.reset();
       _congratsConfettiCtrl.forward();
     }
@@ -245,7 +246,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
         return 'Create PIN';
       case AccountStep.confirmPin:
         return 'Confirm PIN';
-      case AccountStep.accountCreated:
+      case AccountStep.accountCreatedSuccess:
         return 'Account Created';
       case AccountStep.residentialAddress:
         return 'Residential Address';
@@ -253,14 +254,14 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
         return 'PEP Declaration';
       case AccountStep.sourceOfIncome:
         return 'Source of Income';
-      case AccountStep.kycComplete:
+      case AccountStep.profileCompletedSuccess:
         return 'Account Verified';
     }
   }
 
   bool get _showHeader =>
-      _currentStep != AccountStep.accountCreated &&
-      _currentStep != AccountStep.kycComplete;
+      _currentStep != AccountStep.accountCreatedSuccess &&
+      _currentStep != AccountStep.profileCompletedSuccess;
 
   // ─── Build ───────────────────────────────────────────────────────────────────
 
@@ -291,7 +292,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     ref.listen(verifyOtpResponseStateProvider, (prev, next) {
       setState(() => _isLoading = false);
       if (next?.model != null) {
-        _animateTo(AccountStep.createPin);
+        _animateTo(AccountStep.idEntry);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
@@ -319,7 +320,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     ref.listen(createPinResponseStateProvider, (prev, next) {
       setState(() => _creatingPin = false);
       if (next?.model != null) {
-        _animateTo(AccountStep.accountCreated);
+        _animateTo(AccountStep.accountCreatedSuccess);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(next?.errmessage ?? ERROR_TEXT),
@@ -469,16 +470,16 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
         return _buildCreatePinStep();
       case AccountStep.confirmPin:
         return _buildConfirmPinStep();
-      case AccountStep.accountCreated:
-        return _buildAccountCreatedStep();
+      case AccountStep.accountCreatedSuccess:
+        return _buildAccountCreatedSuccessStep();
       case AccountStep.residentialAddress:
         return _buildResidentialAddressStep();
       case AccountStep.pepDeclaration:
         return _buildPepStep();
       case AccountStep.sourceOfIncome:
         return _buildOccupationStep();
-      case AccountStep.kycComplete:
-        return _buildKycCompleteStep();
+      case AccountStep.profileCompletedSuccess:
+        return _buildProfileCompletedSuccessStep();
     }
   }
 
@@ -941,7 +942,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           ),
         ),
         _buildCTA(
-          label: 'Verify',
+          label: 'Continue →',
           onTap: _nextStep,
         ),
       ],
@@ -1224,23 +1225,27 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   // STEP 7 — Account Created (Congratulations)
   // ══════════════════════════════════════════════════════════════════════════════
 
-  Widget _buildAccountCreatedStep() {
+  Widget _buildAccountCreatedSuccessStep() {
+    final accountNumber =
+        _phoneDigits.isNotEmpty ? '0$_phoneDigits' : '08XXXXXXXXX';
     return Stack(
-      key: const ValueKey('accountCreated'),
+      key: const ValueKey('accountCreatedSuccess'),
       children: [
         Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Color(0xFFE8F5E9), Color(0xFFF0FDF4), Colors.white],
+              colors: [Color(0xFF0B4F2F), Color(0xFF073D25), Color(0xFF166C46)],
             ),
           ),
         ),
-        // Confetti
+        Positioned.fill(
+          child: CustomPaint(painter: NoisePainter(opacity: 0.05, seed: 7)),
+        ),
         AnimatedBuilder(
           animation: _congratsConfettiCtrl,
-          builder: (context, _) => IgnorePointer(
+          builder: (_, __) => IgnorePointer(
             child: CustomPaint(
               painter: _CConfettiPainter(
                 particles: _confettiParticles,
@@ -1252,55 +1257,297 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
         ),
         SafeArea(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(),
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF16A34A).withOpacity(0.15),
-                  shape: BoxShape.circle,
-                ),
-                child:
-                    const Icon(Icons.check, color: Color(0xFF16A34A), size: 52),
+              Image.asset(
+                'assets/images/AppIcon.png',
+                width: 64,
+                height: 64,
+                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
               ),
-              const SizedBox(height: 28),
+              const SizedBox(height: 20),
+              Container(
+                width: 110,
+                height: 110,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                      color: Colors.white.withOpacity(0.3), width: 2),
+                ),
+                child: const Icon(Icons.verified_user,
+                    color: Colors.white, size: 54),
+              ),
+              const SizedBox(height: 24),
               const Text(
                 'Congratulations!',
                 style: TextStyle(
-                  fontSize: 28,
+                  fontSize: 26,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF111827),
+                  color: Colors.white,
                 ),
+                textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 12),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 32),
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: Text(
-                  'Your profile has been created.\nContinue to complete your verification.',
+                  'Your account has been created successfully.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                      fontSize: 15, color: Color(0xFF6B7280), height: 1.5),
+                      fontSize: 15,
+                      color: Colors.white.withOpacity(0.75),
+                      height: 1.5),
+                ),
+              ),
+              const SizedBox(height: 36),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black.withOpacity(0.15),
+                          blurRadius: 20,
+                          offset: const Offset(0, 8)),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF16A34A).withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                                Icons.account_balance_wallet_outlined,
+                                color: Color(0xFF16A34A),
+                                size: 20),
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Your Account Number',
+                            style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF6B7280)),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        accountNumber,
+                        style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF111827),
+                          letterSpacing: 2,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF0FDF4),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: const Color(0xFFBBF7D0)),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.phone_outlined,
+                                size: 14, color: Color(0xFF16A34A)),
+                            SizedBox(width: 6),
+                            Text(
+                              'Your phone number is your account number',
+                              style: TextStyle(
+                                  fontSize: 11,
+                                  color: Color(0xFF166534),
+                                  fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const Spacer(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  children: [
+                    GestureDetector(
+                      onTap: () => context.go('/home'),
+                      child: Container(
+                        width: double.infinity,
+                        height: 54,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.black.withOpacity(0.15),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4)),
+                          ],
+                        ),
+                        child: const Center(
+                          child: Text(
+                            'Go to Dashboard',
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF166C46)),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    GestureDetector(
+                      onTap: () => _animateTo(AccountStep.residentialAddress),
+                      child: Container(
+                        width: double.infinity,
+                        height: 54,
+                        decoration: BoxDecoration(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white, width: 1.5),
+                        ),
+                        child: const Center(
+                          child: Text(
+                            'Complete Profile',
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: MediaQuery.of(context).padding.bottom + 20),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════════
+  // Profile Completed Success Screen
+  // ══════════════════════════════════════════════════════════════════════════════
+
+  Widget _buildProfileCompletedSuccessStep() {
+    return Stack(
+      key: const ValueKey('profileCompletedSuccess'),
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color(0xFF0B4F2F), Color(0xFF073D25), Color(0xFF166C46)],
+            ),
+          ),
+        ),
+        Positioned.fill(
+          child: CustomPaint(painter: NoisePainter(opacity: 0.05, seed: 7)),
+        ),
+        AnimatedBuilder(
+          animation: _congratsConfettiCtrl,
+          builder: (_, __) => IgnorePointer(
+            child: CustomPaint(
+              painter: _CConfettiPainter(
+                particles: _confettiParticles,
+                progress: _congratsConfettiCtrl.value,
+              ),
+              size: MediaQuery.of(context).size,
+            ),
+          ),
+        ),
+        SafeArea(
+          child: Column(
+            children: [
+              const Spacer(),
+              Image.asset(
+                'assets/images/AppIcon.png',
+                width: 64,
+                height: 64,
+                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                width: 110,
+                height: 110,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                      color: Colors.white.withOpacity(0.3), width: 2),
+                ),
+                child: const Icon(Icons.check_circle,
+                    color: Colors.white, size: 54),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'Profile Completed!',
+                style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: Text(
+                  'Your profile is now complete.\nWelcome to RimaPay!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.white.withOpacity(0.75),
+                      height: 1.5),
                 ),
               ),
               const Spacer(),
               GestureDetector(
-                onTap: _nextStep,
+                onTap: () => context.go('/home'),
                 child: Container(
-                  margin: const EdgeInsets.fromLTRB(20, 0, 20, 32),
+                  margin: EdgeInsets.fromLTRB(
+                      24, 0, 24, MediaQuery.of(context).padding.bottom + 20),
                   width: double.infinity,
                   height: 54,
                   decoration: BoxDecoration(
-                    gradient: AppColors.goldGradient,
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black.withOpacity(0.15),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4)),
+                    ],
                   ),
                   child: const Center(
-                    child: Text('Continue',
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white)),
+                    child: Text(
+                      'Go to Dashboard',
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF166C46)),
+                    ),
                   ),
                 ),
               ),
