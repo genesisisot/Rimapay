@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../shared/widgets/noise_painter.dart';
+import 'package:flutter/foundation.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -17,6 +18,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String? _profileImage;
   bool _isEditing = false;
   bool _showImageOptions = false;
+
+  // Track profile completion status - in real app, check from backend/local storage
+  bool _residentialAddressCompleted = false;
+  bool _pepCompleted = false;
+  bool _sourceOfIncomeCompleted = false;
 
   final _imagePicker = ImagePicker();
   final _nameController = TextEditingController(text: 'Adebayo Johnson');
@@ -104,15 +110,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 left: 16,
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
-                  onTap: () => context.canPop() ? context.pop() : context.go('/home'),
+                  onTap: () =>
+                      context.canPop() ? context.pop() : context.go('/home'),
                   child: Container(
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.13),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                          color: Colors.white.withOpacity(0.2)),
+                      border: Border.all(color: Colors.white.withOpacity(0.2)),
                     ),
                     child: const Icon(Icons.arrow_back_ios_new,
                         color: Colors.white, size: 17),
@@ -128,8 +134,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Text(
                     'Profile',
                     style: TextStyle(
-                      color: Colors.white
-                          .withOpacity(collapsed ? 1.0 : 0.0),
+                      color: Colors.white.withOpacity(collapsed ? 1.0 : 0.0),
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                       fontFamily: 'Effra',
@@ -155,9 +160,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildAvatar() {
     return GestureDetector(
-      onTap: _isEditing
-          ? () => setState(() => _showImageOptions = true)
-          : null,
+      onTap: _isEditing ? () => setState(() => _showImageOptions = true) : null,
       child: Stack(
         children: [
           Container(
@@ -199,8 +202,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   color: Color(0xFF166C46),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.camera_alt,
-                    color: Colors.white, size: 13),
+                child:
+                    const Icon(Icons.camera_alt, color: Colors.white, size: 13),
               ),
             ),
         ],
@@ -218,6 +221,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           // Name + tier badge
           _buildNameSection(),
           const SizedBox(height: 20),
+
+          // Complete Profile Section (if profile not fully completed)
+          if (!_residentialAddressCompleted ||
+              !_pepCompleted ||
+              !_sourceOfIncomeCompleted)
+            _buildCompleteProfileSection(context),
 
           // Account tier card
           _buildTierCard(context),
@@ -302,8 +311,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           BorderSide(color: Color(0xFFE4E7EC), width: 1),
                     ),
                     filled: false,
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 8),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 8),
                   ),
                 ),
               )
@@ -329,14 +337,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           decoration: BoxDecoration(
             color: const Color(0xFF166C46).withOpacity(0.1),
             borderRadius: BorderRadius.circular(999),
-            border: Border.all(
-                color: const Color(0xFF166C46).withOpacity(0.3)),
+            border: Border.all(color: const Color(0xFF166C46).withOpacity(0.3)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: const [
-              Icon(Icons.star_rounded,
-                  color: Color(0xFF166C46), size: 12),
+              Icon(Icons.star_rounded, color: Color(0xFF166C46), size: 12),
               SizedBox(width: 4),
               Text(
                 _tierName,
@@ -351,6 +357,254 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildCompleteProfileSection(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFE4E7EC)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF16A34A).withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.edit_note,
+                    color: Color(0xFF16A34A), size: 20),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Complete Your Profile',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF101828),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          // Residential Address
+          _buildProfileItem(
+            icon: Icons.home_outlined,
+            title: 'Residential Address',
+            isCompleted: _residentialAddressCompleted,
+            onTap: () => _navigateToProfileStep(context, 'residentialAddress'),
+          ),
+          const SizedBox(height: 12),
+          // PEP Declaration
+          _buildProfileItem(
+            icon: Icons.verified_outlined,
+            title: 'PEP Declaration',
+            isCompleted: _pepCompleted,
+            onTap: () => _navigateToProfileStep(context, 'pepDeclaration'),
+          ),
+          const SizedBox(height: 12),
+          // Source of Income
+          _buildProfileItem(
+            icon: Icons.work_outline,
+            title: 'Source of Income',
+            isCompleted: _sourceOfIncomeCompleted,
+            onTap: () => _navigateToProfileStep(context, 'sourceOfIncome'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileItem({
+    required IconData icon,
+    required String title,
+    required bool isCompleted,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color:
+              isCompleted ? const Color(0xFFF0FDF4) : const Color(0xFFF9FAFB),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color:
+                isCompleted ? const Color(0xFFBBF7D0) : const Color(0xFFE4E7EC),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: isCompleted
+                    ? const Color(0xFF16A34A).withOpacity(0.1)
+                    : const Color(0xFFF3F4F6),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                isCompleted ? Icons.check : icon,
+                color: isCompleted
+                    ? const Color(0xFF16A34A)
+                    : const Color(0xFF6B7280),
+                size: isCompleted ? 18 : 16,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: isCompleted
+                      ? const Color(0xFF166534)
+                      : const Color(0xFF101828),
+                ),
+              ),
+            ),
+            Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                color:
+                    isCompleted ? const Color(0xFF16A34A) : Colors.transparent,
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                  color: isCompleted
+                      ? const Color(0xFF16A34A)
+                      : const Color(0xFF9CA3AF),
+                  width: 2,
+                ),
+              ),
+              child: isCompleted
+                  ? const Icon(Icons.check, color: Colors.white, size: 16)
+                  : null,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _navigateToProfileStep(BuildContext context, String step) async {
+    final pathMap = {
+      'residentialAddress': '/residential-address',
+      'pepDeclaration': '/pep-declaration',
+      'sourceOfIncome': '/source-of-income',
+    };
+    final path = pathMap[step];
+    if (path == null) return;
+
+    await context.push<bool>(path);
+    if (!mounted) return;
+
+    setState(() {
+      if (step == 'residentialAddress') {
+        _residentialAddressCompleted = true;
+      } else if (step == 'pepDeclaration') {
+        _pepCompleted = true;
+      } else if (step == 'sourceOfIncome') {
+        _sourceOfIncomeCompleted = true;
+      }
+    });
+
+    final allCompleted = _residentialAddressCompleted &&
+        _pepCompleted &&
+        _sourceOfIncomeCompleted;
+    if (allCompleted) {
+      _showProfileCompleteSuccess(context);
+    }
+  }
+
+  void _showProfileCompleteSuccess(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 36),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE4E7EC),
+                borderRadius: BorderRadius.circular(999),
+              ),
+            ),
+            Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF0FDF4),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.check_circle,
+                  color: Color(0xFF16A34A), size: 32),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Profile Completed!',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF101828),
+                fontFamily: 'Effra',
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Your profile is now fully complete.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: Color(0xFF667085),
+                height: 1.4,
+                fontFamily: 'Effra',
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF166C46),
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text('Great!',
+                    style: TextStyle(
+                        fontFamily: 'Effra', fontWeight: FontWeight.w700)),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -383,8 +637,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 color: Colors.white.withOpacity(0.12),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.star_rounded,
-                  color: Colors.white, size: 22),
+              child:
+                  const Icon(Icons.star_rounded, color: Colors.white, size: 22),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -506,16 +760,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     decoration: const InputDecoration(
                       border: UnderlineInputBorder(
-                        borderSide:
-                            BorderSide(color: Color(0xFF166C46)),
+                        borderSide: BorderSide(color: Color(0xFF166C46)),
                       ),
                       focusedBorder: UnderlineInputBorder(
                         borderSide:
                             BorderSide(color: Color(0xFF166C46), width: 2),
                       ),
                       enabledBorder: UnderlineInputBorder(
-                        borderSide:
-                            BorderSide(color: Color(0xFFE4E7EC)),
+                        borderSide: BorderSide(color: Color(0xFFE4E7EC)),
                       ),
                       filled: false,
                       contentPadding: EdgeInsets.zero,
@@ -595,7 +847,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     borderRadius: BorderRadius.circular(12)),
               ),
               child: const Text('Cancel',
-                  style: TextStyle(fontFamily: 'Effra', fontWeight: FontWeight.w600)),
+                  style: TextStyle(
+                      fontFamily: 'Effra', fontWeight: FontWeight.w600)),
             ),
           ),
         ),
@@ -791,11 +1044,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 _imageOption(Icons.camera_alt_outlined, 'Take Photo',
                     () => _pickImage(ImageSource.camera)),
                 const SizedBox(height: 10),
-                _imageOption(Icons.photo_library_outlined, 'Choose from Gallery',
+                _imageOption(
+                    Icons.photo_library_outlined,
+                    'Choose from Gallery',
                     () => _pickImage(ImageSource.gallery)),
                 if (_profileImage != null) ...[
                   const SizedBox(height: 10),
-                  _imageOption(Icons.delete_outline, 'Remove Photo', _removeImage,
+                  _imageOption(
+                      Icons.delete_outline, 'Remove Photo', _removeImage,
                       destructive: true),
                 ],
                 const SizedBox(height: 10),
@@ -831,23 +1087,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: TextButton.icon(
         onPressed: onTap,
         icon: Icon(icon,
-            color: destructive ? const Color(0xFFDC2626) : const Color(0xFF344054),
+            color:
+                destructive ? const Color(0xFFDC2626) : const Color(0xFF344054),
             size: 18),
         label: Text(
           label,
           style: TextStyle(
-            color: destructive ? const Color(0xFFDC2626) : const Color(0xFF344054),
+            color:
+                destructive ? const Color(0xFFDC2626) : const Color(0xFF344054),
             fontWeight: FontWeight.w600,
             fontFamily: 'Effra',
           ),
         ),
         style: TextButton.styleFrom(
-          backgroundColor: destructive
-              ? const Color(0xFFFEF2F2)
-              : const Color(0xFFF9FAFB),
+          backgroundColor:
+              destructive ? const Color(0xFFFEF2F2) : const Color(0xFFF9FAFB),
           padding: const EdgeInsets.symmetric(vertical: 14),
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
     );

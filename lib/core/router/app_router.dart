@@ -18,9 +18,13 @@ import 'package:rimapay/features/flights/presentation/screens/flights_screen.dar
 import 'package:rimapay/features/government/presentation/screens/government_screen.dart';
 import 'package:rimapay/features/pension/presentation/screens/pension_screen.dart';
 import 'package:rimapay/features/pin_verification/presentation/screens/pin_verification_screen.dart';
+import 'package:rimapay/features/profile/presentation/screens/residential_address_screen.dart';
+import 'package:rimapay/features/profile/presentation/screens/pep_declaration_screen.dart';
+import 'package:rimapay/features/profile/presentation/screens/source_of_income_screen.dart';
 import 'package:rimapay/features/transport/presentation/screens/transport_screen.dart';
 import 'package:rimapay/features/profile/presentation/screens/profile_screen.dart';
-import 'package:rimapay/features/receipt/presentation/screens/receipt_screen.dart' show ReceiptScreen, ReceiptData;
+import 'package:rimapay/features/receipt/presentation/screens/receipt_screen.dart'
+    show ReceiptScreen, ReceiptData;
 import 'package:rimapay/features/success/presentation/screens/success_screen.dart';
 import 'package:rimapay/features/transactions/presentation/screens/transaction_history_screen.dart';
 import 'package:rimapay/features/transfer/presentation/screens/transfer_screen.dart';
@@ -79,12 +83,33 @@ class AppRouter {
       GoRoute(
         path: '/personal-account',
         name: 'personal-account',
-        pageBuilder: (context, state) => _fadePage(state, PersonalAccountFlow()),
+        pageBuilder: (context, state) =>
+            _fadePage(state, PersonalAccountFlow()),
       ),
       GoRoute(
         path: '/business-account',
         name: 'business-account',
-        pageBuilder: (context, state) => _fadePage(state, BusinessAccountFlow()),
+        pageBuilder: (context, state) =>
+            _fadePage(state, BusinessAccountFlow()),
+      ),
+      // Profile completion routes
+      GoRoute(
+        path: '/residential-address',
+        name: 'residential-address',
+        pageBuilder: (context, state) =>
+            _fadePage(state, const ResidentialAddressScreen()),
+      ),
+      GoRoute(
+        path: '/pep-declaration',
+        name: 'pep-declaration',
+        pageBuilder: (context, state) =>
+            _fadePage(state, const PepDeclarationScreen()),
+      ),
+      GoRoute(
+        path: '/source-of-income',
+        name: 'source-of-income',
+        pageBuilder: (context, state) =>
+            _fadePage(state, const SourceOfIncomeScreen()),
       ),
       // Main Navigation Shell
       ShellRoute(
@@ -135,7 +160,8 @@ class AppRouter {
         name: 'airtime',
         pageBuilder: (context, state) {
           final initialTab = state.extra as int? ?? 0;
-          return _fadePage(state, AirtimePurchaseScreen(initialTab: initialTab));
+          return _fadePage(
+              state, AirtimePurchaseScreen(initialTab: initialTab));
         },
       ),
       GoRoute(
@@ -146,26 +172,30 @@ class AppRouter {
       GoRoute(
         path: '/bills/cable',
         name: 'cable',
-        pageBuilder: (context, state) => _fadePage(state, const CablePurchaseScreen()),
+        pageBuilder: (context, state) =>
+            _fadePage(state, const CablePurchaseScreen()),
       ),
       GoRoute(
         path: '/bills/electricity',
         name: 'electricity',
-        pageBuilder: (context, state) => _fadePage(state, const ElectricityPurchaseScreen()),
+        pageBuilder: (context, state) =>
+            _fadePage(state, const ElectricityPurchaseScreen()),
       ),
 
       // Settings (outside main navigation)
       GoRoute(
         path: '/settings',
         name: 'settings',
-        pageBuilder: (context, state) => _fadePage(state, const SettingsScreen()),
+        pageBuilder: (context, state) =>
+            _fadePage(state, const SettingsScreen()),
       ),
 
       // Account Tiers (NEW ROUTE)
       GoRoute(
         path: '/tiers',
         name: 'tiers',
-        pageBuilder: (context, state) => _fadePage(state, const AccountTiersScreen()),
+        pageBuilder: (context, state) =>
+            _fadePage(state, const AccountTiersScreen()),
       ),
 
       GoRoute(
@@ -178,17 +208,20 @@ class AppRouter {
       GoRoute(
         path: '/add-money',
         name: 'add-money',
-        pageBuilder: (context, state) => _fadePage(state, const AddMoneyScreen()),
+        pageBuilder: (context, state) =>
+            _fadePage(state, const AddMoneyScreen()),
       ),
 
       // Bill service screens
       GoRoute(
         path: '/education-bills',
-        pageBuilder: (context, state) => _fadePage(state, const EducationBillsScreen()),
+        pageBuilder: (context, state) =>
+            _fadePage(state, const EducationBillsScreen()),
       ),
       GoRoute(
         path: '/airtime-to-cash',
-        pageBuilder: (context, state) => _fadePage(state, const AirtimeCashScreen()),
+        pageBuilder: (context, state) =>
+            _fadePage(state, const AirtimeCashScreen()),
       ),
       GoRoute(
         path: '/event-tickets',
@@ -196,19 +229,23 @@ class AppRouter {
       ),
       GoRoute(
         path: '/voluntary-pension',
-        pageBuilder: (context, state) => _fadePage(state, const PensionScreen()),
+        pageBuilder: (context, state) =>
+            _fadePage(state, const PensionScreen()),
       ),
       GoRoute(
         path: '/road-transport',
-        pageBuilder: (context, state) => _fadePage(state, const TransportScreen()),
+        pageBuilder: (context, state) =>
+            _fadePage(state, const TransportScreen()),
       ),
       GoRoute(
         path: '/air-transport',
-        pageBuilder: (context, state) => _fadePage(state, const FlightsScreen()),
+        pageBuilder: (context, state) =>
+            _fadePage(state, const FlightsScreen()),
       ),
       GoRoute(
         path: '/state-government',
-        pageBuilder: (context, state) => _fadePage(state, const GovernmentScreen()),
+        pageBuilder: (context, state) =>
+            _fadePage(state, const GovernmentScreen()),
       ),
 
       // PIN Verification
@@ -217,9 +254,11 @@ class AppRouter {
         name: 'pin-verification',
         pageBuilder: (context, state) {
           final transactionData = state.extra as Map<String, dynamic>?;
-          return _fadePage(state, PinVerificationScreen(
-            transactionData: transactionData ?? {},
-          ));
+          return _fadePage(
+              state,
+              PinVerificationScreen(
+                transactionData: transactionData ?? {},
+              ));
         },
       ),
 
@@ -233,13 +272,15 @@ class AppRouter {
             return _fadePage(state, SuccessScreen(props: extra));
           }
           if (extra is Map<String, dynamic>) {
-            return _fadePage(state, SuccessScreen(
-              props: SuccessScreenProps(
-                transactionType: extra['type']?.toString() ?? 'Payment',
-                amount: extra['amount']?.toString() ?? '0',
-                recipient: extra['recipient']?.toString() ?? '',
-              ),
-            ));
+            return _fadePage(
+                state,
+                SuccessScreen(
+                  props: SuccessScreenProps(
+                    transactionType: extra['type']?.toString() ?? 'Payment',
+                    amount: extra['amount']?.toString() ?? '0',
+                    recipient: extra['recipient']?.toString() ?? '',
+                  ),
+                ));
           }
           return _fadePage(state, SuccessScreen(props: SuccessScreenProps()));
         },
