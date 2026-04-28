@@ -33,6 +33,7 @@ import '../../features/splash/presentation/screens/splash_screen.dart';
 import '../../features/welcome/presentation/screens/welcome_screen.dart';
 import '../../features/auth/presentation/screens/auth_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
+import '../../features/home/presentation/dashboard_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
 import '../../shared/presentation/screens/main_navigation_screen.dart';
 
@@ -120,8 +121,7 @@ class AppRouter {
           // Home Tab
           GoRoute(
             path: '/home',
-            name: 'home',
-            builder: (context, state) => const HomeScreen(),
+            builder: (context, state) => const DashboardScreen(),
           ),
 
           // Transfer Tab
