@@ -96,8 +96,12 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   String _phoneDigits = '';
 
   // ── ID verification ────────────────────────────────────────────────────────
-  String _idType = 'bvn'; // 'bvn' or 'nin'
+  String _idType = 'bvn'; // 'bvn', 'nin', or 'noid'
   String _idDigits = '';
+  bool _isUnderbankedMode = false; // set when user picks "No ID"
+
+  bool get _isUnderbanked =>
+      widget.accountType == 'underbanked' || _isUnderbankedMode;
 
   // ── KYC extras ─────────────────────────────────────────────────────────────
   bool? _isPep;
@@ -201,6 +205,15 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   // ─── Navigation ─────────────────────────────────────────────────────────────
 
   void _goBack() {
+    // Underbanked: skip idEntry on backward nav
+    if (_isUnderbanked && _currentStep == AccountStep.facialVerification) {
+      _animateTo(AccountStep.otpVerification);
+      return;
+    }
+    if (_isUnderbanked && _currentStep == AccountStep.sourceOfIncome) {
+      _animateTo(AccountStep.accountCreatedSuccess);
+      return;
+    }
     final steps = AccountStep.values;
     final idx = steps.indexOf(_currentStep);
     if (idx > 0) {
@@ -222,6 +235,21 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   }
 
   void _nextStep() {
+    // Underbanked: skip idEntry and pepDeclaration
+    if (_isUnderbanked) {
+      if (_currentStep == AccountStep.otpVerification) {
+        _animateTo(AccountStep.facialVerification);
+        return;
+      }
+      if (_currentStep == AccountStep.accountCreatedSuccess) {
+        _animateTo(AccountStep.residentialAddress);
+        return;
+      }
+      if (_currentStep == AccountStep.residentialAddress) {
+        _animateTo(AccountStep.sourceOfIncome);
+        return;
+      }
+    }
     final steps = AccountStep.values;
     final idx = steps.indexOf(_currentStep);
     if (idx < steps.length - 1) {
@@ -293,7 +321,9 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     ref.listen(verifyOtpResponseStateProvider, (prev, next) {
       setState(() => _isLoading = false);
       if (next?.model != null) {
-        _animateTo(AccountStep.idEntry);
+        _animateTo(_isUnderbanked
+            ? AccountStep.facialVerification
+            : AccountStep.idEntry);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
@@ -795,6 +825,290 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     if (digits.length <= 6)
       return '${digits.substring(0, 3)} ${digits.substring(3)}';
     return '${digits.substring(0, 3)} ${digits.substring(3, 6)} ${digits.substring(6)}';
+  }
+
+  void _showForgotIdSheet() {
+    final isBvn = _idType == 'bvn';
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: EdgeInsets.fromLTRB(
+            24, 12, 24, MediaQuery.of(context).padding.bottom + 28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE4E7EC),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0FAF4),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.help_outline_rounded,
+                      color: Color(0xFF166C46), size: 22),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  isBvn ? 'Retrieve your BVN' : 'Retrieve your NIN',
+                  style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF101828)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF0FAF4),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                    color: const Color(0xFF166C46).withOpacity(0.2)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    isBvn ? 'Dial this USSD code:' : 'Dial one of these USSD codes:',
+                    style: const TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF374151),
+                        fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 12),
+                  if (isBvn) ...[
+                    _ussdRow('*565*0#', 'Works on any network'),
+                  ] else ...[
+                    _ussdRow('*346#', 'MTN'),
+                    const SizedBox(height: 10),
+                    _ussdRow('*3082#', '9mobile'),
+                    const SizedBox(height: 10),
+                    _ussdRow('*346*3#', 'Airtel'),
+                    const SizedBox(height: 10),
+                    _ussdRow('*346*6#', 'Glo'),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF7ED),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline,
+                      color: Color(0xFFF97316), size: 16),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      isBvn
+                          ? 'Your BVN was issued when you opened your first bank account. It is an 11-digit number.'
+                          : 'Your NIN was issued by NIMC. Visit any NIMC office or agent to enroll if you don\'t have one.',
+                      style: const TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF78350F),
+                          height: 1.4),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                width: double.infinity,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF166C46),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Center(
+                  child: Text('Got it',
+                      style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _ussdRow(String code, String network) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: const Color(0xFF166C46).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(code,
+              style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF166C46),
+                  letterSpacing: 0.5)),
+        ),
+        const SizedBox(width: 12),
+        Text(network,
+            style: const TextStyle(fontSize: 13, color: Color(0xFF667085))),
+      ],
+    );
+  }
+
+  void _showNoIdConfirmSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: EdgeInsets.fromLTRB(
+            24, 12, 24, MediaQuery.of(context).padding.bottom + 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                    color: const Color(0xFFE4E7EC),
+                    borderRadius: BorderRadius.circular(999)),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF7ED),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Icon(Icons.account_balance_wallet_outlined,
+                  color: Color(0xFFF97316), size: 26),
+            ),
+            const SizedBox(height: 16),
+            const Text('Open Underbanked Account?',
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF101828))),
+            const SizedBox(height: 10),
+            const Text(
+              'You\'re about to open a financial inclusion (underbanked) account. This account is designed for those without formal ID documents.',
+              style: TextStyle(
+                  fontSize: 13, color: Color(0xFF667085), height: 1.5),
+            ),
+            const SizedBox(height: 16),
+            _limitRow(Icons.swap_horiz, '₦10,000 daily transaction limit'),
+            _limitRow(Icons.savings_outlined, '₦100,000 maximum balance'),
+            _limitRow(Icons.upgrade, 'Upgrade anytime by adding BVN/NIN'),
+            _limitRow(Icons.check_circle_outline, 'Access to savings & micro-loans'),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: const Color(0xFFE4E7EC)),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Center(
+                        child: Text('Cancel',
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF374151))),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                      setState(() {
+                        _isUnderbankedMode = true;
+                        _idDigits = '';
+                      });
+                      _animateTo(AccountStep.facialVerification);
+                    },
+                    child: Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF97316),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Center(
+                        child: Text('Yes, Continue',
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white)),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _limitRow(IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: const Color(0xFF166C46)),
+          const SizedBox(width: 10),
+          Text(text,
+              style:
+                  const TextStyle(fontSize: 13, color: Color(0xFF374151))),
+        ],
+      ),
+    );
   }
 
   void _onPhoneIdContinue() {
@@ -1728,7 +2042,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   ),
                 ],
                 const SizedBox(height: 20),
-                // NIN / BVN toggle
+                // BVN / NIN / No ID toggle
                 Container(
                   height: 48,
                   decoration: BoxDecoration(
@@ -1736,7 +2050,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
-                    children: ['nin', 'bvn'].map((type) {
+                    children: ['bvn', 'nin', 'noid'].map((type) {
                       final selected = _idType == type;
                       return Expanded(
                         child: GestureDetector(
@@ -1749,15 +2063,17 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                             margin: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
                               color: selected
-                                  ? const Color(0xFF16A34A)
+                                  ? (type == 'noid'
+                                      ? const Color(0xFFF97316)
+                                      : const Color(0xFF16A34A))
                                   : Colors.transparent,
                               borderRadius: BorderRadius.circular(9),
                             ),
                             child: Center(
                               child: Text(
-                                type.toUpperCase(),
+                                type == 'noid' ? 'No ID' : type.toUpperCase(),
                                 style: TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 13,
                                   fontWeight: FontWeight.w700,
                                   color: selected
                                       ? Colors.white
@@ -1771,90 +2087,120 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                     }).toList(),
                   ),
                 ),
-                const SizedBox(height: 20),
-                // Label row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      _idType.toUpperCase(),
-                      style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF374151)),
+                const SizedBox(height: 16),
+
+                // "No ID" callout
+                if (_idType == 'noid') ...[
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF7ED),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                          color: const Color(0xFFFB923C).withOpacity(0.5)),
                     ),
-                    Text(
-                      'Bank Verification Number Sample >',
-                      style: const TextStyle(
-                          fontSize: 11, color: Color(0xFF16A34A)),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                // 11 individual boxes
-                Row(
-                  children: List.generate(maxLen, (i) {
-                    final hasDigit = i < filled;
-                    final isActive = i == filled;
-                    return Expanded(
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 120),
-                        height: 44,
-                        margin: const EdgeInsets.symmetric(horizontal: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: isActive
-                                ? const Color(0xFF16A34A)
-                                : hasDigit
-                                    ? const Color(0xFF16A34A).withOpacity(0.4)
-                                    : const Color(0xFFE5E7EB),
-                            width: isActive ? 2 : 1,
-                          ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Row(
+                          children: [
+                            Icon(Icons.warning_amber_rounded,
+                                color: Color(0xFFF97316), size: 18),
+                            SizedBox(width: 8),
+                            Text('Underbanked Account',
+                                style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF78350F))),
+                          ],
                         ),
-                        child: Center(
-                          child: Text(
-                            hasDigit ? _idDigits[i] : '',
-                            style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF111827)),
-                          ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Without BVN or NIN, your account will have limited features:\n• ₦10,000 daily transaction limit\n• No international transfers\n• You can upgrade anytime by adding your BVN/NIN later',
+                          style: TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF78350F),
+                              height: 1.5),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ] else ...[
+                  // Label row with dynamic forgot link
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        _idType == 'bvn'
+                            ? 'Bank Verification Number (BVN)'
+                            : 'National Identification Number (NIN)',
+                        style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF374151)),
+                      ),
+                      GestureDetector(
+                        onTap: _showForgotIdSheet,
+                        child: Text(
+                          'Forgot ${_idType.toUpperCase()}?',
+                          style: const TextStyle(
+                              fontSize: 11,
+                              color: Color(0xFF16A34A),
+                              fontWeight: FontWeight.w600),
                         ),
                       ),
-                    );
-                  }),
-                ),
-                const SizedBox(height: 8),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: const Color(0xFF16A34A)),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Text('Forgot BVN?',
-                        style: TextStyle(
-                            fontSize: 11,
-                            color: Color(0xFF16A34A),
-                            fontWeight: FontWeight.w600)),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 24),
-                _buildNumPad(
-                  onDigit: (d) {
-                    if (_idDigits.length < maxLen)
-                      setState(() => _idDigits += d);
-                  },
-                  onDelete: () {
-                    if (_idDigits.isNotEmpty)
-                      setState(() => _idDigits =
-                          _idDigits.substring(0, _idDigits.length - 1));
-                  },
-                ),
+                  const SizedBox(height: 10),
+                  // 11 individual boxes
+                  Row(
+                    children: List.generate(maxLen, (i) {
+                      final hasDigit = i < filled;
+                      final isActive = i == filled;
+                      return Expanded(
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 120),
+                          height: 44,
+                          margin: const EdgeInsets.symmetric(horizontal: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: isActive
+                                  ? const Color(0xFF16A34A)
+                                  : hasDigit
+                                      ? const Color(0xFF16A34A).withOpacity(0.4)
+                                      : const Color(0xFFE5E7EB),
+                              width: isActive ? 2 : 1,
+                            ),
+                          ),
+                          child: Center(
+                            child: Text(
+                              hasDigit ? _idDigits[i] : '',
+                              style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF111827)),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 20),
+                  _buildNumPad(
+                    onDigit: (d) {
+                      if (_idDigits.length < maxLen)
+                        setState(() => _idDigits += d);
+                    },
+                    onDelete: () {
+                      if (_idDigits.isNotEmpty)
+                        setState(() => _idDigits =
+                            _idDigits.substring(0, _idDigits.length - 1));
+                    },
+                  ),
+                ],
               ],
             ),
           ),
@@ -1862,20 +2208,10 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
         // Licensed footer
         const _CbnFooter(),
         _buildCTA(
-          label: isUnderbanked ? 'Continue without ID →' : 'Continue →',
-          onTap: _nextStep,
-          footerContent: isUnderbanked
-              ? TextButton(
-                  onPressed: _nextStep,
-                  child: const Text(
-                    'Skip for now',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF6B7280),
-                    ),
-                  ),
-                )
-              : null,
+          label: _idType == 'noid'
+              ? 'Open Underbanked Account'
+              : (isUnderbanked ? 'Continue without ID →' : 'Continue →'),
+          onTap: _idType == 'noid' ? _showNoIdConfirmSheet : _nextStep,
         ),
       ],
     );
@@ -2248,6 +2584,121 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   // ══════════════════════════════════════════════════════════════════════════════
 
   Widget _buildFacialVerificationStep() {
+    // Underbanked: simple photo upload — no liveness detection
+    if (_isUnderbanked) {
+      return Column(
+        key: const ValueKey('facialVerification'),
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Info banner
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF0FAF4),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                          color: const Color(0xFF166C46).withOpacity(0.2)),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.camera_alt_outlined,
+                            color: Color(0xFF166C46), size: 20),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Take a clear selfie — no glasses, good lighting, face centered.',
+                            style: TextStyle(
+                                fontSize: 13,
+                                color: Color(0xFF166C46),
+                                height: 1.4),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  // Camera preview or placeholder
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      width: double.infinity,
+                      height: 300,
+                      color: Colors.black87,
+                      child: _cameraActive &&
+                              _cameraController != null &&
+                              _cameraController!.value.isInitialized
+                          ? CameraPreview(_cameraController!)
+                          : Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 80,
+                                  height: 80,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.person,
+                                      color: Colors.white54, size: 44),
+                                ),
+                                const SizedBox(height: 14),
+                                const Text('Camera preview will appear here',
+                                    style: TextStyle(
+                                        color: Colors.white54, fontSize: 13)),
+                              ],
+                            ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // Tip chips
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _tipChip('Good lighting'),
+                      _tipChip('No glasses'),
+                      _tipChip('Face forward'),
+                      _tipChip('Plain background'),
+                    ],
+                  ),
+                  if (_cameraError != null) ...[
+                    const SizedBox(height: 14),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFEF2F2),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(_cameraError!,
+                          style: const TextStyle(
+                              color: Color(0xFFB91C1C), fontSize: 13)),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          _buildCTA(
+            label: _cameraActive ? 'Take Photo' : 'Start Camera',
+            onTap: _cameraActive
+                ? _capturePhoto
+                : _requestCameraPermission,
+            footerContent: TextButton(
+              onPressed: () => _animateTo(AccountStep.createPassword),
+              child: const Text('Skip for now',
+                  style: TextStyle(color: Color(0xFF6B7280), fontSize: 13)),
+            ),
+          ),
+        ],
+      );
+    }
+
+    // Standard: liveness detection with oval overlay
     return Column(
       key: const ValueKey('facialVerification'),
       children: [
@@ -2255,7 +2706,6 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           child: Stack(
             alignment: Alignment.center,
             children: [
-              // Camera preview or dark background
               if (_cameraActive &&
                   _cameraController != null &&
                   _cameraController!.value.isInitialized)
@@ -2263,14 +2713,12 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
               else
                 Container(color: Colors.black87),
 
-              // Oval cutout overlay
               Positioned.fill(
                 child: CustomPaint(
                   painter: _OvalOverlayPainter(color: const Color(0xFFD4AF37)),
                 ),
               ),
 
-              // Top instruction card
               Positioned(
                 top: 20,
                 left: 16,
@@ -2321,11 +2769,11 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                             const SizedBox(height: 4),
                             ClipRRect(
                               borderRadius: BorderRadius.circular(3),
-                              child: LinearProgressIndicator(
+                              child: const LinearProgressIndicator(
                                 value: 0.1,
                                 minHeight: 4,
-                                backgroundColor: const Color(0xFFE5E7EB),
-                                valueColor: const AlwaysStoppedAnimation(
+                                backgroundColor: Color(0xFFE5E7EB),
+                                valueColor: AlwaysStoppedAnimation(
                                     Color(0xFF16A34A)),
                               ),
                             ),
@@ -2337,7 +2785,6 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                 ),
               ),
 
-              // Bottom instruction
               Positioned(
                 bottom: 20,
                 left: 16,
@@ -2420,6 +2867,18 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           ),
         ),
       ],
+    );
+  }
+
+  Widget _tipChip(String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF3F4F6),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(label,
+          style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
     );
   }
 

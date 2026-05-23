@@ -231,6 +231,15 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
     }
   }
 
+  void _showLinkDeviceSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const _LinkDeviceSheet(),
+    );
+  }
+
   void _showErrorMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -522,6 +531,32 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                           ],
                         ),
                       ),
+                      const SizedBox(height: 14),
+                      Center(
+                        child: GestureDetector(
+                          onTap: () => _showLinkDeviceSheet(context),
+                          child: RichText(
+                            text: const TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'New device? ',
+                                  style: TextStyle(
+                                      color: Color(0xFF9CA3AF), fontSize: 13),
+                                ),
+                                TextSpan(
+                                  text: 'Link existing account',
+                                  style: TextStyle(
+                                    color: Color(0xFF166C46),
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -809,6 +844,35 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                     ),
                   ),
 
+                  const SizedBox(height: 12),
+
+                  // Link existing account
+                  GestureDetector(
+                    onTap: () => _showLinkDeviceSheet(context),
+                    child: RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'Already have an account? ',
+                            style: TextStyle(
+                                color: Colors.white.withOpacity(0.5),
+                                fontSize: 13),
+                          ),
+                          const TextSpan(
+                            text: 'Link existing account',
+                            style: TextStyle(
+                              color: Color(0xFFD4AF37),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
                   const SizedBox(height: 20),
                 ],
               ),
@@ -894,6 +958,372 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF1A1A1A))),
+      ],
+    );
+  }
+}
+
+// ── Link Existing Account Sheet ───────────────────────────────────────────────
+
+class _LinkDeviceSheet extends StatefulWidget {
+  const _LinkDeviceSheet();
+
+  @override
+  State<_LinkDeviceSheet> createState() => _LinkDeviceSheetState();
+}
+
+class _LinkDeviceSheetState extends State<_LinkDeviceSheet> {
+  int _step = 0; // 0=phone, 1=otp+pin, 2=success
+  final _phoneCtrl = TextEditingController();
+  final _pinCtrl = TextEditingController();
+  final List<String> _otp = List.filled(6, '');
+  bool _loading = false;
+
+  @override
+  void dispose() {
+    _phoneCtrl.dispose();
+    _pinCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedPadding(
+      duration: const Duration(milliseconds: 150),
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE4E7EC),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            if (_step == 2) ...[
+              _buildSuccess(),
+            ] else ...[
+              Row(
+                children: [
+                  Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF0FAF4),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.link_rounded,
+                        color: Color(0xFF166C46), size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text('Link Existing Account',
+                          style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF101828))),
+                      SizedBox(height: 2),
+                      Text('Verify identity to link to this device',
+                          style: TextStyle(
+                              fontSize: 12, color: Color(0xFF667085))),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              if (_step == 0) _buildPhoneStep(),
+              if (_step == 1) _buildOtpPinStep(),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPhoneStep() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFF7ED),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: const Color(0xFFFB923C).withOpacity(0.4)),
+          ),
+          child: const Row(
+            children: [
+              Icon(Icons.info_outline, color: Color(0xFFF97316), size: 16),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Use the phone number registered on your existing RimaPay account.',
+                  style: TextStyle(
+                      fontSize: 12, color: Color(0xFF78350F), height: 1.4),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+        const Text('Registered Phone Number',
+            style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF374151))),
+        const SizedBox(height: 8),
+        TextField(
+          controller: _phoneCtrl,
+          keyboardType: TextInputType.phone,
+          style: const TextStyle(fontSize: 15, color: Color(0xFF101828)),
+          decoration: InputDecoration(
+            hintText: '0801 234 5678',
+            hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 14),
+            prefixIcon: const Icon(Icons.phone_outlined,
+                size: 18, color: Color(0xFF9CA3AF)),
+            filled: true,
+            fillColor: const Color(0xFFF9FAFB),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFFE4E7EC)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFFE4E7EC)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide:
+                  const BorderSide(color: Color(0xFF166C46), width: 1.5),
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+        GestureDetector(
+          onTap: () async {
+            if (_phoneCtrl.text.trim().isEmpty) return;
+            setState(() => _loading = true);
+            await Future.delayed(const Duration(seconds: 2));
+            if (mounted) setState(() { _loading = false; _step = 1; });
+          },
+          child: Container(
+            width: double.infinity,
+            height: 52,
+            decoration: BoxDecoration(
+              color: const Color(0xFF166C46),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Center(
+              child: _loading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white)))
+                  : const Text('Send Verification Code',
+                      style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white)),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOtpPinStep() {
+    final filled = _otp.where((d) => d.isNotEmpty).length;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RichText(
+          text: TextSpan(
+            style: const TextStyle(fontSize: 13, color: Color(0xFF667085)),
+            children: [
+              const TextSpan(text: 'Code sent to '),
+              TextSpan(
+                text: _phoneCtrl.text.trim(),
+                style: const TextStyle(
+                    fontWeight: FontWeight.w700, color: Color(0xFF166C46)),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(6, (i) {
+            final hasDigit = _otp[i].isNotEmpty;
+            final isActive = i == filled;
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 120),
+              width: 44,
+              height: 50,
+              margin: EdgeInsets.only(right: i < 5 ? 8 : 0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: isActive
+                      ? const Color(0xFF166C46)
+                      : hasDigit
+                          ? const Color(0xFF166C46).withOpacity(0.4)
+                          : const Color(0xFFE4E7EC),
+                  width: isActive ? 2 : 1.5,
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  hasDigit ? '•' : '',
+                  style: const TextStyle(
+                      fontSize: 22, color: Color(0xFF101828)),
+                ),
+              ),
+            );
+          }),
+        ),
+        const SizedBox(height: 16),
+        // Mini numpad
+        ...([['1','2','3'],['4','5','6'],['7','8','9'],['','0','⌫']].map((row) =>
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Row(
+              children: row.map((k) => Expanded(
+                child: k.isEmpty ? const SizedBox() : GestureDetector(
+                  onTap: () {
+                    if (k == '⌫') {
+                      final idx = _otp.lastIndexWhere((d) => d.isNotEmpty);
+                      if (idx != -1) setState(() => _otp[idx] = '');
+                    } else {
+                      final idx = _otp.indexWhere((d) => d.isEmpty);
+                      if (idx != -1) setState(() => _otp[idx] = k);
+                    }
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    height: 46,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF3F4F6),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Center(
+                      child: k == '⌫'
+                          ? const Icon(Icons.backspace_outlined,
+                              size: 18, color: Color(0xFF374151))
+                          : Text(k,
+                              style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF111827))),
+                    ),
+                  ),
+                ),
+              )).toList(),
+            ),
+          )
+        ).toList()),
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: () async {
+            if (filled < 6) return;
+            setState(() => _loading = true);
+            await Future.delayed(const Duration(seconds: 2));
+            if (mounted) setState(() { _loading = false; _step = 2; });
+          },
+          child: Container(
+            width: double.infinity,
+            height: 52,
+            decoration: BoxDecoration(
+              color: filled == 6 ? const Color(0xFF166C46) : const Color(0xFFE4E7EC),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Center(
+              child: _loading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white)))
+                  : Text('Link Account',
+                      style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: filled == 6
+                              ? Colors.white
+                              : const Color(0xFF9CA3AF))),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSuccess() {
+    return Column(
+      children: [
+        const SizedBox(height: 8),
+        const Center(
+          child: Icon(Icons.check_circle, color: Color(0xFF166C46), size: 60),
+        ),
+        const SizedBox(height: 16),
+        const Center(
+          child: Text('Account Linked!',
+              style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF101828))),
+        ),
+        const SizedBox(height: 8),
+        const Center(
+          child: Text(
+            'Your RimaPay account is now linked\nto this device.',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 14, color: Color(0xFF667085), height: 1.5),
+          ),
+        ),
+        const SizedBox(height: 24),
+        GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+            // Navigate to home
+          },
+          child: Container(
+            width: double.infinity,
+            height: 52,
+            decoration: BoxDecoration(
+              color: const Color(0xFF166C46),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Center(
+              child: Text('Continue to Account',
+                  style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white)),
+            ),
+          ),
+        ),
       ],
     );
   }
