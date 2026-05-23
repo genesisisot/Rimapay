@@ -326,7 +326,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
     final isSmallScreen = screenWidth < 360;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           physics: BouncingScrollPhysics(),

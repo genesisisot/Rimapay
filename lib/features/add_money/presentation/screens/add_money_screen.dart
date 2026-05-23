@@ -30,7 +30,7 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: _step == _AddMoneyStep.methodList ? _MethodListView(
         onBankTransfer: () => setState(() => _step = _AddMoneyStep.bankTransfer),
         onComingSoon: _showComingSoon,

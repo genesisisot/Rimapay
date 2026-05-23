@@ -217,7 +217,7 @@ class _TransportScreenState extends State<TransportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Column(
         children: [
           BillGreenHeader(title: 'Bus Tickets', subtitle: 'Book inter-city travel', showAccountCard: false),

@@ -302,7 +302,7 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
     final services = _filteredServices();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: FadeTransition(
         opacity: _fadeAnimation,
         child: CustomScrollView(

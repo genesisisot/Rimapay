@@ -51,7 +51,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
           CustomScrollView(
@@ -1060,7 +1060,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: TextButton(
                     onPressed: () => setState(() => _showImageOptions = false),
                     style: TextButton.styleFrom(
-                      backgroundColor: const Color(0xFFF9FAFB),
+                      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12)),

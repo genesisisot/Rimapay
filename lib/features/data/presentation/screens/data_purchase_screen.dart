@@ -416,7 +416,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Column(
         children: [
           // ── Green header with tabs ──
@@ -745,7 +745,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
 
   Widget _buildProcessingScreen(Function(String) language) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),

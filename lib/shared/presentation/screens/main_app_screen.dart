@@ -171,7 +171,7 @@ import '../../../core/providers/auth_provider.dart';
 //             slivers: [
 //               // Custom App Bar
 //               SliverAppBar(
-//                 backgroundColor: Colors.white,
+//                 backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 //                 elevation: 0,
 //                 pinned: true,
 //                 leading: Container(
@@ -515,7 +515,7 @@ import '../../../core/providers/auth_provider.dart';
 //         ),
 //         style: TextButton.styleFrom(
 //           foregroundColor: Colors.grey[700],
-//           backgroundColor: Colors.white,
+//           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 //           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
 //           shape: RoundedRectangleBorder(
 //             borderRadius: BorderRadius.circular(8),
@@ -981,7 +981,7 @@ class CardManagementScreen extends StatelessWidget {
   
 
     return Scaffold(
-  backgroundColor: Colors.white,
+  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: const Center(
         child: Text('Coming soon'),
       ),

@@ -214,23 +214,39 @@ class AppTheme {
     );
   }
   
+  // Dark mode palette constants
+  static const Color _darkBg       = Color(0xFF0F1117); // page background
+  static const Color _darkSurface  = Color(0xFF1A1F2E); // cards, sheets
+  static const Color _darkSurface2 = Color(0xFF242938); // elevated cards
+  static const Color _darkBorder   = Color(0xFF2D3348); // dividers, borders
+  static const Color _darkText     = Color(0xFFE8EAF0); // primary text
+  static const Color _darkSubtext  = Color(0xFF8892A4); // secondary text
+  static const Color _darkInput    = Color(0xFF1A1F2E); // input fill
+
   static ThemeData get darkTheme {
     return lightTheme.copyWith(
+      brightness: Brightness.dark,
+      scaffoldBackgroundColor: _darkBg,
+
       colorScheme: const ColorScheme.dark(
         primary: AppColors.primary400,
         primaryContainer: AppColors.primary800,
         secondary: AppColors.accentBlue,
-        secondaryContainer: AppColors.neutral800,
-        surface: AppColors.neutral900,
+        secondaryContainer: Color(0xFF1A1F2E),
+        surface: _darkBg,
+        surfaceContainerHighest: _darkSurface2,
         error: AppColors.error,
-        onPrimary: AppColors.neutral900,
-        onSecondary: AppColors.neutral0,
-        onSurface: AppColors.neutral0,
-        onError: AppColors.neutral0,
+        onPrimary: Colors.white,
+        onSecondary: Colors.white,
+        onSurface: _darkText,
+        onError: Colors.white,
+        outline: _darkBorder,
+        outlineVariant: _darkBorder,
       ),
+
       appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.neutral900,
-        foregroundColor: AppColors.neutral0,
+        backgroundColor: _darkSurface,
+        foregroundColor: _darkText,
         elevation: 0,
         centerTitle: true,
         systemOverlayStyle: SystemUiOverlayStyle(
@@ -238,6 +254,143 @@ class AppTheme {
           statusBarIconBrightness: Brightness.light,
         ),
         titleTextStyle: AppTextStyles.heading3,
+      ),
+
+      cardTheme: CardThemeData(
+        color: _darkSurface,
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+          side: const BorderSide(color: _darkBorder),
+        ),
+        margin: const EdgeInsets.all(AppSpacing.sm),
+      ),
+
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: _darkInput,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+          borderSide: const BorderSide(color: _darkBorder),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+          borderSide: const BorderSide(color: _darkBorder),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+          borderSide: const BorderSide(color: AppColors.primary400, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+          borderSide: const BorderSide(color: AppColors.error),
+        ),
+        contentPadding: const EdgeInsets.all(AppSpacing.lg),
+        hintStyle: const TextStyle(
+          fontFamily: 'Effra',
+          fontSize: 14,
+          color: _darkSubtext,
+        ),
+        labelStyle: const TextStyle(
+          fontFamily: 'Effra',
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: _darkSubtext,
+        ),
+      ),
+
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: _darkSurface,
+        selectedItemColor: AppColors.primary400,
+        unselectedItemColor: _darkSubtext,
+        type: BottomNavigationBarType.fixed,
+        elevation: 0,
+        selectedLabelStyle: AppTextStyles.labelSmall,
+        unselectedLabelStyle: AppTextStyles.labelSmall,
+      ),
+
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: _darkSurface,
+        modalBackgroundColor: _darkSurface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+      ),
+
+      dialogTheme: const DialogThemeData(
+        backgroundColor: _darkSurface,
+        titleTextStyle: TextStyle(
+          color: _darkText,
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          fontFamily: 'Effra',
+        ),
+        contentTextStyle: TextStyle(
+          color: _darkSubtext,
+          fontSize: 14,
+          fontFamily: 'Effra',
+        ),
+      ),
+
+      drawerTheme: const DrawerThemeData(
+        backgroundColor: _darkSurface,
+      ),
+
+      dividerTheme: const DividerThemeData(
+        color: _darkBorder,
+        thickness: 1,
+        space: 1,
+      ),
+
+      chipTheme: ChipThemeData(
+        backgroundColor: _darkSurface2,
+        selectedColor: AppColors.primary800,
+        labelStyle: AppTextStyles.labelMedium.copyWith(color: _darkText),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusFull),
+        ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.xs,
+        ),
+      ),
+
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) return AppColors.primary400;
+          return _darkSubtext;
+        }),
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) return AppColors.primary800;
+          return _darkSurface2;
+        }),
+      ),
+
+      listTileTheme: const ListTileThemeData(
+        tileColor: Colors.transparent,
+        textColor: _darkText,
+        iconColor: _darkSubtext,
+      ),
+
+      textTheme: const TextTheme(
+        displayLarge: AppTextStyles.display1,
+        displayMedium: AppTextStyles.display2,
+        headlineLarge: AppTextStyles.heading1,
+        headlineMedium: AppTextStyles.heading2,
+        headlineSmall: AppTextStyles.heading3,
+        titleLarge: AppTextStyles.heading4,
+        titleMedium: AppTextStyles.labelLarge,
+        titleSmall: AppTextStyles.labelMedium,
+        bodyLarge: AppTextStyles.bodyLarge,
+        bodyMedium: AppTextStyles.bodyMedium,
+        bodySmall: AppTextStyles.bodySmall,
+        labelLarge: AppTextStyles.labelLarge,
+        labelMedium: AppTextStyles.labelMedium,
+        labelSmall: AppTextStyles.labelSmall,
+      ).apply(
+        bodyColor: _darkText,
+        displayColor: _darkText,
       ),
     );
   }

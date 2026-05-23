@@ -95,7 +95,7 @@ class _SourceOfIncomeScreenState extends State<SourceOfIncomeScreen> {
       String title, List<String> options, void Function(String) onSelect) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -151,7 +151,7 @@ class _SourceOfIncomeScreenState extends State<SourceOfIncomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
