@@ -9,7 +9,36 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  build:
+  deploy-web:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.2'
+          channel: stable
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build Web
+        run: flutter build web --release
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: --prod
+          working-directory: .
+
+  build-apk:
     runs-on: ubuntu-latest
 
     steps:
@@ -35,19 +64,9 @@ jobs:
       - name: Build APK
         run: flutter build apk --release --flavor production -t lib/mainProd.dart --no-tree-shake-icons
 
-      - name: Build Web
-        run: flutter build web --release
-
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: rimapay-release-apk
           path: build/app/outputs/flutter-apk/app-production-release.apk
           retention-days: 30
-
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-args: --prod
-          working-directory: .
