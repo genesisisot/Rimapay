@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 
@@ -207,17 +208,34 @@ class _BalanceCardState extends State<_BalanceCard> {
                       style: balanceAmount,
                     ),
                     const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Text('Account No. 2138 5476 90', style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w400,
-                  color: Color(0xFFAAAAAA),
-                )),
-                        const SizedBox(width: 6),
-                        const Icon(Icons.copy_outlined,
-                            color: Colors.white54, size: 14),
-                      ],
+                    GestureDetector(
+                      onTap: () {
+                        Clipboard.setData(
+                            const ClipboardData(text: '2138547690'));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('Account number copied'),
+                            behavior: SnackBarBehavior.floating,
+                            duration: const Duration(seconds: 2),
+                            backgroundColor: const Color(0xFF155C2C),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                          ),
+                        );
+                      },
+                      child: Row(
+                        children: [
+                          Text('Account No. 2138 5476 90',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w400,
+                                color: Color(0xFFAAAAAA),
+                              )),
+                          const SizedBox(width: 6),
+                          const Icon(Icons.copy_outlined,
+                              color: Colors.white54, size: 14),
+                        ],
+                      ),
                     ),
                   ],
                 ),
