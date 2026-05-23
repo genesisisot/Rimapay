@@ -68,7 +68,8 @@ class Prediction {
 // ─── Widget ──────────────────────────────────────────────────────────────────
 
 class PersonalAccountFlow extends ConsumerStatefulWidget {
-  const PersonalAccountFlow({super.key});
+  final String accountType;
+  const PersonalAccountFlow({super.key, this.accountType = 'personal'});
 
   @override
   ConsumerState<PersonalAccountFlow> createState() =>
@@ -1702,6 +1703,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   Widget _buildIdVerificationStep() {
     final maxLen = 11;
     final filled = _idDigits.length;
+    final isUnderbanked = widget.accountType == 'underbanked';
+
     return Column(
       key: const ValueKey('idVerification'),
       children: [
@@ -1711,11 +1714,19 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Please provide your own BVN/NIN to verify your account opening application',
-                  style: TextStyle(
-                      fontSize: 13, color: Color(0xFF6B7280), height: 1.5),
-                ),
+                if (!isUnderbanked) ...[
+                  const Text(
+                    'Please provide your own BVN/NIN to verify your account opening application',
+                    style: TextStyle(
+                        fontSize: 13, color: Color(0xFF6B7280), height: 1.5),
+                  ),
+                ] else ...[
+                  const Text(
+                    'Provide your BVN or NIN if you have one. This step is optional for underbanked accounts.',
+                    style: TextStyle(
+                        fontSize: 13, color: Color(0xFF6B7280), height: 1.5),
+                  ),
+                ],
                 const SizedBox(height: 20),
                 // NIN / BVN toggle
                 Container(
@@ -1851,8 +1862,20 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
         // Licensed footer
         const _CbnFooter(),
         _buildCTA(
-          label: 'Continue →',
+          label: isUnderbanked ? 'Continue without ID →' : 'Continue →',
           onTap: _nextStep,
+          footerContent: isUnderbanked
+              ? TextButton(
+                  onPressed: _nextStep,
+                  child: const Text(
+                    'Skip for now',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF6B7280),
+                    ),
+                  ),
+                )
+              : null,
         ),
       ],
     );
@@ -2626,7 +2649,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
 
   // ─── Shared UI helpers ───────────────────────────────────────────────────────
 
-  Widget _buildCTA({String? label, bool loading = false, VoidCallback? onTap}) {
+  Widget _buildCTA({String? label, bool loading = false, VoidCallback? onTap, Widget? footerContent}) {
     // Always treat as enabled — onTap may be null only during loading
     final enabled = !loading;
     return Container(
@@ -2636,35 +2659,44 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
         color: Colors.white,
         border: Border(top: BorderSide(color: Color(0xFFF3F4F6))),
       ),
-      child: GestureDetector(
-        onTap: loading ? null : onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          width: double.infinity,
-          height: 54,
-          decoration: BoxDecoration(
-            gradient: enabled ? AppColors.goldGradient : null,
-            color: enabled ? null : const Color(0xFFCCCCCC),
-            borderRadius: BorderRadius.circular(12),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          GestureDetector(
+            onTap: loading ? null : onTap,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              width: double.infinity,
+              height: 54,
+              decoration: BoxDecoration(
+                gradient: enabled ? AppColors.goldGradient : null,
+                color: enabled ? null : const Color(0xFFCCCCCC),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Center(
+                child: loading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation(Colors.white)))
+                    : Text(
+                        label ?? 'Continue',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: enabled ? Colors.white : const Color(0xFF9CA3AF),
+                        ),
+                      ),
+              ),
+            ),
           ),
-          child: Center(
-            child: loading
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation(Colors.white)))
-                : Text(
-                    label ?? 'Continue',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: enabled ? Colors.white : const Color(0xFF9CA3AF),
-                    ),
-                  ),
-          ),
-        ),
+          if (footerContent != null) ...[
+            const SizedBox(height: 8),
+            footerContent,
+          ],
+        ],
       ),
     );
   }

@@ -103,7 +103,7 @@ class _HeaderSection extends StatelessWidget {
                     children: [
                       Text(
                         'Adebayo',
-                        TextStyle(fontFamily: "Effra", 
+                        style: TextStyle(fontFamily: "Effra", 
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
                           color: textDark,
@@ -151,8 +151,15 @@ class _HeaderSection extends StatelessWidget {
   }
 }
 
-class _BalanceCard extends StatelessWidget {
+class _BalanceCard extends StatefulWidget {
   const _BalanceCard();
+
+  @override
+  State<_BalanceCard> createState() => _BalanceCardState();
+}
+
+class _BalanceCardState extends State<_BalanceCard> {
+  bool _balanceVisible = true;
 
   @override
   Widget build(BuildContext context) {
@@ -182,12 +189,23 @@ class _BalanceCard extends StatelessWidget {
                   color: Color(0xFFAAAAAA),
                 )),
                         const SizedBox(width: 6),
-                        const Icon(Icons.visibility_outlined,
-                            color: Colors.white54, size: 16),
+                        GestureDetector(
+                          onTap: () => setState(() => _balanceVisible = !_balanceVisible),
+                          child: Icon(
+                            _balanceVisible
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                            color: Colors.white54,
+                            size: 16,
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 6),
-                    const Text('₦15,750.00', style: balanceAmount),
+                    Text(
+                      _balanceVisible ? '₦15,750.00' : '••••••',
+                      style: balanceAmount,
+                    ),
                     const SizedBox(height: 4),
                     Row(
                       children: [
@@ -215,10 +233,10 @@ class _BalanceCard extends StatelessWidget {
                       ),
                       child: Row(
                         children: [
-                          const Text('⭐', style: TextStyle(fontSize: 12)),
+                          Text('⭐', style: const TextStyle(fontSize: 12)),
                           const SizedBox(width: 4),
                           Text('Basic Tier',
-                              TextStyle(fontFamily: "Effra", 
+                              style: TextStyle(fontFamily: "Effra", 
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.white)),
@@ -235,7 +253,7 @@ class _BalanceCard extends StatelessWidget {
                       child: Row(
                         children: [
                           Text('Account Details',
-                              TextStyle(fontFamily: "Effra", 
+                              style: TextStyle(fontFamily: "Effra", 
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
                                   color: brandGreen)),
@@ -290,7 +308,7 @@ class _ActionButtons extends StatelessWidget {
                     ),
                     const SizedBox(width: 10),
                     Text('Send Money',
-                        TextStyle(fontFamily: "Effra", 
+                        style: TextStyle(fontFamily: "Effra", 
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
                             color: Colors.white)),
@@ -324,7 +342,7 @@ class _ActionButtons extends StatelessWidget {
                     ),
                     const SizedBox(width: 10),
                     Text('Add Money',
-                        TextStyle(fontFamily: "Effra", 
+                        style: TextStyle(fontFamily: "Effra", 
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
                             color: textDark)),
@@ -355,7 +373,7 @@ class _QuickServices extends StatelessWidget {
               Row(
                 children: [
                   Text('See All',
-                      TextStyle(fontFamily: "Effra", 
+                      style: TextStyle(fontFamily: "Effra", 
                           fontSize: 13, color: brandGreen)),
                   const Icon(Icons.chevron_right, color: brandGreen, size: 16),
                 ],
@@ -400,25 +418,25 @@ class _QuickServices extends StatelessWidget {
                 route: '/bills/cable',
               ),
               _QuickServiceTile(
-                icon: Icons.water_drop,
-                label: 'Water',
+                icon: Icons.school,
+                label: 'Education',
                 iconBgColor: Color(0xFFE3F2FD),
                 iconColor: Color(0xFF1565C0),
-                route: '/bills',
+                route: '/education-bills',
               ),
               _QuickServiceTile(
-                icon: Icons.sports_soccer,
-                label: 'Betting',
+                icon: Icons.phone_android,
+                label: 'Airtime Cash',
                 iconBgColor: Color(0xFFE8F5ED),
                 iconColor: brandGreen,
-                route: '/bills',
+                route: '/airtime-to-cash',
               ),
               _QuickServiceTile(
-                icon: Icons.savings,
-                label: 'Savings',
-                iconBgColor: Color(0xFFE8F5ED),
-                iconColor: brandGreen,
-                route: '/bills',
+                icon: Icons.flight,
+                label: 'Flights',
+                iconBgColor: Color(0xFFF3E5F5),
+                iconColor: Color(0xFF7B1FA2),
+                route: '/air-transport',
               ),
               _QuickServiceTile(
                 icon: Icons.apps,
@@ -476,7 +494,7 @@ class _QuickServiceTile extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               label,
-              TextStyle(fontFamily: "Effra", fontSize: 12, color: textDark),
+              style: TextStyle(fontFamily: "Effra", fontSize: 12, color: textDark),
               textAlign: TextAlign.center,
             ),
           ],
@@ -510,7 +528,7 @@ class _UpgradeBanner extends StatelessWidget {
                 children: [
                   Text(
                     'Upgrade to Tier 2',
-                    TextStyle(fontFamily: "Effra", 
+                    style: TextStyle(fontFamily: "Effra", 
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                       color: brandGreen,
@@ -519,7 +537,7 @@ class _UpgradeBanner extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     'Unlock higher limits, lower fees and more amazing features.',
-                    TextStyle(fontFamily: "Effra", 
+                    style: TextStyle(fontFamily: "Effra", 
                       fontSize: 13,
                       color: textGray,
                       height: 1.5,
@@ -541,7 +559,7 @@ class _UpgradeBanner extends StatelessWidget {
                         children: [
                           Text(
                             'Upgrade Now',
-                            TextStyle(fontFamily: "Effra", 
+                            style: TextStyle(fontFamily: "Effra", 
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                               color: Colors.white,
@@ -648,7 +666,7 @@ class _RecentTransactions extends StatelessWidget {
               Row(
                 children: [
                   Text('See All',
-                      TextStyle(fontFamily: "Effra", 
+                      style: TextStyle(fontFamily: "Effra", 
                           fontSize: 13, color: brandGreen)),
                   const Icon(Icons.chevron_right, color: brandGreen, size: 16),
                 ],
@@ -741,7 +759,7 @@ class _TransactionTile extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  TextStyle(fontFamily: "Effra", fontSize: 12, color: textGray),
+                  style: TextStyle(fontFamily: "Effra", fontSize: 12, color: textGray),
                 ),
               ],
             ),
@@ -751,7 +769,7 @@ class _TransactionTile extends StatelessWidget {
             children: [
               Text(
                 amount,
-                TextStyle(fontFamily: "Effra", 
+                style: TextStyle(fontFamily: "Effra", 
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: isCredit ? brandGreen : redDebit,
@@ -760,7 +778,7 @@ class _TransactionTile extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 time,
-                TextStyle(fontFamily: "Effra", fontSize: 11, color: textGray),
+                style: TextStyle(fontFamily: "Effra", fontSize: 11, color: textGray),
               ),
             ],
           ),

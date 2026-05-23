@@ -786,7 +786,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                           icon: Icons.people_outline,
                           onTap: () {
                             setState(() => _currentFlow = Flow.underbanking);
-                            context.pushNamed("personal-account");
+                            context.pushNamed("personal-account", extra: "underbanked");
                           },
                         ),
                       ],

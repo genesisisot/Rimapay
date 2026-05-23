@@ -84,8 +84,10 @@ class AppRouter {
       GoRoute(
         path: '/personal-account',
         name: 'personal-account',
-        pageBuilder: (context, state) =>
-            _fadePage(state, PersonalAccountFlow()),
+        pageBuilder: (context, state) {
+          final accountType = state.extra as String? ?? 'personal';
+          return _fadePage(state, PersonalAccountFlow(accountType: accountType));
+        },
       ),
       GoRoute(
         path: '/business-account',
