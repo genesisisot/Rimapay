@@ -103,15 +103,19 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     children: [
                       // Logo
                       SizedBox(
-                        width: 58,
-                        height: 58,
+                        width: 110,
+                        height: 110,
                         child: Image.asset(
-                          'assets/images/AppIcon.png',
+                          'assets/images/RimaMFBLogo.png',
                           fit: BoxFit.contain,
-                          errorBuilder: (_, __, ___) => const Icon(
-                            Icons.account_balance,
-                            color: Color(0xFFD4AF37),
-                            size: 38,
+                          errorBuilder: (_, __, ___) => Image.asset(
+                            'assets/images/AppIcon.png',
+                            fit: BoxFit.contain,
+                            errorBuilder: (_, __, ___) => const Icon(
+                              Icons.account_balance,
+                              color: Color(0xFFD4AF37),
+                              size: 38,
+                            ),
                           ),
                         ),
                       ),
