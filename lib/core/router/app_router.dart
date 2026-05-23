@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rimapay/features/BusinessScreens/BusinessHome.dart';
+import 'package:rimapay/features/internet/presentation/screens/internet_services_screen.dart';
+import 'package:rimapay/features/fixed_deposit/presentation/screens/fixed_deposit_screen.dart';
+import 'package:rimapay/features/cards/presentation/screens/cards_screen.dart';
+import 'package:rimapay/features/grants/presentation/screens/grants_screen.dart';
+import 'package:rimapay/features/zakat/presentation/screens/zakat_screen.dart';
+import 'package:rimapay/features/remita/presentation/screens/remita_screen.dart';
+import 'package:rimapay/features/account_limits/presentation/screens/account_limits_screen.dart';
 import 'package:rimapay/features/NotificationScreen.dart';
 import 'package:rimapay/features/Tiers/AccountTierScreen.dart';
 import 'package:rimapay/features/add_money/presentation/screens/add_money_screen.dart';
@@ -248,6 +255,43 @@ class AppRouter {
         path: '/state-government',
         pageBuilder: (context, state) =>
             _fadePage(state, const GovernmentScreen()),
+      ),
+
+      // New feature screens
+      GoRoute(
+        path: '/bills/internet',
+        pageBuilder: (context, state) =>
+            _fadePage(state, const InternetServicesScreen()),
+      ),
+      GoRoute(
+        path: '/fixed-deposit',
+        pageBuilder: (context, state) =>
+            _fadePage(state, const FixedDepositScreen()),
+      ),
+      GoRoute(
+        path: '/cards',
+        pageBuilder: (context, state) =>
+            _fadePage(state, const CardsScreen()),
+      ),
+      GoRoute(
+        path: '/grants-donation',
+        pageBuilder: (context, state) =>
+            _fadePage(state, const GrantsScreen()),
+      ),
+      GoRoute(
+        path: '/zakat',
+        pageBuilder: (context, state) =>
+            _fadePage(state, const ZakatScreen()),
+      ),
+      GoRoute(
+        path: '/remita',
+        pageBuilder: (context, state) =>
+            _fadePage(state, const RemitaScreen()),
+      ),
+      GoRoute(
+        path: '/account-limits',
+        pageBuilder: (context, state) =>
+            _fadePage(state, const AccountLimitsScreen()),
       ),
 
       // PIN Verification

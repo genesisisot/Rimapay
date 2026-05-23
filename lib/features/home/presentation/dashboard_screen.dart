@@ -66,6 +66,7 @@ class DashboardScreen extends StatelessWidget {
               _ActionButtons(),
               _QuickServices(),
               _UpgradeBanner(),
+              _LoansAdBanner(),
               _RecentTransactions(),
             ],
           ),
@@ -97,54 +98,52 @@ class _HeaderSection extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Good morning,',
+                    'Hi, Mustapha 👋',
                     style: GoogleFonts.dmSans(fontSize: 13, color: textGray),
                   ),
-                  Row(
-                    children: [
-                      Text(
-                        'Adebayo',
-                        style: TextStyle(fontFamily: "Effra", 
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: textDark,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      const Text('👋', style: TextStyle(fontSize: 18)),
-                    ],
+                  Text(
+                    'Mustapha',
+                    style: TextStyle(
+                      fontFamily: "Effra",
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: textDark,
+                    ),
                   ),
                 ],
               ),
             ],
           ),
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              const Icon(Icons.notifications_outlined, size: 26, color: textDark),
-              Positioned(
-                top: -4,
-                right: -4,
-                child: Container(
-                  width: 16,
-                  height: 16,
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: Text(
-                      '3',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
+          GestureDetector(
+            onTap: () => context.push('/notifications'),
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                const Icon(Icons.notifications_outlined, size: 26, color: textDark),
+                Positioned(
+                  top: -4,
+                  right: -4,
+                  child: Container(
+                    width: 16,
+                    height: 16,
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Center(
+                      child: Text(
+                        '3',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -450,18 +449,18 @@ class _QuickServices extends StatelessWidget {
                 route: '/airtime-to-cash',
               ),
               _QuickServiceTile(
-                icon: Icons.flight,
-                label: 'Flights',
-                iconBgColor: Color(0xFFF3E5F5),
-                iconColor: Color(0xFF7B1FA2),
-                route: '/air-transport',
+                icon: Icons.savings_outlined,
+                label: 'Fixed Dep.',
+                iconBgColor: Color(0xFFFFF3E0),
+                iconColor: Color(0xFFE65100),
+                route: '/fixed-deposit',
               ),
               _QuickServiceTile(
-                icon: Icons.apps,
-                label: 'More',
-                iconBgColor: Color(0xFFF5F5F5),
-                iconColor: Color(0xFF757575),
-                route: '/bills',
+                icon: Icons.credit_card_outlined,
+                label: 'My Card',
+                iconBgColor: Color(0xFFE8EAF6),
+                iconColor: Color(0xFF3949AB),
+                route: '/cards',
               ),
             ],
           ),
@@ -563,7 +562,7 @@ class _UpgradeBanner extends StatelessWidget {
                   ),
                   const SizedBox(height: 14),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () => context.push('/tiers'),
                     behavior: HitTestBehavior.opaque,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -666,6 +665,86 @@ class WalletIllustrationPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _LoansAdBanner extends StatelessWidget {
+  const _LoansAdBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF1A3A6B), Color(0xFF0D2149)],
+          ),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            const Text('💰', style: TextStyle(fontSize: 36)),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Need a Loan?',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Get up to ₦500,000 at low interest. Quick approval.',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.75),
+                      fontSize: 12,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  GestureDetector(
+                    onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('Loan application coming soon!'),
+                        behavior: SnackBarBehavior.floating,
+                        backgroundColor: const Color(0xFF1A3A6B),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                      ),
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 7),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFD4AF37),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Text(
+                        'Apply Now',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _RecentTransactions extends StatelessWidget {

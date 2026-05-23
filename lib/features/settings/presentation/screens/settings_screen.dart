@@ -32,6 +32,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
   SettingsModal? _activeModal;
   bool _notifications = true;
   bool _biometrics = true;
+  bool _darkMode = false;
   
   // Change Password States
   final _currentPasswordController = TextEditingController();
@@ -194,9 +195,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
           _SettingsItem(
             id: 'change-pin',
             icon: Icons.vpn_key_outlined,
-            title: 'Change PIN',
+            title: 'Change Login PIN',
+            subtitle: 'Update your login PIN',
+            onTap: () => _setActiveModal(SettingsModal.changePin),
+          ),
+          _SettingsItem(
+            id: 'change-txn-pin',
+            icon: Icons.lock_reset,
+            title: 'Change Transaction PIN',
             subtitle: 'Update your transaction PIN',
             onTap: () => _setActiveModal(SettingsModal.changePin),
+          ),
+          _SettingsItem(
+            id: 'reset-txn-pin',
+            icon: Icons.refresh,
+            title: 'Reset Transaction PIN',
+            subtitle: 'Forgot your PIN? Reset it here',
+            onTap: () => _showResetPinModal(),
           ),
           _SettingsItem(
             id: 'biometrics',
@@ -216,15 +231,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
         items: [
           _SettingsItem(
             id: 'dark-mode',
-            icon:  Icons.dark_mode,
+            icon: Icons.dark_mode,
             title: 'Dark Mode',
-            subtitle:
-                 'Switch to dark theme',
+            subtitle: 'Switch to dark theme',
             isToggle: true,
-            toggleValue:true,
+            toggleValue: _darkMode,
             onToggleChanged: (value) {
               HapticFeedback.lightImpact();
-         
+              setState(() => _darkMode = value);
             },
           ),
           _SettingsItem(
@@ -251,22 +265,29 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
         title: 'Support',
         items: [
           _SettingsItem(
+            id: 'account-limits',
+            icon: Icons.bar_chart,
+            title: 'Account Limits',
+            subtitle: 'View your transaction limits',
+            onTap: () => context.push('/account-limits'),
+          ),
+          _SettingsItem(
             id: 'help',
             icon: Icons.help_outline,
             title: language('helpSupport'),
             subtitle: 'FAQs and customer support',
-            onTap: () => debugPrint('Help center'),
+            onTap: () => _showCustomerCareSheet(),
           ),
           _SettingsItem(
             id: 'contact',
-            icon: Icons.mail_outline,
-            title: 'Contact Us',
-            subtitle: 'Get in touch with our team',
-            onTap: () => debugPrint('Contact support'),
+            icon: Icons.headset_mic_outlined,
+            title: 'Customer Care',
+            subtitle: 'Call or chat with us',
+            onTap: () => _showCustomerCareSheet(),
           ),
         ],
       ),
-      
+
       // Account
       _SettingsSection(
         title: language('account'),
@@ -1095,6 +1116,166 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
         context.go('/welcome');
       }
     });
+  }
+
+  void _showCustomerCareSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                  color: const Color(0xFFE4E7EC),
+                  borderRadius: BorderRadius.circular(999)),
+            ),
+            const Text('Customer Care',
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF101828))),
+            const SizedBox(height: 6),
+            const Text('We\'re here to help you',
+                style: TextStyle(fontSize: 14, color: Color(0xFF667085))),
+            const SizedBox(height: 24),
+            _careOption(Icons.phone_outlined, 'Call Us',
+                '0800-RIMAPAY (0800-7462729)', const Color(0xFF1A6B35)),
+            const SizedBox(height: 12),
+            _careOption(Icons.chat_bubble_outline, 'WhatsApp',
+                '+234 800 746 2729', const Color(0xFF25D366)),
+            const SizedBox(height: 12),
+            _careOption(Icons.mail_outline, 'Email',
+                'support@rimamfb.ng', const Color(0xFF3B82F6)),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF9FAFB),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFE4E7EC)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.access_time,
+                      color: Color(0xFF667085), size: 18),
+                  const SizedBox(width: 10),
+                  const Expanded(
+                    child: Text(
+                      'Mon – Fri: 8am – 8pm\nSat: 9am – 5pm',
+                      style: TextStyle(
+                          fontSize: 13, color: Color(0xFF344054), height: 1.4),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _careOption(IconData icon, String title, String detail, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.06),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.2)),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: color, size: 22),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title,
+                  style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      color: color)),
+              Text(detail,
+                  style: const TextStyle(fontSize: 12, color: Color(0xFF667085))),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showResetPinModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => Container(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom + 32,
+        ),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Reset Transaction PIN',
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF101828))),
+              const SizedBox(height: 8),
+              const Text(
+                'An OTP will be sent to your registered phone number to reset your transaction PIN.',
+                style: TextStyle(
+                    fontSize: 13, color: Color(0xFF667085), height: 1.5),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('OTP sent to your registered number'),
+                        behavior: SnackBarBehavior.floating,
+                        backgroundColor: const Color(0xFF1A6B35),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1A6B35),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const Text('Send OTP',
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.w700)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void _showErrorSnackBar(String message) {
