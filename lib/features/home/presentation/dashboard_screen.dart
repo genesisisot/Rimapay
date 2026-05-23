@@ -307,7 +307,7 @@ class _ActionButtons extends StatelessWidget {
                       child: const Icon(Icons.send, color: Colors.white, size: 20),
                     ),
                     const SizedBox(width: 10),
-                    Text('Send Money',
+                    Text('Transfer',
                         style: TextStyle(fontFamily: "Effra", 
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
