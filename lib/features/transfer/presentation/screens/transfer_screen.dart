@@ -28,25 +28,24 @@ class _TransferScreenState extends State<TransferScreen> {
   final _bankAccountController = TextEditingController();
   final _bankAccountFocus = FocusNode();
   String _selectedBank = '';
-  String _selectedBankLogo = '';
   String _recipientName = '';
   bool _validating = false;
 
   final List<Map<String, String>> _banks = [
-    {'name': 'Access Bank',   'logo': '🏦', 'rate': '98'},
-    {'name': 'GTBank',        'logo': '🏛️', 'rate': '97'},
-    {'name': 'Zenith Bank',   'logo': '🏦', 'rate': '97'},
-    {'name': 'First Bank',    'logo': '🏢', 'rate': '95'},
-    {'name': 'UBA',           'logo': '🏛️', 'rate': '96'},
-    {'name': 'Kuda Bank',     'logo': '💳', 'rate': '99'},
-    {'name': 'Opay',          'logo': '📱', 'rate': '98'},
-    {'name': 'PalmPay',       'logo': '🌴', 'rate': '97'},
-    {'name': 'Moniepoint',    'logo': '💰', 'rate': '98'},
-    {'name': 'Wema Bank',     'logo': '🏦', 'rate': '94'},
-    {'name': 'Stanbic IBTC', 'logo': '🏛️', 'rate': '96'},
-    {'name': 'FCMB',          'logo': '🏢', 'rate': '93'},
-    {'name': 'Fidelity Bank', 'logo': '🏦', 'rate': '94'},
-    {'name': 'Ecobank',       'logo': '🌍', 'rate': '92'},
+    {'name': 'Access Bank',   'rate': '98'},
+    {'name': 'GTBank',        'rate': '97'},
+    {'name': 'Zenith Bank',   'rate': '97'},
+    {'name': 'First Bank',    'rate': '95'},
+    {'name': 'UBA',           'rate': '96'},
+    {'name': 'Kuda Bank',     'rate': '99'},
+    {'name': 'Opay',          'rate': '98'},
+    {'name': 'PalmPay',       'rate': '97'},
+    {'name': 'Moniepoint',    'rate': '98'},
+    {'name': 'Wema Bank',     'rate': '94'},
+    {'name': 'Stanbic IBTC',  'rate': '96'},
+    {'name': 'FCMB',          'rate': '93'},
+    {'name': 'Fidelity Bank', 'rate': '94'},
+    {'name': 'Ecobank',       'rate': '92'},
   ];
 
   final List<Map<String, String>> _rimaRecent = [
@@ -117,10 +116,9 @@ class _TransferScreenState extends State<TransferScreen> {
       backgroundColor: Colors.transparent,
       builder: (_) => _BankSelectorSheet(
         banks: _banks,
-        onSelect: (bank, logo) {
+        onSelect: (bank) {
           setState(() {
             _selectedBank = bank;
-            _selectedBankLogo = logo;
             _recipientName = '';
           });
           if (_bankAccountController.text.length == 10) _validateBankAccount();
@@ -142,6 +140,46 @@ class _TransferScreenState extends State<TransferScreen> {
       default:
         return const Color(0xFF166C46);
     }
+  }
+
+  Widget _buildAmountChips() {
+    const amounts = ['1000', '5000', '10000', '20000', '50000'];
+    const labels = ['₦1,000', '₦5,000', '₦10,000', '₦20,000', '₦50,000'];
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: List.generate(amounts.length, (i) {
+        final isSelected = _amountController.text == amounts[i];
+        return GestureDetector(
+          onTap: () {
+            HapticFeedback.lightImpact();
+            setState(() => _amountController.text = amounts[i]);
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+            decoration: BoxDecoration(
+              color: isSelected ? const Color(0xFF166C46) : const Color(0xFFF0FAF4),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: isSelected
+                    ? const Color(0xFF166C46)
+                    : const Color(0xFF166C46).withOpacity(0.25),
+              ),
+            ),
+            child: Text(
+              labels[i],
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? Colors.white : const Color(0xFF166C46),
+                fontFamily: 'Effra',
+              ),
+            ),
+          ),
+        );
+      }),
+    );
   }
 
   @override
@@ -415,6 +453,8 @@ class _TransferScreenState extends State<TransferScreen> {
           focusNode: _amountFocus,
           minMax: 'Min ₦100 · Max ₦1,000,000',
         ),
+        const SizedBox(height: 10),
+        _buildAmountChips(),
         const SizedBox(height: 14),
 
         // Note
@@ -465,7 +505,6 @@ class _TransferScreenState extends State<TransferScreen> {
                   setState(() {
                     _bankAccountController.text = r['account']!;
                     _selectedBank = r['bank']!;
-                    _selectedBankLogo = '🏦';
                     _recipientName = r['name']!;
                   });
                 },
@@ -569,7 +608,7 @@ class _TransferScreenState extends State<TransferScreen> {
                       ),
                     ),
                   ] else ...[
-                    Text(_selectedBankLogo, style: const TextStyle(fontSize: 18)),
+                    _BankLogo(bankName: _selectedBank, size: 32),
                     const SizedBox(width: 10),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -665,6 +704,8 @@ class _TransferScreenState extends State<TransferScreen> {
           focusNode: _amountFocus,
           minMax: 'Min ₦100 · Max ₦5,000,000',
         ),
+        const SizedBox(height: 10),
+        _buildAmountChips(),
         const SizedBox(height: 14),
 
         // Note
@@ -814,6 +855,83 @@ class _SheetOption extends StatelessWidget {
   }
 }
 
+// ── Bank Logo Widget ──────────────────────────────────────────────────────────
+
+class _BankLogo extends StatelessWidget {
+  final String bankName;
+  final double size;
+  const _BankLogo({required this.bankName, this.size = 40});
+
+  static Color _color(String name) {
+    switch (name) {
+      case 'Access Bank':   return const Color(0xFFBD0000);
+      case 'GTBank':        return const Color(0xFFEB2026);
+      case 'Zenith Bank':   return const Color(0xFFE31837);
+      case 'First Bank':    return const Color(0xFF003087);
+      case 'UBA':           return const Color(0xFFBF0000);
+      case 'Kuda Bank':     return const Color(0xFF6B0BD6);
+      case 'Opay':          return const Color(0xFF00B140);
+      case 'PalmPay':       return const Color(0xFF1A6FFF);
+      case 'Moniepoint':    return const Color(0xFF004B87);
+      case 'Wema Bank':     return const Color(0xFF742078);
+      case 'Stanbic IBTC':  return const Color(0xFF003591);
+      case 'FCMB':          return const Color(0xFF7B0099);
+      case 'Fidelity Bank': return const Color(0xFF006A4D);
+      case 'Ecobank':       return const Color(0xFF003876);
+      default:              return const Color(0xFF166C46);
+    }
+  }
+
+  static String _abbr(String name) {
+    switch (name) {
+      case 'Access Bank':   return 'ACC';
+      case 'GTBank':        return 'GTB';
+      case 'Zenith Bank':   return 'ZNB';
+      case 'First Bank':    return 'FBN';
+      case 'UBA':           return 'UBA';
+      case 'Kuda Bank':     return 'KUDA';
+      case 'Opay':          return 'OPAY';
+      case 'PalmPay':       return 'PALM';
+      case 'Moniepoint':    return 'MPNT';
+      case 'Wema Bank':     return 'WEMA';
+      case 'Stanbic IBTC':  return 'STIB';
+      case 'FCMB':          return 'FCMB';
+      case 'Fidelity Bank': return 'FDLY';
+      case 'Ecobank':       return 'ECO';
+      default:
+        return name.length >= 3 ? name.substring(0, 3).toUpperCase() : name.toUpperCase();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final color = _color(bankName);
+    final abbr = _abbr(bankName);
+    final radius = size * 0.25;
+    final fontSize = size * 0.27;
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(radius),
+        border: Border.all(color: color.withOpacity(0.3), width: 1.5),
+      ),
+      child: Center(
+        child: Text(
+          abbr,
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.w800,
+            color: color,
+            fontFamily: 'Effra',
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 // ── Bank Selector Bottom Sheet ────────────────────────────────────────────────
 
 class _SuccessRateBadge extends StatelessWidget {
@@ -854,7 +972,7 @@ class _SuccessRateBadge extends StatelessWidget {
 
 class _BankSelectorSheet extends StatefulWidget {
   final List<Map<String, String>> banks;
-  final void Function(String name, String logo) onSelect;
+  final void Function(String name) onSelect;
 
   const _BankSelectorSheet({required this.banks, required this.onSelect});
 
@@ -974,27 +1092,14 @@ class _BankSelectorSheetState extends State<_BankSelectorSheet> {
                 return InkWell(
                   onTap: () {
                     HapticFeedback.lightImpact();
-                    widget.onSelect(bank['name']!, bank['logo']!);
+                    widget.onSelect(bank['name']!);
                     Navigator.pop(context);
                   },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 11),
                     child: Row(
                       children: [
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF3F4F6),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Center(
-                            child: Text(
-                              bank['logo']!,
-                              style: const TextStyle(fontSize: 18),
-                            ),
-                          ),
-                        ),
+                        _BankLogo(bankName: bank['name']!, size: 40),
                         const SizedBox(width: 14),
                         Expanded(
                           child: Text(
