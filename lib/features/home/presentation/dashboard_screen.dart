@@ -76,6 +76,95 @@ class DashboardScreen extends StatelessWidget {
   }
 }
 
+void _showCustomerCare(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.transparent,
+    builder: (_) => Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 40, height: 4,
+            margin: const EdgeInsets.only(bottom: 20),
+            decoration: BoxDecoration(
+                color: const Color(0xFFE4E7EC),
+                borderRadius: BorderRadius.circular(999)),
+          ),
+          const Text('Customer Care',
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF101828))),
+          const SizedBox(height: 4),
+          const Text("We're here to help you",
+              style: TextStyle(fontSize: 13, color: Color(0xFF667085))),
+          const SizedBox(height: 20),
+          _careRow(Icons.phone_outlined, 'Call Us',
+              '0800-RIMAPAY', const Color(0xFF1A6B35)),
+          const SizedBox(height: 10),
+          _careRow(Icons.chat_bubble_outline, 'WhatsApp',
+              '+234 800 746 2729', const Color(0xFF25D366)),
+          const SizedBox(height: 10),
+          _careRow(Icons.mail_outline, 'Email',
+              'support@rimamfb.ng', const Color(0xFF3B82F6)),
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF9FAFB),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: const Color(0xFFE4E7EC)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.access_time, color: Color(0xFF667085), size: 16),
+                const SizedBox(width: 8),
+                Text('Mon–Fri: 8am–8pm  •  Sat: 9am–5pm',
+                    style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600])),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _careRow(IconData icon, String title, String detail, Color color) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+    decoration: BoxDecoration(
+      color: color.withOpacity(0.06),
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(color: color.withOpacity(0.2)),
+    ),
+    child: Row(
+      children: [
+        Icon(icon, color: color, size: 20),
+        const SizedBox(width: 12),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title,
+                style: TextStyle(
+                    fontWeight: FontWeight.w700, fontSize: 13, color: color)),
+            Text(detail,
+                style: const TextStyle(fontSize: 12, color: Color(0xFF667085))),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
 class _HeaderSection extends StatelessWidget {
   const _HeaderSection();
 
@@ -114,6 +203,11 @@ class _HeaderSection extends StatelessWidget {
               ),
             ],
           ),
+          GestureDetector(
+            onTap: () => _showCustomerCare(context),
+            child: const Icon(Icons.headset_mic_outlined, size: 24, color: textDark),
+          ),
+          const SizedBox(width: 14),
           GestureDetector(
             onTap: () => context.push('/notifications'),
             child: Stack(

@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+/// Riverpod provider — true = dark mode, false = light mode
+final darkModeProvider = StateProvider<bool>((ref) => false);
 
 enum AppThemeMode {
   light,

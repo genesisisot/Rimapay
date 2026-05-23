@@ -8,7 +8,7 @@ import 'package:rimapay/Utils/MyFlavorsConfig.dart';
 import 'core/providers/language_provider.dart';
 import 'core/providers/auth_provider.dart';
 import 'core/providers/transaction_provider.dart';
-import 'core/providers/theme_provider.dart';
+import 'core/providers/theme_provider.dart' show darkModeProvider;
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/services/storage_service.dart';
@@ -64,8 +64,7 @@ class _RimaPayAppState extends ConsumerState<RimaPayApp> {
 
   @override
   Widget build(BuildContext context) {
-    // Always use English locale for Material components to avoid localization issues
-    // Your custom translations will handle the actual language switching
+    final isDark = ref.watch(darkModeProvider);
     const currentLocale = Locale('en', '');
 
     return GestureDetector(
@@ -76,9 +75,10 @@ class _RimaPayAppState extends ConsumerState<RimaPayApp> {
         title: MyAppConfig.getAppTitle(),
         debugShowCheckedModeBanner: false,
 
-        // Theme
+        // Theme — wired to darkModeProvider
         theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
 
         // Routing
         routerConfig: AppRouter.router,

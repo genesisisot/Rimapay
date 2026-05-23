@@ -8,7 +8,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/providers/theme_provider.dart';
+import '../../../../core/providers/theme_provider.dart' show darkModeProvider;
 import '../../../../core/providers/auth_provider.dart';
 import '../../../../core/providers/language_provider.dart';
 import '../../../../shared/widgets/custom_app_bar.dart';
@@ -177,7 +177,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
   }
 
   List<Widget> _buildSettingsSections() {
-  final language=ref.watch(languageTranslationsProvider);
+  final language = ref.watch(languageTranslationsProvider);
+  _darkMode = ref.watch(darkModeProvider);
    
     
     final settingsSections = [
@@ -238,7 +239,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
             toggleValue: _darkMode,
             onToggleChanged: (value) {
               HapticFeedback.lightImpact();
-              setState(() => _darkMode = value);
+              ref.read(darkModeProvider.notifier).state = value;
             },
           ),
           _SettingsItem(
