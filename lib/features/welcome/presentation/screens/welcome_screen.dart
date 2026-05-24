@@ -99,12 +99,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 Padding(
                   padding: const EdgeInsets.fromLTRB(22, 10, 22, 0),
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Logo
+                      // Logo — large and prominent
                       SizedBox(
-                        width: 110,
-                        height: 110,
+                        width: 150,
+                        height: 150,
                         child: Image.asset(
                           'assets/images/RimaMFBLogo.png',
                           fit: BoxFit.contain,
@@ -114,16 +114,29 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             errorBuilder: (_, __, ___) => const Icon(
                               Icons.account_balance,
                               color: Color(0xFFD4AF37),
-                              size: 38,
+                              size: 50,
                             ),
                           ),
                         ),
                       ),
                       const Spacer(),
-                      // Language toggle (top-right, matching reference)
-                      _LangToggle(
-                        lang: _lang,
-                        onToggle: (l) => setState(() => _lang = l),
+                      // Language toggle + Nigerian flag
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const _NigerianFlag(width: 28, height: 19),
+                              const SizedBox(width: 8),
+                              _LangToggle(
+                                lang: _lang,
+                                onToggle: (l) => setState(() => _lang = l),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -181,34 +194,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 ),
 
                 const Spacer(),
-
-                // ── Trust badges ──────────────────────────────────────────────
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 22),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: _TrustBadge(
-                          icon: Icons.verified_user_outlined,
-                          topLine: _lang == 'ha' ? "Ajiya" : "Deposits",
-                          midLine: _lang == 'ha' ? "Insured by" : "Insured by",
-                          highlight: "NDIC",
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: _TrustBadge(
-                          icon: Icons.account_balance_outlined,
-                          topLine: _lang == 'ha' ? "Ƙarƙashin" : "Regulated by",
-                          midLine: "Central Bank",
-                          highlight: "of Nigeria",
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 12),
 
                 // ── Action buttons ────────────────────────────────────────────
                 Padding(
@@ -486,6 +471,32 @@ class _NigeriaMapPainter extends CustomPainter {
   @override
   bool shouldRepaint(_NigeriaMapPainter old) =>
       old.pulse != pulse || old.particlePhase != particlePhase;
+}
+
+// ── Nigerian Flag ─────────────────────────────────────────────────────────────
+
+class _NigerianFlag extends StatelessWidget {
+  final double width;
+  final double height;
+  const _NigerianFlag({required this.width, required this.height});
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(3),
+      child: SizedBox(
+        width: width,
+        height: height,
+        child: Row(
+          children: [
+            Expanded(child: Container(color: const Color(0xFF008751))),
+            Expanded(child: Container(color: Colors.white)),
+            Expanded(child: Container(color: const Color(0xFF008751))),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 // ── Language Toggle ───────────────────────────────────────────────────────────
