@@ -632,7 +632,10 @@ class _QuickServiceTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Theme.of(context).dividerColor),
+          border: Border.all(
+            color: Theme.of(context).dividerColor,
+            width: 0.8,
+          ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -982,12 +985,7 @@ class _TransactionTile extends StatelessWidget {
     final textGray = Theme.of(context).colorScheme.onSurface.withOpacity(0.55);
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 14),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Theme.of(context).dividerColor, width: 1),
-        ),
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         children: [
           Container(

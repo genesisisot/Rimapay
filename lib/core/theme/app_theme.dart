@@ -9,7 +9,10 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       fontFamily: AppTextStyles.fontFamily,
-      
+
+      // Explicit divider color so Theme.of(context).dividerColor is always correct
+      dividerColor: AppColors.neutral200,
+
       // Color scheme
       colorScheme: const ColorScheme.light(
         primary: AppColors.primary500,
@@ -22,6 +25,7 @@ class AppTheme {
         onSecondary: AppColors.neutral0,
         onSurface: AppColors.neutral900,
         onError: AppColors.neutral0,
+        outlineVariant: AppColors.neutral200,
       ),
       
       // App bar theme
@@ -227,6 +231,7 @@ class AppTheme {
     return lightTheme.copyWith(
       brightness: Brightness.dark,
       scaffoldBackgroundColor: _darkBg,
+      dividerColor: _darkBorder,
 
       colorScheme: const ColorScheme.dark(
         primary: AppColors.primary400,
