@@ -225,7 +225,7 @@ class _TransferScreenState extends State<TransferScreen> {
                       ),
                     ),
                     const SizedBox(width: 14),
-                    const Text(
+                    Text(
                       'Send Money',
                       style: TextStyle(
                         color: Theme.of(context).cardColor,
@@ -596,9 +596,9 @@ class _TransferScreenState extends State<TransferScreen> {
               child: Row(
                 children: [
                   if (_selectedBank.isEmpty) ...[
-                    const Icon(Icons.account_balance_outlined, size: 18, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4)),
+                    Icon(Icons.account_balance_outlined, size: 18, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4)),
                     const SizedBox(width: 10),
-                    const Text(
+                    Text(
                       'Select Bank',
                       style: TextStyle(
                         fontSize: 15,
@@ -750,7 +750,7 @@ class _TransferTypeSheet extends StatelessWidget {
               borderRadius: BorderRadius.circular(999),
             ),
           ),
-          const Text(
+          Text(
             'Send Money',
             style: TextStyle(
               fontSize: 20,
@@ -760,7 +760,7 @@ class _TransferTypeSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
+          Text(
             'Where would you like to send money?',
             style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), fontFamily: 'Effra'),
           ),
@@ -1019,7 +1019,7 @@ class _BankSelectorSheetState extends State<_BankSelectorSheet> {
             ),
           ),
           // Title
-          const Padding(
+          Padding(
             padding: EdgeInsets.fromLTRB(20, 4, 20, 16),
             child: Row(
               children: [
@@ -1118,7 +1118,7 @@ class _BankSelectorSheetState extends State<_BankSelectorSheet> {
                           _SuccessRateBadge(rate: int.parse(bank['rate']!)),
                         ],
                         const SizedBox(width: 8),
-                        const Icon(Icons.chevron_right, size: 18, color: Theme.of(context).dividerColor),
+                        Icon(Icons.chevron_right, size: 18, color: Theme.of(context).dividerColor),
                       ],
                     ),
                   ),

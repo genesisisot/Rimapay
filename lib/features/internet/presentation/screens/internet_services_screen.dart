@@ -171,7 +171,7 @@ class _InternetServicesScreenState extends State<InternetServicesScreen> {
                         disabledBackgroundColor: const Color(0xFFE4E7EC),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
-                      child: const Text('Proceed',
+                      child: Text('Proceed',
                           style: TextStyle(color: Theme.of(context).cardColor, fontSize: 16, fontWeight: FontWeight.w700)),
                     ),
                   ),
@@ -212,11 +212,11 @@ class _InternetServicesScreenState extends State<InternetServicesScreen> {
                 color: Colors.white.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.arrow_back_ios_new, color: Theme.of(context).cardColor, size: 16),
+              child: Icon(Icons.arrow_back_ios_new, color: Theme.of(context).cardColor, size: 16),
             ),
           ),
           const SizedBox(width: 14),
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Internet Services',
@@ -255,11 +255,11 @@ class _InternetServicesScreenState extends State<InternetServicesScreen> {
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Theme.of(context).dividerColor),
+          borderSide: BorderSide(color: Theme.of(context).dividerColor),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Theme.of(context).dividerColor),
+          borderSide: BorderSide(color: Theme.of(context).dividerColor),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),

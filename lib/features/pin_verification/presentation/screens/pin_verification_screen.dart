@@ -257,7 +257,7 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> with Tick
                   width: 1,
                 ),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.arrow_back_ios_new,
                 color: Theme.of(context).cardColor,
                 size: 20,
@@ -265,7 +265,7 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> with Tick
             ),
           ),
           const SizedBox(width: 16),
-          const Expanded(
+          Expanded(
             child: Text(
               'Confirm Transaction',
               style: TextStyle(
@@ -448,7 +448,7 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> with Tick
             ),
           ),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Enter Transaction PIN',
             style: TextStyle(
               fontSize: 16,
@@ -495,7 +495,7 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> with Tick
                     
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
+                        borderSide: BorderSide(
                           color: Theme.of(context).dividerColor,
                           width: 2,
                         ),
@@ -603,7 +603,7 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> with Tick
                     color: Color(0xFF3B82F6),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.info,
                     size: 8,
                     color: Theme.of(context).cardColor,
@@ -696,7 +696,7 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> with Tick
                         },
                       ),
                       const SizedBox(width: 8),
-                      const Text(
+                      Text(
                         'Processing...',
                         style: TextStyle(
                           color: Theme.of(context).cardColor,

@@ -110,7 +110,7 @@ class _TransportScreenState extends State<TransportScreen> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.location_on_outlined, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), size: 20),
+                            Icon(Icons.location_on_outlined, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), size: 20),
                             const SizedBox(width: 10),
                             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                               Text(city.name, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurface)),
@@ -144,7 +144,7 @@ class _TransportScreenState extends State<TransportScreen> {
           children: [
             Container(width: 40, height: 4, margin: const EdgeInsets.only(bottom: 20),
                 decoration: BoxDecoration(color: Theme.of(context).dividerColor, borderRadius: BorderRadius.circular(999))),
-            const Align(alignment: Alignment.centerLeft, child: Text('Choose Transport Operator',
+            Align(alignment: Alignment.centerLeft, child: Text('Choose Transport Operator',
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface))),
             const SizedBox(height: 16),
             ..._operators.map((op) => GestureDetector(
@@ -243,14 +243,14 @@ class _TransportScreenState extends State<TransportScreen> {
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           child: Row(children: [
-                            const Expanded(child: Divider(color: Theme.of(context).dividerColor)),
+                            Expanded(child: Divider(color: Theme.of(context).dividerColor)),
                             Container(
                               margin: const EdgeInsets.symmetric(horizontal: 12),
                               padding: const EdgeInsets.all(6),
                               decoration: BoxDecoration(color: const Color(0xFFF2F7F3), shape: BoxShape.circle),
                               child: const Icon(Icons.swap_vert_rounded, color: Color(0xFF166C46), size: 16),
                             ),
-                            const Expanded(child: Divider(color: Theme.of(context).dividerColor)),
+                            Expanded(child: Divider(color: Theme.of(context).dividerColor)),
                           ]),
                         ),
                         _RouteSelector(label: 'To', icon: Icons.location_on_rounded, iconColor: const Color(0xFFD33B31),
@@ -296,7 +296,7 @@ class _TransportScreenState extends State<TransportScreen> {
                     decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(12), border: Border.all(color: Theme.of(context).dividerColor)),
                     child: Row(
                       children: [
-                        const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                           Text('Number of Passengers', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)),
                           Text('Max 4 per booking', style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
                         ])),

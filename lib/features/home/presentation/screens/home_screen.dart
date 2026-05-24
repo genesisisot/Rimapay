@@ -265,7 +265,7 @@ class _HeroSection extends StatelessWidget {
                                 color: Colors.white.withOpacity(0.12),
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.notifications_outlined,
                                 color: Theme.of(context).cardColor,
                                 size: 20,
@@ -310,7 +310,7 @@ class _HeroSection extends StatelessWidget {
                             radius: 13,
                             backgroundColor:
                                 const Color(0xFF166C46).withOpacity(0.8),
-                            child: const Text(
+                            child: Text(
                               'AO',
                               style: TextStyle(
                                 color: Theme.of(context).cardColor,
@@ -320,7 +320,7 @@ class _HeroSection extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          const Text(
+                          Text(
                             'Adebayo Okafor',
                             style: TextStyle(
                               color: Theme.of(context).cardColor,
@@ -436,7 +436,7 @@ class _HeroSection extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            child: const Row(
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(Icons.send_rounded,
@@ -467,7 +467,7 @@ class _HeroSection extends StatelessWidget {
                               border: Border.all(
                                   color: Colors.white.withOpacity(0.3)),
                             ),
-                            child: const Row(
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(Icons.add_circle_outline,
@@ -535,7 +535,7 @@ class _HeroSection extends StatelessWidget {
                 borderRadius: BorderRadius.circular(999),
               ),
             ),
-            const Text(
+            Text(
               'Select Account',
               style: TextStyle(
                 fontSize: 17,
@@ -587,7 +587,7 @@ class _QuickActionsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Quick Actions',
           style: TextStyle(
             fontSize: 15,
@@ -679,7 +679,7 @@ class _TierUpgradeCard extends StatelessWidget {
                                 const AlwaysStoppedAnimation<Color>(
                                     Color(0xFFff6b35)),
                           ),
-                          const Center(
+                          Center(
                             child: Text(
                               '40%',
                               style: TextStyle(
@@ -697,7 +697,7 @@ class _TierUpgradeCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Upgrade to Tier 2',
                             style: TextStyle(
                               fontSize: 14,
@@ -725,7 +725,7 @@ class _TierUpgradeCard extends StatelessWidget {
                           color: const Color(0xFFff6b35),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Text(
+                        child: Text(
                           'Go',
                           style: TextStyle(
                             color: Theme.of(context).cardColor,
@@ -774,7 +774,7 @@ class _ReferralCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Invite a friend,\nearn ₦500!',
                   style: TextStyle(
                     color: Theme.of(context).cardColor,
@@ -828,7 +828,7 @@ class _RecentTransactionsSection extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               'Recent Activity',
               style: TextStyle(
                 fontSize: 16,

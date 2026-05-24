@@ -101,10 +101,10 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
                           const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Theme.of(context).dividerColor)),
+                          borderSide: BorderSide(color: Theme.of(context).dividerColor)),
                       enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Theme.of(context).dividerColor)),
+                          borderSide: BorderSide(color: Theme.of(context).dividerColor)),
                       focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide:
@@ -112,7 +112,7 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
                     ),
                   ),
                   const SizedBox(height: 6),
-                  const Text('Minimum: ₦10,000',
+                  Text('Minimum: ₦10,000',
                       style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
 
                   const SizedBox(height: 20),
@@ -192,7 +192,7 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Expanded(
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -234,7 +234,7 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
                         disabledBackgroundColor: const Color(0xFFE4E7EC),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
-                      child: const Text('Place Fixed Deposit',
+                      child: Text('Place Fixed Deposit',
                           style: TextStyle(
                               color: Theme.of(context).cardColor, fontSize: 16, fontWeight: FontWeight.w700)),
                     ),
@@ -294,11 +294,11 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
                 color: Colors.white.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.arrow_back_ios_new, color: Theme.of(context).cardColor, size: 16),
+              child: Icon(Icons.arrow_back_ios_new, color: Theme.of(context).cardColor, size: 16),
             ),
           ),
           const SizedBox(width: 14),
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Fixed Deposit',

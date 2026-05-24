@@ -192,7 +192,7 @@ class _CardsScreenState extends State<CardsScreen> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14)),
                       ),
-                      child: const Text('Request Card',
+                      child: Text('Request Card',
                           style: TextStyle(
                               color: Theme.of(context).cardColor,
                               fontSize: 16,
@@ -265,7 +265,7 @@ class _CardsScreenState extends State<CardsScreen> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                 ),
-                child: const Text('Confirm Request',
+                child: Text('Confirm Request',
                     style: TextStyle(color: Theme.of(context).cardColor, fontWeight: FontWeight.w700)),
               ),
             ),
@@ -302,11 +302,11 @@ class _CardsScreenState extends State<CardsScreen> {
                 color: Colors.white.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.arrow_back_ios_new, color: Theme.of(context).cardColor, size: 16),
+              child: Icon(Icons.arrow_back_ios_new, color: Theme.of(context).cardColor, size: 16),
             ),
           ),
           const SizedBox(width: 14),
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('My Card',
@@ -335,10 +335,10 @@ class _CardsScreenState extends State<CardsScreen> {
             const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Theme.of(context).dividerColor)),
+            borderSide: BorderSide(color: Theme.of(context).dividerColor)),
         enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Theme.of(context).dividerColor)),
+            borderSide: BorderSide(color: Theme.of(context).dividerColor)),
         focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(color: Color(0xFF1A6B35), width: 2)),

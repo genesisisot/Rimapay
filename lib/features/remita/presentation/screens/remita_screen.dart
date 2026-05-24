@@ -142,12 +142,12 @@ class _RemitaScreenState extends State<RemitaScreen> {
                                 borderRadius: BorderRadius.circular(12)),
                           ),
                           child: _isVerifying
-                              ? const SizedBox(
+                              ? SizedBox(
                                   width: 18,
                                   height: 18,
                                   child: CircularProgressIndicator(
                                       color: Theme.of(context).cardColor, strokeWidth: 2))
-                              : const Text('Verify',
+                              : Text('Verify',
                                   style: TextStyle(
                                       color: Theme.of(context).cardColor,
                                       fontWeight: FontWeight.w700)),
@@ -221,7 +221,7 @@ class _RemitaScreenState extends State<RemitaScreen> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14)),
                         ),
-                        child: const Text('Pay Now',
+                        child: Text('Pay Now',
                             style: TextStyle(
                                 color: Theme.of(context).cardColor,
                                 fontSize: 16,
@@ -249,10 +249,10 @@ class _RemitaScreenState extends State<RemitaScreen> {
             const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Theme.of(context).dividerColor)),
+            borderSide: BorderSide(color: Theme.of(context).dividerColor)),
         enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Theme.of(context).dividerColor)),
+            borderSide: BorderSide(color: Theme.of(context).dividerColor)),
         focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide:
@@ -282,11 +282,11 @@ class _RemitaScreenState extends State<RemitaScreen> {
                 color: Colors.white.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.arrow_back_ios_new, color: Theme.of(context).cardColor, size: 16),
+              child: Icon(Icons.arrow_back_ios_new, color: Theme.of(context).cardColor, size: 16),
             ),
           ),
           const SizedBox(width: 14),
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Remita',

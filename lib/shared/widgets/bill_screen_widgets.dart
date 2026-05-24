@@ -70,7 +70,7 @@ class BillGreenHeader extends StatelessWidget {
                           color: Colors.white.withOpacity(0.12),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.arrow_back_ios_new,
                           color: Theme.of(context).cardColor,
                           size: 16,
@@ -214,7 +214,7 @@ class BillAccountCard extends StatelessWidget {
                       color: Color(0xFF4B5563),
                       shape: BoxShape.circle,
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Text(
                         'CA',
                         style: TextStyle(
@@ -229,7 +229,7 @@ class BillAccountCard extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Current Account',
                         style: TextStyle(
                           color: Theme.of(context).cardColor,
@@ -257,7 +257,7 @@ class BillAccountCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 2),
-              const Text(
+              Text(
                 '₦50,000.00',
                 style: TextStyle(
                   color: Theme.of(context).cardColor,
@@ -592,7 +592,7 @@ class BillAmountCard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Text(
+                Text(
                   '₦',
                   style: TextStyle(
                     fontSize: 28,
@@ -638,7 +638,7 @@ class BillAmountCard extends StatelessWidget {
             ),
           ),
           if (minMax != null) ...[
-            const Divider(height: 1, color: Theme.of(context).dividerColor),
+            Divider(height: 1, color: Theme.of(context).dividerColor),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
               child: Row(
@@ -894,7 +894,7 @@ class _PinConfirmSheetState extends State<_PinConfirmSheet> {
             ),
           ),
 
-          const Text(
+          Text(
             'Confirm Transaction',
             style: TextStyle(
               fontSize: 18,

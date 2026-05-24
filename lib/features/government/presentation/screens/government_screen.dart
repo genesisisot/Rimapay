@@ -115,7 +115,7 @@ class _GovernmentScreenState extends State<GovernmentScreen> {
             children: [
               Container(width: 40, height: 4, margin: const EdgeInsets.symmetric(vertical: 14),
                   decoration: BoxDecoration(color: Theme.of(context).dividerColor, borderRadius: BorderRadius.circular(999))),
-              const Padding(
+              Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24),
                 child: Align(alignment: Alignment.centerLeft,
                     child: Text('Select Service', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface))),
@@ -300,7 +300,7 @@ class _GovernmentScreenState extends State<GovernmentScreen> {
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                const Text('Payment Amount', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
+                                Text('Payment Amount', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
                                 Text('₦${_selectedService!.fixedAmount}',
                                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF166C46))),
                               ]),

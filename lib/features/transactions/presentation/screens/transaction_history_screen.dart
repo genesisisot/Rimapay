@@ -330,7 +330,7 @@ class _Header extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 14),
-                      const Expanded(
+                      Expanded(
                         child: Text(
                           'Transaction History',
                           style: TextStyle(
@@ -917,7 +917,7 @@ class _FilterModal extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           'Filter Transactions',
                           style: TextStyle(
                             fontSize: 16,
@@ -935,7 +935,7 @@ class _FilterModal extends StatelessWidget {
                               color: const Color(0xFFF4F6F8),
                               borderRadius: BorderRadius.circular(15),
                             ),
-                            child: const Icon(Icons.close,
+                            child: Icon(Icons.close,
                                 size: 16, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
                           ),
                         ),

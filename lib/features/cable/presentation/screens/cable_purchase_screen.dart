@@ -299,7 +299,7 @@ class _CableProviderSheet extends StatelessWidget {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          const Padding(
+          Padding(
             padding: EdgeInsets.fromLTRB(20, 16, 20, 4),
             child: Row(
               children: [
@@ -453,7 +453,7 @@ class _PackageSheet extends StatelessWidget {
                                         color: const Color(0xFFF59E0B),
                                         borderRadius: BorderRadius.circular(4),
                                       ),
-                                      child: const Text('Popular',
+                                      child: Text('Popular',
                                           style: TextStyle(
                                               fontSize: 9,
                                               color: Theme.of(context).cardColor,

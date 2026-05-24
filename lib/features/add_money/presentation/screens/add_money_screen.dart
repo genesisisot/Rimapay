@@ -74,9 +74,9 @@ class _MethodListView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Wallet Balance', style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), fontWeight: FontWeight.w500)),
+                      Text('Wallet Balance', style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), fontWeight: FontWeight.w500)),
                       const SizedBox(height: 6),
-                      const Text('₦12,450.00', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface)),
+                      Text('₦12,450.00', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface)),
                       const SizedBox(height: 14),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -259,7 +259,7 @@ class _BankTransferView extends StatelessWidget {
   void _iSentMoney(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Row(children: [
+        content: Row(children: [
           Icon(Icons.check_circle_outline, color: Theme.of(context).cardColor, size: 18),
           SizedBox(width: 8),
           Text("We'll notify you when funds arrive"),
@@ -302,7 +302,7 @@ class _BankTransferView extends StatelessWidget {
                           gradient: AppColors.goldGradient,
                           borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
                         ),
-                        child: const Row(
+                        child: Row(
                           children: [
                             Icon(Icons.account_balance_outlined, color: Theme.of(context).cardColor, size: 18),
                             SizedBox(width: 8),
@@ -392,7 +392,7 @@ class _BankTransferView extends StatelessWidget {
                 gradient: AppColors.goldGradient,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.check_circle_outline, color: Theme.of(context).cardColor, size: 18),
@@ -435,7 +435,7 @@ class _AccountRow extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor, borderRadius: BorderRadius.circular(8)),
-              child: const Icon(Icons.copy_rounded, size: 16, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+              child: Icon(Icons.copy_rounded, size: 16, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
             ),
           ),
       ],
@@ -491,7 +491,7 @@ class _AddMoneyHeader extends StatelessWidget {
                 child: Container(
                   width: 36, height: 36,
                   decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(10)),
-                  child: const Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).cardColor, size: 16),
+                  child: Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).cardColor, size: 16),
                 ),
               ),
               const SizedBox(width: 14),

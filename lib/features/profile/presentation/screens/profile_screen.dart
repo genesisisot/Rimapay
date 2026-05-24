@@ -122,7 +122,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: Colors.white.withOpacity(0.2)),
                     ),
-                    child: const Icon(Icons.arrow_back_ios_new,
+                    child: Icon(Icons.arrow_back_ios_new,
                         color: Theme.of(context).cardColor, size: 17),
                   ),
                 ),
@@ -188,7 +188,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       decoration: BoxDecoration(
                         gradient: AppColors.goldGradient,
                       ),
-                      child: const Icon(Icons.person,
+                      child: Icon(Icons.person,
                           color: Theme.of(context).cardColor, size: 40),
                     ),
             ),
@@ -205,7 +205,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   shape: BoxShape.circle,
                 ),
                 child:
-                    const Icon(Icons.camera_alt, color: Theme.of(context).cardColor, size: 13),
+                    Icon(Icons.camera_alt, color: Theme.of(context).cardColor, size: 13),
               ),
             ),
         ],
@@ -424,7 +424,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: Color(0xFF16A34A), size: 20),
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Text(
                   'Complete Your Profile',
                   style: TextStyle(
@@ -531,7 +531,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               child: isCompleted
-                  ? const Icon(Icons.check, color: Theme.of(context).cardColor, size: 16)
+                  ? Icon(Icons.check, color: Theme.of(context).cardColor, size: 16)
                   : null,
             ),
           ],
@@ -603,7 +603,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   color: Color(0xFF16A34A), size: 32),
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'Profile Completed!',
               style: TextStyle(
                 fontSize: 20,
@@ -613,7 +613,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Your profile is now fully complete.',
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -677,7 +677,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 shape: BoxShape.circle,
               ),
               child:
-                  const Icon(Icons.star_rounded, color: Theme.of(context).cardColor, size: 22),
+                  Icon(Icons.star_rounded, color: Theme.of(context).cardColor, size: 22),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -695,7 +695,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   const SizedBox(height: 2),
-                  const Text(
+                  Text(
                     _tierName,
                     style: TextStyle(
                       fontSize: 16,
@@ -721,7 +721,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 color: const Color(0xFF166C46),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Text(
+              child: Text(
                 'Upgrade',
                 style: TextStyle(
                   color: Theme.of(context).cardColor,
@@ -858,7 +858,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           style: OutlinedButton.styleFrom(
             foregroundColor: const Color(0xFF344054),
-            side: const BorderSide(color: Theme.of(context).dividerColor),
+            side: BorderSide(color: Theme.of(context).dividerColor),
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
@@ -881,7 +881,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               },
               style: OutlinedButton.styleFrom(
                 foregroundColor: const Color(0xFF667085),
-                side: const BorderSide(color: Theme.of(context).dividerColor),
+                side: BorderSide(color: Theme.of(context).dividerColor),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
               ),
@@ -979,7 +979,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   color: Color(0xFFDC2626), size: 28),
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'Log Out?',
               style: TextStyle(
                 fontSize: 20,
@@ -989,7 +989,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Are you sure you want to log out of your RimaPay account?',
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -1009,7 +1009,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onPressed: () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: const Color(0xFF667085),
-                        side: const BorderSide(color: Theme.of(context).dividerColor),
+                        side: BorderSide(color: Theme.of(context).dividerColor),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12)),
                       ),
@@ -1070,7 +1070,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
+                Text(
                   'Change Photo',
                   style: TextStyle(
                     fontSize: 16,
@@ -1104,7 +1104,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: const Text('Cancel',
+                    child: Text('Cancel',
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                             fontFamily: 'Effra',

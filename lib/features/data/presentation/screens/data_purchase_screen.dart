@@ -930,7 +930,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               'Phone Number',
               style: TextStyle(
                 fontSize: 13,
@@ -1071,7 +1071,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                                 color: AppColors.primary500,
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Center(
+                              child: Center(
                                 child: Icon(
                                   Icons.check,
                                   size: 10,
@@ -1477,7 +1477,7 @@ class _PlanPickerSheetState extends State<_PlanPickerSheet> {
           ),
 
           // Title
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               children: [

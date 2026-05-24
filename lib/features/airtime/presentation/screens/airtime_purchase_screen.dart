@@ -336,7 +336,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
                       ),
                     ),
                     const SizedBox(width: 14),
-                    const Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('Mobile Top-Up',
@@ -988,7 +988,7 @@ class _AmountInputCardState extends State<_AmountInputCard> {
               ],
             ),
           ),
-          const Divider(height: 1, color: Theme.of(context).dividerColor),
+          Divider(height: 1, color: Theme.of(context).dividerColor),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
             child: Row(
@@ -1209,7 +1209,7 @@ class _DataPlanSheetState extends State<_DataPlanSheet> {
                 : ListView.separated(
                     shrinkWrap: true,
                     itemCount: _filtered.length,
-                    separatorBuilder: (_, __) => const Divider(
+                    separatorBuilder: (_, __) => Divider(
                         height: 1, color: Theme.of(context).scaffoldBackgroundColor, indent: 20, endIndent: 20),
                     itemBuilder: (_, i) {
                       final plan = _filtered[i];

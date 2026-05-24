@@ -186,7 +186,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: Colors.white.withOpacity(0.2)),
               ),
-              child: const Icon(Icons.arrow_back_ios_new,
+              child: Icon(Icons.arrow_back_ios_new,
                   color: Theme.of(context).cardColor, size: 17),
             ),
           ),
@@ -195,7 +195,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Notifications',
                   style: TextStyle(
                     color: Theme.of(context).cardColor,
@@ -227,7 +227,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   border:
                       Border.all(color: Colors.white.withOpacity(0.22)),
                 ),
-                child: const Text(
+                child: Text(
                   'Mark all read',
                   style: TextStyle(
                     color: Theme.of(context).cardColor,
@@ -329,7 +329,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
     return ListView.separated(
       padding: const EdgeInsets.symmetric(vertical: 8),
       itemCount: _filteredNotifications.length,
-      separatorBuilder: (_, __) => const Divider(
+      separatorBuilder: (_, __) => Divider(
           height: 1, indent: 72, endIndent: 16, color: Theme.of(context).dividerColor),
       itemBuilder: (_, i) => _buildItem(_filteredNotifications[i]),
     );

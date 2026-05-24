@@ -563,7 +563,7 @@
 //               color: Color(0xFF166C46),
 //               shape: BoxShape.circle,
 //             ),
-//             child: const Icon(
+//             child: Icon(
 //               Icons.check,
 //               color: Theme.of(context).cardColor,
 //               size: 12,
@@ -818,7 +818,7 @@
 //               color: Color(0xFF166C46),
 //               shape: BoxShape.circle,
 //             ),
-//             child: const Icon(
+//             child: Icon(
 //               Icons.shield,
 //               color: Theme.of(context).cardColor,
 //               size: 32,
@@ -953,7 +953,7 @@
 //               ),
 //               shape: BoxShape.circle,
 //             ),
-//             child: const Icon(
+//             child: Icon(
 //               Icons.check,
 //               color: Theme.of(context).cardColor,
 //               size: 40,

@@ -304,7 +304,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
                           icon: Icons.flight_takeoff,
                           onTap: () => _openAirportSheet(isOrigin: true),
                         ),
-                        Container(height: 1, color: Theme.of(context).scaffoldBackgroundColor, margin: const EdgeInsets.symmetric(horizontal: 16)),
+                        Container(height: 1, color: Theme.of(context).scaffoldBackgroundColor, margin: EdgeInsets.symmetric(horizontal: 16)),
                         _AirportTile(
                           label: 'To',
                           airport: _destination,

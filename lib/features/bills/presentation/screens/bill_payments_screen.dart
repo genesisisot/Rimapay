@@ -360,11 +360,11 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
                                   border: Border.all(
                                       color: Colors.white.withOpacity(0.18)),
                                 ),
-                                child: const Icon(Icons.arrow_back_ios_new,
+                                child: Icon(Icons.arrow_back_ios_new,
                                     color: Theme.of(context).cardColor, size: 16),
                               ),
                             ),
-                            const Text(
+                            Text(
                               'Services',
                               style: TextStyle(
                                 color: Theme.of(context).cardColor,
@@ -530,7 +530,7 @@ class _ServiceCard extends StatelessWidget {
                           color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Icon(Icons.lock,
+                        child: Icon(Icons.lock,
                             color: Theme.of(context).cardColor, size: 9),
                       ),
                     ),

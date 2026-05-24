@@ -42,7 +42,7 @@ class AccountLimitsScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 14),
-                        const Expanded(
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -67,7 +67,7 @@ class AccountLimitsScreen extends StatelessWidget {
                               color: const Color(0xFFD4AF37),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Text('Upgrade',
+                            child: Text('Upgrade',
                                 style: TextStyle(
                                     color: Theme.of(context).cardColor,
                                     fontWeight: FontWeight.w700,
@@ -79,7 +79,7 @@ class AccountLimitsScreen extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 24),
-                  const Text('Transaction Limits',
+                  Text('Transaction Limits',
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
@@ -273,11 +273,11 @@ class AccountLimitsScreen extends StatelessWidget {
                 color: Colors.white.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.arrow_back_ios_new, color: Theme.of(context).cardColor, size: 16),
+              child: Icon(Icons.arrow_back_ios_new, color: Theme.of(context).cardColor, size: 16),
             ),
           ),
           const SizedBox(width: 14),
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Account Limits',

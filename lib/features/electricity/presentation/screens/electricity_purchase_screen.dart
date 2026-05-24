@@ -425,7 +425,7 @@ class _ProviderSheet extends StatelessWidget {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          const Padding(
+          Padding(
             padding: EdgeInsets.fromLTRB(20, 16, 20, 4),
             child: Row(
               children: [
@@ -903,7 +903,7 @@ class _AmountCardState extends State<_AmountCard> {
               ],
             ),
           ),
-          const Divider(height: 1, color: Theme.of(context).dividerColor),
+          Divider(height: 1, color: Theme.of(context).dividerColor),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
             child: Row(

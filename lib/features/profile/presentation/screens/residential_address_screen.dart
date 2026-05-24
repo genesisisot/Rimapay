@@ -67,10 +67,10 @@ class _ResidentialAddressScreenState extends State<ResidentialAddressScreen> {
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Theme.of(context).dividerColor)),
+          borderSide: BorderSide(color: Theme.of(context).dividerColor)),
       enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Theme.of(context).dividerColor)),
+          borderSide: BorderSide(color: Theme.of(context).dividerColor)),
       focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFF16A34A), width: 1.5)),
@@ -320,7 +320,7 @@ class _ResidentialAddressScreenState extends State<ResidentialAddressScreen> {
             ),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const Center(
+          child: Center(
             child: Text(
               'Continue →',
               style: TextStyle(
@@ -379,7 +379,7 @@ class _CompletionSuccessScreenState extends State<_CompletionSuccessScreen> {
                   color: Colors.white.withOpacity(0.2),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.check_circle,
+                child: Icon(Icons.check_circle,
                     color: Theme.of(context).cardColor, size: 60),
               ),
             ),

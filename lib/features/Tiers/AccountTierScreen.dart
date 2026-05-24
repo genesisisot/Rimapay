@@ -153,7 +153,7 @@ class _AccountTiersScreenState extends State<AccountTiersScreen> {
                       ),
                     ),
                     const SizedBox(width: 14),
-                    const Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
@@ -661,7 +661,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
                   ),
                 ),
                 const SizedBox(width: 14),
-                const Column(
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
@@ -708,7 +708,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
                 )),
               ),
             ),
-            const Divider(height: 1, color: Theme.of(context).dividerColor),
+            Divider(height: 1, color: Theme.of(context).dividerColor),
           ],
 
           Expanded(
@@ -823,7 +823,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
                       height: 22,
                       child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
                     )
-                  : const Text(
+                  : Text(
                       'Continue',
                       style: TextStyle(
                         fontSize: 16,
@@ -843,7 +843,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Enter Verification Code',
           style: TextStyle(
             fontSize: 22,
@@ -884,7 +884,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
         const SizedBox(height: 16),
         Row(
           children: [
-            const Text(
+            Text(
               "Didn't receive it? ",
               style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), fontFamily: 'Effra'),
             ),
@@ -929,7 +929,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
                       height: 22,
                       child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
                     )
-                  : const Text(
+                  : Text(
                       'Verify',
                       style: TextStyle(
                         fontSize: 16,
@@ -959,7 +959,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
           child: const Icon(Icons.verified_rounded, size: 48, color: Color(0xFF3B82F6)),
         ),
         const SizedBox(height: 24),
-        const Text(
+        Text(
           'Upgrade Successful!',
           style: TextStyle(
             fontSize: 24,
@@ -969,7 +969,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        const Text(
+        Text(
           'You are now on the Standard Tier.\nYour new limits are active immediately.',
           textAlign: TextAlign.center,
           style: TextStyle(
@@ -995,7 +995,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
               ),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: const Center(
+            child: Center(
               child: Text(
                 'Back to Home',
                 style: TextStyle(
@@ -1121,7 +1121,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Upgrade to Premium',
                       style: TextStyle(
                         color: Theme.of(context).cardColor,
@@ -1174,7 +1174,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
                 }),
               ),
             ),
-            const Divider(height: 1, color: Theme.of(context).dividerColor),
+            Divider(height: 1, color: Theme.of(context).dividerColor),
           ],
 
           Expanded(
@@ -1421,7 +1421,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Review & Submit',
           style: TextStyle(
             fontSize: 20,
@@ -1431,7 +1431,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
           ),
         ),
         const SizedBox(height: 6),
-        const Text(
+        Text(
           'Review the documents you uploaded before submitting for verification.',
           style: TextStyle(
             fontSize: 13,
@@ -1514,7 +1514,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
                       height: 22,
                       child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
                     )
-                  : const Text(
+                  : Text(
                       'Submit for Verification',
                       style: TextStyle(
                         fontSize: 16,
@@ -1544,7 +1544,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
           child: const Icon(Icons.workspace_premium_rounded, size: 48, color: Color(0xFF8B5CF6)),
         ),
         const SizedBox(height: 24),
-        const Text(
+        Text(
           'Documents Submitted!',
           style: TextStyle(
             fontSize: 24,
@@ -1554,7 +1554,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        const Text(
+        Text(
           'Your documents are under review.\nWe\'ll notify you within 1–2 business days.',
           textAlign: TextAlign.center,
           style: TextStyle(
@@ -1580,7 +1580,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
               ),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: const Center(
+            child: Center(
               child: Text(
                 'Back to Home',
                 style: TextStyle(
@@ -1639,7 +1639,7 @@ class _OtpBox extends StatelessWidget {
           fillColor: Colors.white,
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Theme.of(context).dividerColor, width: 1.5),
+            borderSide: BorderSide(color: Theme.of(context).dividerColor, width: 1.5),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),

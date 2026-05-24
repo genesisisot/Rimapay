@@ -490,7 +490,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
               color: Colors.orange,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.warning, color: Theme.of(context).cardColor, size: 12),
+            child: Icon(Icons.warning, color: Theme.of(context).cardColor, size: 12),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -1154,7 +1154,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                           color: Colors.red,
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Text(
+                        child: Text(
                           'NEW',
                           style: TextStyle(
                             color: Theme.of(context).cardColor,

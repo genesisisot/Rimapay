@@ -842,7 +842,7 @@ import '../../../core/providers/auth_provider.dart';
 //                         ),
 //                         shape: BoxShape.circle,
 //                       ),
-//                       child: const Icon(
+//                       child: Icon(
 //                         Icons.fingerprint,
 //                         color: Theme.of(context).cardColor,
 //                         size: 32,

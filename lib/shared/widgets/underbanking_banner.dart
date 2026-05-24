@@ -35,7 +35,7 @@ class UnderbankingBanner extends StatelessWidget {
               color: Colors.white.withOpacity(0.2),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.info_outline,
               color: Theme.of(context).cardColor,
               size: 20,

@@ -370,7 +370,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                         ),
                       ],
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.check,
                       color: Theme.of(context).cardColor,
                       size: 40,
@@ -807,7 +807,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                           hintText: widget.props.beneficiaryData?.name.split(' ')[0] ?? 'Enter nickname',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Theme.of(context).dividerColor), // neutral-200
+                            borderSide: BorderSide(color: Theme.of(context).dividerColor), // neutral-200
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -901,7 +901,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            side: const BorderSide(color: Theme.of(context).dividerColor), // neutral-200
+                            side: BorderSide(color: Theme.of(context).dividerColor), // neutral-200
                           ),
                           child: const Text(
                             'Cancel',
@@ -924,7 +924,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text(
+                          child: Text(
                             'Save',
                             style: TextStyle(
                               fontSize: 14,
