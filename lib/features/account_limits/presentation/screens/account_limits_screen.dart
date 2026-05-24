@@ -48,7 +48,7 @@ class AccountLimitsScreen extends StatelessWidget {
                             children: [
                               Text('Your Current Tier: Basic',
                                   style: TextStyle(
-                                      color: Colors.white,
+                                      color: Theme.of(context).cardColor,
                                       fontSize: 15,
                                       fontWeight: FontWeight.w800)),
                               SizedBox(height: 2),
@@ -69,7 +69,7 @@ class AccountLimitsScreen extends StatelessWidget {
                             ),
                             child: const Text('Upgrade',
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Theme.of(context).cardColor,
                                     fontWeight: FontWeight.w700,
                                     fontSize: 12)),
                           ),
@@ -83,7 +83,7 @@ class AccountLimitsScreen extends StatelessWidget {
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFF101828))),
+                          color: Theme.of(context).colorScheme.onSurface)),
                   const SizedBox(height: 12),
 
                   _buildLimitsTable(context, 'Transfers', [
@@ -152,17 +152,17 @@ class AccountLimitsScreen extends StatelessWidget {
       BuildContext context, String title, List<_LimitRow> rows) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE4E7EC)),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
         children: [
           // Table header
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: const BoxDecoration(
-              color: Color(0xFFF9FAFB),
+            decoration: BoxDecoration(
+              color: Theme.of(context).scaffoldBackgroundColor,
               borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
             ),
             child: Row(
@@ -170,10 +170,10 @@ class AccountLimitsScreen extends StatelessWidget {
                 Expanded(
                   flex: 3,
                   child: Text(title,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontWeight: FontWeight.w800,
                           fontSize: 13,
-                          color: Color(0xFF101828))),
+                          color: Theme.of(context).colorScheme.onSurface)),
                 ),
                 ...[
                   ('T1', '⭐'),
@@ -183,12 +183,12 @@ class AccountLimitsScreen extends StatelessWidget {
                       flex: 2,
                       child: Column(
                         children: [
-                          Text(t.$2, style: const TextStyle(fontSize: 12)),
+                          Text(t.$2, style: TextStyle(fontSize: 12)),
                           Text(t.$1,
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 10,
-                                  color: Color(0xFF667085))),
+                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
                         ],
                       ),
                     )),
@@ -211,32 +211,32 @@ class AccountLimitsScreen extends StatelessWidget {
                   Expanded(
                     flex: 3,
                     child: Text(row.label,
-                        style: const TextStyle(
-                            fontSize: 12, color: Color(0xFF667085))),
+                        style: TextStyle(
+                            fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
                   ),
                   Expanded(
                     flex: 2,
                     child: Text(row.tier1,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF101828))),
+                            color: Theme.of(context).colorScheme.onSurface)),
                   ),
                   Expanded(
                     flex: 2,
                     child: Text(row.tier2,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF101828))),
+                            color: Theme.of(context).colorScheme.onSurface)),
                   ),
                   Expanded(
                     flex: 2,
                     child: Text(row.tier3,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF1A6B35))),
@@ -256,7 +256,7 @@ class AccountLimitsScreen extends StatelessWidget {
       padding: EdgeInsets.only(
           top: MediaQuery.of(context).padding.top + 14,
           left: 20, right: 20, bottom: 20),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -273,7 +273,7 @@ class AccountLimitsScreen extends StatelessWidget {
                 color: Colors.white.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 16),
+              child: const Icon(Icons.arrow_back_ios_new, color: Theme.of(context).cardColor, size: 16),
             ),
           ),
           const SizedBox(width: 14),
@@ -281,7 +281,7 @@ class AccountLimitsScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Account Limits',
-                  style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w800)),
+                  style: TextStyle(color: Theme.of(context).cardColor, fontSize: 17, fontWeight: FontWeight.w800)),
               Text('CBN-regulated transaction limits',
                   style: TextStyle(color: Colors.white60, fontSize: 12)),
             ],

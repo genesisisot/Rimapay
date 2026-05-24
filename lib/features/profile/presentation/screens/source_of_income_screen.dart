@@ -31,7 +31,7 @@ class _SourceOfIncomeScreenState extends State<SourceOfIncomeScreen> {
 
   Widget _sectionLabel(String label) {
     return Text(label,
-        style: const TextStyle(
+        style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
             color: Color(0xFF374151)));
@@ -47,9 +47,9 @@ class _SourceOfIncomeScreenState extends State<SourceOfIncomeScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE5E7EB)),
+          border: Border.all(color: Theme.of(context).dividerColor),
         ),
         child: Row(
           children: [
@@ -110,7 +110,7 @@ class _SourceOfIncomeScreenState extends State<SourceOfIncomeScreen> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE5E7EB),
+                  color: Theme.of(context).dividerColor,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -118,7 +118,7 @@ class _SourceOfIncomeScreenState extends State<SourceOfIncomeScreen> {
             const SizedBox(height: 16),
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFF111827),
@@ -132,7 +132,7 @@ class _SourceOfIncomeScreenState extends State<SourceOfIncomeScreen> {
                   final option = options[index];
                   return ListTile(
                     title: Text(option,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 15, color: Color(0xFF111827))),
                     onTap: () {
                       onSelect(option);
@@ -166,7 +166,7 @@ class _SourceOfIncomeScreenState extends State<SourceOfIncomeScreen> {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF3F4F6),
+                        color: Theme.of(context).scaffoldBackgroundColor,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(Icons.arrow_back_ios_new,
@@ -265,7 +265,7 @@ class _SourceOfIncomeScreenState extends State<SourceOfIncomeScreen> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
               ),
             ),
           ),
@@ -319,16 +319,16 @@ class _CompletionSuccessScreenState extends State<_CompletionSuccessScreen> {
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.check_circle,
-                    color: Colors.white, size: 60),
+                    color: Theme.of(context).cardColor, size: 60),
               ),
             ),
             const SizedBox(height: 24),
             Text(
               widget.title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
               ),
               textAlign: TextAlign.center,
             ),

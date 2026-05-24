@@ -92,7 +92,7 @@ class _RemitaScreenState extends State<RemitaScreen> {
                             child: Row(
                               children: [
                                 Text(cat.icon,
-                                    style: const TextStyle(fontSize: 16)),
+                                    style: TextStyle(fontSize: 16)),
                                 const SizedBox(width: 6),
                                 Text(cat.name,
                                     style: TextStyle(
@@ -146,10 +146,10 @@ class _RemitaScreenState extends State<RemitaScreen> {
                                   width: 18,
                                   height: 18,
                                   child: CircularProgressIndicator(
-                                      color: Colors.white, strokeWidth: 2))
+                                      color: Theme.of(context).cardColor, strokeWidth: 2))
                               : const Text('Verify',
                                   style: TextStyle(
-                                      color: Colors.white,
+                                      color: Theme.of(context).cardColor,
                                       fontWeight: FontWeight.w700)),
                         ),
                       ),
@@ -177,14 +177,14 @@ class _RemitaScreenState extends State<RemitaScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(_paymentTitle ?? '',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                         fontWeight: FontWeight.w700,
                                         fontSize: 14,
-                                        color: Color(0xFF101828))),
+                                        color: Theme.of(context).colorScheme.onSurface)),
                                 Text(_agency ?? '',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                         fontSize: 12,
-                                        color: Color(0xFF667085))),
+                                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
                               ],
                             ),
                           ),
@@ -223,7 +223,7 @@ class _RemitaScreenState extends State<RemitaScreen> {
                         ),
                         child: const Text('Pay Now',
                             style: TextStyle(
-                                color: Colors.white,
+                                color: Theme.of(context).cardColor,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700)),
                       ),
@@ -242,17 +242,17 @@ class _RemitaScreenState extends State<RemitaScreen> {
 
   InputDecoration _inputDecoration(String hint) => InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(color: Color(0xFF98A2B3), fontSize: 14),
+        hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), fontSize: 14),
         filled: true,
         fillColor: Colors.white,
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFE4E7EC))),
+            borderSide: const BorderSide(color: Theme.of(context).dividerColor)),
         enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFE4E7EC))),
+            borderSide: const BorderSide(color: Theme.of(context).dividerColor)),
         focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide:
@@ -265,7 +265,7 @@ class _RemitaScreenState extends State<RemitaScreen> {
       padding: EdgeInsets.only(
           top: MediaQuery.of(context).padding.top + 14,
           left: 20, right: 20, bottom: 20),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -282,7 +282,7 @@ class _RemitaScreenState extends State<RemitaScreen> {
                 color: Colors.white.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 16),
+              child: const Icon(Icons.arrow_back_ios_new, color: Theme.of(context).cardColor, size: 16),
             ),
           ),
           const SizedBox(width: 14),
@@ -290,7 +290,7 @@ class _RemitaScreenState extends State<RemitaScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Remita',
-                  style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w800)),
+                  style: TextStyle(color: Theme.of(context).cardColor, fontSize: 17, fontWeight: FontWeight.w800)),
               Text('Government & institutional payments',
                   style: TextStyle(color: Colors.white60, fontSize: 12)),
             ],
@@ -301,8 +301,8 @@ class _RemitaScreenState extends State<RemitaScreen> {
   }
 
   Widget _sectionLabel(String label) => Text(label,
-      style: const TextStyle(
-          fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF344054)));
+      style: TextStyle(
+          fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8)));
 }
 
 class _Category {

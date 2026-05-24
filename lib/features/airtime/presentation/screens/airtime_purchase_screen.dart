@@ -341,7 +341,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
                       children: [
                         Text('Mobile Top-Up',
                             style: TextStyle(
-                                color: Colors.white,
+                                color: Theme.of(context).cardColor,
                                 fontSize: 18,
                                 fontWeight: FontWeight.w800,
                                 fontFamily: 'Effra')),
@@ -455,7 +455,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
               ),
               child: Center(
                   child: Text(_selectedNetwork!.icon,
-                      style: const TextStyle(fontSize: 13))),
+                      style: TextStyle(fontSize: 13))),
             )
           : null,
     );
@@ -494,14 +494,14 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
                         radius: 28,
                         backgroundColor: colors[i % colors.length],
                         child: Text(c.initial,
-                            style: const TextStyle(
-                                color: Colors.white,
+                            style: TextStyle(
+                                color: Theme.of(context).cardColor,
                                 fontWeight: FontWeight.w700,
                                 fontSize: 18)),
                       ),
                       const SizedBox(height: 6),
                       Text(c.name,
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFF374151),
@@ -510,7 +510,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center),
                       Text('${c.number.substring(0, 7)}...',
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 10,
                               color: Color(0xFF9CA3AF),
                               fontFamily: 'Effra'),
@@ -562,7 +562,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
                   ),
                   child: Column(
                     children: [
-                      Text(net.icon, style: const TextStyle(fontSize: 20)),
+                      Text(net.icon, style: TextStyle(fontSize: 20)),
                       const SizedBox(height: 4),
                       Text(net.name,
                           style: TextStyle(
@@ -666,7 +666,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
           duration: const Duration(milliseconds: 150),
           height: 58,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: _selectedPlan != null
@@ -694,10 +694,10 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
                                     fontWeight: FontWeight.w500)),
                             Text(
                                 '${_selectedPlan!.data} · ${_selectedPlan!.validity} · ₦${_selectedPlan!.price}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
-                                    color: Color(0xFF101828),
+                                    color: Theme.of(context).colorScheme.onSurface,
                                     fontFamily: 'Effra')),
                           ],
                         )
@@ -740,8 +740,8 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
     return Container(
       padding: EdgeInsets.fromLTRB(
           20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
         border: Border(top: BorderSide(color: Color(0xFFF3F4F6))),
       ),
       child: GestureDetector(
@@ -831,7 +831,7 @@ class _FloatingFieldState extends State<_FloatingField> {
       duration: const Duration(milliseconds: 150),
       height: 60,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: _focused
@@ -877,16 +877,16 @@ class _FloatingFieldState extends State<_FloatingField> {
               keyboardType: widget.keyboardType,
               inputFormatters: widget.inputFormatters,
               onChanged: widget.onChanged,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   fontFamily: 'Effra',
-                  color: Color(0xFF101828)),
+                  color: Theme.of(context).colorScheme.onSurface),
               decoration: InputDecoration(
                 hintText: isActive ? widget.hint : null,
-                hintStyle: const TextStyle(
+                hintStyle: TextStyle(
                     fontSize: 15,
-                    color: Color(0xFFD0D5DD),
+                    color: Theme.of(context).dividerColor,
                     fontWeight: FontWeight.normal),
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
@@ -966,11 +966,11 @@ class _AmountInputCardState extends State<_AmountInputCard> {
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     onChanged: widget.onChanged,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 36,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF111827)),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: '0',
                       hintStyle: TextStyle(
                           fontSize: 36,
@@ -988,7 +988,7 @@ class _AmountInputCardState extends State<_AmountInputCard> {
               ],
             ),
           ),
-          const Divider(height: 1, color: Color(0xFFE5E7EB)),
+          const Divider(height: 1, color: Theme.of(context).dividerColor),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
             child: Row(
@@ -1057,8 +1057,8 @@ class _DataPlanSheetState extends State<_DataPlanSheet> {
     };
 
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
@@ -1071,7 +1071,7 @@ class _DataPlanSheetState extends State<_DataPlanSheet> {
             height: 4,
             margin: const EdgeInsets.symmetric(vertical: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFFE4E7EC),
+              color: Theme.of(context).dividerColor,
               borderRadius: BorderRadius.circular(999),
             ),
           ),
@@ -1089,16 +1089,16 @@ class _DataPlanSheetState extends State<_DataPlanSheet> {
                   ),
                   child: Center(
                     child: Text(widget.network.icon,
-                        style: const TextStyle(fontSize: 16)),
+                        style: TextStyle(fontSize: 16)),
                   ),
                 ),
                 const SizedBox(width: 10),
                 Text(
                   '${widget.network.name} Data Plans',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF101828),
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontFamily: 'Effra',
                   ),
                 ),
@@ -1111,9 +1111,9 @@ class _DataPlanSheetState extends State<_DataPlanSheet> {
             child: Container(
               height: 44,
               decoration: BoxDecoration(
-                color: const Color(0xFFF9FAFB),
+                color: Theme.of(context).scaffoldBackgroundColor,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFE4E7EC)),
+                border: Border.all(color: Theme.of(context).dividerColor),
               ),
               child: Row(
                 children: [
@@ -1124,9 +1124,9 @@ class _DataPlanSheetState extends State<_DataPlanSheet> {
                     child: TextField(
                       controller: _searchController,
                       onChanged: (v) => setState(() => _query = v),
-                      style: const TextStyle(
-                          fontSize: 14, color: Color(0xFF101828), fontFamily: 'Effra'),
-                      decoration: const InputDecoration(
+                      style: TextStyle(
+                          fontSize: 14, color: Theme.of(context).colorScheme.onSurface, fontFamily: 'Effra'),
+                      decoration: InputDecoration(
                         hintText: 'Search plans…',
                         hintStyle: TextStyle(
                             fontSize: 14, color: Color(0xFF9CA3AF), fontFamily: 'Effra'),
@@ -1148,7 +1148,7 @@ class _DataPlanSheetState extends State<_DataPlanSheet> {
             child: Container(
               padding: const EdgeInsets.all(3),
               decoration: BoxDecoration(
-                color: const Color(0xFFF3F4F6),
+                color: Theme.of(context).scaffoldBackgroundColor,
                 borderRadius: BorderRadius.circular(999),
               ),
               child: Row(
@@ -1210,7 +1210,7 @@ class _DataPlanSheetState extends State<_DataPlanSheet> {
                     shrinkWrap: true,
                     itemCount: _filtered.length,
                     separatorBuilder: (_, __) => const Divider(
-                        height: 1, color: Color(0xFFF3F4F6), indent: 20, endIndent: 20),
+                        height: 1, color: Theme.of(context).scaffoldBackgroundColor, indent: 20, endIndent: 20),
                     itemBuilder: (_, i) {
                       final plan = _filtered[i];
                       final isSelected = widget.selectedPlan?.id == plan.id;
@@ -1251,16 +1251,16 @@ class _DataPlanSheetState extends State<_DataPlanSheet> {
                                   children: [
                                     Text(
                                       '${plan.data} Data',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w700,
-                                        color: Color(0xFF101828),
+                                        color: Theme.of(context).colorScheme.onSurface,
                                         fontFamily: 'Effra',
                                       ),
                                     ),
                                     Text(
                                       'Valid for ${plan.validity}',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 12,
                                         color: Color(0xFF9CA3AF),
                                         fontFamily: 'Effra',

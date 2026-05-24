@@ -80,7 +80,17 @@
       "Bash(sed -n '740,750p' lib/features/electricity/presentation/screens/electricity_purchase_screen.dart)",
       "Bash(grep -v \"^--$\")",
       "Bash(python -c ':*)",
-      "Bash(gh run:*)"
+      "Bash(gh run:*)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(Get-ChildItem -Path lib/features -Directory)",
+      "Bash(Select-Object -ExpandProperty Name)",
+      "Bash(grep -v \"_test\\\\|//.*backgroundColor\")",
+      "PowerShell(Get-Command *)",
+      "PowerShell(winget install *)",
+      "PowerShell(gh *)",
+      "PowerShell(gh auth *)"
     ]
   }
 }

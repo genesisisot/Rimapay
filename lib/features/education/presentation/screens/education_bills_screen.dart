@@ -269,7 +269,7 @@ class _DropdownField extends StatelessWidget {
         height: subLabel != null ? 72 : 60,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: hasValue
@@ -305,7 +305,7 @@ class _DropdownField extends StatelessWidget {
                   ),
                   if (subLabel != null) ...[
                     const SizedBox(height: 2),
-                    Text(subLabel!, style: const TextStyle(fontSize: 11, color: Color(0xFF667085))),
+                    Text(subLabel!, style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
                   ],
                 ],
               ),
@@ -351,14 +351,14 @@ class _AmountDisplay extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF101828))),
-                Text(description, style: const TextStyle(fontSize: 12, color: Color(0xFF667085))),
+                Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)),
+                Text(description, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
               ],
             ),
           ),
           Text(
             '₦$amount',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF166C46)),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF166C46)),
           ),
         ],
       ),
@@ -376,8 +376,8 @@ class _ProviderSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
@@ -385,10 +385,10 @@ class _ProviderSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(width: 40, height: 4, margin: const EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(color: const Color(0xFFE4E7EC), borderRadius: BorderRadius.circular(999))),
+              decoration: BoxDecoration(color: Theme.of(context).dividerColor, borderRadius: BorderRadius.circular(999))),
           const Align(
             alignment: Alignment.centerLeft,
-            child: Text('Select Exam Body', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFF101828))),
+            child: Text('Select Exam Body', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface)),
           ),
           const SizedBox(height: 16),
           ...providers.map((p) => GestureDetector(
@@ -405,14 +405,14 @@ class _ProviderSheet extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Text(p.icon, style: const TextStyle(fontSize: 28)),
+                  Text(p.icon, style: TextStyle(fontSize: 28)),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(p.name, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF101828))),
-                        Text(p.description, style: const TextStyle(fontSize: 12, color: Color(0xFF667085))),
+                        Text(p.name, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurface)),
+                        Text(p.description, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
                       ],
                     ),
                   ),
@@ -438,8 +438,8 @@ class _ExamSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
@@ -447,10 +447,10 @@ class _ExamSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(width: 40, height: 4, margin: const EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(color: const Color(0xFFE4E7EC), borderRadius: BorderRadius.circular(999))),
+              decoration: BoxDecoration(color: Theme.of(context).dividerColor, borderRadius: BorderRadius.circular(999))),
           const Align(
             alignment: Alignment.centerLeft,
-            child: Text('Select Exam Type', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFF101828))),
+            child: Text('Select Exam Type', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface)),
           ),
           const SizedBox(height: 16),
           ...examTypes.map((e) => GestureDetector(
@@ -471,15 +471,15 @@ class _ExamSheet extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(e.name, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF101828))),
-                        Text(e.description, style: const TextStyle(fontSize: 12, color: Color(0xFF667085))),
+                        Text(e.name, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurface)),
+                        Text(e.description, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
                       ],
                     ),
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text('₦${e.price}', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF101828))),
+                      Text('₦${e.price}', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface)),
                       if (selected?.id == e.id)
                         const Icon(Icons.check_circle, color: Color(0xFF166C46), size: 16),
                     ],
@@ -506,8 +506,8 @@ class _EduCTA extends StatelessWidget {
     final label = exam != null ? 'Pay ₦${exam!.price} — ${exam!.name}' : 'Continue';
     return Container(
       padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
         border: Border(top: BorderSide(color: Color(0xFFF3F4F6))),
       ),
       child: GestureDetector(

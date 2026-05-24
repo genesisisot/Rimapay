@@ -77,7 +77,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
                         Expanded(
                           child: RichText(
                             text: TextSpan(
-                              style: const TextStyle(fontSize: 12, height: 1.5),
+                              style: TextStyle(fontSize: 12, height: 1.5),
                               children: [
                                 const TextSpan(
                                     text: 'Nisab threshold: ',
@@ -86,7 +86,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
                                         fontWeight: FontWeight.w700)),
                                 TextSpan(
                                     text: _fmt(_nisabNGN),
-                                    style: const TextStyle(color: Color(0xFF101828))),
+                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                                 const TextSpan(
                                     text:
                                         ' (approx. value of 85g of gold). Zakat rate: 2.5%.',
@@ -131,12 +131,12 @@ class _ZakatScreenState extends State<ZakatScreen> {
                           children: [
                             const Text('Total Wealth',
                                 style: TextStyle(
-                                    fontSize: 13, color: Color(0xFF667085))),
+                                    fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
                             Text(_fmt(_totalWealth),
-                                style: const TextStyle(
+                                style: TextStyle(
                                     fontWeight: FontWeight.w700,
                                     fontSize: 14,
-                                    color: Color(0xFF101828))),
+                                    color: Theme.of(context).colorScheme.onSurface)),
                           ],
                         ),
                         const Divider(height: 18),
@@ -147,7 +147,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
                                 style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w700,
-                                    color: Color(0xFF101828))),
+                                    color: Theme.of(context).colorScheme.onSurface)),
                             Text(_fmt(_zakatDue),
                                 style: TextStyle(
                                     fontWeight: FontWeight.w800,
@@ -162,7 +162,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
                           const Text(
                             'Your wealth is below the Nisab threshold — Zakat is not yet due.',
                             style: TextStyle(
-                                fontSize: 11, color: Color(0xFF667085), height: 1.4),
+                                fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), height: 1.4),
                           ),
                         ],
                       ],
@@ -194,20 +194,20 @@ class _ZakatScreenState extends State<ZakatScreen> {
                           ),
                           child: Row(
                             children: [
-                              Text(inst.icon, style: const TextStyle(fontSize: 22)),
+                              Text(inst.icon, style: TextStyle(fontSize: 22)),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(inst.name,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                             fontWeight: FontWeight.w700,
                                             fontSize: 13,
-                                            color: Color(0xFF101828))),
+                                            color: Theme.of(context).colorScheme.onSurface)),
                                     Text(inst.type,
-                                        style: const TextStyle(
-                                            fontSize: 11, color: Color(0xFF667085))),
+                                        style: TextStyle(
+                                            fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
                                   ],
                                 ),
                               ),
@@ -237,8 +237,8 @@ class _ZakatScreenState extends State<ZakatScreen> {
                         ),
                         child: Text(
                           'Pay Zakat (${_fmt(_zakatDue)})',
-                          style: const TextStyle(
-                              color: Colors.white,
+                          style: TextStyle(
+                              color: Theme.of(context).cardColor,
                               fontSize: 16,
                               fontWeight: FontWeight.w700),
                         ),
@@ -260,8 +260,8 @@ class _ZakatScreenState extends State<ZakatScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label,
-            style: const TextStyle(
-                fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF344054))),
+            style: TextStyle(
+                fontSize: 12, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8))),
         const SizedBox(height: 6),
         TextField(
           controller: ctrl,
@@ -271,17 +271,17 @@ class _ZakatScreenState extends State<ZakatScreen> {
           decoration: InputDecoration(
             hintText: '0',
             prefixText: '₦ ',
-            prefixStyle: const TextStyle(color: Color(0xFF344054), fontWeight: FontWeight.w600),
-            hintStyle: const TextStyle(color: Color(0xFFD0D5DD)),
+            prefixStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8), fontWeight: FontWeight.w600),
+            hintStyle: TextStyle(color: Theme.of(context).dividerColor),
             filled: true,
             fillColor: Colors.white,
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFFE4E7EC))),
+                borderSide: const BorderSide(color: Theme.of(context).dividerColor)),
             enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFFE4E7EC))),
+                borderSide: const BorderSide(color: Theme.of(context).dividerColor)),
             focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(color: Color(0xFF1A6B35), width: 2)),
@@ -297,7 +297,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
       padding: EdgeInsets.only(
           top: MediaQuery.of(context).padding.top + 14,
           left: 20, right: 20, bottom: 20),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -314,7 +314,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
                 color: Colors.white.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 16),
+              child: const Icon(Icons.arrow_back_ios_new, color: Theme.of(context).cardColor, size: 16),
             ),
           ),
           const SizedBox(width: 14),
@@ -322,7 +322,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Zakat / Religious',
-                  style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w800)),
+                  style: TextStyle(color: Theme.of(context).cardColor, fontSize: 17, fontWeight: FontWeight.w800)),
               Text('Calculate and pay your Zakat',
                   style: TextStyle(color: Colors.white60, fontSize: 12)),
             ],
@@ -333,7 +333,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
   }
 
   Widget _sectionLabel(String label) => Text(label,
-      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF344054)));
+      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8)));
 }
 
 class _Institution {

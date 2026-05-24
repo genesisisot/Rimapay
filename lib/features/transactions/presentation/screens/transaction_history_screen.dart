@@ -210,10 +210,10 @@ class _TransactionHistoryScreenState
                                   children: [
                                     Text(
                                       dateKey,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w700,
-                                        color: Color(0xFF344054),
+                                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
                                         fontFamily: 'Effra',
                                         letterSpacing: 0.2,
                                       ),
@@ -223,7 +223,7 @@ class _TransactionHistoryScreenState
                                       style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w500,
-                                        color: const Color(0xFF667085),
+                                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                                         fontFamily: 'Effra',
                                       ),
                                     ),
@@ -286,7 +286,7 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -334,7 +334,7 @@ class _Header extends StatelessWidget {
                         child: Text(
                           'Transaction History',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Theme.of(context).cardColor,
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
                             fontFamily: 'Effra',
@@ -359,8 +359,8 @@ class _Header extends StatelessWidget {
                     ),
                     child: TextField(
                       controller: searchController,
-                      style: const TextStyle(
-                          color: Colors.white,
+                      style: TextStyle(
+                          color: Theme.of(context).cardColor,
                           fontSize: 14,
                           fontFamily: 'Effra'),
                       decoration: InputDecoration(
@@ -514,7 +514,7 @@ class _SummaryStrip extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   _fmt(spent),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
                     color: Color(0xFF073D25),
@@ -546,7 +546,7 @@ class _SummaryStrip extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   _fmt(income),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
                     color: Color(0xFF073D25),
@@ -649,7 +649,7 @@ class _TxCard extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -686,7 +686,7 @@ class _TxCard extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(_icon,
-                      style: const TextStyle(fontSize: 20)),
+                      style: TextStyle(fontSize: 20)),
                 ),
               ),
             ),
@@ -703,10 +703,10 @@ class _TxCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             tx.typeDisplayName,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
-                              color: Color(0xFF101828),
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontFamily: 'Effra',
                             ),
                           ),
@@ -731,9 +731,9 @@ class _TxCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             tx.recipient,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
-                              color: Color(0xFF667085),
+                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                               fontFamily: 'Effra',
                             ),
                             overflow: TextOverflow.ellipsis,
@@ -741,9 +741,9 @@ class _TxCard extends StatelessWidget {
                         ),
                         Text(
                           fmtTime(tx.timestamp),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11,
-                            color: Color(0xFF98A2B3),
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                             fontFamily: 'Effra',
                           ),
                         ),
@@ -783,7 +783,7 @@ class _TxCard extends StatelessWidget {
                         ),
                         child: Text(
                           tx.plan!,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 10,
                             color: Color(0xFF7C3AED),
                             fontFamily: 'Effra',
@@ -837,10 +837,10 @@ class _EmptyState extends StatelessWidget {
             const SizedBox(height: 20),
             Text(
               hasSearch ? 'No results found' : 'No transactions yet',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF101828),
+                color: Theme.of(context).colorScheme.onSurface,
                 fontFamily: 'Effra',
               ),
             ),
@@ -849,9 +849,9 @@ class _EmptyState extends StatelessWidget {
               hasSearch
                   ? 'Try a different search term or filter'
                   : 'Your transaction history will appear here',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
-                color: Color(0xFF667085),
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                 fontFamily: 'Effra',
                 height: 1.5,
               ),
@@ -892,8 +892,8 @@ class _FilterModal extends StatelessWidget {
           left: 0,
           right: 0,
           child: Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
               borderRadius:
                   BorderRadius.vertical(top: Radius.circular(24)),
             ),
@@ -910,7 +910,7 @@ class _FilterModal extends StatelessWidget {
                       height: 4,
                       margin: const EdgeInsets.only(bottom: 18),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE4E7EC),
+                        color: Theme.of(context).dividerColor,
                         borderRadius: BorderRadius.circular(99),
                       ),
                     ),
@@ -922,7 +922,7 @@ class _FilterModal extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF101828),
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontFamily: 'Effra',
                           ),
                         ),
@@ -936,7 +936,7 @@ class _FilterModal extends StatelessWidget {
                               borderRadius: BorderRadius.circular(15),
                             ),
                             child: const Icon(Icons.close,
-                                size: 16, color: Color(0xFF667085)),
+                                size: 16, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
                           ),
                         ),
                       ],

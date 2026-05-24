@@ -213,8 +213,8 @@ class _PromotionalCarouselState extends ConsumerState<PromotionalCarousel> with 
                       alignment: Alignment.centerLeft,
                       widthFactor: _animationController.value,
                       child: Container(
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).cardColor,
                           borderRadius: BorderRadius.only(
                             bottomLeft: Radius.circular(AppSpacing.radiusLg),
                             bottomRight: Radius.circular(AppSpacing.radiusLg),
@@ -288,8 +288,8 @@ class _PromotionalCarouselState extends ConsumerState<PromotionalCarousel> with 
                             child: Container(
                               width: 20,
                               height: 20,
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).cardColor,
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
@@ -319,7 +319,7 @@ class _PromotionalCarouselState extends ConsumerState<PromotionalCarousel> with 
                         Text(
                           slide.title,
                           style: AppTextStyles.labelMedium.copyWith(
-                            color: Colors.white,
+                            color: Theme.of(context).cardColor,
                             fontWeight: FontWeight.w700,
                           ),
                           maxLines: 1,
@@ -358,7 +358,7 @@ class _PromotionalCarouselState extends ConsumerState<PromotionalCarousel> with 
                         Text(
                           slide.actionText,
                           style: AppTextStyles.labelSmall.copyWith(
-                            color: Colors.white,
+                            color: Theme.of(context).cardColor,
                             fontWeight: FontWeight.w600,
                           ),
                         ),

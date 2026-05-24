@@ -285,7 +285,7 @@ class _ElectricityPurchaseScreenState
                                       fontWeight: FontWeight.w600,
                                       color: Color(0xFF065F46))),
                               Text(_customerName,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
                                       color: Color(0xFF0E5C37))),
@@ -408,8 +408,8 @@ class _ProviderSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -434,7 +434,7 @@ class _ProviderSheet extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF101828)),
+                      color: Theme.of(context).colorScheme.onSurface),
                 ),
               ],
             ),
@@ -482,7 +482,7 @@ class _ProviderSheet extends StatelessWidget {
                                         ? AppColors.goldPrimary
                                         : const Color(0xFF101828))),
                             Text(p.name,
-                                style: const TextStyle(
+                                style: TextStyle(
                                     fontSize: 12,
                                     color: Color(0xFF6B7280)),
                                 maxLines: 1,
@@ -532,7 +532,7 @@ class _DropdownField extends StatelessWidget {
         duration: const Duration(milliseconds: 150),
         height: 60,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: hasValue
@@ -592,10 +592,10 @@ class _DropdownField extends StatelessWidget {
                 child: IgnorePointer(
                   child: Text(
                     value!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF101828),
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -657,7 +657,7 @@ class _MeterTypeBtn extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(icon, style: const TextStyle(fontSize: 14)),
+              Text(icon, style: TextStyle(fontSize: 14)),
               const SizedBox(width: 6),
               Text(
                 label,
@@ -735,7 +735,7 @@ class _EFloatingFieldState extends State<_EFloatingField> {
       duration: const Duration(milliseconds: 150),
       height: 60,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: _focused
@@ -780,16 +780,16 @@ class _EFloatingFieldState extends State<_EFloatingField> {
               keyboardType: widget.keyboardType,
               inputFormatters: widget.inputFormatters,
               onChanged: widget.onChanged,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF101828),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               decoration: InputDecoration(
                 hintText: isActive ? widget.hint : null,
-                hintStyle: const TextStyle(
+                hintStyle: TextStyle(
                     fontSize: 15,
-                    color: Color(0xFFD0D5DD),
+                    color: Theme.of(context).dividerColor,
                     fontWeight: FontWeight.normal),
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
@@ -878,11 +878,11 @@ class _AmountCardState extends State<_AmountCard> {
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     onChanged: widget.onChanged,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 36,
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF111827)),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: '0',
                       hintStyle: TextStyle(
                           fontSize: 36,
@@ -903,7 +903,7 @@ class _AmountCardState extends State<_AmountCard> {
               ],
             ),
           ),
-          const Divider(height: 1, color: Color(0xFFE5E7EB)),
+          const Divider(height: 1, color: Theme.of(context).dividerColor),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
             child: Row(
@@ -935,8 +935,8 @@ class _BillCTA extends StatelessWidget {
     return Container(
       padding: EdgeInsets.fromLTRB(
           20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
         border: Border(top: BorderSide(color: Color(0xFFF3F4F6))),
       ),
       child: GestureDetector(

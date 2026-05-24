@@ -48,7 +48,7 @@ class _PepDeclarationScreenState extends State<PepDeclarationScreen> {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF3F4F6),
+                        color: Theme.of(context).scaffoldBackgroundColor,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(Icons.arrow_back_ios_new,
@@ -84,8 +84,8 @@ class _PepDeclarationScreenState extends State<PepDeclarationScreen> {
                     Container(
                       width: 120,
                       height: 120,
-                      decoration: const BoxDecoration(
-                          color: Colors.white, shape: BoxShape.circle),
+                      decoration: BoxDecoration(
+                          color: Theme.of(context).cardColor, shape: BoxShape.circle),
                       child: const Icon(Icons.group,
                           color: Color(0xFF16A34A), size: 60),
                     ),
@@ -202,7 +202,7 @@ class _PepDeclarationScreenState extends State<PepDeclarationScreen> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
               ),
             ),
           ),
@@ -256,16 +256,16 @@ class _CompletionSuccessScreenState extends State<_CompletionSuccessScreen> {
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.check_circle,
-                    color: Colors.white, size: 60),
+                    color: Theme.of(context).cardColor, size: 60),
               ),
             ),
             const SizedBox(height: 24),
             Text(
               widget.title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
               ),
               textAlign: TextAlign.center,
             ),

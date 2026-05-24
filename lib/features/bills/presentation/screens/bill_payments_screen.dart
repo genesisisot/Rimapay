@@ -233,8 +233,8 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
       context: context,
       backgroundColor: Colors.transparent,
       builder: (_) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
@@ -246,25 +246,25 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
               height: 4,
               margin: const EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(
-                color: const Color(0xFFE4E7EC),
+                color: Theme.of(context).dividerColor,
                 borderRadius: BorderRadius.circular(999),
               ),
             ),
-            Text(service.icon, style: const TextStyle(fontSize: 40)),
+            Text(service.icon, style: TextStyle(fontSize: 40)),
             const SizedBox(height: 12),
             Text(
               'Upgrade to unlock ${service.title}',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF101828),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               'This service requires ${service.requiredTier.name.toUpperCase()} tier or higher.',
-              style: const TextStyle(fontSize: 14, color: Color(0xFF667085)),
+              style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -361,13 +361,13 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
                                       color: Colors.white.withOpacity(0.18)),
                                 ),
                                 child: const Icon(Icons.arrow_back_ios_new,
-                                    color: Colors.white, size: 16),
+                                    color: Theme.of(context).cardColor, size: 16),
                               ),
                             ),
                             const Text(
                               'Services',
                               style: TextStyle(
-                                color: Colors.white,
+                                color: Theme.of(context).cardColor,
                                 fontSize: 22,
                                 fontWeight: FontWeight.w800,
                               ),
@@ -394,8 +394,8 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
                                 controller: _searchController,
                                 onChanged: (v) =>
                                     setState(() => _searchQuery = v),
-                                style: const TextStyle(
-                                    color: Colors.white, fontSize: 14),
+                                style: TextStyle(
+                                    color: Theme.of(context).cardColor, fontSize: 14),
                                 decoration: InputDecoration(
                                   hintText: 'Search services...',
                                   hintStyle: TextStyle(
@@ -478,7 +478,7 @@ class _ServiceCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: service.isLocked
@@ -527,11 +527,11 @@ class _ServiceCard extends StatelessWidget {
                         width: 16,
                         height: 16,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF98A2B3),
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Icon(Icons.lock,
-                            color: Colors.white, size: 9),
+                            color: Theme.of(context).cardColor, size: 9),
                       ),
                     ),
                 ],

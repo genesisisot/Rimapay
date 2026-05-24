@@ -100,20 +100,20 @@ class _GrantsScreenState extends State<GrantsScreen> {
                         ),
                         child: Row(
                           children: [
-                            Text(org.icon, style: const TextStyle(fontSize: 26)),
+                            Text(org.icon, style: TextStyle(fontSize: 26)),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(org.name,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                           fontWeight: FontWeight.w700,
                                           fontSize: 14,
-                                          color: Color(0xFF101828))),
+                                          color: Theme.of(context).colorScheme.onSurface)),
                                   Text(org.type,
-                                      style: const TextStyle(
-                                          fontSize: 12, color: Color(0xFF667085))),
+                                      style: TextStyle(
+                                          fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
                                 ],
                               ),
                             ),
@@ -165,7 +165,7 @@ class _GrantsScreenState extends State<GrantsScreen> {
                       ),
                       child: const Text('Donate / Apply',
                           style: TextStyle(
-                              color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
+                              color: Theme.of(context).cardColor, fontSize: 16, fontWeight: FontWeight.w700)),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -180,16 +180,16 @@ class _GrantsScreenState extends State<GrantsScreen> {
 
   InputDecoration _inputDecoration(String hint) => InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(color: Color(0xFF98A2B3), fontSize: 14),
+        hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), fontSize: 14),
         filled: true,
         fillColor: Colors.white,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFE4E7EC))),
+            borderSide: const BorderSide(color: Theme.of(context).dividerColor)),
         enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFE4E7EC))),
+            borderSide: const BorderSide(color: Theme.of(context).dividerColor)),
         focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(color: Color(0xFF1A6B35), width: 2)),
@@ -201,7 +201,7 @@ class _GrantsScreenState extends State<GrantsScreen> {
       padding: EdgeInsets.only(
           top: MediaQuery.of(context).padding.top + 14,
           left: 20, right: 20, bottom: 20),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -218,7 +218,7 @@ class _GrantsScreenState extends State<GrantsScreen> {
                 color: Colors.white.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 16),
+              child: const Icon(Icons.arrow_back_ios_new, color: Theme.of(context).cardColor, size: 16),
             ),
           ),
           const SizedBox(width: 14),
@@ -226,7 +226,7 @@ class _GrantsScreenState extends State<GrantsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Grants & Donations',
-                  style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w800)),
+                  style: TextStyle(color: Theme.of(context).cardColor, fontSize: 17, fontWeight: FontWeight.w800)),
               Text('Support a cause today',
                   style: TextStyle(color: Colors.white60, fontSize: 12)),
             ],
@@ -237,7 +237,7 @@ class _GrantsScreenState extends State<GrantsScreen> {
   }
 
   Widget _sectionLabel(String label) => Text(label,
-      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF344054)));
+      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8)));
 }
 
 class _Org {

@@ -380,7 +380,7 @@ www.rimapay.com
               children: [
                 // Custom Header
                 Container(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   child: Container(
                     decoration: BoxDecoration(
                       border: Border(
@@ -481,8 +481,8 @@ www.rimapay.com
                                       child: Container(
                                         width: isSmallScreen ? 48 : 64,
                                         height: isSmallScreen ? 48 : 64,
-                                        decoration: const BoxDecoration(
-                                          color: Colors.white,
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context).cardColor,
                                           shape: BoxShape.circle,
                                         ),
                                         child: Center(
@@ -538,7 +538,7 @@ www.rimapay.com
                                 width: double.infinity,
                                 padding: EdgeInsets.all(isSmallScreen ? 16 : 24),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: Theme.of(context).cardColor,
                                   borderRadius: BorderRadius.circular(12),
                                   boxShadow: [
                                     BoxShadow(
@@ -650,7 +650,7 @@ www.rimapay.com
                                 width: double.infinity,
                                 padding: EdgeInsets.all(isSmallScreen ? 12 : 16),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: Theme.of(context).cardColor,
                                   borderRadius: BorderRadius.circular(12),
                                   boxShadow: [
                                     BoxShadow(

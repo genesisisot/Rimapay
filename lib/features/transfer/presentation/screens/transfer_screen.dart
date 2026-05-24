@@ -228,7 +228,7 @@ class _TransferScreenState extends State<TransferScreen> {
                     const Text(
                       'Send Money',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Theme.of(context).cardColor,
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
                         fontFamily: 'Effra',
@@ -418,7 +418,7 @@ class _TransferScreenState extends State<TransferScreen> {
                       const SizedBox(height: 6),
                       Text(
                         r['name']!.split(' ').first,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
                           color: Color(0xFF374151),
                           fontFamily: 'Effra',
@@ -536,7 +536,7 @@ class _TransferScreenState extends State<TransferScreen> {
                       const SizedBox(height: 6),
                       Text(
                         r['name']!.split(' ').first,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
                           color: Color(0xFF374151),
                           fontFamily: 'Effra',
@@ -583,7 +583,7 @@ class _TransferScreenState extends State<TransferScreen> {
             duration: const Duration(milliseconds: 150),
             height: 58,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: _selectedBank.isNotEmpty
@@ -596,13 +596,13 @@ class _TransferScreenState extends State<TransferScreen> {
               child: Row(
                 children: [
                   if (_selectedBank.isEmpty) ...[
-                    const Icon(Icons.account_balance_outlined, size: 18, color: Color(0xFF98A2B3)),
+                    const Icon(Icons.account_balance_outlined, size: 18, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4)),
                     const SizedBox(width: 10),
                     const Text(
                       'Select Bank',
                       style: TextStyle(
                         fontSize: 15,
-                        color: Color(0xFF98A2B3),
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                         fontFamily: 'Effra',
                         fontWeight: FontWeight.w500,
                       ),
@@ -625,9 +625,9 @@ class _TransferScreenState extends State<TransferScreen> {
                         ),
                         Text(
                           _selectedBank,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
-                            color: Color(0xFF101828),
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontFamily: 'Effra',
                             fontWeight: FontWeight.w600,
                           ),
@@ -660,8 +660,8 @@ class _TransferScreenState extends State<TransferScreen> {
                   backgroundColor: const Color(0xFF166C46),
                   child: Text(
                     _recipientName[0],
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: Theme.of(context).cardColor,
                       fontWeight: FontWeight.w700,
                       fontFamily: 'Effra',
                     ),
@@ -673,7 +673,7 @@ class _TransferScreenState extends State<TransferScreen> {
                   children: [
                     Text(
                       _recipientName,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 14,
                         fontFamily: 'Effra',
@@ -681,9 +681,9 @@ class _TransferScreenState extends State<TransferScreen> {
                     ),
                     Text(
                       '$_selectedBank · ${_bankAccountController.text}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: Color(0xFF667085),
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                         fontFamily: 'Effra',
                       ),
                     ),
@@ -733,8 +733,8 @@ class _TransferTypeSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
@@ -746,7 +746,7 @@ class _TransferTypeSheet extends StatelessWidget {
             height: 4,
             margin: const EdgeInsets.only(bottom: 24),
             decoration: BoxDecoration(
-              color: const Color(0xFFE4E7EC),
+              color: Theme.of(context).dividerColor,
               borderRadius: BorderRadius.circular(999),
             ),
           ),
@@ -755,14 +755,14 @@ class _TransferTypeSheet extends StatelessWidget {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF101828),
+              color: Theme.of(context).colorScheme.onSurface,
               fontFamily: 'Effra',
             ),
           ),
           const SizedBox(height: 6),
           const Text(
             'Where would you like to send money?',
-            style: TextStyle(fontSize: 14, color: Color(0xFF667085), fontFamily: 'Effra'),
+            style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), fontFamily: 'Effra'),
           ),
           const SizedBox(height: 28),
           _SheetOption(
@@ -815,7 +815,7 @@ class _SheetOption extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xFFFAFBFC),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xFFE4E7EC)),
+          border: Border.all(color: Theme.of(context).dividerColor),
         ),
         child: Row(
           children: [
@@ -832,17 +832,17 @@ class _SheetOption extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF101828),
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontFamily: 'Effra',
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: const TextStyle(fontSize: 13, color: Color(0xFF667085), fontFamily: 'Effra'),
+                    style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), fontFamily: 'Effra'),
                   ),
                 ],
               ),
@@ -1000,8 +1000,8 @@ class _BankSelectorSheetState extends State<_BankSelectorSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
@@ -1014,7 +1014,7 @@ class _BankSelectorSheetState extends State<_BankSelectorSheet> {
             height: 4,
             margin: const EdgeInsets.symmetric(vertical: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFFE4E7EC),
+              color: Theme.of(context).dividerColor,
               borderRadius: BorderRadius.circular(999),
             ),
           ),
@@ -1028,7 +1028,7 @@ class _BankSelectorSheetState extends State<_BankSelectorSheet> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF101828),
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontFamily: 'Effra',
                   ),
                 ),
@@ -1041,9 +1041,9 @@ class _BankSelectorSheetState extends State<_BankSelectorSheet> {
             child: Container(
               height: 46,
               decoration: BoxDecoration(
-                color: const Color(0xFFF9FAFB),
+                color: Theme.of(context).scaffoldBackgroundColor,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFE4E7EC)),
+                border: Border.all(color: Theme.of(context).dividerColor),
               ),
               child: Row(
                 children: [
@@ -1055,12 +1055,12 @@ class _BankSelectorSheetState extends State<_BankSelectorSheet> {
                       controller: _searchController,
                       autofocus: false,
                       onChanged: (v) => setState(() => _query = v),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: Color(0xFF101828),
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontFamily: 'Effra',
                       ),
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: 'Search banks…',
                         hintStyle: TextStyle(
                           fontSize: 14,
@@ -1104,10 +1104,10 @@ class _BankSelectorSheetState extends State<_BankSelectorSheet> {
                         Expanded(
                           child: Text(
                             bank['name']!,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
-                              color: Color(0xFF101828),
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontFamily: 'Effra',
                             ),
                           ),
@@ -1118,7 +1118,7 @@ class _BankSelectorSheetState extends State<_BankSelectorSheet> {
                           _SuccessRateBadge(rate: int.parse(bank['rate']!)),
                         ],
                         const SizedBox(width: 8),
-                        const Icon(Icons.chevron_right, size: 18, color: Color(0xFFD0D5DD)),
+                        const Icon(Icons.chevron_right, size: 18, color: Theme.of(context).dividerColor),
                       ],
                     ),
                   ),

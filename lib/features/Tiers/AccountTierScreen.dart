@@ -159,7 +159,7 @@ class _AccountTiersScreenState extends State<AccountTiersScreen> {
                         Text(
                           'Account Tiers',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Theme.of(context).cardColor,
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
                             fontFamily: 'Effra',
@@ -315,7 +315,7 @@ class _TierCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isCurrent ? color : const Color(0xFFE4E7EC),
@@ -363,18 +363,18 @@ class _TierCard extends StatelessWidget {
                         children: [
                           Text(
                             info.name,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.w800,
-                              color: Color(0xFF101828),
+                              color: Theme.of(context).colorScheme.onSurface,
                               fontFamily: 'Effra',
                             ),
                           ),
                           Text(
                             'Tier ${info.level.index + 1}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
-                              color: Color(0xFF667085),
+                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                               fontFamily: 'Effra',
                             ),
                           ),
@@ -433,7 +433,7 @@ class _TierCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           b,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
                             color: Color(0xFF374151),
                             fontFamily: 'Effra',
@@ -451,7 +451,7 @@ class _TierCard extends StatelessWidget {
                     width: double.infinity,
                     height: 46,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF3F4F6),
+                      color: Theme.of(context).scaffoldBackgroundColor,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Center(
@@ -491,10 +491,10 @@ class _TierCard extends StatelessWidget {
                       child: Center(
                         child: Text(
                           'Upgrade to ${info.name}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
-                            color: Colors.white,
+                            color: Theme.of(context).cardColor,
                             fontFamily: 'Effra',
                           ),
                         ),
@@ -506,9 +506,9 @@ class _TierCard extends StatelessWidget {
                     width: double.infinity,
                     height: 46,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF9FAFB),
+                      color: Theme.of(context).scaffoldBackgroundColor,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFE4E7EC)),
+                      border: Border.all(color: Theme.of(context).dividerColor),
                     ),
                     child: const Center(
                       child: Text(
@@ -551,7 +551,7 @@ class _LimitBox extends StatelessWidget {
           children: [
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 11,
                 color: Color(0xFF9CA3AF),
                 fontFamily: 'Effra',
@@ -560,10 +560,10 @@ class _LimitBox extends StatelessWidget {
             const SizedBox(height: 2),
             Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF101828),
+                color: Theme.of(context).colorScheme.onSurface,
                 fontFamily: 'Effra',
               ),
             ),
@@ -667,7 +667,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
                     Text(
                       'Upgrade to Standard',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Theme.of(context).cardColor,
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
                         fontFamily: 'Effra',
@@ -690,7 +690,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
           // Step dots
           if (_step < 2) ...[
             Container(
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
               padding: const EdgeInsets.symmetric(vertical: 14),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -708,7 +708,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
                 )),
               ),
             ),
-            const Divider(height: 1, color: Color(0xFFE4E7EC)),
+            const Divider(height: 1, color: Theme.of(context).dividerColor),
           ],
 
           Expanded(
@@ -752,7 +752,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
               Expanded(
                 child: Text(
                   note,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     color: Color(0xFF1D4ED8),
                     fontFamily: 'Effra',
@@ -767,10 +767,10 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
 
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF101828),
+            color: Theme.of(context).colorScheme.onSurface,
             fontFamily: 'Effra',
           ),
         ),
@@ -789,7 +789,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
         const SizedBox(height: 8),
         Text(
           'Your ${widget.needsNin ? "NIN" : "BVN"} is used solely for identity verification and is encrypted.',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
             color: Color(0xFF9CA3AF),
             fontFamily: 'Effra',
@@ -828,7 +828,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: Theme.of(context).cardColor,
                         fontFamily: 'Effra',
                       ),
                     ),
@@ -848,16 +848,16 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF101828),
+            color: Theme.of(context).colorScheme.onSurface,
             fontFamily: 'Effra',
           ),
         ),
         const SizedBox(height: 8),
         Text(
           'We sent a 6-digit code to verify your ${widget.needsNin ? "NIN" : "BVN"}. Check your registered phone number.',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
-            color: Color(0xFF667085),
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
             fontFamily: 'Effra',
             height: 1.5,
           ),
@@ -886,7 +886,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
           children: [
             const Text(
               "Didn't receive it? ",
-              style: TextStyle(fontSize: 13, color: Color(0xFF667085), fontFamily: 'Effra'),
+              style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), fontFamily: 'Effra'),
             ),
             GestureDetector(
               onTap: () {},
@@ -934,7 +934,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: Theme.of(context).cardColor,
                         fontFamily: 'Effra',
                       ),
                     ),
@@ -964,7 +964,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF101828),
+            color: Theme.of(context).colorScheme.onSurface,
             fontFamily: 'Effra',
           ),
         ),
@@ -974,7 +974,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 14,
-            color: Color(0xFF667085),
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
             fontFamily: 'Effra',
             height: 1.5,
           ),
@@ -1001,7 +1001,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   fontFamily: 'Effra',
                 ),
               ),
@@ -1124,7 +1124,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
                     const Text(
                       'Upgrade to Premium',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Theme.of(context).cardColor,
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
                         fontFamily: 'Effra',
@@ -1132,7 +1132,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
                     ),
                     Text(
                       _step < 3 ? 'Step ${_step + 1} of 3 · ${stepTitles[_step.clamp(0, 2)]}' : 'Complete',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Color(0x99FFFFFF),
                         fontSize: 12,
                         fontFamily: 'Effra',
@@ -1147,7 +1147,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
           // Step progress
           if (_step < 3) ...[
             Container(
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               child: Row(
                 children: List.generate(3, (i) {
@@ -1174,7 +1174,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
                 }),
               ),
             ),
-            const Divider(height: 1, color: Color(0xFFE4E7EC)),
+            const Divider(height: 1, color: Theme.of(context).dividerColor),
           ],
 
           Expanded(
@@ -1226,19 +1226,19 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF101828),
+            color: Theme.of(context).colorScheme.onSurface,
             fontFamily: 'Effra',
           ),
         ),
         const SizedBox(height: 6),
         Text(
           subtitle,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 13,
-            color: Color(0xFF667085),
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
             fontFamily: 'Effra',
             height: 1.5,
           ),
@@ -1360,7 +1360,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
                       : selectedType == null
                           ? 'Select a document type first'
                           : 'JPG, PNG or PDF · Max 5MB',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     color: Color(0xFF9CA3AF),
                     fontFamily: 'Effra',
@@ -1426,7 +1426,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF101828),
+            color: Theme.of(context).colorScheme.onSurface,
             fontFamily: 'Effra',
           ),
         ),
@@ -1435,7 +1435,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
           'Review the documents you uploaded before submitting for verification.',
           style: TextStyle(
             fontSize: 13,
-            color: Color(0xFF667085),
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
             fontFamily: 'Effra',
             height: 1.5,
           ),
@@ -1519,7 +1519,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: Theme.of(context).cardColor,
                         fontFamily: 'Effra',
                       ),
                     ),
@@ -1549,7 +1549,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF101828),
+            color: Theme.of(context).colorScheme.onSurface,
             fontFamily: 'Effra',
           ),
         ),
@@ -1559,7 +1559,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 14,
-            color: Color(0xFF667085),
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
             fontFamily: 'Effra',
             height: 1.5,
           ),
@@ -1586,7 +1586,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   fontFamily: 'Effra',
                 ),
               ),
@@ -1626,10 +1626,10 @@ class _OtpBox extends StatelessWidget {
         maxLength: 1,
         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         onChanged: onChanged,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 22,
           fontWeight: FontWeight.w700,
-          color: Color(0xFF101828),
+          color: Theme.of(context).colorScheme.onSurface,
           fontFamily: 'Effra',
         ),
         decoration: InputDecoration(
@@ -1639,7 +1639,7 @@ class _OtpBox extends StatelessWidget {
           fillColor: Colors.white,
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFE4E7EC), width: 1.5),
+            borderSide: const BorderSide(color: Theme.of(context).dividerColor, width: 1.5),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
@@ -1673,9 +1673,9 @@ class _ReviewItem extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE4E7EC)),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Row(
         children: [
@@ -1695,7 +1695,7 @@ class _ReviewItem extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     color: Color(0xFF9CA3AF),
                     fontFamily: 'Effra',
@@ -1703,18 +1703,18 @@ class _ReviewItem extends StatelessWidget {
                 ),
                 Text(
                   docType,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF101828),
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontFamily: 'Effra',
                   ),
                 ),
                 Text(
                   fileName,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF667085),
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                     fontFamily: 'Effra',
                   ),
                 ),
@@ -1755,7 +1755,7 @@ class _SuccessBenefitRow extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 color: Color(0xFF374151),
                 fontFamily: 'Effra',

@@ -75,16 +75,16 @@ class _TransportScreenState extends State<TransportScreen> {
       builder: (_) => DraggableScrollableSheet(
         initialChildSize: 0.7, maxChildSize: 0.9, minChildSize: 0.4,
         builder: (_, ctrl) => Container(
-          decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+          decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
           child: Column(
             children: [
               Container(width: 40, height: 4, margin: const EdgeInsets.symmetric(vertical: 14),
-                  decoration: BoxDecoration(color: const Color(0xFFE4E7EC), borderRadius: BorderRadius.circular(999))),
+                  decoration: BoxDecoration(color: Theme.of(context).dividerColor, borderRadius: BorderRadius.circular(999))),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Align(alignment: Alignment.centerLeft,
                     child: Text(isOrigin ? 'Select Departure City' : 'Select Arrival City',
-                        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFF101828)))),
+                        style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface))),
               ),
               const SizedBox(height: 12),
               Expanded(
@@ -110,11 +110,11 @@ class _TransportScreenState extends State<TransportScreen> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.location_on_outlined, color: Color(0xFF667085), size: 20),
+                            const Icon(Icons.location_on_outlined, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), size: 20),
                             const SizedBox(width: 10),
                             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                              Text(city.name, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF101828))),
-                              Text(city.state, style: const TextStyle(fontSize: 12, color: Color(0xFF667085))),
+                              Text(city.name, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurface)),
+                              Text(city.state, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
                             ])),
                             if (isSelected) const Icon(Icons.check_circle, color: Color(0xFF166C46), size: 20),
                           ],
@@ -137,15 +137,15 @@ class _TransportScreenState extends State<TransportScreen> {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (_) => Container(
-        decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+        decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
         padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(width: 40, height: 4, margin: const EdgeInsets.only(bottom: 20),
-                decoration: BoxDecoration(color: const Color(0xFFE4E7EC), borderRadius: BorderRadius.circular(999))),
+                decoration: BoxDecoration(color: Theme.of(context).dividerColor, borderRadius: BorderRadius.circular(999))),
             const Align(alignment: Alignment.centerLeft, child: Text('Choose Transport Operator',
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFF101828)))),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface))),
             const SizedBox(height: 16),
             ..._operators.map((op) => GestureDetector(
               onTap: () { setState(() => _selectedOperator = op); Navigator.pop(context); },
@@ -160,13 +160,13 @@ class _TransportScreenState extends State<TransportScreen> {
                 child: Row(
                   children: [
                     Container(width: 40, height: 40, decoration: BoxDecoration(color: op.color, borderRadius: BorderRadius.circular(10)),
-                        child: Center(child: Text(op.name[0], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 18)))),
+                        child: Center(child: Text(op.name[0], style: TextStyle(color: Theme.of(context).cardColor, fontWeight: FontWeight.w800, fontSize: 18)))),
                     const SizedBox(width: 12),
                     Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text(op.name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF101828))),
-                      Text(op.description, style: const TextStyle(fontSize: 12, color: Color(0xFF667085))),
+                      Text(op.name, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurface)),
+                      Text(op.description, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
                     ])),
-                    Text('₦${op.pricePerSeat}/seat', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF166C46))),
+                    Text('₦${op.pricePerSeat}/seat', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF166C46))),
                   ],
                 ),
               ),
@@ -233,8 +233,8 @@ class _TransportScreenState extends State<TransportScreen> {
                   // Route section
                   Container(
                     padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: const Color(0xFFE4E7EC))),
+                    decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: Theme.of(context).dividerColor)),
                     child: Column(
                       children: [
                         _RouteSelector(label: 'From', icon: Icons.trip_origin_rounded, iconColor: const Color(0xFF166C46),
@@ -243,14 +243,14 @@ class _TransportScreenState extends State<TransportScreen> {
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           child: Row(children: [
-                            const Expanded(child: Divider(color: Color(0xFFE4E7EC))),
+                            const Expanded(child: Divider(color: Theme.of(context).dividerColor)),
                             Container(
                               margin: const EdgeInsets.symmetric(horizontal: 12),
                               padding: const EdgeInsets.all(6),
                               decoration: BoxDecoration(color: const Color(0xFFF2F7F3), shape: BoxShape.circle),
                               child: const Icon(Icons.swap_vert_rounded, color: Color(0xFF166C46), size: 16),
                             ),
-                            const Expanded(child: Divider(color: Color(0xFFE4E7EC))),
+                            const Expanded(child: Divider(color: Theme.of(context).dividerColor)),
                           ]),
                         ),
                         _RouteSelector(label: 'To', icon: Icons.location_on_rounded, iconColor: const Color(0xFFD33B31),
@@ -267,8 +267,8 @@ class _TransportScreenState extends State<TransportScreen> {
                     child: Container(
                       height: 60,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFFE4E7EC))),
+                      decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Theme.of(context).dividerColor)),
                       child: Row(
                         children: [
                           const Icon(Icons.calendar_today_outlined, color: Color(0xFF166C46), size: 20),
@@ -276,7 +276,7 @@ class _TransportScreenState extends State<TransportScreen> {
                           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
                             const Text('Travel Date', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF166C46))),
                             Text('${_travelDate.day}/${_travelDate.month}/${_travelDate.year}',
-                                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF101828))),
+                                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)),
                           ])),
                           const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF9CA3AF)),
                         ],
@@ -293,11 +293,11 @@ class _TransportScreenState extends State<TransportScreen> {
                   // Passengers
                   Container(
                     padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFE4E7EC))),
+                    decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(12), border: Border.all(color: Theme.of(context).dividerColor)),
                     child: Row(
                       children: [
                         const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text('Number of Passengers', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF101828))),
+                          Text('Number of Passengers', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)),
                           Text('Max 4 per booking', style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
                         ])),
                         Row(children: [
@@ -307,7 +307,7 @@ class _TransportScreenState extends State<TransportScreen> {
                                 decoration: BoxDecoration(color: _passengers > 1 ? const Color(0xFFF2F7F3) : const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(8)),
                                 child: Icon(Icons.remove, size: 16, color: _passengers > 1 ? AppColors.goldPrimary : const Color(0xFFD0D5DD))),
                           ),
-                          SizedBox(width: 20, child: Center(child: Text('$_passengers', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)))),
+                          SizedBox(width: 20, child: Center(child: Text('$_passengers', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)))),
                           GestureDetector(
                             onTap: () { if (_passengers < 4) setState(() => _passengers++); },
                             child: Container(width: 32, height: 32,
@@ -330,8 +330,8 @@ class _TransportScreenState extends State<TransportScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text('$_passengers seat${_passengers > 1 ? 's' : ''} × ₦${_selectedOperator!.pricePerSeat}',
-                              style: const TextStyle(fontSize: 13, color: Color(0xFF667085))),
-                          Text('₦$_totalPrice', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF166C46))),
+                              style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
+                          Text('₦$_totalPrice', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF166C46))),
                         ],
                       ),
                     ),
@@ -368,7 +368,7 @@ class _RouteSelector extends StatelessWidget {
           Icon(icon, color: iconColor, size: 20),
           const SizedBox(width: 12),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF), fontWeight: FontWeight.w500)),
+            Text(label, style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF), fontWeight: FontWeight.w500)),
             Text(value ?? hint, style: TextStyle(fontSize: 15, fontWeight: value != null ? FontWeight.w600 : FontWeight.normal,
                 color: value != null ? const Color(0xFF101828) : const Color(0xFFD0D5DD))),
           ])),
@@ -394,7 +394,7 @@ class _SelectorTile extends StatelessWidget {
       onTap: onTap,
       child: Container(
         height: 60, padding: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12),
+        decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(12),
             border: Border.all(color: hasValue ? AppColors.goldPrimary.withOpacity(0.4) : const Color(0xFFE4E7EC))),
         child: Row(
           children: [
@@ -424,7 +424,7 @@ class _TransportCTA extends StatelessWidget {
     final label = enabled ? 'Book Ticket — ₦$amount' : 'Continue';
     return Container(
       padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
-      decoration: const BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: Color(0xFFF3F4F6)))),
+      decoration: BoxDecoration(color: Theme.of(context).cardColor, border: Border(top: BorderSide(color: Color(0xFFF3F4F6)))),
       child: GestureDetector(
         onTap: enabled ? onTap : null,
         child: AnimatedContainer(

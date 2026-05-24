@@ -329,7 +329,7 @@ import '../../../core/providers/auth_provider.dart';
 //               Text(
 //                 'RimaPay',
 //                 style: TextStyle(
-//                   color: Colors.white,
+//                   color: Theme.of(context).cardColor,
 //                   fontWeight: FontWeight.bold,
 //                   fontSize: isSmallScreen ? 12 : 14,
 //                 ),
@@ -340,7 +340,7 @@ import '../../../core/providers/auth_provider.dart';
 //           Text(
 //             _cardData.cardNumber,
 //             style: TextStyle(
-//               color: Colors.white,
+//               color: Theme.of(context).cardColor,
 //               fontFamily: 'monospace',
 //               fontSize: isSmallScreen ? 16 : 18,
 //               letterSpacing: 2,
@@ -364,7 +364,7 @@ import '../../../core/providers/auth_provider.dart';
 //                   Text(
 //                     _cardData.holderName,
 //                     style: TextStyle(
-//                       color: Colors.white,
+//                       color: Theme.of(context).cardColor,
 //                       fontWeight: FontWeight.w600,
 //                       fontSize: isSmallScreen ? 10 : 12,
 //                     ),
@@ -385,7 +385,7 @@ import '../../../core/providers/auth_provider.dart';
 //                   Text(
 //                     _cardData.expiryDate,
 //                     style: TextStyle(
-//                       color: Colors.white,
+//                       color: Theme.of(context).cardColor,
 //                       fontWeight: FontWeight.w600,
 //                       fontSize: isSmallScreen ? 10 : 12,
 //                     ),
@@ -395,7 +395,7 @@ import '../../../core/providers/auth_provider.dart';
 //               Text(
 //                 _cardData.cardType,
 //                 style: TextStyle(
-//                   color: Colors.white,
+//                   color: Theme.of(context).cardColor,
 //                   fontWeight: FontWeight.bold,
 //                   fontSize: isSmallScreen ? 10 : 12,
 //                 ),
@@ -437,7 +437,7 @@ import '../../../core/providers/auth_provider.dart';
 //                       Text(
 //                         _cardData.fullNumber,
 //                         style: TextStyle(
-//                           color: Colors.white,
+//                           color: Theme.of(context).cardColor,
 //                           fontFamily: 'monospace',
 //                           fontSize: isSmallScreen ? 10 : 12,
 //                         ),
@@ -464,7 +464,7 @@ import '../../../core/providers/auth_provider.dart';
 //                       Text(
 //                         _cardData.cvv,
 //                         style: TextStyle(
-//                           color: Colors.white,
+//                           color: Theme.of(context).cardColor,
 //                           fontFamily: 'monospace',
 //                           fontSize: isSmallScreen ? 10 : 12,
 //                         ),
@@ -511,7 +511,7 @@ import '../../../core/providers/auth_provider.dart';
 //         ),
 //         label: Text(
 //           _showDetails ? 'Hide Details' : 'Show Details',
-//           style: const TextStyle(fontSize: 12),
+//           style: TextStyle(fontSize: 12),
 //         ),
 //         style: TextButton.styleFrom(
 //           foregroundColor: Colors.grey[700],
@@ -548,7 +548,7 @@ import '../../../core/providers/auth_provider.dart';
 //     return Container(
 //       margin: const EdgeInsets.only(bottom: 8),
 //       decoration: BoxDecoration(
-//         color: Colors.white,
+//         color: Theme.of(context).cardColor,
 //         borderRadius: BorderRadius.circular(12),
 //         border: Border.all(color: Colors.grey[200]!),
 //       ),
@@ -570,7 +570,7 @@ import '../../../core/providers/auth_provider.dart';
 //                   ),
 //                   child: Icon(
 //                     action.icon,
-//                     color: Colors.white,
+//                     color: Theme.of(context).cardColor,
 //                     size: 20,
 //                   ),
 //                 ),
@@ -581,7 +581,7 @@ import '../../../core/providers/auth_provider.dart';
 //                     children: [
 //                       Text(
 //                         action.title,
-//                         style: const TextStyle(
+//                         style: TextStyle(
 //                           fontSize: 14,
 //                           fontWeight: FontWeight.w600,
 //                           color: Colors.black87,
@@ -635,7 +635,7 @@ import '../../../core/providers/auth_provider.dart';
 //         ),
 //         Container(
 //           decoration: BoxDecoration(
-//             color: Colors.white,
+//             color: Theme.of(context).cardColor,
 //             borderRadius: BorderRadius.circular(12),
 //             border: Border.all(color: Colors.grey[200]!),
 //           ),
@@ -667,7 +667,7 @@ import '../../../core/providers/auth_provider.dart';
 //               child: Center(
 //                 child: Text(
 //                   transaction.icon,
-//                   style: const TextStyle(fontSize: 16),
+//                   style: TextStyle(fontSize: 16),
 //                 ),
 //               ),
 //             ),
@@ -682,7 +682,7 @@ import '../../../core/providers/auth_provider.dart';
 //                       Expanded(
 //                         child: Text(
 //                           transaction.merchant,
-//                           style: const TextStyle(
+//                           style: TextStyle(
 //                             fontSize: 14,
 //                             fontWeight: FontWeight.w600,
 //                             color: Colors.black87,
@@ -822,7 +822,7 @@ import '../../../core/providers/auth_provider.dart';
 //           margin: const EdgeInsets.all(32),
 //           padding: const EdgeInsets.all(32),
 //           decoration: BoxDecoration(
-//             color: Colors.white,
+//             color: Theme.of(context).cardColor,
 //             borderRadius: BorderRadius.circular(24),
 //           ),
 //           child: Column(
@@ -844,7 +844,7 @@ import '../../../core/providers/auth_provider.dart';
 //                       ),
 //                       child: const Icon(
 //                         Icons.fingerprint,
-//                         color: Colors.white,
+//                         color: Theme.of(context).cardColor,
 //                         size: 32,
 //                       ),
 //                     ),

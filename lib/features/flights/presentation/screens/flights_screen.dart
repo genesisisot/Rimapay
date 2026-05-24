@@ -113,20 +113,20 @@ class _FlightsScreenState extends State<FlightsScreen> {
         maxChildSize: 0.9,
         minChildSize: 0.4,
         builder: (_, ctrl) => Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
             children: [
               Container(width: 40, height: 4, margin: const EdgeInsets.symmetric(vertical: 14),
-                  decoration: BoxDecoration(color: const Color(0xFFE4E7EC), borderRadius: BorderRadius.circular(999))),
+                  decoration: BoxDecoration(color: Theme.of(context).dividerColor, borderRadius: BorderRadius.circular(999))),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(isOrigin ? 'Select Origin' : 'Select Destination',
-                      style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFF101828))),
+                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface)),
                 ),
               ),
               const SizedBox(height: 12),
@@ -166,13 +166,13 @@ class _FlightsScreenState extends State<FlightsScreen> {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Center(child: Text(ap.code,
-                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 12))),
+                                  style: TextStyle(color: Theme.of(context).cardColor, fontWeight: FontWeight.w800, fontSize: 12))),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                Text(ap.city, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF101828))),
-                                Text(ap.name, style: const TextStyle(fontSize: 11, color: Color(0xFF667085)), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                Text(ap.city, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurface)),
+                                Text(ap.name, style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)), maxLines: 1, overflow: TextOverflow.ellipsis),
                               ]),
                             ),
                             if (isSelected) const Icon(Icons.check_circle, color: Color(0xFF166C46), size: 20),
@@ -291,9 +291,9 @@ class _FlightsScreenState extends State<FlightsScreen> {
                   // Route selection
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFFE4E7EC)),
+                      border: Border.all(color: Theme.of(context).dividerColor),
                     ),
                     child: Column(
                       children: [
@@ -304,7 +304,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
                           icon: Icons.flight_takeoff,
                           onTap: () => _openAirportSheet(isOrigin: true),
                         ),
-                        Container(height: 1, color: const Color(0xFFF3F4F6), margin: const EdgeInsets.symmetric(horizontal: 16)),
+                        Container(height: 1, color: Theme.of(context).scaffoldBackgroundColor, margin: const EdgeInsets.symmetric(horizontal: 16)),
                         _AirportTile(
                           label: 'To',
                           airport: _destination,
@@ -351,9 +351,9 @@ class _FlightsScreenState extends State<FlightsScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: const Color(0xFFE4E7EC)),
+                            border: Border.all(color: Theme.of(context).dividerColor),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -368,7 +368,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
                                         decoration: BoxDecoration(color: _passengers > 1 ? const Color(0xFFF2F7F3) : const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(8)),
                                         child: Icon(Icons.remove, size: 14, color: _passengers > 1 ? AppColors.goldPrimary : const Color(0xFFD0D5DD))),
                                   ),
-                                  Expanded(child: Center(child: Text('$_passengers', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)))),
+                                  Expanded(child: Center(child: Text('$_passengers', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)))),
                                   GestureDetector(
                                     onTap: () { if (_passengers < 9) setState(() => _passengers++); },
                                     child: Container(width: 28, height: 28,
@@ -443,7 +443,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
                   if (_searched) ...[
                     const SizedBox(height: 20),
                     Text('${_mockFlights.length} flights found · ${_origin!.code} → ${_destination!.code}',
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF374151))),
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF374151))),
                     const SizedBox(height: 10),
                     ..._mockFlights.map((flight) {
                       final isSelected = _selectedFlight?.id == flight.id;
@@ -469,19 +469,19 @@ class _FlightsScreenState extends State<FlightsScreen> {
                                     width: 36, height: 36,
                                     decoration: BoxDecoration(color: flight.airline.color, borderRadius: BorderRadius.circular(8)),
                                     child: Center(child: Text(flight.airline.shortName[0],
-                                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 14))),
+                                        style: TextStyle(color: Theme.of(context).cardColor, fontWeight: FontWeight.w800, fontSize: 14))),
                                   ),
                                   const SizedBox(width: 10),
                                   Expanded(
                                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                      Text(flight.airline.name, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF101828))),
+                                      Text(flight.airline.name, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurface)),
                                       Text(flight.stops == 0 ? 'Non-stop · ${flight.duration}' : '${flight.stops} stop · ${flight.duration}',
-                                          style: const TextStyle(fontSize: 11, color: Color(0xFF667085))),
+                                          style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
                                     ]),
                                   ),
                                   Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
                                     Text('₦${_formatPrice(flight.price)}',
-                                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF166C46))),
+                                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF166C46))),
                                     const Text('/person', style: TextStyle(fontSize: 10, color: Color(0xFF9CA3AF))),
                                   ]),
                                 ],
@@ -492,10 +492,10 @@ class _FlightsScreenState extends State<FlightsScreen> {
                                 children: [
                                   _TimeChip(time: flight.departureTime, code: _origin!.code),
                                   Row(children: [
-                                    Container(width: 30, height: 1, color: const Color(0xFFE4E7EC)),
+                                    Container(width: 30, height: 1, color: Theme.of(context).dividerColor),
                                     const Padding(padding: EdgeInsets.symmetric(horizontal: 4),
                                         child: Icon(Icons.flight, size: 16, color: Color(0xFF9CA3AF))),
-                                    Container(width: 30, height: 1, color: const Color(0xFFE4E7EC)),
+                                    Container(width: 30, height: 1, color: Theme.of(context).dividerColor),
                                   ]),
                                   _TimeChip(time: flight.arrivalTime, code: _destination!.code),
                                 ],
@@ -510,7 +510,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
                                     const Icon(Icons.check_circle, color: Color(0xFF166C46), size: 14),
                                     const SizedBox(width: 6),
                                     Text('Selected · $_passengers × ₦${_formatPrice(flight.price)} = ₦${_formatPrice(_totalPrice)}',
-                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF166C46))),
+                                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF166C46))),
                                   ]),
                                 ),
                               ],
@@ -587,7 +587,7 @@ class _DateTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: hasValue ? AppColors.goldPrimary.withOpacity(0.4) : const Color(0xFFE4E7EC)),
         ),
@@ -619,8 +619,8 @@ class _TimeChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(time, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF101828))),
-        Text(code, style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
+        Text(time, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface)),
+        Text(code, style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
       ],
     );
   }
@@ -641,7 +641,7 @@ class _FlightCTA extends StatelessWidget {
         : searched ? 'Select a Flight' : 'Search Flights';
     return Container(
       padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
-      decoration: const BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: Color(0xFFF3F4F6)))),
+      decoration: BoxDecoration(color: Theme.of(context).cardColor, border: Border(top: BorderSide(color: Color(0xFFF3F4F6)))),
       child: GestureDetector(
         onTap: enabled ? onTap : null,
         child: AnimatedContainer(

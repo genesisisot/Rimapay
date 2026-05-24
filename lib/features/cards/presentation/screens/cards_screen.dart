@@ -118,16 +118,16 @@ class _CardsScreenState extends State<CardsScreen> {
                                 ),
                                 const SizedBox(height: 10),
                                 Text(ct.name,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                         fontWeight: FontWeight.w800,
                                         fontSize: 13,
-                                        color: Color(0xFF101828))),
+                                        color: Theme.of(context).colorScheme.onSurface)),
                                 Text('Fee: ${ct.fee}',
-                                    style: const TextStyle(
-                                        fontSize: 11, color: Color(0xFF667085))),
+                                    style: TextStyle(
+                                        fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
                                 Text('Delivery: ${ct.deliveryDays} days',
-                                    style: const TextStyle(
-                                        fontSize: 11, color: Color(0xFF667085))),
+                                    style: TextStyle(
+                                        fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
                               ],
                             ),
                           ),
@@ -170,7 +170,7 @@ class _CardsScreenState extends State<CardsScreen> {
                         Expanded(
                           child: Text(
                             'Card fee of ${_cardTypes[_selectedCard].fee} will be deducted from your account. Delivery in ${_cardTypes[_selectedCard].deliveryDays} working days.',
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: Color(0xFF9A3412), fontSize: 12, height: 1.4),
                           ),
                         ),
@@ -194,7 +194,7 @@ class _CardsScreenState extends State<CardsScreen> {
                       ),
                       child: const Text('Request Card',
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Theme.of(context).cardColor,
                               fontSize: 16,
                               fontWeight: FontWeight.w700)),
                     ),
@@ -214,8 +214,8 @@ class _CardsScreenState extends State<CardsScreen> {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (_) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
@@ -227,21 +227,21 @@ class _CardsScreenState extends State<CardsScreen> {
               height: 4,
               margin: const EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(
-                  color: const Color(0xFFE4E7EC),
+                  color: Theme.of(context).dividerColor,
                   borderRadius: BorderRadius.circular(999)),
             ),
             const Icon(Icons.credit_card, size: 48, color: Color(0xFF1A6B35)),
             const SizedBox(height: 12),
             Text(
               'Request ${_cardTypes[_selectedCard].name}?',
-              style: const TextStyle(
-                  fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF101828)),
+              style: TextStyle(
+                  fontSize: 18, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface),
             ),
             const SizedBox(height: 8),
             Text(
               'A fee of ${_cardTypes[_selectedCard].fee} will be deducted from your account.',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 14, color: Color(0xFF667085)),
+              style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
             ),
             const SizedBox(height: 24),
             SizedBox(
@@ -266,7 +266,7 @@ class _CardsScreenState extends State<CardsScreen> {
                       borderRadius: BorderRadius.circular(12)),
                 ),
                 child: const Text('Confirm Request',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+                    style: TextStyle(color: Theme.of(context).cardColor, fontWeight: FontWeight.w700)),
               ),
             ),
           ],
@@ -284,7 +284,7 @@ class _CardsScreenState extends State<CardsScreen> {
         right: 20,
         bottom: 20,
       ),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -302,7 +302,7 @@ class _CardsScreenState extends State<CardsScreen> {
                 color: Colors.white.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 16),
+              child: const Icon(Icons.arrow_back_ios_new, color: Theme.of(context).cardColor, size: 16),
             ),
           ),
           const SizedBox(width: 14),
@@ -311,7 +311,7 @@ class _CardsScreenState extends State<CardsScreen> {
             children: [
               Text('My Card',
                   style: TextStyle(
-                      color: Colors.white, fontSize: 17, fontWeight: FontWeight.w800)),
+                      color: Theme.of(context).cardColor, fontSize: 17, fontWeight: FontWeight.w800)),
               Text('Request a physical debit card',
                   style: TextStyle(color: Colors.white60, fontSize: 12)),
             ],
@@ -328,17 +328,17 @@ class _CardsScreenState extends State<CardsScreen> {
       onChanged: (_) => setState(() {}),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(color: Color(0xFF98A2B3), fontSize: 14),
+        hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), fontSize: 14),
         filled: true,
         fillColor: Colors.white,
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFE4E7EC))),
+            borderSide: const BorderSide(color: Theme.of(context).dividerColor)),
         enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFE4E7EC))),
+            borderSide: const BorderSide(color: Theme.of(context).dividerColor)),
         focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(color: Color(0xFF1A6B35), width: 2)),
@@ -347,8 +347,8 @@ class _CardsScreenState extends State<CardsScreen> {
   }
 
   Widget _sectionLabel(String label) => Text(label,
-      style: const TextStyle(
-          fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF344054)));
+      style: TextStyle(
+          fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8)));
 }
 
 class _CardType {

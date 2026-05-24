@@ -144,7 +144,7 @@ class _AirtimeCashScreenState extends State<AirtimeCashScreen> {
                             ),
                             child: Column(
                               children: [
-                                Text(n.emoji, style: const TextStyle(fontSize: 20)),
+                                Text(n.emoji, style: TextStyle(fontSize: 20)),
                                 const SizedBox(height: 4),
                                 Text(n.name, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600,
                                     color: isSelected ? n.color : const Color(0xFF6B7280))),
@@ -197,13 +197,13 @@ class _AirtimeCashScreenState extends State<AirtimeCashScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text('₦${_amountController.text} airtime',
-                                    style: const TextStyle(fontSize: 13, color: Color(0xFF667085))),
+                                    style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
                                 const Text('converts to', style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
                               ],
                             ),
                           ),
                           Text('₦${_convertedAmount.toStringAsFixed(0)}',
-                              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF166C46))),
+                              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF166C46))),
                         ],
                       ),
                     ),
@@ -235,7 +235,7 @@ class _AirtimeCashCTA extends StatelessWidget {
         : 'Continue';
     return Container(
       padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
-      decoration: const BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: Color(0xFFF3F4F6)))),
+      decoration: BoxDecoration(color: Theme.of(context).cardColor, border: Border(top: BorderSide(color: Color(0xFFF3F4F6)))),
       child: GestureDetector(
         onTap: enabled ? onTap : null,
         child: AnimatedContainer(

@@ -187,7 +187,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 border: Border.all(color: Colors.white.withOpacity(0.2)),
               ),
               child: const Icon(Icons.arrow_back_ios_new,
-                  color: Colors.white, size: 17),
+                  color: Theme.of(context).cardColor, size: 17),
             ),
           ),
           const SizedBox(width: 14),
@@ -198,7 +198,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 const Text(
                   'Notifications',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
                     fontFamily: 'Effra',
@@ -230,7 +230,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 child: const Text(
                   'Mark all read',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -244,7 +244,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   Widget _buildFilterTabs() {
     return Container(
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       child: Row(
         children: ['all', 'unread'].map((tab) {
           final selected = _filter == tab;
@@ -305,10 +305,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
             const SizedBox(height: 16),
             Text(
               _filter == 'unread' ? 'All caught up!' : 'No notifications',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF101828),
+                color: Theme.of(context).colorScheme.onSurface,
                 fontFamily: 'Effra',
               ),
             ),
@@ -317,8 +317,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
               _filter == 'unread'
                   ? 'You have no unread notifications'
                   : 'Notifications will appear here',
-              style: const TextStyle(
-                  fontSize: 13, color: Color(0xFF667085), fontFamily: 'Effra'),
+              style: TextStyle(
+                  fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), fontFamily: 'Effra'),
               textAlign: TextAlign.center,
             ),
           ],
@@ -330,7 +330,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
       padding: const EdgeInsets.symmetric(vertical: 8),
       itemCount: _filteredNotifications.length,
       separatorBuilder: (_, __) => const Divider(
-          height: 1, indent: 72, endIndent: 16, color: Color(0xFFE4E7EC)),
+          height: 1, indent: 72, endIndent: 16, color: Theme.of(context).dividerColor),
       itemBuilder: (_, i) => _buildItem(_filteredNotifications[i]),
     );
   }
@@ -355,7 +355,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
               child: Center(
                 child: Text(
                   n.icon ?? '📢',
-                  style: const TextStyle(fontSize: 19),
+                  style: TextStyle(fontSize: 19),
                 ),
               ),
             ),
@@ -375,7 +375,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                             fontSize: 14,
                             fontWeight:
                                 n.isRead ? FontWeight.w600 : FontWeight.w700,
-                            color: const Color(0xFF101828),
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontFamily: 'Effra',
                           ),
                         ),
@@ -395,9 +395,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   const SizedBox(height: 4),
                   Text(
                     n.message,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
-                      color: Color(0xFF667085),
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                       height: 1.4,
                       fontFamily: 'Effra',
                     ),
@@ -407,8 +407,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     children: [
                       Text(
                         n.time,
-                        style: const TextStyle(
-                            fontSize: 11, color: Color(0xFF98A2B3)),
+                        style: TextStyle(
+                            fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4)),
                       ),
                       const Spacer(),
                       if (!n.isRead)

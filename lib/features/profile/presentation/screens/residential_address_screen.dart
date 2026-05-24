@@ -59,7 +59,7 @@ class _ResidentialAddressScreenState extends State<ResidentialAddressScreen> {
   InputDecoration _inputDec({String hint = '', Widget? suffix}) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(
+      hintStyle: TextStyle(
           color: Color(0xFFD1D5DB), fontSize: 14, fontFamily: 'Effra'),
       suffixIcon: suffix,
       filled: true,
@@ -67,10 +67,10 @@ class _ResidentialAddressScreenState extends State<ResidentialAddressScreen> {
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+          borderSide: const BorderSide(color: Theme.of(context).dividerColor)),
       enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+          borderSide: const BorderSide(color: Theme.of(context).dividerColor)),
       focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFF16A34A), width: 1.5)),
@@ -129,7 +129,7 @@ class _ResidentialAddressScreenState extends State<ResidentialAddressScreen> {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF3F4F6),
+                        color: Theme.of(context).scaffoldBackgroundColor,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(Icons.arrow_back_ios_new,
@@ -173,7 +173,7 @@ class _ResidentialAddressScreenState extends State<ResidentialAddressScreen> {
                     const SizedBox(height: 8),
                     TextField(
                       controller: _addressController,
-                      style: const TextStyle(fontSize: 14),
+                      style: TextStyle(fontSize: 14),
                       decoration: _inputDec(
                         hint: 'e.g. 15, Adeola Odeku Street',
                         suffix: IconButton(
@@ -194,7 +194,7 @@ class _ResidentialAddressScreenState extends State<ResidentialAddressScreen> {
                               const SizedBox(height: 8),
                               TextField(
                                 controller: _houseNoController,
-                                style: const TextStyle(fontSize: 14),
+                                style: TextStyle(fontSize: 14),
                                 decoration: _inputDec(hint: 'No.'),
                               ),
                             ],
@@ -209,7 +209,7 @@ class _ResidentialAddressScreenState extends State<ResidentialAddressScreen> {
                               const SizedBox(height: 8),
                               TextField(
                                 controller: _areaController,
-                                style: const TextStyle(fontSize: 14),
+                                style: TextStyle(fontSize: 14),
                                 decoration:
                                     _inputDec(hint: 'e.g. Victoria Island'),
                               ),
@@ -226,7 +226,7 @@ class _ResidentialAddressScreenState extends State<ResidentialAddressScreen> {
                       child: AbsorbPointer(
                         child: TextField(
                           controller: _stateController,
-                          style: const TextStyle(fontSize: 14),
+                          style: TextStyle(fontSize: 14),
                           decoration: _inputDec(
                             hint: 'Select state',
                             suffix: const Padding(
@@ -252,7 +252,7 @@ class _ResidentialAddressScreenState extends State<ResidentialAddressScreen> {
 
   Widget _sectionLabel(String label) {
     return Text(label,
-        style: const TextStyle(
+        style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
             color: Color(0xFF374151)));
@@ -287,7 +287,7 @@ class _ResidentialAddressScreenState extends State<ResidentialAddressScreen> {
                   final state = _states[index];
                   return ListTile(
                     title: Text(state,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 15, color: Color(0xFF111827))),
                     onTap: () {
                       setState(() {
@@ -326,7 +326,7 @@ class _ResidentialAddressScreenState extends State<ResidentialAddressScreen> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
               ),
             ),
           ),
@@ -380,16 +380,16 @@ class _CompletionSuccessScreenState extends State<_CompletionSuccessScreen> {
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.check_circle,
-                    color: Colors.white, size: 60),
+                    color: Theme.of(context).cardColor, size: 60),
               ),
             ),
             const SizedBox(height: 24),
             Text(
               widget.title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
               ),
               textAlign: TextAlign.center,
             ),

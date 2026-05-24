@@ -351,7 +351,7 @@
 //                         children: [
 //                           Text(
 //                             stepTitle,
-//                             style: const TextStyle(
+//                             style: TextStyle(
 //                               fontSize: 18,
 //                               fontWeight: FontWeight.bold,
 //                               color: Color(0xFF111827),
@@ -360,7 +360,7 @@
 //                           if (currentStep != UpgradeStep.success)
 //                             Text(
 //                               'Step ${currentStep.index + 1} of 3',
-//                               style: const TextStyle(
+//                               style: TextStyle(
 //                                 fontSize: 12,
 //                                 color: Color(0xFF6B7280),
 //                               ),
@@ -422,7 +422,7 @@
 //               children: [
 //                 Text(
 //                   'Unlock ${tierInfo.name} Benefits',
-//                   style: const TextStyle(
+//                   style: TextStyle(
 //                     fontSize: 18,
 //                     fontWeight: FontWeight.bold,
 //                     color: Color(0xFF111827),
@@ -446,9 +446,9 @@
 //           Container(
 //             padding: const EdgeInsets.all(16),
 //             decoration: BoxDecoration(
-//               color: Colors.white,
+//               color: Theme.of(context).cardColor,
 //               borderRadius: BorderRadius.circular(12),
-//               border: Border.all(color: const Color(0xFFE5E7EB)),
+//               border: Border.all(color: Theme.of(context).dividerColor),
 //             ),
 //             child: Column(
 //               crossAxisAlignment: CrossAxisAlignment.start,
@@ -475,7 +475,7 @@
 //                       Expanded(
 //                         child: Text(
 //                           req,
-//                           style: const TextStyle(
+//                           style: TextStyle(
 //                             fontSize: 12,
 //                             color: Color(0xFF374151),
 //                           ),
@@ -559,13 +559,13 @@
 //           Container(
 //             width: 24,
 //             height: 24,
-//             decoration: const BoxDecoration(
+//             decoration: BoxDecoration(
 //               color: Color(0xFF166C46),
 //               shape: BoxShape.circle,
 //             ),
 //             child: const Icon(
 //               Icons.check,
-//               color: Colors.white,
+//               color: Theme.of(context).cardColor,
 //               size: 12,
 //             ),
 //           ),
@@ -577,7 +577,7 @@
 //                 if (title.isNotEmpty)
 //                   Text(
 //                     title,
-//                     style: const TextStyle(
+//                     style: TextStyle(
 //                       fontSize: 14,
 //                       fontWeight: FontWeight.w500,
 //                       color: Color(0xFF111827),
@@ -688,7 +688,7 @@
 //             // Address Document
 //             Text(
 //               'Address Verification Document',
-//               style: const TextStyle(
+//               style: TextStyle(
 //                 fontSize: 12,
 //                 fontWeight: FontWeight.w500,
 //                 color: Color(0xFF374151),
@@ -814,13 +814,13 @@
 //           Container(
 //             width: 64,
 //             height: 64,
-//             decoration: const BoxDecoration(
+//             decoration: BoxDecoration(
 //               color: Color(0xFF166C46),
 //               shape: BoxShape.circle,
 //             ),
 //             child: const Icon(
 //               Icons.shield,
-//               color: Colors.white,
+//               color: Theme.of(context).cardColor,
 //               size: 32,
 //             ),
 //           ),
@@ -829,7 +829,7 @@
 
 //           Text(
 //             widget.targetTier.level == TierLevel.tier1 ? 'BVN/NIN Verification' : 'Additional Verification',
-//             style: const TextStyle(
+//             style: TextStyle(
 //               fontSize: 18,
 //               fontWeight: FontWeight.bold,
 //               color: Color(0xFF111827),
@@ -842,7 +842,7 @@
 //             widget.targetTier.level == TierLevel.tier1 
 //                 ? 'We\'ll verify your BVN or NIN details'
 //                 : 'Complete your account verification process',
-//             style: const TextStyle(
+//             style: TextStyle(
 //               fontSize: 14,
 //               color: Color(0xFF6B7280),
 //             ),
@@ -855,9 +855,9 @@
 //             width: double.infinity,
 //             padding: const EdgeInsets.all(16),
 //             decoration: BoxDecoration(
-//               color: Colors.white,
+//               color: Theme.of(context).cardColor,
 //               borderRadius: BorderRadius.circular(12),
-//               border: Border.all(color: const Color(0xFFE5E7EB)),
+//               border: Border.all(color: Theme.of(context).dividerColor),
 //             ),
 //             child: Column(
 //               children: [
@@ -955,7 +955,7 @@
 //             ),
 //             child: const Icon(
 //               Icons.check,
-//               color: Colors.white,
+//               color: Theme.of(context).cardColor,
 //               size: 40,
 //             ),
 //           ).animate().scale(delay: 200.ms),
@@ -975,7 +975,7 @@
 
 //           Text(
 //             'You are now ${tierInfo.name}',
-//             style: const TextStyle(
+//             style: TextStyle(
 //               fontSize: 14,
 //               color: Color(0xFF6B7280),
 //             ),
@@ -987,9 +987,9 @@
 //             width: double.infinity,
 //             padding: const EdgeInsets.all(16),
 //             decoration: BoxDecoration(
-//               color: Colors.white,
+//               color: Theme.of(context).cardColor,
 //               borderRadius: BorderRadius.circular(12),
-//               border: Border.all(color: const Color(0xFFE5E7EB)),
+//               border: Border.all(color: Theme.of(context).dividerColor),
 //             ),
 //             child: Column(
 //               children: [
@@ -1068,7 +1068,7 @@
 //       children: [
 //         Text(
 //           label,
-//           style: const TextStyle(
+//           style: TextStyle(
 //             fontSize: 12,
 //             fontWeight: FontWeight.w500,
 //             color: Color(0xFF374151),
@@ -1118,7 +1118,7 @@
 //       children: [
 //         Text(
 //           label,
-//           style: const TextStyle(
+//           style: TextStyle(
 //             fontSize: 12,
 //             fontWeight: FontWeight.w500,
 //             color: Color(0xFF374151),
@@ -1170,7 +1170,7 @@
 //             width: 2,
 //           ),
 //           borderRadius: BorderRadius.circular(8),
-//           color: Colors.white,
+//           color: Theme.of(context).cardColor,
 //         ),
 //         child: Column(
 //           children: [
@@ -1182,7 +1182,7 @@
 //             const SizedBox(height: 8),
 //             Text(
 //               file?.path.split('/').last ?? label,
-//               style: const TextStyle(
+//               style: TextStyle(
 //                 fontSize: 12,
 //                 color: Color(0xFF6B7280),
 //               ),
@@ -1191,7 +1191,7 @@
 //             if (description != null && file == null)
 //               Text(
 //                 description,
-//                 style: const TextStyle(
+//                 style: TextStyle(
 //                   fontSize: 10,
 //                   color: Color(0xFF9CA3AF),
 //                 ),
@@ -1217,7 +1217,7 @@
 //           Expanded(
 //             child: Text(
 //               text,
-//               style: const TextStyle(
+//               style: TextStyle(
 //                 fontSize: 12,
 //                 color: Color(0xFF374151),
 //               ),
@@ -1236,7 +1236,7 @@
 //         children: [
 //           Text(
 //             label,
-//             style: const TextStyle(
+//             style: TextStyle(
 //               fontSize: 12,
 //               color: Color(0xFF6B7280),
 //             ),

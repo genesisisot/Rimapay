@@ -37,7 +37,7 @@ class UnderbankingBanner extends StatelessWidget {
             ),
             child: const Icon(
               Icons.info_outline,
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
               size: 20,
             ),
           ),
@@ -49,7 +49,7 @@ class UnderbankingBanner extends StatelessWidget {
                 Text(
                   localizations.underbankingAccount,
                   style: AppTextStyles.body2.copyWith(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -65,7 +65,7 @@ class UnderbankingBanner extends StatelessWidget {
           // TextButton(
           //   onPressed: onUpgrade,
           //   style: TextButton.styleFrom(
-          //     backgroundColor: Colors.white.withOpacity(0.2),
+          //     backgroundColor: Theme.of(context).cardColor.withOpacity(0.2),
           //     foregroundColor: Colors.white,
           //     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           //     shape: RoundedRectangleBorder(
@@ -74,7 +74,7 @@ class UnderbankingBanner extends StatelessWidget {
           //   ),
           //   child: Text(
           //     languageProvider.currentLanguage!="en" ? 'Haɓaka' : 'Upgrade',
-          //     style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+          //     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
           //   ),
           // ),
         ],

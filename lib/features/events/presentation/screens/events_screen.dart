@@ -161,22 +161,22 @@ class _EventsScreenState extends State<EventsScreen> {
                               width: 52,
                               height: 52,
                               decoration: BoxDecoration(color: event.bgColor, borderRadius: BorderRadius.circular(12)),
-                              child: Center(child: Text(event.emoji, style: const TextStyle(fontSize: 26))),
+                              child: Center(child: Text(event.emoji, style: TextStyle(fontSize: 26))),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(event.name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF101828))),
+                                  Text(event.name, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurface)),
                                   const SizedBox(height: 2),
-                                  Text(event.venue, style: const TextStyle(fontSize: 12, color: Color(0xFF667085)), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                  Text(event.venue, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)), maxLines: 1, overflow: TextOverflow.ellipsis),
                                   const SizedBox(height: 2),
                                   Row(
                                     children: [
                                       const Icon(Icons.calendar_today_outlined, size: 11, color: Color(0xFF9CA3AF)),
                                       const SizedBox(width: 4),
-                                      Text(event.date, style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
+                                      Text(event.date, style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
                                     ],
                                   ),
                                 ],
@@ -204,9 +204,9 @@ class _EventsScreenState extends State<EventsScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Theme.of(context).cardColor,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFE4E7EC)),
+                        border: Border.all(color: Theme.of(context).dividerColor),
                       ),
                       child: Row(
                         children: [
@@ -214,7 +214,7 @@ class _EventsScreenState extends State<EventsScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Number of Tickets', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF101828))),
+                                Text('Number of Tickets', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)),
                                 Text('Max 10 tickets per order', style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
                               ],
                             ),
@@ -232,7 +232,7 @@ class _EventsScreenState extends State<EventsScreen> {
                                   child: Icon(Icons.remove, size: 16, color: _quantity > 1 ? AppColors.goldPrimary : const Color(0xFFD0D5DD)),
                                 ),
                               ),
-                              SizedBox(width: 16, child: Center(child: Text('$_quantity', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)))),
+                              SizedBox(width: 16, child: Center(child: Text('$_quantity', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)))),
                               GestureDetector(
                                 onTap: () { if (_quantity < 10) setState(() => _quantity++); },
                                 child: Container(
@@ -258,8 +258,8 @@ class _EventsScreenState extends State<EventsScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text('$_quantity ticket${_quantity > 1 ? 's' : ''} × ₦${_selectedEvent!.price}',
-                              style: const TextStyle(fontSize: 13, color: Color(0xFF667085))),
-                          Text('₦$_totalPrice', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF166C46))),
+                              style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
+                          Text('₦$_totalPrice', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF166C46))),
                         ],
                       ),
                     ),
@@ -290,7 +290,7 @@ class _EventCTA extends StatelessWidget {
     final label = enabled ? 'Buy $quantity Ticket${quantity > 1 ? 's' : ''} — ₦$total' : 'Continue';
     return Container(
       padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
-      decoration: const BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: Color(0xFFF3F4F6)))),
+      decoration: BoxDecoration(color: Theme.of(context).cardColor, border: Border(top: BorderSide(color: Color(0xFFF3F4F6)))),
       child: GestureDetector(
         onTap: enabled ? onTap : null,
         child: AnimatedContainer(

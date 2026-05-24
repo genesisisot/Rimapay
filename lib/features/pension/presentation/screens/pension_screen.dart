@@ -57,18 +57,18 @@ class _PensionScreenState extends State<PensionScreen> {
         maxChildSize: 0.9,
         minChildSize: 0.4,
         builder: (_, ctrl) => Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
             children: [
               Container(width: 40, height: 4, margin: const EdgeInsets.symmetric(vertical: 14),
-                  decoration: BoxDecoration(color: const Color(0xFFE4E7EC), borderRadius: BorderRadius.circular(999))),
+                  decoration: BoxDecoration(color: Theme.of(context).dividerColor, borderRadius: BorderRadius.circular(999))),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24),
                 child: Align(alignment: Alignment.centerLeft, child: Text('Select Pension Fund Administrator',
-                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFF101828)))),
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface))),
               ),
               const SizedBox(height: 12),
               Expanded(
@@ -98,13 +98,13 @@ class _PensionScreenState extends State<PensionScreen> {
                               width: 40, height: 40,
                               decoration: BoxDecoration(color: pfa.color, borderRadius: BorderRadius.circular(10)),
                               child: Center(child: Text(pfa.shortName[0],
-                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 16))),
+                                  style: TextStyle(color: Theme.of(context).cardColor, fontWeight: FontWeight.w800, fontSize: 16))),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                Text(pfa.shortName, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF101828))),
-                                Text(pfa.description, style: const TextStyle(fontSize: 12, color: Color(0xFF667085))),
+                                Text(pfa.shortName, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurface)),
+                                Text(pfa.description, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
                               ]),
                             ),
                             if (isSelected) const Icon(Icons.check_circle, color: Color(0xFF166C46), size: 20),
@@ -236,7 +236,7 @@ class _PensionScreenState extends State<PensionScreen> {
                                 Text(type, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700,
                                     color: isSelected ? AppColors.goldPrimary : const Color(0xFF374151))),
                                 Text(type == 'Voluntary' ? 'Standard contribution' : 'Additional Voluntary',
-                                    style: const TextStyle(fontSize: 10, color: Color(0xFF9CA3AF))),
+                                    style: TextStyle(fontSize: 10, color: Color(0xFF9CA3AF))),
                               ],
                             ),
                           ),
@@ -283,7 +283,7 @@ class _SelectorField extends StatelessWidget {
         height: 60,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: hasValue ? AppColors.goldPrimary.withOpacity(0.4) : const Color(0xFFE4E7EC)),
         ),
@@ -323,7 +323,7 @@ class _PensionCTA extends StatelessWidget {
     final label = amount.isNotEmpty && (double.tryParse(amount) ?? 0) > 0 ? 'Contribute ₦$amount' : 'Continue';
     return Container(
       padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
-      decoration: const BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: Color(0xFFF3F4F6)))),
+      decoration: BoxDecoration(color: Theme.of(context).cardColor, border: Border(top: BorderSide(color: Color(0xFFF3F4F6)))),
       child: GestureDetector(
         onTap: enabled ? onTap : null,
         child: AnimatedContainer(

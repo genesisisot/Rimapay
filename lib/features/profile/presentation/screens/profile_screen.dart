@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rimapay/core/theme/app_colors.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../../core/providers/theme_provider.dart' show darkModeProvider;
 import '../../../../shared/widgets/noise_painter.dart';
 import 'package:flutter/foundation.dart';
 
@@ -121,7 +123,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       border: Border.all(color: Colors.white.withOpacity(0.2)),
                     ),
                     child: const Icon(Icons.arrow_back_ios_new,
-                        color: Colors.white, size: 17),
+                        color: Theme.of(context).cardColor, size: 17),
                   ),
                 ),
               ),
@@ -169,7 +171,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: AppColors.goldGradient,
-              border: Border.all(color: Colors.white, width: 3),
+              border: Border.all(color: Theme.of(context).cardColor, width: 3),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.18),
@@ -187,7 +189,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         gradient: AppColors.goldGradient,
                       ),
                       child: const Icon(Icons.person,
-                          color: Colors.white, size: 40),
+                          color: Theme.of(context).cardColor, size: 40),
                     ),
             ),
           ),
@@ -198,12 +200,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Container(
                 width: 26,
                 height: 26,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: Color(0xFF166C46),
                   shape: BoxShape.circle,
                 ),
                 child:
-                    const Icon(Icons.camera_alt, color: Colors.white, size: 13),
+                    const Icon(Icons.camera_alt, color: Theme.of(context).cardColor, size: 13),
               ),
             ),
         ],
@@ -274,6 +276,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _buildEditButtons(),
           const SizedBox(height: 12),
 
+          // Dark mode
+          const SizedBox(height: 4),
+          Consumer(
+            builder: (_, ref, __) {
+              final darkMode = ref.watch(darkModeProvider);
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Theme.of(context).dividerColor),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.dark_mode,
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), size: 20),
+                    const SizedBox(width: 12),
+                    const Text('Dark Mode',
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w500)),
+                    const Spacer(),
+                    Switch(
+                      value: darkMode,
+                      onChanged: (value) {
+                        HapticFeedback.lightImpact();
+                        ref.read(darkModeProvider.notifier).state = value;
+                      },
+                      activeThumbColor: Colors.white,
+                      activeTrackColor: const Color(0xFF166C46),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 12),
+
           // Logout
           _buildLogoutButton(context),
           const SizedBox(height: 40),
@@ -291,13 +330,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: TextField(
                   controller: _nameController,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF101828),
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontFamily: 'Effra',
                   ),
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     border: UnderlineInputBorder(
                       borderSide:
                           BorderSide(color: Color(0xFF166C46), width: 2),
@@ -308,7 +347,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     enabledBorder: UnderlineInputBorder(
                       borderSide:
-                          BorderSide(color: Color(0xFFE4E7EC), width: 1),
+                          BorderSide(color: Theme.of(context).dividerColor, width: 1),
                     ),
                     filled: false,
                     contentPadding: EdgeInsets.symmetric(horizontal: 8),
@@ -317,18 +356,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
               )
             : Text(
                 _nameController.text,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF101828),
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontFamily: 'Effra',
                 ),
               ),
         const SizedBox(height: 6),
         Text(
           _data['phone']!,
-          style: const TextStyle(
-              fontSize: 13, color: Color(0xFF667085), fontFamily: 'Effra'),
+          style: TextStyle(
+              fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), fontFamily: 'Effra'),
         ),
         const SizedBox(height: 8),
         // Tier badge
@@ -365,9 +404,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE4E7EC)),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -391,7 +430,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF101828),
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -492,7 +531,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               child: isCompleted
-                  ? const Icon(Icons.check, color: Colors.white, size: 16)
+                  ? const Icon(Icons.check, color: Theme.of(context).cardColor, size: 16)
                   : null,
             ),
           ],
@@ -536,8 +575,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (_) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         padding: const EdgeInsets.fromLTRB(24, 12, 24, 36),
@@ -549,7 +588,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               height: 4,
               margin: const EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(
-                color: const Color(0xFFE4E7EC),
+                color: Theme.of(context).dividerColor,
                 borderRadius: BorderRadius.circular(999),
               ),
             ),
@@ -569,7 +608,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF101828),
+                color: Theme.of(context).colorScheme.onSurface,
                 fontFamily: 'Effra',
               ),
             ),
@@ -579,7 +618,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
-                color: Color(0xFF667085),
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                 height: 1.4,
                 fontFamily: 'Effra',
               ),
@@ -638,7 +677,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 shape: BoxShape.circle,
               ),
               child:
-                  const Icon(Icons.star_rounded, color: Colors.white, size: 22),
+                  const Icon(Icons.star_rounded, color: Theme.of(context).cardColor, size: 22),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -661,7 +700,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
-                      color: Colors.white,
+                      color: Theme.of(context).cardColor,
                       fontFamily: 'Effra',
                     ),
                   ),
@@ -685,7 +724,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: const Text(
                 'Upgrade',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                   fontFamily: 'Effra',
@@ -711,9 +750,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE4E7EC)),
+        border: Border.all(color: Theme.of(context).dividerColor),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -740,9 +779,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10,
-                    color: Color(0xFF98A2B3),
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.6,
                     fontFamily: 'Effra',
@@ -752,13 +791,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 if (_isEditing && editable && controller != null)
                   TextField(
                     controller: controller,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF101828),
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontFamily: 'Effra',
                     ),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       border: UnderlineInputBorder(
                         borderSide: BorderSide(color: Color(0xFF166C46)),
                       ),
@@ -767,7 +806,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             BorderSide(color: Color(0xFF166C46), width: 2),
                       ),
                       enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xFFE4E7EC)),
+                        borderSide: BorderSide(color: Theme.of(context).dividerColor),
                       ),
                       filled: false,
                       contentPadding: EdgeInsets.zero,
@@ -777,10 +816,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 else
                   Text(
                     value,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF101828),
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontFamily: 'Effra',
                     ),
                   ),
@@ -788,9 +827,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 3),
                   Text(
                     subtitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
-                      color: Color(0xFF98A2B3),
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                       height: 1.3,
                       fontFamily: 'Effra',
                     ),
@@ -819,7 +858,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           style: OutlinedButton.styleFrom(
             foregroundColor: const Color(0xFF344054),
-            side: const BorderSide(color: Color(0xFFD0D5DD)),
+            side: const BorderSide(color: Theme.of(context).dividerColor),
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
@@ -842,7 +881,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               },
               style: OutlinedButton.styleFrom(
                 foregroundColor: const Color(0xFF667085),
-                side: const BorderSide(color: Color(0xFFD0D5DD)),
+                side: const BorderSide(color: Theme.of(context).dividerColor),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
               ),
@@ -912,8 +951,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (_) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         padding: const EdgeInsets.fromLTRB(24, 12, 24, 36),
@@ -925,7 +964,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               height: 4,
               margin: const EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(
-                color: const Color(0xFFE4E7EC),
+                color: Theme.of(context).dividerColor,
                 borderRadius: BorderRadius.circular(999),
               ),
             ),
@@ -945,7 +984,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF101828),
+                color: Theme.of(context).colorScheme.onSurface,
                 fontFamily: 'Effra',
               ),
             ),
@@ -955,7 +994,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
-                color: Color(0xFF667085),
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                 height: 1.4,
                 fontFamily: 'Effra',
               ),
@@ -970,7 +1009,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onPressed: () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: const Color(0xFF667085),
-                        side: const BorderSide(color: Color(0xFFD0D5DD)),
+                        side: const BorderSide(color: Theme.of(context).dividerColor),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12)),
                       ),
@@ -1024,8 +1063,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Container(
             margin: const EdgeInsets.all(16),
             padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
-              color: Colors.white,
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.all(Radius.circular(16)),
             ),
             child: Column(
@@ -1036,7 +1075,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF101828),
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontFamily: 'Effra',
                   ),
                 ),
@@ -1067,7 +1106,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     child: const Text('Cancel',
                         style: TextStyle(
-                            color: Color(0xFF667085),
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                             fontFamily: 'Effra',
                             fontWeight: FontWeight.w600)),
                   ),

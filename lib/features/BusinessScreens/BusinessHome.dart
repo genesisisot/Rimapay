@@ -368,7 +368,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: Colors.white.withOpacity(0.4), width: 2),
             ),
@@ -389,7 +389,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                 ),
                 Text(
                   businessName,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF1D2939),
@@ -447,15 +447,15 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
               child: Container(
                 width: 20,
                 height: 20,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: Colors.red,
                   shape: BoxShape.circle,
                 ),
                 child: Center(
                   child: Text(
                     '${todoItems.length}',
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: Theme.of(context).cardColor,
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
                     ),
@@ -486,11 +486,11 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
           Container(
             width: 24,
             height: 24,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: Colors.orange,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.warning, color: Colors.white, size: 12),
+            child: const Icon(Icons.warning, color: Theme.of(context).cardColor, size: 12),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -635,7 +635,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                     const SizedBox(height: 8),
                     Text(
                       item.title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF1D2939),
@@ -835,8 +835,8 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                     child: Text(
                       _hideBalance ? '••••••••' : '₦$businessBalance',
                       key: ValueKey(_hideBalance),
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: Theme.of(context).cardColor,
                         fontSize: 24,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -0.5,
@@ -845,7 +845,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                   ),
                   Text(
                     'Account: $accountNumber',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.white70,
                       fontSize: 10,
                       fontWeight: FontWeight.w500,
@@ -895,12 +895,12 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                 gradient: AppColors.goldGradient,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: Colors.white, size: 14),
+              child: Icon(icon, color: Theme.of(context).cardColor, size: 14),
             ),
             const SizedBox(height: 4),
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFF1D2939),
@@ -975,7 +975,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
               child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.grey.shade200),
                 ),
@@ -988,7 +988,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                         gradient: action.gradient,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(action.icon, color: Colors.white, size: 18),
+                      child: Icon(action.icon, color: Theme.of(context).cardColor, size: 18),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
@@ -1000,7 +1000,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                             child: Text(
                               action.title,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
                                 color: Color(0xFF1D2939),
@@ -1097,7 +1097,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: Colors.grey.shade200),
                     ),
@@ -1110,7 +1110,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                             color: service.color,
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(service.icon, color: Colors.white, size: 18),
+                          child: Icon(service.icon, color: Theme.of(context).cardColor, size: 18),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
@@ -1121,7 +1121,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                               Flexible(
                                 child: Text(
                                   service.title,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
                                     color: Color(0xFF1D2939),
@@ -1157,7 +1157,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                         child: const Text(
                           'NEW',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Theme.of(context).cardColor,
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
                           ),
@@ -1235,7 +1235,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
               child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: Colors.grey.shade200),
                 ),
@@ -1261,7 +1261,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                         children: [
                           Text(
                             transaction.name,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
                               color: Color(0xFF1D2939),

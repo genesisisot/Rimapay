@@ -132,7 +132,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
               // ── White content below hero ──
               Container(
-                color: const Color(0xFFF9FAFB),
+                color: Theme.of(context).scaffoldBackgroundColor,
                 padding: const EdgeInsets.fromLTRB(20, 28, 20, 0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -267,7 +267,7 @@ class _HeroSection extends StatelessWidget {
                               ),
                               child: const Icon(
                                 Icons.notifications_outlined,
-                                color: Colors.white,
+                                color: Theme.of(context).cardColor,
                                 size: 20,
                               ),
                             ),
@@ -278,7 +278,7 @@ class _HeroSection extends StatelessWidget {
                             child: Container(
                               width: 8,
                               height: 8,
-                              decoration: const BoxDecoration(
+                              decoration: BoxDecoration(
                                 color: Color(0xFFD33B31),
                                 shape: BoxShape.circle,
                               ),
@@ -313,7 +313,7 @@ class _HeroSection extends StatelessWidget {
                             child: const Text(
                               'AO',
                               style: TextStyle(
-                                color: Colors.white,
+                                color: Theme.of(context).cardColor,
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -323,7 +323,7 @@ class _HeroSection extends StatelessWidget {
                           const Text(
                             'Adebayo Okafor',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: Theme.of(context).cardColor,
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                             ),
@@ -356,8 +356,8 @@ class _HeroSection extends StatelessWidget {
                     children: [
                       Text(
                         balanceVisible ? '₦15,750.00' : '••••••',
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: Theme.of(context).cardColor,
                           fontSize: 30,
                           fontWeight: FontWeight.w800,
                           letterSpacing: -0.5,
@@ -440,12 +440,12 @@ class _HeroSection extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(Icons.send_rounded,
-                                    color: Colors.white, size: 17),
+                                    color: Theme.of(context).cardColor, size: 17),
                                 SizedBox(width: 7),
                                 Text(
                                   'Transfer',
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    color: Theme.of(context).cardColor,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w700,
                                   ),
@@ -471,12 +471,12 @@ class _HeroSection extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(Icons.add_circle_outline,
-                                    color: Colors.white, size: 18),
+                                    color: Theme.of(context).cardColor, size: 18),
                                 SizedBox(width: 7),
                                 Text(
                                   'Add Money',
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    color: Theme.of(context).cardColor,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w700,
                                   ),
@@ -505,7 +505,7 @@ class _HeroSection extends StatelessWidget {
             clipper: _CurveClipper(),
             child: Container(
               height: 40,
-              color: const Color(0xFFF9FAFB),
+              color: Theme.of(context).scaffoldBackgroundColor,
             ),
           ),
         ),
@@ -518,8 +518,8 @@ class _HeroSection extends StatelessWidget {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (_) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
@@ -531,7 +531,7 @@ class _HeroSection extends StatelessWidget {
               height: 4,
               margin: const EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(
-                color: const Color(0xFFE4E7EC),
+                color: Theme.of(context).dividerColor,
                 borderRadius: BorderRadius.circular(999),
               ),
             ),
@@ -540,7 +540,7 @@ class _HeroSection extends StatelessWidget {
               style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF101828),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 20),
@@ -592,7 +592,7 @@ class _QuickActionsSection extends StatelessWidget {
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF101828),
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 14),
@@ -618,8 +618,8 @@ class _QuickActionsSection extends StatelessWidget {
                   Text(
                     action.label,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Color(0xFF344054),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                     ),
@@ -641,7 +641,7 @@ class _TierUpgradeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
@@ -685,7 +685,7 @@ class _TierUpgradeCard extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF344054),
+                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
                               ),
                             ),
                           ),
@@ -702,7 +702,7 @@ class _TierUpgradeCard extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
-                              color: Color(0xFF101828),
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -728,7 +728,7 @@ class _TierUpgradeCard extends StatelessWidget {
                         child: const Text(
                           'Go',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Theme.of(context).cardColor,
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                           ),
@@ -777,7 +777,7 @@ class _ReferralCard extends StatelessWidget {
                 const Text(
                   'Invite a friend,\nearn ₦500!',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
                     height: 1.3,
@@ -790,7 +790,7 @@ class _ReferralCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Text(
@@ -833,7 +833,7 @@ class _RecentTransactionsSection extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF101828),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             GestureDetector(
@@ -867,7 +867,7 @@ class _RecentTransactionsSection extends StatelessWidget {
 
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
@@ -890,7 +890,7 @@ class _RecentTransactionsSection extends StatelessWidget {
                       height: 1,
                       indent: 68,
                       endIndent: 16,
-                      color: const Color(0xFFE4E7EC),
+                      color: Theme.of(context).dividerColor,
                     ),
                 ],
               );
@@ -942,18 +942,18 @@ class _TransactionRow extends StatelessWidget {
               children: [
                 Text(
                   tx.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF101828),
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   tx.description,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF667085),
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                   ),
                 ),
               ],
@@ -975,9 +975,9 @@ class _TransactionRow extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 tx.time,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
-                  color: Color(0xFF98A2B3),
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                 ),
               ),
             ],
@@ -1028,7 +1028,7 @@ class _AccountTile extends StatelessWidget {
                 const Color(0xFF166C46).withOpacity(0.15),
             child: Text(
               initials,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF166C46),
                 fontSize: 13,
@@ -1041,13 +1041,13 @@ class _AccountTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(name,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 14,
-                        color: Color(0xFF101828))),
+                        color: Theme.of(context).colorScheme.onSurface)),
                 Text('$type · $number',
-                    style: const TextStyle(
-                        fontSize: 12, color: Color(0xFF667085))),
+                    style: TextStyle(
+                        fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
               ],
             ),
           ),

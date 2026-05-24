@@ -372,7 +372,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                     ),
                     child: const Icon(
                       Icons.check,
-                      color: Colors.white,
+                      color: Theme.of(context).cardColor,
                       size: 40,
                     ),
                   ),
@@ -397,7 +397,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
               children: [
                 Text(
                   isTransfer ? 'Transfer Successful! 🎉' : 'Payment Successful! 🎉',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF0F172A), // neutral-900
@@ -407,7 +407,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                 const SizedBox(height: 8),
                 Text(
                   'Your ${widget.props.transactionType.toLowerCase()} has been processed successfully',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     color: Color(0xFF64748B), // neutral-600
                   ),
@@ -451,7 +451,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                     children: [
                       Text(
                         widget.props.amount,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.w900,
                           color: Color(0xFF0F172A), // neutral-900
@@ -493,7 +493,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
         children: [
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               color: Color(0xFF6B7280), // neutral-500
             ),
@@ -501,7 +501,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
           Flexible(
             child: Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF0F172A), // neutral-900
@@ -533,7 +533,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
               Container(
                 width: 8,
                 height: 8,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: Color(0xFF166C46), // green-500
                   shape: BoxShape.circle,
                 ),
@@ -701,7 +701,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
             child: Container(
               margin: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
@@ -737,7 +737,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                         icon: Container(
                           padding: const EdgeInsets.all(4),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF3F4F6), // neutral-100
+                            color: Theme.of(context).scaffoldBackgroundColor, // neutral-100
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: const Icon(
@@ -756,7 +756,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF9FAFB), // neutral-50
+                      color: Theme.of(context).scaffoldBackgroundColor, // neutral-50
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
@@ -764,7 +764,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                       children: [
                         Text(
                           widget.props.beneficiaryData?.name ?? '',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF0F172A), // neutral-900
@@ -773,7 +773,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                         const SizedBox(height: 4),
                         Text(
                           '${widget.props.beneficiaryData?.accountNumber} • ${widget.props.beneficiaryData?.bank}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             color: Color(0xFF4B5563), // neutral-600
                           ),
@@ -807,7 +807,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                           hintText: widget.props.beneficiaryData?.name.split(' ')[0] ?? 'Enter nickname',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFFE5E7EB)), // neutral-200
+                            borderSide: const BorderSide(color: Theme.of(context).dividerColor), // neutral-200
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -815,7 +815,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                           ),
                           contentPadding: const EdgeInsets.all(12),
                         ),
-                        style: const TextStyle(fontSize: 14),
+                        style: TextStyle(fontSize: 14),
                         maxLength: 20,
                       ),
                     ],
@@ -901,7 +901,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            side: const BorderSide(color: Color(0xFFE5E7EB)), // neutral-200
+                            side: const BorderSide(color: Theme.of(context).dividerColor), // neutral-200
                           ),
                           child: const Text(
                             'Cancel',
@@ -929,7 +929,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
-                              color: Colors.white,
+                              color: Theme.of(context).cardColor,
                             ),
                           ),
                         ),

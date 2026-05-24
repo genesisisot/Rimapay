@@ -283,8 +283,8 @@ class _CableProviderSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -307,7 +307,7 @@ class _CableProviderSheet extends StatelessWidget {
                     style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF101828))),
+                        color: Theme.of(context).colorScheme.onSurface)),
               ],
             ),
           ),
@@ -382,8 +382,8 @@ class _PackageSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -403,10 +403,10 @@ class _PackageSheet extends StatelessWidget {
             child: Row(
               children: [
                 Text('$providerName Packages',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF101828))),
+                        color: Theme.of(context).colorScheme.onSurface)),
               ],
             ),
           ),
@@ -456,7 +456,7 @@ class _PackageSheet extends StatelessWidget {
                                       child: const Text('Popular',
                                           style: TextStyle(
                                               fontSize: 9,
-                                              color: Colors.white,
+                                              color: Theme.of(context).cardColor,
                                               fontWeight: FontWeight.w600)),
                                     ),
                                   ],
@@ -464,7 +464,7 @@ class _PackageSheet extends StatelessWidget {
                               ),
                               const SizedBox(height: 2),
                               Text('${pkg.channels} · ${pkg.validity}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                       fontSize: 12, color: Color(0xFF6B7280))),
                             ],
                           ),
@@ -591,10 +591,10 @@ class _CDropdownField extends StatelessWidget {
                 child: IgnorePointer(
                   child: Text(
                     value!,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF101828)),
+                        color: Theme.of(context).colorScheme.onSurface),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -607,7 +607,7 @@ class _CDropdownField extends StatelessWidget {
                 child: IgnorePointer(
                   child: Text(
                     sublabel!,
-                    style: const TextStyle(fontSize: 11, color: Color(0xFF6B7280)),
+                    style: TextStyle(fontSize: 11, color: Color(0xFF6B7280)),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -695,7 +695,7 @@ class _CFloatingFieldState extends State<_CFloatingField> {
       duration: const Duration(milliseconds: 150),
       height: 60,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: _focused
@@ -740,15 +740,15 @@ class _CFloatingFieldState extends State<_CFloatingField> {
               keyboardType: widget.keyboardType,
               inputFormatters: widget.inputFormatters,
               onChanged: widget.onChanged,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF101828)),
+                  color: Theme.of(context).colorScheme.onSurface),
               decoration: InputDecoration(
                 hintText: isActive ? widget.hint : null,
-                hintStyle: const TextStyle(
+                hintStyle: TextStyle(
                     fontSize: 15,
-                    color: Color(0xFFD0D5DD),
+                    color: Theme.of(context).dividerColor,
                     fontWeight: FontWeight.normal),
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
@@ -789,8 +789,8 @@ class _CCta extends StatelessWidget {
     return Container(
       padding: EdgeInsets.fromLTRB(
           20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
         border: Border(top: BorderSide(color: Color(0xFFF3F4F6))),
       ),
       child: GestureDetector(

@@ -71,7 +71,7 @@ class _InternetServicesScreenState extends State<InternetServicesScreen> {
                             ),
                             child: Column(
                               children: [
-                                Text(p.icon, style: const TextStyle(fontSize: 24)),
+                                Text(p.icon, style: TextStyle(fontSize: 24)),
                                 const SizedBox(height: 6),
                                 Text(p.name,
                                     style: TextStyle(
@@ -131,21 +131,21 @@ class _InternetServicesScreenState extends State<InternetServicesScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(plan.name,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontWeight: FontWeight.w800,
                                     fontSize: 14,
                                     color: Color(0xFF1A6B35),
                                   )),
                               Text(plan.price,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontWeight: FontWeight.w700,
                                     fontSize: 13,
-                                    color: Color(0xFF101828),
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   )),
                               Text(plan.validity,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 11,
-                                    color: Color(0xFF667085),
+                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                                   )),
                             ],
                           ),
@@ -172,7 +172,7 @@ class _InternetServicesScreenState extends State<InternetServicesScreen> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
                       child: const Text('Proceed',
-                          style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
+                          style: TextStyle(color: Theme.of(context).cardColor, fontSize: 16, fontWeight: FontWeight.w700)),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -194,7 +194,7 @@ class _InternetServicesScreenState extends State<InternetServicesScreen> {
         right: 20,
         bottom: 20,
       ),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -212,7 +212,7 @@ class _InternetServicesScreenState extends State<InternetServicesScreen> {
                 color: Colors.white.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 16),
+              child: const Icon(Icons.arrow_back_ios_new, color: Theme.of(context).cardColor, size: 16),
             ),
           ),
           const SizedBox(width: 14),
@@ -220,7 +220,7 @@ class _InternetServicesScreenState extends State<InternetServicesScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Internet Services',
-                  style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w800)),
+                  style: TextStyle(color: Theme.of(context).cardColor, fontSize: 17, fontWeight: FontWeight.w800)),
               Text('Spectranet, Smile & more',
                   style: TextStyle(color: Colors.white60, fontSize: 12)),
             ],
@@ -232,8 +232,8 @@ class _InternetServicesScreenState extends State<InternetServicesScreen> {
 
   Widget _sectionLabel(String label) {
     return Text(label,
-        style: const TextStyle(
-            fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF344054)));
+        style: TextStyle(
+            fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8)));
   }
 
   Widget _buildInput({
@@ -249,17 +249,17 @@ class _InternetServicesScreenState extends State<InternetServicesScreen> {
       onChanged: (_) => setState(() {}),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(color: Color(0xFF98A2B3), fontSize: 14),
+        hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), fontSize: 14),
         filled: true,
         fillColor: Colors.white,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE4E7EC)),
+          borderSide: const BorderSide(color: Theme.of(context).dividerColor),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE4E7EC)),
+          borderSide: const BorderSide(color: Theme.of(context).dividerColor),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),

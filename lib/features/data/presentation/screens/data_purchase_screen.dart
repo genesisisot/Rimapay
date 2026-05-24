@@ -516,8 +516,8 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                                   backgroundColor: bgColor,
                                   child: Text(
                                     c.initial,
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: TextStyle(
+                                      color: Theme.of(context).cardColor,
                                       fontWeight: FontWeight.w700,
                                       fontSize: 18,
                                     ),
@@ -526,7 +526,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                                 const SizedBox(height: 6),
                                 Text(
                                   c.name,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w600,
                                     color: Color(0xFF374151),
@@ -537,7 +537,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                                 ),
                                 Text(
                                   '${c.number.substring(0, 7)}...',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 10,
                                     color: Color(0xFF9CA3AF),
                                   ),
@@ -646,7 +646,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                         height: 56,
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: _selectedPlan != null
@@ -670,7 +670,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                                           ),
                                           child: Text(
                                             _selectedPlan!.data,
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontSize: 12,
                                               fontWeight: FontWeight.w700,
                                               color: Color(0xFF166C46),
@@ -687,15 +687,15 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                                             children: [
                                               Text(
                                                 _selectedPlan!.name,
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                   fontSize: 14,
                                                   fontWeight: FontWeight.w600,
-                                                  color: Color(0xFF101828),
+                                                  color: Theme.of(context).colorScheme.onSurface,
                                                 ),
                                               ),
                                               Text(
                                                 '${_selectedPlan!.validity} · ₦${_selectedPlan!.price}',
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                   fontSize: 11,
                                                   color: Color(0xFF9CA3AF),
                                                 ),
@@ -828,10 +828,10 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
 
   Widget _buildCompactHeader(Function(String) language, BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
         border: Border(
-          bottom: BorderSide(color: Color(0xFFF5F5F5), width: 1),
+          bottom: BorderSide(color: Theme.of(context).scaffoldBackgroundColor, width: 1),
         ),
       ),
       child: Padding(
@@ -935,7 +935,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF344054),
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
               ),
             ),
             GestureDetector(
@@ -952,7 +952,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                   const SizedBox(width: 4),
                   Text(
                     language('contacts'),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                       color: AppColors.primary600,
@@ -1075,7 +1075,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                                 child: Icon(
                                   Icons.check,
                                   size: 10,
-                                  color: Colors.white,
+                                  color: Theme.of(context).cardColor,
                                 ),
                               ),
                             ),
@@ -1086,7 +1086,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                   const SizedBox(height: 6),
                   Text(
                     network.name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF374151),
@@ -1157,7 +1157,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                     children: [
                       Text(
                         category['icon'] as String,
-                        style: const TextStyle(fontSize: 10),
+                        style: TextStyle(fontSize: 10),
                       ),
                       const SizedBox(width: 4),
                       Text(
@@ -1283,7 +1283,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
         const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
-            color: const Color(0xFFFAFAFA),
+            color: Theme.of(context).scaffoldBackgroundColor,
             borderRadius: BorderRadius.circular(8),
           ),
           padding: const EdgeInsets.all(10),
@@ -1298,7 +1298,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                     child: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Theme.of(context).cardColor,
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: Colors.transparent),
                       ),
@@ -1314,7 +1314,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                             child: Center(
                               child: Text(
                                 contact.initial,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.primary700,
@@ -1333,7 +1333,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                                     Expanded(
                                       child: Text(
                                         contact.name,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w500,
                                           color: Color(0xFF111827),
@@ -1343,7 +1343,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                                     ),
                                     Text(
                                       contact.data,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w600,
                                         color: AppColors.primary600,
@@ -1358,7 +1358,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                                     Expanded(
                                       child: Text(
                                         contact.number,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 11,
                                           color: Color(0xFF6B7280),
                                         ),
@@ -1367,7 +1367,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                                     ),
                                     Text(
                                       contact.lastUsed,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 10,
                                         color: Color(0xFF9CA3AF),
                                       ),
@@ -1459,8 +1459,8 @@ class _PlanPickerSheetState extends State<_PlanPickerSheet> {
     final plans = _filtered;
     return Container(
       height: MediaQuery.of(context).size.height * 0.78,
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
@@ -1471,7 +1471,7 @@ class _PlanPickerSheetState extends State<_PlanPickerSheet> {
             height: 4,
             margin: const EdgeInsets.only(top: 12, bottom: 16),
             decoration: BoxDecoration(
-              color: const Color(0xFFE4E7EC),
+              color: Theme.of(context).dividerColor,
               borderRadius: BorderRadius.circular(999),
             ),
           ),
@@ -1486,7 +1486,7 @@ class _PlanPickerSheetState extends State<_PlanPickerSheet> {
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF101828),
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ],
@@ -1501,17 +1501,17 @@ class _PlanPickerSheetState extends State<_PlanPickerSheet> {
             child: Container(
               height: 46,
               decoration: BoxDecoration(
-                color: const Color(0xFFF9FAFB),
+                color: Theme.of(context).scaffoldBackgroundColor,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFE4E7EC)),
+                border: Border.all(color: Theme.of(context).dividerColor),
               ),
               child: TextField(
                 controller: _searchController,
                 onChanged: (v) => setState(() => _query = v),
-                style: const TextStyle(fontSize: 14),
+                style: TextStyle(fontSize: 14),
                 decoration: InputDecoration(
                   hintText: 'Search plans...',
-                  hintStyle: const TextStyle(
+                  hintStyle: TextStyle(
                       color: Color(0xFF9CA3AF), fontSize: 14),
                   prefixIcon: const Icon(Icons.search,
                       color: Color(0xFF9CA3AF), size: 18),
@@ -1624,7 +1624,7 @@ class _PlanPickerSheetState extends State<_PlanPickerSheet> {
                                     ),
                                     Text(
                                       'Valid for ${plan.validity}',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 11,
                                         color: Color(0xFF9CA3AF),
                                       ),
@@ -1742,7 +1742,7 @@ class _DataFloatingFieldState extends State<_DataFloatingField> {
       duration: const Duration(milliseconds: 150),
       height: 60,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: _focused
@@ -1787,16 +1787,16 @@ class _DataFloatingFieldState extends State<_DataFloatingField> {
               keyboardType: widget.keyboardType,
               inputFormatters: widget.inputFormatters,
               onChanged: widget.onChanged,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF101828),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               decoration: InputDecoration(
                 hintText: isActive ? widget.hint : null,
-                hintStyle: const TextStyle(
+                hintStyle: TextStyle(
                   fontSize: 15,
-                  color: Color(0xFFD0D5DD),
+                  color: Theme.of(context).dividerColor,
                   fontWeight: FontWeight.normal,
                 ),
                 border: InputBorder.none,
@@ -1840,8 +1840,8 @@ class _DataCTA extends StatelessWidget {
     return Container(
       padding: EdgeInsets.fromLTRB(
           20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
         border: Border(top: BorderSide(color: Color(0xFFF3F4F6))),
       ),
       child: GestureDetector(

@@ -1122,6 +1122,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
   void _showCustomerCareSheet() {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => Container(
         decoration: const BoxDecoration(
@@ -1129,7 +1130,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
-        child: Column(
+        child: SingleChildScrollView(
+          child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
@@ -1181,6 +1183,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
               ),
             ),
           ],
+          ),
         ),
       ),
     );

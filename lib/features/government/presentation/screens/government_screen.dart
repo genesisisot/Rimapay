@@ -107,18 +107,18 @@ class _GovernmentScreenState extends State<GovernmentScreen> {
         maxChildSize: 0.92,
         minChildSize: 0.4,
         builder: (_, ctrl) => Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
             children: [
               Container(width: 40, height: 4, margin: const EdgeInsets.symmetric(vertical: 14),
-                  decoration: BoxDecoration(color: const Color(0xFFE4E7EC), borderRadius: BorderRadius.circular(999))),
+                  decoration: BoxDecoration(color: Theme.of(context).dividerColor, borderRadius: BorderRadius.circular(999))),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24),
                 child: Align(alignment: Alignment.centerLeft,
-                    child: Text('Select Service', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFF101828)))),
+                    child: Text('Select Service', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface))),
               ),
               const SizedBox(height: 12),
               Expanded(
@@ -156,9 +156,9 @@ class _GovernmentScreenState extends State<GovernmentScreen> {
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                Text(svc.name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF101828))),
+                                Text(svc.name, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurface)),
                                 Text('${svc.agency} · ${svc.description}',
-                                    style: const TextStyle(fontSize: 11, color: Color(0xFF667085)), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                    style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)), maxLines: 1, overflow: TextOverflow.ellipsis),
                               ]),
                             ),
                             if (svc.fixedAmount != null)
@@ -300,9 +300,9 @@ class _GovernmentScreenState extends State<GovernmentScreen> {
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                const Text('Payment Amount', style: TextStyle(fontSize: 12, color: Color(0xFF667085))),
+                                const Text('Payment Amount', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
                                 Text('₦${_selectedService!.fixedAmount}',
-                                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF166C46))),
+                                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF166C46))),
                               ]),
                             ),
                             Container(
@@ -355,7 +355,7 @@ class _SelectorTile extends StatelessWidget {
         height: 64,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: hasValue ? AppColors.goldPrimary.withOpacity(0.4) : const Color(0xFFE4E7EC)),
         ),
@@ -400,7 +400,7 @@ class _GovCTA extends StatelessWidget {
         : 'Continue';
     return Container(
       padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
-      decoration: const BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: Color(0xFFF3F4F6)))),
+      decoration: BoxDecoration(color: Theme.of(context).cardColor, border: Border(top: BorderSide(color: Color(0xFFF3F4F6)))),
       child: GestureDetector(
         onTap: enabled ? onTap : null,
         child: AnimatedContainer(

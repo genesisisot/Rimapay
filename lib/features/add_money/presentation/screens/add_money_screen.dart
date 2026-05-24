@@ -66,17 +66,17 @@ class _MethodListView extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFE4E7EC)),
+                    border: Border.all(color: Theme.of(context).dividerColor),
                     boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))],
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Wallet Balance', style: TextStyle(fontSize: 13, color: Color(0xFF667085), fontWeight: FontWeight.w500)),
+                      const Text('Wallet Balance', style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), fontWeight: FontWeight.w500)),
                       const SizedBox(height: 6),
-                      const Text('₦12,450.00', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: Color(0xFF101828))),
+                      const Text('₦12,450.00', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface)),
                       const SizedBox(height: 14),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -178,9 +178,9 @@ class _MethodCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xFFE4E7EC)),
+          border: Border.all(color: Theme.of(context).dividerColor),
           boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 4, offset: const Offset(0, 1))],
         ),
         child: Row(
@@ -195,9 +195,9 @@ class _MethodCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF101828))),
+                  Text(title, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurface)),
                   const SizedBox(height: 2),
-                  Text(subtitle, style: const TextStyle(fontSize: 12, color: Color(0xFF667085))),
+                  Text(subtitle, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
                 ],
               ),
             ),
@@ -260,7 +260,7 @@ class _BankTransferView extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Row(children: [
-          Icon(Icons.check_circle_outline, color: Colors.white, size: 18),
+          Icon(Icons.check_circle_outline, color: Theme.of(context).cardColor, size: 18),
           SizedBox(width: 8),
           Text("We'll notify you when funds arrive"),
         ]),
@@ -288,9 +288,9 @@ class _BankTransferView extends StatelessWidget {
                 Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFE4E7EC)),
+                    border: Border.all(color: Theme.of(context).dividerColor),
                     boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))],
                   ),
                   child: Column(
@@ -304,9 +304,9 @@ class _BankTransferView extends StatelessWidget {
                         ),
                         child: const Row(
                           children: [
-                            Icon(Icons.account_balance_outlined, color: Colors.white, size: 18),
+                            Icon(Icons.account_balance_outlined, color: Theme.of(context).cardColor, size: 18),
                             SizedBox(width: 8),
-                            Text('Your Dedicated Account', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+                            Text('Your Dedicated Account', style: TextStyle(color: Theme.of(context).cardColor, fontSize: 13, fontWeight: FontWeight.w600)),
                           ],
                         ),
                       ),
@@ -383,7 +383,7 @@ class _BankTransferView extends StatelessWidget {
         // CTA
         Container(
           padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
-          decoration: const BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: Color(0xFFF3F4F6)))),
+          decoration: BoxDecoration(color: Theme.of(context).cardColor, border: Border(top: BorderSide(color: Color(0xFFF3F4F6)))),
           child: GestureDetector(
             onTap: () => _iSentMoney(context),
             child: Container(
@@ -395,7 +395,7 @@ class _BankTransferView extends StatelessWidget {
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.check_circle_outline, color: Colors.white, size: 18),
+                  Icon(Icons.check_circle_outline, color: Theme.of(context).cardColor, size: 18),
                   SizedBox(width: 8),
                   Text("I've Sent the Money", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)),
                 ],
@@ -423,9 +423,9 @@ class _AccountRow extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF), fontWeight: FontWeight.w500)),
+              Text(label, style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF), fontWeight: FontWeight.w500)),
               const SizedBox(height: 2),
-              Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF101828))),
+              Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurface)),
             ],
           ),
         ),
@@ -434,8 +434,8 @@ class _AccountRow extends StatelessWidget {
             onTap: onCopy,
             child: Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(8)),
-              child: const Icon(Icons.copy_rounded, size: 16, color: Color(0xFF667085)),
+              decoration: BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor, borderRadius: BorderRadius.circular(8)),
+              child: const Icon(Icons.copy_rounded, size: 16, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
             ),
           ),
       ],
@@ -456,7 +456,7 @@ class _InfoRow extends StatelessWidget {
       children: [
         Icon(icon, size: 16, color: iconColor),
         const SizedBox(width: 10),
-        Expanded(child: Text(text, style: const TextStyle(fontSize: 13, color: Color(0xFF374151), fontWeight: FontWeight.w500))),
+        Expanded(child: Text(text, style: TextStyle(fontSize: 13, color: Color(0xFF374151), fontWeight: FontWeight.w500))),
       ],
     );
   }
@@ -491,15 +491,15 @@ class _AddMoneyHeader extends StatelessWidget {
                 child: Container(
                   width: 36, height: 36,
                   decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(10)),
-                  child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 16),
+                  child: const Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).cardColor, size: 16),
                 ),
               ),
               const SizedBox(width: 14),
-              Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white)),
+              Text(title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white)),
             ],
           ),
           const SizedBox(height: 10),
-          Text(subtitle, style: const TextStyle(fontSize: 13, color: Colors.white70, fontWeight: FontWeight.w500)),
+          Text(subtitle, style: TextStyle(fontSize: 13, color: Colors.white70, fontWeight: FontWeight.w500)),
         ],
       ),
     );

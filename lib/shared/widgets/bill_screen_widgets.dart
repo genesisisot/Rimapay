@@ -72,7 +72,7 @@ class BillGreenHeader extends StatelessWidget {
                         ),
                         child: const Icon(
                           Icons.arrow_back_ios_new,
-                          color: Colors.white,
+                          color: Theme.of(context).cardColor,
                           size: 16,
                         ),
                       ),
@@ -83,8 +83,8 @@ class BillGreenHeader extends StatelessWidget {
                       children: [
                         Text(
                           title,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: Theme.of(context).cardColor,
                             fontSize: 17,
                             fontWeight: FontWeight.w800,
                           ),
@@ -210,7 +210,7 @@ class BillAccountCard extends StatelessWidget {
                   Container(
                     width: 38,
                     height: 38,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       color: Color(0xFF4B5563),
                       shape: BoxShape.circle,
                     ),
@@ -218,7 +218,7 @@ class BillAccountCard extends StatelessWidget {
                       child: Text(
                         'CA',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Theme.of(context).cardColor,
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
                         ),
@@ -232,7 +232,7 @@ class BillAccountCard extends StatelessWidget {
                       const Text(
                         'Current Account',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Theme.of(context).cardColor,
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                         ),
@@ -260,7 +260,7 @@ class BillAccountCard extends StatelessWidget {
               const Text(
                 '₦50,000.00',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   fontSize: 28,
                   fontWeight: FontWeight.w800,
                   letterSpacing: -0.5,
@@ -319,9 +319,9 @@ class BillDailyLimitCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
+        color: Theme.of(context).scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
         children: [
@@ -338,7 +338,7 @@ class BillDailyLimitCard extends StatelessWidget {
               ),
               Text(
                 '${(usagePercent * 100).toStringAsFixed(1)}%',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                   color: Color(0xFFff6b35),
@@ -453,7 +453,7 @@ class BillOrangeCTA extends StatelessWidget {
         20,
         MediaQuery.of(context).padding.bottom + 16,
       ),
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       child: GestureDetector(
         onTap: enabled ? onTap : null,
         child: AnimatedContainer(
@@ -513,9 +513,9 @@ class BillSimpleInput extends StatelessWidget {
     return Container(
       height: 56,
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
+        color: Theme.of(context).scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE4E7EC)),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -529,14 +529,14 @@ class BillSimpleInput extends StatelessWidget {
                 inputFormatters: inputFormatters,
                 onChanged: onChanged,
                 readOnly: readOnly,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
-                  color: Color(0xFF101828),
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
                 decoration: InputDecoration(
                   hintText: placeholder,
-                  hintStyle: const TextStyle(
+                  hintStyle: TextStyle(
                     fontSize: 15,
                     color: Color(0xFF9CA3AF),
                     fontWeight: FontWeight.normal,
@@ -580,9 +580,9 @@ class BillAmountCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE4E7EC)),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -597,7 +597,7 @@ class BillAmountCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF344054),
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
                   ),
                 ),
                 const SizedBox(width: 6),
@@ -608,17 +608,17 @@ class BillAmountCard extends StatelessWidget {
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     onChanged: onChanged,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF101828),
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontFamily: 'Effra',
                     ),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: '0',
                       hintStyle: TextStyle(
                         fontSize: 32,
-                        color: Color(0xFFD0D5DD),
+                        color: Theme.of(context).dividerColor,
                         fontWeight: FontWeight.w700,
                         fontFamily: 'Effra',
                       ),
@@ -638,7 +638,7 @@ class BillAmountCard extends StatelessWidget {
             ),
           ),
           if (minMax != null) ...[
-            const Divider(height: 1, color: Color(0xFFE4E7EC)),
+            const Divider(height: 1, color: Theme.of(context).dividerColor),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
               child: Row(
@@ -651,7 +651,7 @@ class BillAmountCard extends StatelessWidget {
                   const SizedBox(width: 6),
                   Text(
                     minMax!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       color: Color(0xFF9CA3AF),
                     ),
@@ -729,7 +729,7 @@ class _BillFloatingFieldState extends State<BillFloatingField> {
       duration: const Duration(milliseconds: 150),
       height: 58,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: _isFocused
@@ -779,17 +779,17 @@ class _BillFloatingFieldState extends State<BillFloatingField> {
                 inputFormatters: widget.inputFormatters,
                 onChanged: widget.onChanged,
                 readOnly: widget.readOnly,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF101828),
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontFamily: 'Effra',
                 ),
                 decoration: InputDecoration(
                   hintText: isActive ? widget.hint : null,
-                  hintStyle: const TextStyle(
+                  hintStyle: TextStyle(
                     fontSize: 15,
-                    color: Color(0xFFD0D5DD),
+                    color: Theme.of(context).dividerColor,
                     fontWeight: FontWeight.normal,
                     fontFamily: 'Effra',
                   ),
@@ -873,8 +873,8 @@ class _PinConfirmSheetState extends State<_PinConfirmSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: EdgeInsets.only(
@@ -889,7 +889,7 @@ class _PinConfirmSheetState extends State<_PinConfirmSheet> {
             height: 4,
             margin: const EdgeInsets.only(top: 12, bottom: 20),
             decoration: BoxDecoration(
-              color: const Color(0xFFE4E7EC),
+              color: Theme.of(context).dividerColor,
               borderRadius: BorderRadius.circular(999),
             ),
           ),
@@ -899,7 +899,7 @@ class _PinConfirmSheetState extends State<_PinConfirmSheet> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF101828),
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
 
@@ -910,9 +910,9 @@ class _PinConfirmSheetState extends State<_PinConfirmSheet> {
             margin: const EdgeInsets.symmetric(horizontal: 20),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFF9FAFB),
+              color: Theme.of(context).scaffoldBackgroundColor,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xFFE4E7EC)),
+              border: Border.all(color: Theme.of(context).dividerColor),
             ),
             child: Column(
               children: widget.summary.map((item) {
@@ -924,17 +924,17 @@ class _PinConfirmSheetState extends State<_PinConfirmSheet> {
                     children: [
                       Text(
                         item['label']!,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
                           color: Color(0xFF6B7280),
                         ),
                       ),
                       Text(
                         item['value']!,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF101828),
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     ],
@@ -1060,17 +1060,17 @@ class _PinConfirmSheetState extends State<_PinConfirmSheet> {
           height: 52,
           margin: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
-            color: const Color(0xFFF9FAFB),
+            color: Theme.of(context).scaffoldBackgroundColor,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFE4E7EC)),
+            border: Border.all(color: Theme.of(context).dividerColor),
           ),
           child: Center(
             child: Text(
               digit,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF101828),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),
