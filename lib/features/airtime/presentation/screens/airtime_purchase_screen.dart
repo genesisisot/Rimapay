@@ -414,7 +414,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         decoration: BoxDecoration(
-          color: active ? Colors.white : Colors.transparent,
+          color: active ? Theme.of(context).cardColor : Colors.transparent,
           borderRadius: BorderRadius.circular(999),
         ),
         child: Text(
@@ -450,7 +450,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
               height: 26,
               margin: const EdgeInsets.only(right: 4),
               decoration: BoxDecoration(
-                color: _selectedNetwork!.bgColor,
+                color: Theme.of(context).brightness == Brightness.dark ? _selectedNetwork!.color.withOpacity(0.15) : _selectedNetwork!.bgColor,
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -466,11 +466,11 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Frequent Beneficiaries',
+        Text('Frequent Beneficiaries',
             style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF374151),
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
                 fontFamily: 'Effra')),
         const SizedBox(height: 10),
         SizedBox(
@@ -504,7 +504,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
                           style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
-                              color: Color(0xFF374151),
+                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
                               fontFamily: 'Effra'),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -512,7 +512,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
                       Text('${c.number.substring(0, 7)}...',
                           style: TextStyle(
                               fontSize: 10,
-                              color: Color(0xFF9CA3AF),
+                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                               fontFamily: 'Effra'),
                           textAlign: TextAlign.center),
                     ],
@@ -530,11 +530,11 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Choose Network',
+        Text('Choose Network',
             style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF374151),
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
                 fontFamily: 'Effra')),
         const SizedBox(height: 10),
         Row(
@@ -553,10 +553,10 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
                   margin: EdgeInsets.only(right: isLast ? 0 : 8),
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                    color: isSelected ? net.bgColor : const Color(0xFFF9FAFB),
+                    color: isSelected ? (Theme.of(context).brightness == Brightness.dark ? net.color.withOpacity(0.15) : net.bgColor) : Theme.of(context).scaffoldBackgroundColor,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: isSelected ? net.color : const Color(0xFFE5E7EB),
+                      color: isSelected ? net.color : Theme.of(context).dividerColor,
                       width: isSelected ? 2 : 1,
                     ),
                   ),
@@ -571,7 +571,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
                               fontFamily: 'Effra',
                               color: isSelected
                                   ? net.color
-                                  : const Color(0xFF6B7280))),
+                                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.55))),
                     ],
                   ),
                 ),
@@ -612,12 +612,12 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
                 decoration: BoxDecoration(
                   color: isSelected
                       ? const Color(0xFFF2F7F3)
-                      : const Color(0xFFF9FAFB),
+                      : Theme.of(context).scaffoldBackgroundColor,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isSelected
                         ? AppColors.goldPrimary
-                        : const Color(0xFFE5E7EB),
+                        : Theme.of(context).dividerColor,
                     width: isSelected ? 2 : 1,
                   ),
                 ),
@@ -629,7 +629,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
                           fontFamily: 'Effra',
                           color: isSelected
                               ? AppColors.goldPrimary
-                              : const Color(0xFF374151))),
+                              : Theme.of(context).colorScheme.onSurface.withOpacity(0.85))),
                 ),
               ),
             ),
@@ -671,14 +671,14 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
             border: Border.all(
               color: _selectedPlan != null
                   ? AppColors.goldPrimary.withOpacity(0.4)
-                  : const Color(0xFFE4E7EC),
+                  : Theme.of(context).dividerColor,
             ),
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14),
             child: Row(
               children: [
-                const Icon(Icons.data_usage_rounded, size: 18, color: Color(0xFF9CA3AF)),
+                Icon(Icons.data_usage_rounded, size: 18, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4)),
                 const SizedBox(width: 10),
                 Expanded(
                   child: _selectedPlan != null
@@ -708,12 +708,12 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
                           style: TextStyle(
                               fontSize: 15,
                               color: _selectedNetwork == null
-                                  ? const Color(0xFFD0D5DD)
-                                  : const Color(0xFF98A2B3),
+                                  ? Theme.of(context).dividerColor
+                                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                               fontFamily: 'Effra')),
                 ),
-                const Icon(Icons.keyboard_arrow_down_rounded,
-                    color: Color(0xFF9CA3AF), size: 22),
+                Icon(Icons.keyboard_arrow_down_rounded,
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), size: 22),
               ],
             ),
           ),
@@ -742,7 +742,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
           20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        border: Border(top: BorderSide(color: Color(0xFFF3F4F6))),
+        border: Border(top: BorderSide(color: Theme.of(context).scaffoldBackgroundColor)),
       ),
       child: GestureDetector(
         onTap: enabled ? (isAirtime ? _buyAirtime : _buyData) : null,
@@ -763,7 +763,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     fontFamily: 'Effra',
-                    color: enabled ? Colors.white : const Color(0xFF9CA3AF))),
+                    color: enabled ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.4))),
           ),
         ),
       ),
@@ -838,7 +838,7 @@ class _FloatingFieldState extends State<_FloatingField> {
               ? AppColors.goldPrimary
               : _hasValue
                   ? AppColors.goldPrimary.withOpacity(0.4)
-                  : const Color(0xFFE4E7EC),
+                  : Theme.of(context).dividerColor,
           width: _focused ? 2 : 1,
         ),
       ),
@@ -860,7 +860,7 @@ class _FloatingFieldState extends State<_FloatingField> {
                   height: 1.2,
                   color: isActive
                       ? AppColors.goldPrimary
-                      : const Color(0xFF9CA3AF),
+                      : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                 ),
                 child: Text(widget.label),
               ),
@@ -937,11 +937,11 @@ class _AmountInputCardState extends State<_AmountInputCard> {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       decoration: BoxDecoration(
-        color: _focused ? Colors.white : const Color(0xFFF9FAFB),
+        color: _focused ? Theme.of(context).cardColor : Theme.of(context).scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color:
-              _focused ? AppColors.goldPrimary : const Color(0xFFE5E7EB),
+              _focused ? AppColors.goldPrimary : Theme.of(context).dividerColor,
           width: _focused ? 2 : 1,
         ),
       ),
@@ -957,7 +957,7 @@ class _AmountInputCardState extends State<_AmountInputCard> {
                         fontWeight: FontWeight.w700,
                         color: _focused
                             ? const Color(0xFF111827)
-                            : const Color(0xFF6B7280))),
+                            : Theme.of(context).colorScheme.onSurface.withOpacity(0.55))),
                 const SizedBox(width: 6),
                 Expanded(
                   child: TextField(
@@ -1084,7 +1084,7 @@ class _DataPlanSheetState extends State<_DataPlanSheet> {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: widget.network.bgColor,
+                    color: Theme.of(context).brightness == Brightness.dark ? widget.network.color.withOpacity(0.15) : widget.network.bgColor,
                     shape: BoxShape.circle,
                   ),
                   child: Center(
@@ -1118,7 +1118,7 @@ class _DataPlanSheetState extends State<_DataPlanSheet> {
               child: Row(
                 children: [
                   const SizedBox(width: 12),
-                  const Icon(Icons.search, size: 18, color: Color(0xFF9CA3AF)),
+                  Icon(Icons.search, size: 18, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4)),
                   const SizedBox(width: 8),
                   Expanded(
                     child: TextField(
@@ -1129,7 +1129,7 @@ class _DataPlanSheetState extends State<_DataPlanSheet> {
                       decoration: InputDecoration(
                         hintText: 'Search plans…',
                         hintStyle: TextStyle(
-                            fontSize: 14, color: Color(0xFF9CA3AF), fontFamily: 'Effra'),
+                            fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), fontFamily: 'Effra'),
                         border: InputBorder.none,
                         enabledBorder: InputBorder.none,
                         focusedBorder: InputBorder.none,
@@ -1161,7 +1161,7 @@ class _DataPlanSheetState extends State<_DataPlanSheet> {
                         duration: const Duration(milliseconds: 150),
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         decoration: BoxDecoration(
-                          color: sel ? Colors.white : Colors.transparent,
+                          color: sel ? Theme.of(context).cardColor : Colors.transparent,
                           borderRadius: BorderRadius.circular(999),
                           boxShadow: sel
                               ? [BoxShadow(
@@ -1178,8 +1178,8 @@ class _DataPlanSheetState extends State<_DataPlanSheet> {
                               fontWeight: FontWeight.w600,
                               fontFamily: 'Effra',
                               color: sel
-                                  ? const Color(0xFF101828)
-                                  : const Color(0xFF9CA3AF),
+                                  ? Theme.of(context).colorScheme.onSurface
+                                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                             ),
                           ),
                         ),
@@ -1196,13 +1196,13 @@ class _DataPlanSheetState extends State<_DataPlanSheet> {
               maxHeight: MediaQuery.of(context).size.height * 0.42,
             ),
             child: _filtered.isEmpty
-                ? const Padding(
+                ? Padding(
                     padding: EdgeInsets.all(32),
                     child: Center(
                       child: Text('No plans found',
                           style: TextStyle(
                               fontSize: 14,
-                              color: Color(0xFF9CA3AF),
+                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                               fontFamily: 'Effra')),
                     ),
                   )
@@ -1227,7 +1227,7 @@ class _DataPlanSheetState extends State<_DataPlanSheet> {
                                 decoration: BoxDecoration(
                                   color: isSelected
                                       ? AppColors.goldPrimary.withOpacity(0.1)
-                                      : const Color(0xFFF3F4F6),
+                                      : Theme.of(context).dividerColor,
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Center(
@@ -1239,7 +1239,7 @@ class _DataPlanSheetState extends State<_DataPlanSheet> {
                                       fontFamily: 'Effra',
                                       color: isSelected
                                           ? AppColors.goldPrimary
-                                          : const Color(0xFF374151),
+                                          : Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
                                     ),
                                   ),
                                 ),
@@ -1262,7 +1262,7 @@ class _DataPlanSheetState extends State<_DataPlanSheet> {
                                       'Valid for ${plan.validity}',
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: Color(0xFF9CA3AF),
+                                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                                         fontFamily: 'Effra',
                                       ),
                                     ),
@@ -1277,7 +1277,7 @@ class _DataPlanSheetState extends State<_DataPlanSheet> {
                                   fontFamily: 'Effra',
                                   color: isSelected
                                       ? AppColors.goldPrimary
-                                      : const Color(0xFF101828),
+                                      : Theme.of(context).colorScheme.onSurface,
                                 ),
                               ),
                               if (isSelected) ...[

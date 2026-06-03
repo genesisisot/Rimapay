@@ -300,7 +300,7 @@ class _TransferScreenState extends State<TransferScreen> {
                   height: 54,
                   decoration: BoxDecoration(
                     gradient: canContinue ? AppColors.goldGradient : null,
-                    color: canContinue ? null : const Color(0xFFE4E7EC),
+                    color: canContinue ? null : Theme.of(context).dividerColor,
                     borderRadius: BorderRadius.circular(14),
                     boxShadow: canContinue
                         ? [
@@ -316,7 +316,7 @@ class _TransferScreenState extends State<TransferScreen> {
                     child: Text(
                       'Continue',
                       style: TextStyle(
-                        color: canContinue ? Colors.white : const Color(0xFF98A2B3),
+                        color: canContinue ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                         fontFamily: 'Effra',
@@ -367,12 +367,12 @@ class _TransferScreenState extends State<TransferScreen> {
         const SizedBox(height: 20),
 
         // Recent beneficiaries
-        const Text(
+        Text(
           'Recent',
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF374151),
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
             fontFamily: 'Effra',
           ),
         ),
@@ -420,7 +420,7 @@ class _TransferScreenState extends State<TransferScreen> {
                         r['name']!.split(' ').first,
                         style: TextStyle(
                           fontSize: 11,
-                          color: Color(0xFF374151),
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
                           fontFamily: 'Effra',
                           fontWeight: FontWeight.w500,
                         ),
@@ -481,12 +481,12 @@ class _TransferScreenState extends State<TransferScreen> {
         const SizedBox(height: 20),
 
         // Recent beneficiaries
-        const Text(
+        Text(
           'Recent',
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF374151),
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
             fontFamily: 'Effra',
           ),
         ),
@@ -538,7 +538,7 @@ class _TransferScreenState extends State<TransferScreen> {
                         r['name']!.split(' ').first,
                         style: TextStyle(
                           fontSize: 11,
-                          color: Color(0xFF374151),
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
                           fontFamily: 'Effra',
                           fontWeight: FontWeight.w500,
                         ),
@@ -588,7 +588,7 @@ class _TransferScreenState extends State<TransferScreen> {
               border: Border.all(
                 color: _selectedBank.isNotEmpty
                     ? AppColors.goldPrimary.withOpacity(0.4)
-                    : const Color(0xFFE4E7EC),
+                    : Theme.of(context).dividerColor,
               ),
             ),
             child: Padding(
@@ -636,7 +636,7 @@ class _TransferScreenState extends State<TransferScreen> {
                     ),
                   ],
                   const Spacer(),
-                  const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF9CA3AF), size: 22),
+                  Icon(Icons.keyboard_arrow_down_rounded, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), size: 22),
                 ],
               ),
             ),
@@ -1048,7 +1048,7 @@ class _BankSelectorSheetState extends State<_BankSelectorSheet> {
               child: Row(
                 children: [
                   const SizedBox(width: 12),
-                  const Icon(Icons.search, size: 18, color: Color(0xFF9CA3AF)),
+                  Icon(Icons.search, size: 18, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4)),
                   const SizedBox(width: 8),
                   Expanded(
                     child: TextField(
@@ -1064,7 +1064,7 @@ class _BankSelectorSheetState extends State<_BankSelectorSheet> {
                         hintText: 'Search banks…',
                         hintStyle: TextStyle(
                           fontSize: 14,
-                          color: Color(0xFF9CA3AF),
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                           fontFamily: 'Effra',
                         ),
                         border: InputBorder.none,

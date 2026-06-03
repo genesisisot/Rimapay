@@ -18,7 +18,7 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('$method coming soon'),
-        backgroundColor: const Color(0xFF101828),
+        backgroundColor: Theme.of(context).colorScheme.onSurface,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -95,7 +95,7 @@ class _MethodListView extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
 
-                const Text('Choose Payment Method', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF374151))),
+                Text('Choose Payment Method', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85))),
                 const SizedBox(height: 12),
 
                 _MethodCard(
@@ -187,7 +187,7 @@ class _MethodCard extends StatelessWidget {
           children: [
             Container(
               width: 48, height: 48,
-              decoration: BoxDecoration(color: iconBg, borderRadius: BorderRadius.circular(12)),
+              decoration: BoxDecoration(color: Theme.of(context).brightness == Brightness.dark ? iconColor.withOpacity(0.15) : iconBg, borderRadius: BorderRadius.circular(12)),
               child: Icon(icon, size: 22, color: iconColor),
             ),
             const SizedBox(width: 14),
@@ -210,7 +210,7 @@ class _MethodCard extends StatelessWidget {
                   child: Text(badge, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: badgeColor)),
                 ),
                 const SizedBox(height: 6),
-                const Icon(Icons.chevron_right_rounded, color: Color(0xFF9CA3AF), size: 20),
+                Icon(Icons.chevron_right_rounded, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), size: 20),
               ],
             ),
           ],
@@ -232,7 +232,7 @@ class _BankTransferView extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('$label copied'),
-        backgroundColor: const Color(0xFF101828),
+        backgroundColor: Theme.of(context).colorScheme.onSurface,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -247,7 +247,7 @@ class _BankTransferView extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('Account details copied'),
-        backgroundColor: const Color(0xFF101828),
+        backgroundColor: Theme.of(context).colorScheme.onSurface,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -315,12 +315,12 @@ class _BankTransferView extends StatelessWidget {
                         child: Column(
                           children: [
                             _AccountRow(label: 'Bank Name', value: 'RimaPay MFB', onCopy: null),
-                            const Divider(height: 20, color: Color(0xFFF3F4F6)),
+                            Divider(height: 20, color: Theme.of(context).scaffoldBackgroundColor),
                             _AccountRow(
                               label: 'Account Number', value: '0123456789',
                               onCopy: () => _copy(context, '0123456789', 'Account number'),
                             ),
-                            const Divider(height: 20, color: Color(0xFFF3F4F6)),
+                            Divider(height: 20, color: Theme.of(context).scaffoldBackgroundColor),
                             _AccountRow(
                               label: 'Account Name', value: 'Adebayo Okafor',
                               onCopy: () => _copy(context, 'Adebayo Okafor', 'Account name'),
@@ -362,7 +362,7 @@ class _BankTransferView extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: const Color(0xFFF59E0B).withOpacity(0.3)),
                   ),
-                  child: const Column(
+                  child: Column(
                     children: [
                       _InfoRow(icon: Icons.bolt_rounded, iconColor: Color(0xFF166C46), text: 'Funds reflect instantly after transfer'),
                       SizedBox(height: 10),
@@ -370,7 +370,7 @@ class _BankTransferView extends StatelessWidget {
                       SizedBox(height: 10),
                       _InfoRow(icon: Icons.info_outline_rounded, iconColor: Color(0xFF3B82F6), text: 'Minimum transfer: ₦100'),
                       SizedBox(height: 10),
-                      _InfoRow(icon: Icons.schedule_rounded, iconColor: Color(0xFF9CA3AF), text: 'Transfers are available 24/7 including weekends'),
+                      _InfoRow(icon: Icons.schedule_rounded, iconColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), text: 'Transfers are available 24/7 including weekends'),
                     ],
                   ),
                 ),
@@ -383,7 +383,7 @@ class _BankTransferView extends StatelessWidget {
         // CTA
         Container(
           padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
-          decoration: BoxDecoration(color: Theme.of(context).cardColor, border: Border(top: BorderSide(color: Color(0xFFF3F4F6)))),
+          decoration: BoxDecoration(color: Theme.of(context).cardColor, border: Border(top: BorderSide(color: Theme.of(context).scaffoldBackgroundColor))),
           child: GestureDetector(
             onTap: () => _iSentMoney(context),
             child: Container(
@@ -423,7 +423,7 @@ class _AccountRow extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF), fontWeight: FontWeight.w500)),
+              Text(label, style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), fontWeight: FontWeight.w500)),
               const SizedBox(height: 2),
               Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurface)),
             ],
@@ -456,7 +456,7 @@ class _InfoRow extends StatelessWidget {
       children: [
         Icon(icon, size: 16, color: iconColor),
         const SizedBox(width: 10),
-        Expanded(child: Text(text, style: TextStyle(fontSize: 13, color: Color(0xFF374151), fontWeight: FontWeight.w500))),
+        Expanded(child: Text(text, style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85), fontWeight: FontWeight.w500))),
       ],
     );
   }

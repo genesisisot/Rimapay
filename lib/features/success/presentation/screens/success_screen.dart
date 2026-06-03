@@ -275,7 +275,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
 
                           // RimaPay Logo
                           Image.asset(
-                            'assets/images/AppIcon.png',
+                            'assets/images/mild.png',
                             height: 56,
                             width: 56,
                           ),
@@ -458,11 +458,11 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                         ),
                       ),
                       const SizedBox(height: 4),
-                      const Text(
+                      Text(
                         'Transaction Amount',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF6B7280), // neutral-500
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55), // neutral-500
                         ),
                       ),
                     ],
@@ -495,7 +495,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
             label,
             style: TextStyle(
               fontSize: 12,
-              color: Color(0xFF6B7280), // neutral-500
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55), // neutral-500
             ),
           ),
           Flexible(
@@ -521,11 +521,11 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text(
+          Text(
             'Status',
             style: TextStyle(
               fontSize: 12,
-              color: Color(0xFF6B7280), // neutral-500
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55), // neutral-500
             ),
           ),
           Row(
@@ -630,17 +630,18 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
     required IconData icon,
     required String label,
     required VoidCallback onTap,
-    Color color = const Color(0xFF374151),
+    Color? color,
   }) {
+    final c = color ?? Theme.of(context).colorScheme.onSurface.withOpacity(0.85);
     return OutlinedButton.icon(
       onPressed: onTap,
-      icon: Icon(icon, size: 15, color: color),
-      label: Text(label, style: TextStyle(color: color, fontSize: 13)),
+      icon: Icon(icon, size: 15, color: c),
+      label: Text(label, style: TextStyle(color: c, fontSize: 13)),
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 14),
-        side: BorderSide(color: color.withOpacity(0.3)),
+        side: BorderSide(color: c.withOpacity(0.3)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        backgroundColor: color.withOpacity(0.05),
+        backgroundColor: c.withOpacity(0.05),
       ),
     );
   }
@@ -667,7 +668,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
               'Transaction processed securely by RimaPay',
               style: TextStyle(
                 fontSize: 12,
-                color: const Color(0xFF9CA3AF).withOpacity(0.8), // neutral-400
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4).withOpacity(0.8), // neutral-400
               ),
               textAlign: TextAlign.center,
             ),
@@ -788,12 +789,12 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Nickname (Optional)',
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
-                          color: Color(0xFF374151), // neutral-700
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85), // neutral-700
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -836,7 +837,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                         border: Border.all(
                           color: _markAsFavorite 
                               ? const Color(0xFFF59E0B) // yellow-500
-                              : const Color(0xFFE5E7EB), // neutral-200
+                              : Theme.of(context).dividerColor, // neutral-200
                           width: 2,
                         ),
                         borderRadius: BorderRadius.circular(12),
@@ -850,7 +851,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                             _markAsFavorite ? Icons.star : Icons.star_border,
                             color: _markAsFavorite 
                                 ? const Color(0xFFF59E0B) // yellow-500
-                                : const Color(0xFF9CA3AF), // neutral-400
+                                : Theme.of(context).colorScheme.onSurface.withOpacity(0.4), // neutral-400
                             size: 20,
                           ),
                           const SizedBox(width: 12),
@@ -865,15 +866,15 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                                     fontWeight: FontWeight.w500,
                                     color: _markAsFavorite 
                                         ? const Color(0xFFA16207) // yellow-700
-                                        : const Color(0xFF374151), // neutral-700
+                                        : Theme.of(context).colorScheme.onSurface.withOpacity(0.85), // neutral-700
                                   ),
                                 ),
                                 const SizedBox(height: 2),
-                                const Text(
+                                Text(
                                   'Quick access for future transfers',
                                   style: TextStyle(
                                     fontSize: 11,
-                                    color: Color(0xFF6B7280), // neutral-500
+                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55), // neutral-500
                                   ),
                                 ),
                               ],
@@ -903,12 +904,12 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                             ),
                             side: BorderSide(color: Theme.of(context).dividerColor), // neutral-200
                           ),
-                          child: const Text(
+                          child: Text(
                             'Cancel',
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
-                              color: Color(0xFF374151), // neutral-700
+                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85), // neutral-700
                             ),
                           ),
                         ),

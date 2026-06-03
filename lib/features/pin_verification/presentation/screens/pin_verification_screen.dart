@@ -345,7 +345,7 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> with Tick
                       recipient,
                       style: TextStyle(
                         fontSize: 12,
-                        color: Color(0xFF6B7280),
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
                         height: 1.4,
                       ),
                       overflow: TextOverflow.ellipsis,
@@ -397,7 +397,7 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> with Tick
               label,
               style: TextStyle(
                 fontSize: 12,
-                color: Color(0xFF6B7280),
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
               ),
             ),
           ),
@@ -457,11 +457,11 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> with Tick
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'Enter your 4-digit PIN to authorize this transaction',
             style: TextStyle(
               fontSize: 12,
-              color: Color(0xFF6B7280),
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
               height: 1.4,
             ),
             textAlign: TextAlign.center,
@@ -534,14 +534,14 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> with Tick
                 Icon(
                   _showPin ? Icons.visibility_off : Icons.visibility,
                   size: 12,
-                  color: const Color(0xFF6B7280),
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
                 ),
                 const SizedBox(width: 8),
                 Text(
                   _showPin ? 'Hide PIN' : 'Show PIN',
                   style: TextStyle(
                     fontSize: 11,
-                    color: Color(0xFF6B7280),
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
                   ),
                 ),
               ],

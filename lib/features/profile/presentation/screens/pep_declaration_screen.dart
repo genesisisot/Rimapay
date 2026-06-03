@@ -51,8 +51,8 @@ class _PepDeclarationScreenState extends State<PepDeclarationScreen> {
                         color: Theme.of(context).scaffoldBackgroundColor,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.arrow_back_ios_new,
-                          color: Color(0xFF6B7280), size: 18),
+                      child: Icon(Icons.arrow_back_ios_new,
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55), size: 18),
                     ),
                   ),
                   const Spacer(),
@@ -103,14 +103,14 @@ class _PepDeclarationScreenState extends State<PepDeclarationScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.symmetric(horizontal: 28),
                       child: Text(
                         'A PEP (Politically Exposed Person) is someone who currently holds or has held an important public position, which gives them influence over public funds or decisions.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 13,
-                            color: Color(0xFF6B7280),
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
                             height: 1.5),
                       ),
                     ),
@@ -138,7 +138,7 @@ class _PepDeclarationScreenState extends State<PepDeclarationScreen> {
                                   border: Border.all(
                                     color: selected
                                         ? const Color(0xFF16A34A)
-                                        : const Color(0xFFE5E7EB),
+                                        : Theme.of(context).dividerColor,
                                     width: 1.5,
                                   ),
                                 ),
@@ -150,7 +150,7 @@ class _PepDeclarationScreenState extends State<PepDeclarationScreen> {
                                       fontWeight: FontWeight.w700,
                                       color: selected
                                           ? Colors.white
-                                          : const Color(0xFF374151),
+                                          : Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
                                     ),
                                   ),
                                 ),

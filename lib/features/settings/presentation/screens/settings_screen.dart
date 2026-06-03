@@ -144,7 +144,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
             ).animate().scale(delay: 50.ms),
             
             const SizedBox(width: 12),
-          Image.asset("assets/images/AppIcon.png", height: 30, width: 30,),
+          Image.asset("assets/images/mild.png", height: 30, width: 30,),
             const SizedBox(width: 12),
             
             Text(
@@ -438,9 +438,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                       width: 20,
                       height: 20,
                       margin: const EdgeInsets.all(2),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white,
+                        color: Theme.of(context).cardColor,
                       ),
                     ),
                   ),
@@ -1125,8 +1125,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
@@ -1139,17 +1139,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
               height: 4,
               margin: const EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(
-                  color: const Color(0xFFE4E7EC),
+                  color: Theme.of(context).dividerColor,
                   borderRadius: BorderRadius.circular(999)),
             ),
-            const Text('Customer Care',
+            Text('Customer Care',
                 style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF101828))),
+                    color: Theme.of(context).colorScheme.onSurface)),
             const SizedBox(height: 6),
-            const Text('We\'re here to help you',
-                style: TextStyle(fontSize: 14, color: Color(0xFF667085))),
+            Text('We\'re here to help you',
+                style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
             const SizedBox(height: 24),
             _careOption(Icons.phone_outlined, 'Call Us',
                 '0800-RIMAPAY (0800-7462729)', const Color(0xFF1A6B35)),
@@ -1163,20 +1163,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: const Color(0xFFF9FAFB),
+                color: Theme.of(context).scaffoldBackgroundColor,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFE4E7EC)),
+                border: Border.all(color: Theme.of(context).dividerColor),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.access_time,
-                      color: Color(0xFF667085), size: 18),
+                  Icon(Icons.access_time,
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), size: 18),
                   const SizedBox(width: 10),
-                  const Expanded(
+                  Expanded(
                     child: Text(
                       'Mon – Fri: 8am – 8pm\nSat: 9am – 5pm',
                       style: TextStyle(
-                          fontSize: 13, color: Color(0xFF344054), height: 1.4),
+                          fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8), height: 1.4),
                     ),
                   ),
                 ],
@@ -1210,7 +1210,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                       fontSize: 14,
                       color: color)),
               Text(detail,
-                  style: const TextStyle(fontSize: 12, color: Color(0xFF667085))),
+                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
             ],
           ),
         ],
@@ -1227,8 +1227,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom + 32,
         ),
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Padding(
@@ -1237,16 +1237,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Reset Transaction PIN',
+              Text('Reset Transaction PIN',
                   style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF101828))),
+                      color: Theme.of(context).colorScheme.onSurface)),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'An OTP will be sent to your registered phone number to reset your transaction PIN.',
                 style: TextStyle(
-                    fontSize: 13, color: Color(0xFF667085), height: 1.5),
+                    fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), height: 1.5),
               ),
               const SizedBox(height: 20),
               SizedBox(
@@ -1270,9 +1270,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Text('Send OTP',
+                  child: Text('Send OTP',
                       style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.w700)),
+                          color: Theme.of(context).cardColor, fontWeight: FontWeight.w700)),
                 ),
               ),
             ],

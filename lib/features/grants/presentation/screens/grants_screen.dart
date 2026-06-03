@@ -60,17 +60,17 @@ class _GrantsScreenState extends State<GrantsScreen> {
                             margin: const EdgeInsets.only(right: 8),
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
                             decoration: BoxDecoration(
-                              color: active ? const Color(0xFF1A6B35) : Colors.white,
+                              color: active ? Color(0xFF1A6B35) : Theme.of(context).cardColor,
                               borderRadius: BorderRadius.circular(999),
                               border: Border.all(
-                                color: active ? const Color(0xFF1A6B35) : const Color(0xFFE4E7EC),
+                                color: active ? Color(0xFF1A6B35) : Theme.of(context).dividerColor,
                               ),
                             ),
                             child: Text(_categories[i],
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
-                                  color: active ? Colors.white : const Color(0xFF344054),
+                                  color: active ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
                                 )),
                           ),
                         );
@@ -91,10 +91,10 @@ class _GrantsScreenState extends State<GrantsScreen> {
                         margin: const EdgeInsets.only(bottom: 8),
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: active ? const Color(0xFFE8F5ED) : Colors.white,
+                          color: active ? Color(0xFFE8F5ED) : Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: active ? const Color(0xFF1A6B35) : const Color(0xFFE4E7EC),
+                            color: active ? Color(0xFF1A6B35) : Theme.of(context).dividerColor,
                             width: active ? 2 : 1,
                           ),
                         ),
@@ -160,7 +160,7 @@ class _GrantsScreenState extends State<GrantsScreen> {
                           : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF1A6B35),
-                        disabledBackgroundColor: const Color(0xFFE4E7EC),
+                        disabledBackgroundColor: Theme.of(context).dividerColor,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
                       child: Text('Donate / Apply',
@@ -182,7 +182,7 @@ class _GrantsScreenState extends State<GrantsScreen> {
         hintText: hint,
         hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), fontSize: 14),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: Theme.of(context).cardColor,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),

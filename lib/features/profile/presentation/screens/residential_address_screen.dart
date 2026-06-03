@@ -63,7 +63,7 @@ class _ResidentialAddressScreenState extends State<ResidentialAddressScreen> {
           color: Color(0xFFD1D5DB), fontSize: 14, fontFamily: 'Effra'),
       suffixIcon: suffix,
       filled: true,
-      fillColor: Colors.white,
+      fillColor: Theme.of(context).cardColor,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -132,8 +132,8 @@ class _ResidentialAddressScreenState extends State<ResidentialAddressScreen> {
                         color: Theme.of(context).scaffoldBackgroundColor,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.arrow_back_ios_new,
-                          color: Color(0xFF6B7280), size: 18),
+                      child: Icon(Icons.arrow_back_ios_new,
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55), size: 18),
                     ),
                   ),
                   const Spacer(),
@@ -163,10 +163,10 @@ class _ResidentialAddressScreenState extends State<ResidentialAddressScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Where do you live?',
+                    Text('Where do you live?',
                         style: TextStyle(
                             fontSize: 13,
-                            color: Color(0xFF6B7280),
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
                             height: 1.5)),
                     const SizedBox(height: 20),
                     _sectionLabel('Address'),
@@ -229,10 +229,10 @@ class _ResidentialAddressScreenState extends State<ResidentialAddressScreen> {
                           style: TextStyle(fontSize: 14),
                           decoration: _inputDec(
                             hint: 'Select state',
-                            suffix: const Padding(
+                            suffix: Padding(
                               padding: EdgeInsets.only(right: 12),
                               child: Icon(Icons.keyboard_arrow_down,
-                                  color: Color(0xFF6B7280)),
+                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55)),
                             ),
                           ),
                         ),
@@ -255,7 +255,7 @@ class _ResidentialAddressScreenState extends State<ResidentialAddressScreen> {
         style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF374151)));
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85)));
   }
 
   void _showStatePicker(BuildContext context) {

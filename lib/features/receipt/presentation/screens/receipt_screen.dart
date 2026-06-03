@@ -428,7 +428,7 @@ www.rimapay.com
                               children: [
                                 // RimaPay Logo placeholder
                                 // Image.asset(
-                                //   "assets/images/AppIcon.png",
+                                //   "assets/images/mild.png",
                                 //   width: 24,
                                 //   height: 24,
                                 // ),
@@ -564,7 +564,7 @@ www.rimapay.com
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
                                           Image.asset(
-                                            "assets/images/AppIcon.png",
+                                            "assets/images/mild.png",
                                             width: isSmallScreen ? 24 : 32,
                                             height: isSmallScreen ? 24 : 32,
                                           ),

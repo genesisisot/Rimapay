@@ -65,7 +65,7 @@ class _InternetServicesScreenState extends State<InternetServicesScreen> {
                               color: active ? p.color.withOpacity(0.1) : Colors.white,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: active ? p.color : const Color(0xFFE4E7EC),
+                                color: active ? p.color : Theme.of(context).dividerColor,
                                 width: active ? 2 : 1,
                               ),
                             ),
@@ -77,7 +77,7 @@ class _InternetServicesScreenState extends State<InternetServicesScreen> {
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w700,
-                                      color: active ? p.color : const Color(0xFF344054),
+                                      color: active ? p.color : Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
                                     )),
                               ],
                             ),
@@ -119,10 +119,10 @@ class _InternetServicesScreenState extends State<InternetServicesScreen> {
                           duration: const Duration(milliseconds: 200),
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: active ? const Color(0xFFE8F5ED) : Colors.white,
+                            color: active ? Color(0xFFE8F5ED) : Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: active ? const Color(0xFF1A6B35) : const Color(0xFFE4E7EC),
+                              color: active ? Color(0xFF1A6B35) : Theme.of(context).dividerColor,
                               width: active ? 2 : 1,
                             ),
                           ),
@@ -168,7 +168,7 @@ class _InternetServicesScreenState extends State<InternetServicesScreen> {
                           : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF1A6B35),
-                        disabledBackgroundColor: const Color(0xFFE4E7EC),
+                        disabledBackgroundColor: Theme.of(context).dividerColor,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
                       child: Text('Proceed',
@@ -251,7 +251,7 @@ class _InternetServicesScreenState extends State<InternetServicesScreen> {
         hintText: hint,
         hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), fontSize: 14),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: Theme.of(context).cardColor,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),

@@ -300,7 +300,7 @@
 //             begin: Alignment.topLeft,
 //             end: Alignment.bottomRight,
 //             colors: [
-//               Color(0xFFFFFFFF),
+//               Theme.of(context).cardColor,
 //               Color(0xFFF0FDF4),
 //               Color(0xFFF2F7F3),
 //             ],
@@ -341,7 +341,7 @@
 //                             }
 //                           },
 //                           icon: const Icon(Icons.arrow_back, size: 16),
-//                           color: const Color(0xFF6B7280),
+//                           color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
 //                         ),
 //                       ),
 //                     if (currentStep != UpgradeStep.success) const SizedBox(width: 12),
@@ -362,7 +362,7 @@
 //                               'Step ${currentStep.index + 1} of 3',
 //                               style: TextStyle(
 //                                 fontSize: 12,
-//                                 color: Color(0xFF6B7280),
+//                                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
 //                               ),
 //                             ),
 //                         ],
@@ -477,7 +477,7 @@
 //                           req,
 //                           style: TextStyle(
 //                             fontSize: 12,
-//                             color: Color(0xFF374151),
+//                             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
 //                           ),
 //                         ),
 //                       ),
@@ -587,7 +587,7 @@
 //                   description,
 //                   style: TextStyle(
 //                     fontSize: 12,
-//                     color: title.isNotEmpty ? const Color(0xFF6B7280) : const Color(0xFF374151),
+//                     color: title.isNotEmpty ? Theme.of(context).colorScheme.onSurface.withOpacity(0.55) : Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
 //                   ),
 //                 ),
 //               ],
@@ -691,7 +691,7 @@
 //               style: TextStyle(
 //                 fontSize: 12,
 //                 fontWeight: FontWeight.w500,
-//                 color: Color(0xFF374151),
+//                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
 //               ),
 //             ),
 //             const SizedBox(height: 8),
@@ -844,7 +844,7 @@
 //                 : 'Complete your account verification process',
 //             style: TextStyle(
 //               fontSize: 14,
-//               color: Color(0xFF6B7280),
+//               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
 //             ),
 //             textAlign: TextAlign.center,
 //           ),
@@ -977,7 +977,7 @@
 //             'You are now ${tierInfo.name}',
 //             style: TextStyle(
 //               fontSize: 14,
-//               color: Color(0xFF6B7280),
+//               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
 //             ),
 //           ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.3),
 
@@ -1071,7 +1071,7 @@
 //           style: TextStyle(
 //             fontSize: 12,
 //             fontWeight: FontWeight.w500,
-//             color: Color(0xFF374151),
+//             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
 //           ),
 //         ),
 //         const SizedBox(height: 8),
@@ -1083,7 +1083,7 @@
 //           textAlign: textAlign,
 //           decoration: InputDecoration(
 //             hintText: placeholder,
-//             prefixIcon: icon != null ? Icon(icon, size: 16, color: const Color(0xFF9CA3AF)) : null,
+//             prefixIcon: icon != null ? Icon(icon, size: 16, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4)) : null,
 //             counterText: '',
 //             border: OutlineInputBorder(
 //               borderRadius: BorderRadius.circular(8),
@@ -1098,7 +1098,7 @@
 //               borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
 //             ),
 //             filled: true,
-//             fillColor: Colors.white,
+//             fillColor: Theme.of(context).cardColor,
 //             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
 //           ),
 //         ),
@@ -1121,7 +1121,7 @@
 //           style: TextStyle(
 //             fontSize: 12,
 //             fontWeight: FontWeight.w500,
-//             color: Color(0xFF374151),
+//             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
 //           ),
 //         ),
 //         const SizedBox(height: 8),
@@ -1143,7 +1143,7 @@
 //               borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
 //             ),
 //             filled: true,
-//             fillColor: Colors.white,
+//             fillColor: Theme.of(context).cardColor,
 //             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
 //           ),
 //         ),
@@ -1174,9 +1174,9 @@
 //         ),
 //         child: Column(
 //           children: [
-//             const Icon(
+//             Icon(
 //               Icons.upload_file,
-//               color: Color(0xFF9CA3AF),
+//               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
 //               size: 24,
 //             ),
 //             const SizedBox(height: 8),
@@ -1184,7 +1184,7 @@
 //               file?.path.split('/').last ?? label,
 //               style: TextStyle(
 //                 fontSize: 12,
-//                 color: Color(0xFF6B7280),
+//                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
 //               ),
 //               textAlign: TextAlign.center,
 //             ),
@@ -1193,7 +1193,7 @@
 //                 description,
 //                 style: TextStyle(
 //                   fontSize: 10,
-//                   color: Color(0xFF9CA3AF),
+//                   color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
 //                 ),
 //                 textAlign: TextAlign.center,
 //               ),
@@ -1219,7 +1219,7 @@
 //               text,
 //               style: TextStyle(
 //                 fontSize: 12,
-//                 color: Color(0xFF374151),
+//                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
 //               ),
 //             ),
 //           ),
@@ -1238,7 +1238,7 @@
 //             label,
 //             style: TextStyle(
 //               fontSize: 12,
-//               color: Color(0xFF6B7280),
+//               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
 //             ),
 //           ),
 //           Text(

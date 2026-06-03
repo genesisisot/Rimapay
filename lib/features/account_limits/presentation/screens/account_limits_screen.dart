@@ -203,8 +203,8 @@ class AccountLimitsScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 border: isLast
                     ? null
-                    : const Border(
-                        bottom: BorderSide(color: Color(0xFFF5F5F5))),
+                    : Border(
+                        bottom: BorderSide(color: Theme.of(context).scaffoldBackgroundColor)),
               ),
               child: Row(
                 children: [

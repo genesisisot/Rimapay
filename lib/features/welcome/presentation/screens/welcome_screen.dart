@@ -73,19 +73,21 @@ class _WelcomeScreenState extends State<WelcomeScreen>
             ),
           ),
 
-          // Glowing Nigeria map — upper-right quadrant
+          // Glowing Nigeria map — right side, aligned with tagline
           Positioned(
-            top: size.height * 0.04,
-            right: -size.width * 0.10,
-            width: size.width * 0.70,
-            height: size.width * 0.70,
+            top: size.height * 0.28,
+            right: -size.width * 0.02,
+            width: size.width * 0.58,
+            height: size.width * 0.50,
             child: AnimatedBuilder(
-              animation: Listenable.merge([_glowController, _particleController]),
-              builder: (_, __) => CustomPaint(
-                painter: _NigeriaMapPainter(
-                  pulse: _glowController.value,
-                  particlePhase: _particleController.value,
-                ),
+              animation: _glowController,
+              builder: (_, child) => Opacity(
+                opacity: 0.7 + 0.3 * _glowController.value,
+                child: child,
+              ),
+              child: Image.asset(
+                'assets/images/nigeria_glow_map.png',
+                fit: BoxFit.contain,
               ),
             ),
           ),
@@ -95,54 +97,35 @@ class _WelcomeScreenState extends State<WelcomeScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── Top bar ──────────────────────────────────────────────────
+                // ── Row: Logo left, Language toggle top-right ───────────────
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(22, 10, 22, 0),
+                  padding: const EdgeInsets.fromLTRB(22, 28, 22, 0),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Logo — large and prominent
-                      SizedBox(
-                        width: 150,
-                        height: 150,
-                        child: Image.asset(
-                          'assets/images/RimaMFBLogo.png',
-                          fit: BoxFit.contain,
-                          errorBuilder: (_, __, ___) => Image.asset(
-                            'assets/images/AppIcon.png',
-                            fit: BoxFit.contain,
-                            errorBuilder: (_, __, ___) => const Icon(
-                              Icons.account_balance,
-                              color: Color(0xFFD4AF37),
-                              size: 50,
-                            ),
-                          ),
+                      Image.asset(
+                        'assets/images/mild.png',
+                        width: size.width * 0.44,
+                        fit: BoxFit.fitWidth,
+                        errorBuilder: (_, __, ___) => const Icon(
+                          Icons.account_balance,
+                          color: Color(0xFFD4AF37),
+                          size: 80,
                         ),
                       ),
                       const Spacer(),
-                      // Language toggle + Nigerian flag
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const _NigerianFlag(width: 28, height: 19),
-                              const SizedBox(width: 8),
-                              _LangToggle(
-                                lang: _lang,
-                                onToggle: (l) => setState(() => _lang = l),
-                              ),
-                            ],
-                          ),
-                        ],
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: _LangToggle(
+                          lang: _lang,
+                          onToggle: (l) => setState(() => _lang = l),
+                        ),
                       ),
                     ],
                   ),
                 ),
 
-                const SizedBox(height: 28),
+                const SizedBox(height: 44),
 
                 // ── Hero headline ─────────────────────────────────────────────
                 Padding(
@@ -157,13 +140,13 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             : "made for us\nby us",
                         style: const TextStyle(
                           color: Color(0xFFC6F135),
-                          fontSize: 48,
-                          height: 1.06,
+                          fontSize: 38,
+                          height: 1.08,
                           fontWeight: FontWeight.w900,
-                          letterSpacing: -1.2,
+                          letterSpacing: -1.0,
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
                       // Gold underline accent
                       Container(
                         width: 42,
@@ -173,7 +156,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 14),
                       // Subtitle — contained within left ~60% so map shows through
                       SizedBox(
                         width: size.width * 0.58,

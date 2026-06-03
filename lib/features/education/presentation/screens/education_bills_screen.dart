@@ -275,8 +275,8 @@ class _DropdownField extends StatelessWidget {
             color: hasValue
                 ? AppColors.goldPrimary.withOpacity(0.4)
                 : enabled
-                    ? const Color(0xFFE4E7EC)
-                    : const Color(0xFFF3F4F6),
+                    ? Theme.of(context).dividerColor
+                    : Theme.of(context).dividerColor,
           ),
         ),
         child: Row(
@@ -291,7 +291,7 @@ class _DropdownField extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
-                      color: hasValue ? AppColors.goldPrimary : const Color(0xFF9CA3AF),
+                      color: hasValue ? AppColors.goldPrimary : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -300,7 +300,7 @@ class _DropdownField extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: hasValue ? FontWeight.w600 : FontWeight.normal,
-                      color: hasValue ? const Color(0xFF101828) : const Color(0xFFD0D5DD),
+                      color: hasValue ? Theme.of(context).colorScheme.onSurface : Theme.of(context).dividerColor,
                     ),
                   ),
                   if (subLabel != null) ...[
@@ -311,7 +311,7 @@ class _DropdownField extends StatelessWidget {
               ),
             ),
             Icon(Icons.keyboard_arrow_down_rounded,
-                color: enabled ? const Color(0xFF9CA3AF) : const Color(0xFFD0D5DD)),
+                color: enabled ? Theme.of(context).colorScheme.onSurface.withOpacity(0.4) : Theme.of(context).dividerColor),
           ],
         ),
       ),
@@ -400,7 +400,7 @@ class _ProviderSheet extends StatelessWidget {
                 color: selected?.id == p.id ? const Color(0xFFF2F7F3) : const Color(0xFFFAFBFC),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: selected?.id == p.id ? const Color(0xFF166C46).withOpacity(0.4) : const Color(0xFFE4E7EC),
+                  color: selected?.id == p.id ? Color(0xFF166C46).withOpacity(0.4) : Theme.of(context).dividerColor,
                 ),
               ),
               child: Row(
@@ -462,7 +462,7 @@ class _ExamSheet extends StatelessWidget {
                 color: selected?.id == e.id ? const Color(0xFFF2F7F3) : const Color(0xFFFAFBFC),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: selected?.id == e.id ? const Color(0xFF166C46).withOpacity(0.4) : const Color(0xFFE4E7EC),
+                  color: selected?.id == e.id ? Color(0xFF166C46).withOpacity(0.4) : Theme.of(context).dividerColor,
                 ),
               ),
               child: Row(
@@ -508,7 +508,7 @@ class _EduCTA extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        border: Border(top: BorderSide(color: Color(0xFFF3F4F6))),
+        border: Border(top: BorderSide(color: Theme.of(context).scaffoldBackgroundColor)),
       ),
       child: GestureDetector(
         onTap: enabled ? onTap : null,
@@ -525,7 +525,7 @@ class _EduCTA extends StatelessWidget {
           ),
           child: Center(
             child: Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600,
-                color: enabled ? Colors.white : const Color(0xFF9CA3AF))),
+                color: enabled ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.4))),
           ),
         ),
       ),

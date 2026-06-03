@@ -311,14 +311,14 @@ class _CableProviderSheet extends StatelessWidget {
               ],
             ),
           ),
-          const Divider(height: 1, color: Color(0xFFF3F4F6)),
+          Divider(height: 1, color: Theme.of(context).scaffoldBackgroundColor),
           ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             padding: const EdgeInsets.symmetric(vertical: 8),
             itemCount: providers.length,
             separatorBuilder: (_, __) =>
-                const Divider(height: 1, indent: 68, color: Color(0xFFF3F4F6)),
+                Divider(height: 1, indent: 68, color: Theme.of(context).scaffoldBackgroundColor),
             itemBuilder: (_, i) {
               final p = providers[i];
               final isSelected = selected?.id == p.id;
@@ -346,7 +346,7 @@ class _CableProviderSheet extends StatelessWidget {
                                 fontWeight: FontWeight.w600,
                                 color: isSelected
                                     ? AppColors.goldPrimary
-                                    : const Color(0xFF101828))),
+                                    : Theme.of(context).colorScheme.onSurface)),
                       ),
                       if (isSelected)
                         const Icon(Icons.check_circle_rounded,
@@ -410,7 +410,7 @@ class _PackageSheet extends StatelessWidget {
               ],
             ),
           ),
-          const Divider(height: 1, color: Color(0xFFF3F4F6)),
+          Divider(height: 1, color: Theme.of(context).scaffoldBackgroundColor),
           ConstrainedBox(
             constraints: BoxConstraints(
               maxHeight: MediaQuery.of(context).size.height * 0.6,
@@ -420,7 +420,7 @@ class _PackageSheet extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 8),
               itemCount: packages.length,
               separatorBuilder: (_, __) =>
-                  const Divider(height: 1, indent: 20, color: Color(0xFFF3F4F6)),
+                  Divider(height: 1, indent: 20, color: Theme.of(context).scaffoldBackgroundColor),
               itemBuilder: (_, i) {
                 final pkg = packages[i];
                 final isSelected = selected?.id == pkg.id;
@@ -443,7 +443,7 @@ class _PackageSheet extends StatelessWidget {
                                           fontWeight: FontWeight.w700,
                                           color: isSelected
                                               ? AppColors.goldPrimary
-                                              : const Color(0xFF101828))),
+                                              : Theme.of(context).colorScheme.onSurface)),
                                   if (pkg.popular) ...[
                                     const SizedBox(width: 6),
                                     Container(
@@ -465,7 +465,7 @@ class _PackageSheet extends StatelessWidget {
                               const SizedBox(height: 2),
                               Text('${pkg.channels} · ${pkg.validity}',
                                   style: TextStyle(
-                                      fontSize: 12, color: Color(0xFF6B7280))),
+                                      fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55))),
                             ],
                           ),
                         ),
@@ -479,7 +479,7 @@ class _PackageSheet extends StatelessWidget {
                                     fontWeight: FontWeight.w800,
                                     color: isSelected
                                         ? AppColors.goldPrimary
-                                        : const Color(0xFF101828))),
+                                        : Theme.of(context).colorScheme.onSurface)),
                             if (isSelected)
                               const Icon(Icons.check_circle_rounded,
                                   color: Color(0xFF166C46), size: 18),
@@ -531,14 +531,14 @@ class _CDropdownField extends StatelessWidget {
         duration: const Duration(milliseconds: 150),
         height: fieldHeight,
         decoration: BoxDecoration(
-          color: enabled ? Colors.white : const Color(0xFFF9FAFB),
+          color: enabled ? Theme.of(context).cardColor : Theme.of(context).scaffoldBackgroundColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: !enabled
-                ? const Color(0xFFE4E7EC)
+                ? Theme.of(context).dividerColor
                 : hasValue
                     ? const Color(0xFF166C46).withOpacity(0.4)
-                    : const Color(0xFFE4E7EC),
+                    : Theme.of(context).dividerColor,
             width: hasValue ? 1.5 : 1,
           ),
         ),
@@ -574,10 +574,10 @@ class _CDropdownField extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                     height: 1.2,
                     color: !enabled
-                        ? const Color(0xFFD0D5DD)
+                        ? Theme.of(context).dividerColor
                         : hasValue
                             ? const Color(0xFF166C46)
-                            : const Color(0xFF9CA3AF),
+                            : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                   ),
                   child: Text(label),
                 ),
@@ -607,7 +607,7 @@ class _CDropdownField extends StatelessWidget {
                 child: IgnorePointer(
                   child: Text(
                     sublabel!,
-                    style: TextStyle(fontSize: 11, color: Color(0xFF6B7280)),
+                    style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55)),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -620,10 +620,10 @@ class _CDropdownField extends StatelessWidget {
                 child: Icon(
                   Icons.keyboard_arrow_down_rounded,
                   color: !enabled
-                      ? const Color(0xFFD0D5DD)
+                      ? Theme.of(context).dividerColor
                       : hasValue
                           ? const Color(0xFF166C46)
-                          : const Color(0xFF9CA3AF),
+                          : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                   size: 22,
                 ),
               ),
@@ -702,7 +702,7 @@ class _CFloatingFieldState extends State<_CFloatingField> {
               ? AppColors.goldPrimary
               : _hasValue
                   ? const Color(0xFF166C46).withOpacity(0.4)
-                  : const Color(0xFFE4E7EC),
+                  : Theme.of(context).dividerColor,
           width: _focused ? 2 : 1,
         ),
       ),
@@ -723,7 +723,7 @@ class _CFloatingFieldState extends State<_CFloatingField> {
                   height: 1.2,
                   color: isActive
                       ? AppColors.goldPrimary
-                      : const Color(0xFF9CA3AF),
+                      : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                 ),
                 child: Text(widget.label),
               ),
@@ -791,7 +791,7 @@ class _CCta extends StatelessWidget {
           20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        border: Border(top: BorderSide(color: Color(0xFFF3F4F6))),
+        border: Border(top: BorderSide(color: Theme.of(context).scaffoldBackgroundColor)),
       ),
       child: GestureDetector(
         onTap: enabled ? onTap : null,
@@ -803,7 +803,7 @@ class _CCta extends StatelessWidget {
             gradient: enabled
                 ? AppColors.goldGradient
                 : null,
-            color: enabled ? null : const Color(0xFFF3F4F6),
+            color: enabled ? null : Theme.of(context).dividerColor,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Center(
@@ -812,7 +812,7 @@ class _CCta extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: enabled ? Colors.white : const Color(0xFF9CA3AF),
+                color: enabled ? Theme.of(context).cardColor : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
               ),
             ),
           ),

@@ -71,11 +71,11 @@ class _CardsScreenState extends State<CardsScreen> {
                             decoration: BoxDecoration(
                               color: active
                                   ? ct.color1.withOpacity(0.08)
-                                  : Colors.white,
+                                  : Theme.of(context).cardColor,
                               borderRadius: BorderRadius.circular(14),
                               border: Border.all(
                                 color:
-                                    active ? ct.color1 : const Color(0xFFE4E7EC),
+                                    active ? ct.color1 : Theme.of(context).dividerColor,
                                 width: active ? 2 : 1,
                               ),
                             ),
@@ -188,7 +188,7 @@ class _CardsScreenState extends State<CardsScreen> {
                           : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF1A6B35),
-                        disabledBackgroundColor: const Color(0xFFE4E7EC),
+                        disabledBackgroundColor: Theme.of(context).dividerColor,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14)),
                       ),
@@ -330,7 +330,7 @@ class _CardsScreenState extends State<CardsScreen> {
         hintText: hint,
         hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), fontSize: 14),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: Theme.of(context).cardColor,
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(

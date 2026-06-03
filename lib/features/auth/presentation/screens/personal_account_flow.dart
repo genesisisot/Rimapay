@@ -733,13 +733,26 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Enter your phone number to get started',
+                  'What is your phone number?',
                   style: TextStyle(
                       fontSize: 14, color: Color(0xFF6B7280), height: 1.5),
                 ),
                 const SizedBox(height: 24),
                 _buildPhoneInput(),
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
+                _buildNumPad(
+                  onDigit: (d) {
+                    if (_phoneDigits.length < 10) {
+                      setState(() => _phoneDigits += d);
+                    }
+                  },
+                  onDelete: () {
+                    if (_phoneDigits.isNotEmpty) {
+                      setState(() => _phoneDigits = _phoneDigits.substring(
+                          0, _phoneDigits.length - 1));
+                    }
+                  },
+                ),
               ],
             ),
           ),
@@ -805,18 +818,49 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   }
 
   Widget _buildPhoneInput() {
-    return _OFloatingField(
-      controller: _phoneController,
-      focusNode: _phoneFocusNode,
-      label: 'Phone Number',
-      hint: '+234 801 234 5678',
-      keyboardType: TextInputType.phone,
-      onChanged: (value) {
-        final digits = value.replaceAll(RegExp(r'\D'), '');
-        if (digits.length <= 10) {
-          setState(() => _phoneDigits = digits);
-        }
-      },
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: _phoneDigits.isNotEmpty
+              ? const Color(0xFF166C46)
+              : const Color(0xFFE4E7EC),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF3F4F6),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Text(
+              '+234',
+              style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF374151)),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Text(
+            _phoneDigits.isEmpty
+                ? '801 234 5678'
+                : _formatPhoneDisplay(_phoneDigits),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: _phoneDigits.isEmpty
+                  ? const Color(0xFFD1D5DB)
+                  : const Color(0xFF111827),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1575,7 +1619,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
             children: [
               const Spacer(),
               Image.asset(
-                'assets/images/AppIcon.png',
+                'assets/images/mild.png',
                 width: 64,
                 height: 64,
                 errorBuilder: (_, __, ___) => const SizedBox.shrink(),
@@ -1797,7 +1841,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
             children: [
               const Spacer(),
               Image.asset(
-                'assets/images/AppIcon.png',
+                'assets/images/mild.png',
                 width: 64,
                 height: 64,
                 errorBuilder: (_, __, ___) => const SizedBox.shrink(),
@@ -2927,7 +2971,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
               const Spacer(),
               // RimaPay logo
               Image.asset(
-                'assets/images/AppIcon.png',
+                'assets/images/mild.png',
                 width: 64,
                 height: 64,
                 errorBuilder: (_, __, ___) => const SizedBox.shrink(),

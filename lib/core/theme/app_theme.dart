@@ -231,6 +231,7 @@ class AppTheme {
     return lightTheme.copyWith(
       brightness: Brightness.dark,
       scaffoldBackgroundColor: _darkBg,
+      cardColor: _darkSurface,
       dividerColor: _darkBorder,
 
       colorScheme: const ColorScheme.dark(
@@ -238,8 +239,9 @@ class AppTheme {
         primaryContainer: AppColors.primary800,
         secondary: AppColors.accentBlue,
         secondaryContainer: Color(0xFF1A1F2E),
-        surface: _darkBg,
+        surface: _darkSurface,
         surfaceContainerHighest: _darkSurface2,
+        surfaceContainerLow: _darkBg,
         error: AppColors.error,
         onPrimary: Colors.white,
         onSecondary: Colors.white,

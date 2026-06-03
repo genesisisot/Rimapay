@@ -189,7 +189,7 @@ import '../../../core/providers/auth_provider.dart';
 //                   mainAxisSize: MainAxisSize.min,
 //                   children: [
 //                     Image.asset(
-//                       "assets/images/AppIcon.png",
+//                       "assets/images/mild.png",
 //                       height: 24,
 //                       width: 24,
 //                     ),

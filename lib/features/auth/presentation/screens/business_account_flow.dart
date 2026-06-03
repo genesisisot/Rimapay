@@ -7,69 +7,45 @@ import 'package:go_router/go_router.dart';
 import 'package:rimapay/shared/widgets/noise_painter.dart';
 import 'package:rimapay/core/theme/app_colors.dart';
 
+// ─── Step enum ───────────────────────────────────────────────────────────────
+
 enum BusinessAccountStep {
-  phoneEntry,
-  otpVerification,
-  bvnVerification,
-  selfieLiveness,
-  createPin,
-  confirmPin,
-  createPassword,
-  businessType,
-  businessDetails,
-  cacDetails,
-  directorInfo,
-  documentUpload,
-  reviewSubmit,
-  autoCheckProcessing,
-  autoCheckFail,
-  manualReviewPending,
-  rejection,
-  approval,
+  phoneEntry, // 1. Phone number
+  otpVerification, // 2. OTP verification
+  emailAddress, // 3. Email address
+  createPassword, // 4. Password + confirm
+  transactionPin, // 5. Transaction PIN + confirm
+  ninBvn, // 6. NIN or BVN
+  photoCapture, // 7. Photo capture
+  businessDetails, // 8. Business details
+  businessAddress, // 9. Business address
+  pepDeclaration, // 10. PEP declaration
+  sourcesOfRevenue, // 11. Sources of revenue
+  success, // Final success/approval
 }
+
+// ─── Data class ──────────────────────────────────────────────────────────────
 
 class BusinessInfo {
   String phoneNumber = '';
   String emailAddress = '';
-  String? bvn;
-  String? nin;
-  String? selfieImage;
-  String? pin;
-  String? password;
-  String businessType = '';
+  String password = '';
+  String pin = '';
+  String idType = 'bvn'; // 'bvn' or 'nin'
+  String idNumber = '';
   String businessName = '';
+  String businessType = '';
+  String rcBnNumber = '';
   String industry = '';
-  String businessAddress = '';
+  String streetAddress = '';
   String state = '';
   String lga = '';
-  String? rcNumber;
-  DateTime? dateOfIncorporation;
-  List<DirectorInfo> directors = [];
-  List<UploadedDocument> documents = [];
+  bool? isPep;
+  List<String> revenueSources = [];
+  String otherRevenueSource = '';
 }
 
-class DirectorInfo {
-  String fullName = '';
-  String? dateOfBirth;
-  String? ownershipPercentage;
-  String? bvn;
-}
-
-class UploadedDocument {
-  final String title;
-  final String? filePath;
-  final String? fileName;
-  final String? fileSize;
-  bool isUploaded;
-
-  UploadedDocument({
-    required this.title,
-    this.filePath,
-    this.fileName,
-    this.fileSize,
-    this.isUploaded = false,
-  });
-}
+// ─── Widget ──────────────────────────────────────────────────────────────────
 
 class BusinessAccountFlow extends ConsumerStatefulWidget {
   const BusinessAccountFlow({super.key});
@@ -81,42 +57,60 @@ class BusinessAccountFlow extends ConsumerStatefulWidget {
 
 class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
     with TickerProviderStateMixin {
+  // ── Step state ─────────────────────────────────────────────────────────────
   BusinessAccountStep _currentStep = BusinessAccountStep.phoneEntry;
+
+  // ── Business info ──────────────────────────────────────────────────────────
   final BusinessInfo _businessInfo = BusinessInfo();
+
+  // ── OTP ────────────────────────────────────────────────────────────────────
   final List<String> _otp = List.filled(6, '');
-  bool _isLoading = false;
+
+  // ── PIN ────────────────────────────────────────────────────────────────────
+  final List<String> _pin = List.filled(4, '');
+  final List<String> _confirmPin = List.filled(4, '');
+  bool _showConfirmPin = false;
+
+  // ── Phone numpad ───────────────────────────────────────────────────────────
+  String _phoneDigits = '';
+
+  // ── ID verification ────────────────────────────────────────────────────────
+  String _idType = 'bvn';
+  String _idDigits = '';
+
+  // ── Password ───────────────────────────────────────────────────────────────
+  String _password = '';
+  String _confirmPassword = '';
   bool _showPassword = false;
   bool _showConfirmPassword = false;
+
+  // ── UI state ───────────────────────────────────────────────────────────────
+  bool _isLoading = false;
   bool _isResending = false;
   int _resendCountdown = 0;
   Timer? _resendTimer;
-  double _passwordStrength = 0;
-  String _passwordStrengthLabel = '';
-  bool _addNinToggle = false;
-  String _bvnDigits = '';
-  final List<String> _pin = List.filled(4, '');
-  final List<String> _confirmPinEntry = List.filled(4, '');
-  bool _processingStarted = false;
 
+  // ── Revenue sources ────────────────────────────────────────────────────────
+  final List<String> _selectedRevenueSources = [];
+  final TextEditingController _otherRevenueController = TextEditingController();
+
+  // ── Controllers ────────────────────────────────────────────────────────────
   final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _bvnController = TextEditingController();
-  final TextEditingController _ninController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final TextEditingController _businessNameController = TextEditingController();
-  final TextEditingController _businessAddressController = TextEditingController();
+  final TextEditingController _rcBnController = TextEditingController();
   final TextEditingController _industryController = TextEditingController();
-  final TextEditingController _rcNumberController = TextEditingController();
-  final TextEditingController _dobController = TextEditingController();
-  final TextEditingController _fullNameController = TextEditingController();
-  final TextEditingController _ownershipController = TextEditingController();
-  final TextEditingController _directorBvnController = TextEditingController();
-  final TextEditingController _stateController = TextEditingController();
-  final TextEditingController _lgaController = TextEditingController();
+  final TextEditingController _streetAddressController = TextEditingController();
 
+  // ── Animation ──────────────────────────────────────────────────────────────
   late AnimationController _pageAnimController;
   late AnimationController _congratsConfettiCtrl;
   late List<_CParticle> _confettiParticles;
+
+  // ─── Lifecycle ──────────────────────────────────────────────────────────────
 
   @override
   void initState() {
@@ -139,26 +133,40 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
     _congratsConfettiCtrl.dispose();
     _resendTimer?.cancel();
     _phoneController.dispose();
-    _bvnController.dispose();
-    _ninController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     _businessNameController.dispose();
-    _businessAddressController.dispose();
+    _rcBnController.dispose();
     _industryController.dispose();
-    _rcNumberController.dispose();
-    _dobController.dispose();
-    _fullNameController.dispose();
-    _ownershipController.dispose();
-    _directorBvnController.dispose();
+    _streetAddressController.dispose();
+    _otherRevenueController.dispose();
     super.dispose();
   }
 
-  void _animateTo(BusinessAccountStep step) {
-    if (step == BusinessAccountStep.autoCheckProcessing) {
-      _processingStarted = false;
+  // ─── Navigation ─────────────────────────────────────────────────────────────
+
+  void _goBack() {
+    if (_currentStep == BusinessAccountStep.transactionPin && _showConfirmPin) {
+      setState(() {
+        _showConfirmPin = false;
+        for (int i = 0; i < _confirmPin.length; i++) {
+          _confirmPin[i] = '';
+        }
+      });
+      return;
     }
-    if (step == BusinessAccountStep.approval) {
+    final steps = BusinessAccountStep.values;
+    final idx = steps.indexOf(_currentStep);
+    if (idx > 0) {
+      _animateTo(steps[idx - 1]);
+    } else {
+      context.pop();
+    }
+  }
+
+  void _animateTo(BusinessAccountStep step) {
+    if (step == BusinessAccountStep.success) {
       _congratsConfettiCtrl.reset();
       _congratsConfettiCtrl.forward();
     }
@@ -171,24 +179,52 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
     final steps = BusinessAccountStep.values;
     final idx = steps.indexOf(_currentStep);
     if (idx < steps.length - 1) {
-      BusinessAccountStep next = steps[idx + 1];
-      if (_currentStep == BusinessAccountStep.businessDetails &&
-          _businessInfo.businessType == 'sole_trader') {
-        next = BusinessAccountStep.directorInfo;
-      }
-      _animateTo(next);
+      _animateTo(steps[idx + 1]);
     }
   }
 
-  void _goBack() {
-    final steps = BusinessAccountStep.values;
-    final idx = steps.indexOf(_currentStep);
-    if (idx > 0) {
-      _animateTo(steps[idx - 1]);
-    } else {
-      context.pop();
+  // ─── Step meta ───────────────────────────────────────────────────────────────
+
+  String get _stepTitle {
+    switch (_currentStep) {
+      case BusinessAccountStep.phoneEntry:
+        return 'Phone Number';
+      case BusinessAccountStep.otpVerification:
+        return 'Verify Phone';
+      case BusinessAccountStep.emailAddress:
+        return 'Email Address';
+      case BusinessAccountStep.createPassword:
+        return 'Set Up Password';
+      case BusinessAccountStep.transactionPin:
+        return 'Transaction PIN';
+      case BusinessAccountStep.ninBvn:
+        return 'NIN or BVN';
+      case BusinessAccountStep.photoCapture:
+        return 'Photo Capture';
+      case BusinessAccountStep.businessDetails:
+        return 'Business Details';
+      case BusinessAccountStep.businessAddress:
+        return 'Business Address';
+      case BusinessAccountStep.pepDeclaration:
+        return 'PEP Declaration';
+      case BusinessAccountStep.sourcesOfRevenue:
+        return 'Sources of Revenue';
+      case BusinessAccountStep.success:
+        return 'Account Approved';
     }
   }
+
+  bool get _showHeader => _currentStep != BusinessAccountStep.success;
+
+  int get _totalSteps =>
+      BusinessAccountStep.values.length - 1; // exclude success
+
+  int get _currentStepIndex {
+    final idx = BusinessAccountStep.values.indexOf(_currentStep);
+    return idx < _totalSteps ? idx : _totalSteps - 1;
+  }
+
+  // ─── Resend timer ──────────────────────────────────────────────────────────
 
   void _startResendTimer() {
     _resendCountdown = 45;
@@ -207,74 +243,42 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
     });
   }
 
+  // ─── Snackbar ──────────────────────────────────────────────────────────────
+
+  void _snack(String msg, {bool isError = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(msg),
+      backgroundColor: isError ? Colors.red : const Color(0xFF166C46),
+    ));
+  }
+
+  // ─── Build ───────────────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
-    if (_currentStep == BusinessAccountStep.autoCheckProcessing && !_processingStarted) {
-      _processingStarted = true;
-      Future.delayed(const Duration(seconds: 4), () {
-        if (mounted) {
-          _animateTo(BusinessAccountStep.approval);
-        }
-      });
-    }
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: AnimatedBuilder(
-        animation: _pageAnimController,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: 0.95 + (0.05 * _pageAnimController.value),
-            child: Opacity(
-              opacity: _pageAnimController.value,
-              child: child,
+    return WillPopScope(
+      onWillPop: () async {
+        _goBack();
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF1F8F3),
+        body: Column(
+          children: [
+            if (_showHeader) _buildHeader(),
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                child: _buildCurrentStep(),
+              ),
             ),
-          );
-        },
-        child: _buildCurrentStep(),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildCurrentStep() {
-    switch (_currentStep) {
-      case BusinessAccountStep.phoneEntry:
-        return _buildPhoneEntryScreen(key: const ValueKey('phoneEntry'));
-      case BusinessAccountStep.otpVerification:
-        return _buildOtpVerificationScreen(key: const ValueKey('otp'));
-      case BusinessAccountStep.bvnVerification:
-        return _buildBvnVerificationScreen(key: const ValueKey('bvn'));
-      case BusinessAccountStep.selfieLiveness:
-        return _buildSelfieLivenessScreen(key: const ValueKey('selfie'));
-      case BusinessAccountStep.createPin:
-        return _buildCreatePinScreen(key: const ValueKey('createPin'));
-      case BusinessAccountStep.confirmPin:
-        return _buildConfirmPinScreen(key: const ValueKey('confirmPin'));
-      case BusinessAccountStep.createPassword:
-        return _buildCreatePasswordScreen(key: const ValueKey('createPassword'));
-      case BusinessAccountStep.businessType:
-        return _buildBusinessTypeScreen(key: const ValueKey('businessType'));
-      case BusinessAccountStep.businessDetails:
-        return _buildBusinessDetailsScreen(key: const ValueKey('businessDetails'));
-      case BusinessAccountStep.cacDetails:
-        return _buildCacDetailsScreen(key: const ValueKey('cacDetails'));
-      case BusinessAccountStep.directorInfo:
-        return _buildDirectorInfoScreen(key: const ValueKey('directorInfo'));
-      case BusinessAccountStep.documentUpload:
-        return _buildDocumentUploadScreen(key: const ValueKey('documents'));
-      case BusinessAccountStep.reviewSubmit:
-        return _buildReviewSubmitScreen(key: const ValueKey('review'));
-      case BusinessAccountStep.autoCheckProcessing:
-        return _buildAutoCheckProcessingScreen(key: const ValueKey('processing'));
-      case BusinessAccountStep.autoCheckFail:
-        return _buildAutoCheckFailScreen(key: const ValueKey('fail'));
-      case BusinessAccountStep.manualReviewPending:
-        return _buildManualReviewPendingScreen(key: const ValueKey('pending'));
-      case BusinessAccountStep.rejection:
-        return _buildRejectionScreen(key: const ValueKey('rejection'));
-      case BusinessAccountStep.approval:
-        return _buildApprovalScreen(key: const ValueKey('approval'));
-    }
-  }
+  // ─── Header ──────────────────────────────────────────────────────────────────
 
   Widget _buildHeader() {
     final statusH = MediaQuery.of(context).padding.top;
@@ -283,7 +287,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
 
     return Container(
       width: double.infinity,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [Color(0xFF073D25), Color(0xFF0B4F2F), Color(0xFF073D25)],
           begin: Alignment.topLeft,
@@ -307,6 +311,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
               children: [
                 Row(
                   children: [
+                    // Back button
                     GestureDetector(
                       onTap: _goBack,
                       child: Container(
@@ -324,9 +329,10 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                       ),
                     ),
                     const SizedBox(width: 14),
+                    // Progress pills
                     Expanded(
                       child: Row(
-                        children: List.generate(steps.length, (i) {
+                        children: List.generate(_totalSteps, (i) {
                           final done = i <= currentIdx;
                           return Expanded(
                             child: Container(
@@ -344,8 +350,9 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                       ),
                     ),
                     const SizedBox(width: 14),
+                    // Step counter
                     Text(
-                      '${currentIdx + 1}/${steps.length}',
+                      '${currentIdx + 1}/$_totalSteps',
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.7),
                         fontSize: 12,
@@ -354,21 +361,15 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
                 Text(
-                  _getStepTitle(),
+                  _stepTitle,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  _getStepSubtitle(),
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
-                    fontSize: 13,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.3,
+                    fontFamily: 'Effra',
                   ),
                 ),
               ],
@@ -379,524 +380,363 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
     );
   }
 
-  String _getStepTitle() {
+  // ─── Step router ─────────────────────────────────────────────────────────────
+
+  Widget _buildCurrentStep() {
     switch (_currentStep) {
       case BusinessAccountStep.phoneEntry:
-        return 'Enter phone number';
+        return _buildPhoneEntryStep();
       case BusinessAccountStep.otpVerification:
-        return 'Enter verification code';
-      case BusinessAccountStep.bvnVerification:
-        return 'Verify your identity';
-      case BusinessAccountStep.selfieLiveness:
-        return 'Take a selfie';
-      case BusinessAccountStep.createPin:
-        return 'Create PIN';
-      case BusinessAccountStep.confirmPin:
-        return 'Confirm PIN';
+        return _buildOtpStep();
+      case BusinessAccountStep.emailAddress:
+        return _buildEmailStep();
       case BusinessAccountStep.createPassword:
-        return 'Create Password';
-      case BusinessAccountStep.businessType:
-        return 'What type of business?';
+        return _buildCreatePasswordStep();
+      case BusinessAccountStep.transactionPin:
+        return _buildTransactionPinStep();
+      case BusinessAccountStep.ninBvn:
+        return _buildNinBvnStep();
+      case BusinessAccountStep.photoCapture:
+        return _buildPhotoCaptureStep();
       case BusinessAccountStep.businessDetails:
-        return 'About your business';
-      case BusinessAccountStep.cacDetails:
-        return 'CAC Registration';
-      case BusinessAccountStep.directorInfo:
-        return 'Director & ownership';
-      case BusinessAccountStep.documentUpload:
-        return 'Upload your documents';
-      case BusinessAccountStep.reviewSubmit:
-        return 'Review your application';
-      default:
-        return '';
+        return _buildBusinessDetailsStep();
+      case BusinessAccountStep.businessAddress:
+        return _buildBusinessAddressStep();
+      case BusinessAccountStep.pepDeclaration:
+        return _buildPepStep();
+      case BusinessAccountStep.sourcesOfRevenue:
+        return _buildSourcesOfRevenueStep();
+      case BusinessAccountStep.success:
+        return _buildSuccessStep();
     }
   }
 
-  String _getStepSubtitle() {
-    switch (_currentStep) {
-      case BusinessAccountStep.phoneEntry:
-        return "We'll send a verification code to this number";
-      case BusinessAccountStep.otpVerification:
-        return 'We sent a 6-digit code to your phone';
-      case BusinessAccountStep.bvnVerification:
-        return 'Your BVN helps us confirm who you are';
-      case BusinessAccountStep.selfieLiveness:
-        return 'Position your face in the oval';
-      case BusinessAccountStep.createPin:
-        return 'Secure your account with a 4-digit PIN';
-      case BusinessAccountStep.confirmPin:
-        return 'Re-enter your 4-digit PIN to confirm';
-      case BusinessAccountStep.createPassword:
-        return 'Create a password to secure your account';
-      case BusinessAccountStep.businessType:
-        return 'This helps us set the right account limits';
-      case BusinessAccountStep.businessDetails:
-        return 'Tell us about your business';
-      case BusinessAccountStep.cacDetails:
-        return 'Enter your CAC details';
-      case BusinessAccountStep.directorInfo:
-        return 'Tell us who owns the business';
-      case BusinessAccountStep.documentUpload:
-        return 'JPG, PNG or PDF — max 5MB each';
-      case BusinessAccountStep.reviewSubmit:
-        return 'Confirm everything before submitting';
-      default:
-        return '';
-    }
-  }
+  // ══════════════════════════════════════════════════════════════════════════════
+  // STEP 1 — Phone Number
+  // ══════════════════════════════════════════════════════════════════════════════
 
-  Widget _buildInputLabel(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        fontSize: 12,
-        color: Color(0xFF667085),
-      ),
-    );
-  }
-
-  Widget _buildTextInput({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    bool obscureText = false,
-    TextInputType keyboardType = TextInputType.text,
-    Widget? suffixIcon,
-    int maxLines = 1,
-    bool readOnly = false,
-    VoidCallback? onTap,
-    String? Function(String?)? validator,
-  }) {
+  Widget _buildPhoneEntryStep() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      key: const ValueKey('phoneEntry'),
       children: [
-        _buildInputLabel(label),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: controller,
-          obscureText: obscureText,
-          keyboardType: keyboardType,
-          maxLines: maxLines,
-          readOnly: readOnly,
-          onTap: onTap,
-          validator: validator,
-          style: const TextStyle(
-            fontSize: 14,
-            color: Color(0xFF101828),
-          ),
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: const TextStyle(
-              fontSize: 14,
-              color: Color(0xFFD1D1D1),
-            ),
-            filled: true,
-            fillColor: Colors.white,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 14,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF1A6B35), width: 1.5),
-            ),
-            suffixIcon: suffixIcon,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPrimaryButton(String text, {VoidCallback? onPressed, bool isLoading = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: SizedBox(
-        width: double.infinity,
-        height: 52,
-        child: ElevatedButton(
-          onPressed: isLoading ? null : (onPressed ?? _nextStep),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF1A6B35),
-            foregroundColor: Colors.white,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-          ),
-          child: isLoading
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                )
-              : Text(
-                  text,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'What is your phone number?',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF6B7280),
+                    height: 1.5,
+                    fontFamily: 'Effra',
                   ),
                 ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomCTA({
-    required String label,
-    required VoidCallback onTap,
-    bool loading = false,
-    Widget? footerContent,
-  }) {
-    final enabled = !loading;
-    return Container(
-      padding: EdgeInsets.fromLTRB(
-          20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFF3F4F6))),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          GestureDetector(
-            onTap: loading ? null : onTap,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
-              width: double.infinity,
-              height: 54,
-              decoration: BoxDecoration(
-                gradient: enabled ? AppColors.goldGradient : null,
-                color: enabled ? null : const Color(0xFFCCCCCC),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Center(
-                child: loading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation(Colors.white)))
-                    : Text(
-                        label,
+                const SizedBox(height: 24),
+                // Phone display
+                Container(
+                  width: double.infinity,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: _phoneDigits.isNotEmpty
+                          ? const Color(0xFF166C46)
+                          : const Color(0xFFE4E7EC),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF3F4F6),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          '+234',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF374151),
+                            fontFamily: 'Effra',
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        _phoneDigits.isEmpty
+                            ? '801 234 5678'
+                            : _formatPhoneDisplay(_phoneDigits),
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: enabled ? Colors.white : const Color(0xFF9CA3AF),
-                        ),
-                      ),
-              ),
-            ),
-          ),
-          if (footerContent != null) ...[
-            const SizedBox(height: 12),
-            footerContent,
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSecondaryButton(String text, {VoidCallback? onPressed}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: SizedBox(
-        width: double.infinity,
-        height: 52,
-        child: OutlinedButton(
-          onPressed: onPressed ?? _nextStep,
-          style: OutlinedButton.styleFrom(
-            foregroundColor: const Color(0xFF1A6B35),
-            side: const BorderSide(color: Color(0xFF1A6B35)),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-          ),
-          child: Text(
-            text,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNumPad({
-    required void Function(String) onDigit,
-    required VoidCallback onDelete,
-  }) {
-    const rows = [
-      ['1', '2', '3'],
-      ['4', '5', '6'],
-      ['7', '8', '9'],
-      ['', '0', '⌫']
-    ];
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        children: rows
-            .map((row) => Row(
-                  children: row.map((key) {
-                    if (key.isEmpty) return const Expanded(child: SizedBox());
-                    return Expanded(
-                      child: GestureDetector(
-                        onTap: () => key == '⌫' ? onDelete() : onDigit(key),
-                        child: Container(
-                          margin: const EdgeInsets.all(6),
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Colors.black.withOpacity(0.04),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2))
-                            ],
-                          ),
-                          child: Center(
-                            child: key == '⌫'
-                                ? const Icon(Icons.backspace_outlined,
-                                    size: 20, color: Color(0xFF374151))
-                                : Text(key,
-                                    style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w600,
-                                        color: Color(0xFF111827))),
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ))
-            .toList(),
-      ),
-    );
-  }
-
-  Widget _buildInfoCallout({
-    required String text,
-    bool isGreen = false,
-    IconData? icon,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isGreen ? const Color(0xFFF0FAF4) : const Color(0xFFF5F5F5),
-        borderRadius: BorderRadius.circular(8),
-        border: isGreen
-            ? const Border(
-                left: BorderSide(color: Color(0xFF1A6B35), width: 3),
-              )
-            : null,
-      ),
-      child: Row(
-        children: [
-          Icon(
-            icon ?? (isGreen ? Icons.lock_outline : Icons.info_outline),
-            size: 20,
-            color: isGreen ? const Color(0xFF1A6B35) : const Color(0xFF667085),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(
-                fontSize: 13,
-                color: Color(0xFF667085),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDividerWithLabel(String label) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Row(
-        children: [
-          const Expanded(child: Divider(color: Color(0xFFE5E7EB))),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 11,
-                color: Color(0xFF667085),
-              ),
-            ),
-          ),
-          const Expanded(child: Divider(color: Color(0xFFE5E7EB))),
-        ],
-      ),
-    );
-  }
-
-  // Screen 1: Phone Number Input
-  Widget _buildPhoneEntryScreen({Key? key}) {
-    return Column(
-      key: key,
-      children: [
-        _buildHeader(),
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildTextInput(
-                  controller: _phoneController,
-                  label: 'Phone Number',
-                  hint: 'Enter phone number',
-                  keyboardType: TextInputType.phone,
-                ),
-              ],
-            ),
-          ),
-        ),
-        _buildBottomCTA(label: 'Continue', onTap: _nextStep),
-      ],
-    );
-  }
-
-  // Screen 2: OTP Verification
-  Widget _buildOtpVerificationScreen({Key? key}) {
-    String maskedPhone = _phoneController.text.isNotEmpty
-        ? '+234 ${_phoneController.text.substring(0, 3)} XXX ${_phoneController.text.substring(6)}'
-        : '+234 XXX XXXX';
-
-    return Column(
-      key: key,
-      children: [
-        _buildHeader(),
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      const TextSpan(
-                        text: 'We sent a 6-digit code to ',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFF667085),
-                        ),
-                      ),
-                      TextSpan(
-                        text: maskedPhone,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF1A6B35),
+                          color: _phoneDigits.isEmpty
+                              ? const Color(0xFFD1D5DB)
+                              : const Color(0xFF111827),
+                          fontFamily: 'Effra',
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
+                _buildNumPad(
+                  onDigit: (d) {
+                    if (_phoneDigits.length < 10) {
+                      setState(() => _phoneDigits += d);
+                    }
+                  },
+                  onDelete: () {
+                    if (_phoneDigits.isNotEmpty) {
+                      setState(() => _phoneDigits =
+                          _phoneDigits.substring(0, _phoneDigits.length - 1));
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+        _buildCTA(
+          label: 'Continue',
+          onTap: () {
+            if (_phoneDigits.length == 10) {
+              _businessInfo.phoneNumber = '0$_phoneDigits';
+              _nextStep();
+            } else {
+              _snack('Please enter a valid 10-digit phone number',
+                  isError: true);
+            }
+          },
+        ),
+      ],
+    );
+  }
+
+  String _formatPhoneDisplay(String digits) {
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 6) {
+      return '${digits.substring(0, 3)} ${digits.substring(3)}';
+    }
+    return '${digits.substring(0, 3)} ${digits.substring(3, 6)} ${digits.substring(6)}';
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════════
+  // STEP 2 — OTP Verification
+  // ══════════════════════════════════════════════════════════════════════════════
+
+  Widget _buildOtpStep() {
+    final filled = _otp.where((d) => d.isNotEmpty).length;
+    return Column(
+      key: const ValueKey('otpVerification'),
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 40),
+                Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF16A34A).withOpacity(0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.lock_outline,
+                      color: Color(0xFF16A34A), size: 34),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Enter verification code',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF111827),
+                    fontFamily: 'Effra',
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'We sent a code to +234 $_phoneDigits',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF6B7280),
+                    fontFamily: 'Effra',
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // 6 boxes
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(6, (index) {
-                    return Container(
-                      width: 44,
+                  children: List.generate(6, (i) {
+                    final hasDigit = _otp[i].isNotEmpty;
+                    final isActive = i == filled;
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      width: 46,
                       height: 52,
-                      margin: EdgeInsets.only(right: index < 5 ? 8 : 0),
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: const Color(0xFFDDDDDD),
-                          width: 1.5,
+                          color: isActive
+                              ? const Color(0xFF16A34A)
+                              : hasDigit
+                                  ? const Color(0xFF16A34A).withOpacity(0.5)
+                                  : const Color(0xFFE5E7EB),
+                          width: isActive ? 2 : 1.5,
                         ),
                       ),
                       child: Center(
                         child: Text(
-                          _otp[index],
+                          hasDigit ? '•' : '',
                           style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF101828),
+                            fontSize: 22,
+                            fontWeight: FontWeight.w900,
+                            color: Color(0xFF111827),
                           ),
                         ),
                       ),
                     );
                   }),
                 ),
-                const SizedBox(height: 24),
-                Center(
-                  child: _isResending
-                      ? Text(
-                          'Resend code in 0:$_resendCountdown',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: Color(0xFF667085),
-                          ),
-                        )
-                      : TextButton(
-                          onPressed: () {
-                            setState(() => _isResending = true);
-                            _startResendTimer();
-                          },
-                          child: const Text(
-                            'Resend OTP',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Color(0xFF1A6B35),
-                              fontWeight: FontWeight.w600,
+                const SizedBox(height: 16),
+                // Resend
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Didn't receive code? ",
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF6B7280),
+                          fontFamily: 'Effra',
+                        )),
+                    GestureDetector(
+                      onTap: (_resendCountdown > 0 || _isResending)
+                          ? null
+                          : () {
+                              setState(() => _isResending = true);
+                              _startResendTimer();
+                            },
+                      child: _isResending
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation(
+                                      Color(0xFF16A34A))))
+                          : Text(
+                              _resendCountdown > 0
+                                  ? 'Resend in ${_resendCountdown}s'
+                                  : 'Resend',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'Effra',
+                                color: _resendCountdown > 0
+                                    ? const Color(0xFF6B7280)
+                                    : const Color(0xFF16A34A),
+                              ),
                             ),
-                          ),
-                        ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _buildNumPad(
+                  onDigit: (d) {
+                    final idx = _otp.indexWhere((o) => o.isEmpty);
+                    if (idx != -1) setState(() => _otp[idx] = d);
+                  },
+                  onDelete: () {
+                    final idx = _otp.lastIndexWhere((o) => o.isNotEmpty);
+                    if (idx != -1) setState(() => _otp[idx] = '');
+                  },
+                ),
+                const SizedBox(height: 40),
+              ],
+            ),
+          ),
+        ),
+        _buildCTA(label: 'Continue', onTap: _nextStep),
+      ],
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════════
+  // STEP 3 — Email Address
+  // ══════════════════════════════════════════════════════════════════════════════
+
+  Widget _buildEmailStep() {
+    return Column(
+      key: const ValueKey('emailAddress'),
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Enter your business email address',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF6B7280),
+                    height: 1.5,
+                    fontFamily: 'Effra',
+                  ),
+                ),
+                const SizedBox(height: 24),
+                _sectionLabel('Email Address'),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF111827),
+                    fontFamily: 'Effra',
+                  ),
+                  decoration: _inputDec(hint: 'e.g. business@company.com'),
+                  onChanged: (v) => _businessInfo.emailAddress = v.trim(),
                 ),
               ],
             ),
           ),
         ),
-        _buildBottomCTA(
-          label: 'Verify',
-          onTap: _nextStep,
-          footerContent: TextButton(
-            onPressed: () => _animateTo(BusinessAccountStep.phoneEntry),
-            child: const Text(
-              'Wrong number? Go back',
-              style: TextStyle(
-                fontSize: 14,
-                color: Color(0xFF1A6B35),
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
+        _buildCTA(
+          label: 'Continue',
+          onTap: () {
+            if (_emailController.text.contains('@') &&
+                _emailController.text.contains('.')) {
+              _nextStep();
+            } else {
+              _snack('Please enter a valid email address', isError: true);
+            }
+          },
         ),
       ],
     );
   }
 
-  // Screen 3: BVN Verification
-  Widget _buildBvnVerificationScreen({Key? key}) {
-    final maxLen = 11;
-    final filled = _bvnDigits.length;
+  // ══════════════════════════════════════════════════════════════════════════════
+  // STEP 4 — Create Password
+  // ══════════════════════════════════════════════════════════════════════════════
+
+  Widget _buildCreatePasswordStep() {
+    final strength = _calculatePasswordStrength(_password);
     return Column(
-      key: key,
+      key: const ValueKey('createPassword'),
       children: [
-        _buildHeader(),
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
@@ -904,11 +744,392 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Dial 565*0# on any network to get your BVN',
+                  'Create a password to secure your account',
                   style: TextStyle(
-                      fontSize: 13, color: Color(0xFF6B7280), height: 1.5),
+                    fontSize: 14,
+                    color: Color(0xFF6B7280),
+                    height: 1.5,
+                    fontFamily: 'Effra',
+                  ),
                 ),
                 const SizedBox(height: 24),
+                _sectionLabel('Password'),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _passwordController,
+                  obscureText: !_showPassword,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF111827),
+                    fontFamily: 'Effra',
+                  ),
+                  decoration: _inputDec(hint: 'Min 8 characters').copyWith(
+                    suffixIcon: GestureDetector(
+                      onTap: () =>
+                          setState(() => _showPassword = !_showPassword),
+                      child: Icon(
+                        _showPassword ? Icons.visibility_off : Icons.visibility,
+                        size: 18,
+                        color: const Color(0xFF9CA3AF),
+                      ),
+                    ),
+                  ),
+                  onChanged: (v) => setState(() => _password = v),
+                ),
+                const SizedBox(height: 8),
+                // Strength indicator
+                if (_password.isNotEmpty) ...[
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(3),
+                          child: LinearProgressIndicator(
+                            value: strength,
+                            minHeight: 4,
+                            backgroundColor: const Color(0xFFE5E7EB),
+                            valueColor: AlwaysStoppedAnimation(
+                                _getStrengthColor(strength)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        _getStrengthLabel(strength),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: _getStrengthColor(strength),
+                          fontFamily: 'Effra',
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                ],
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Min 8 chars with uppercase, lowercase & number',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFF9CA3AF),
+                      fontFamily: 'Effra',
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _sectionLabel('Confirm Password'),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _confirmPasswordController,
+                  obscureText: !_showConfirmPassword,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF111827),
+                    fontFamily: 'Effra',
+                  ),
+                  decoration:
+                      _inputDec(hint: 'Re-enter your password').copyWith(
+                    suffixIcon: GestureDetector(
+                      onTap: () => setState(
+                          () => _showConfirmPassword = !_showConfirmPassword),
+                      child: Icon(
+                        _showConfirmPassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                        size: 18,
+                        color: const Color(0xFF9CA3AF),
+                      ),
+                    ),
+                  ),
+                  onChanged: (v) => setState(() => _confirmPassword = v),
+                ),
+                const SizedBox(height: 24),
+              ],
+            ),
+          ),
+        ),
+        _buildCTA(
+          label: 'Continue',
+          onTap: _onPasswordContinue,
+        ),
+      ],
+    );
+  }
+
+  double _calculatePasswordStrength(String password) {
+    if (password.isEmpty) return 0;
+    double s = 0;
+    if (password.length >= 8) s += 0.25;
+    if (RegExp(r'[A-Z]').hasMatch(password)) s += 0.25;
+    if (RegExp(r'[0-9]').hasMatch(password)) s += 0.25;
+    if (RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(password)) s += 0.25;
+    return s;
+  }
+
+  String _getStrengthLabel(double strength) {
+    if (strength <= 0.25) return 'Weak';
+    if (strength <= 0.5) return 'Fair';
+    if (strength <= 0.75) return 'Strong';
+    return 'Very Strong';
+  }
+
+  Color _getStrengthColor(double strength) {
+    if (strength <= 0.25) return Colors.red;
+    if (strength <= 0.5) return Colors.orange;
+    if (strength <= 0.75) return const Color(0xFF16A34A);
+    return const Color(0xFF166C46);
+  }
+
+  void _onPasswordContinue() {
+    if (_password.length < 8) {
+      _snack('Password must be at least 8 characters', isError: true);
+      return;
+    }
+    if (_password != _confirmPassword) {
+      _snack('Passwords do not match. Please try again.', isError: true);
+      return;
+    }
+    _businessInfo.password = _password;
+    _nextStep();
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════════
+  // STEP 5 — Transaction PIN (Create + Confirm combined)
+  // ══════════════════════════════════════════════════════════════════════════════
+
+  Widget _buildTransactionPinStep() {
+    if (!_showConfirmPin) {
+      return _buildPinEntry(
+        key: const ValueKey('createPin'),
+        title: 'Create a PIN',
+        subtitle: 'Set up a 4-digit transaction PIN',
+        icon: Icons.shield_outlined,
+        pinList: _pin,
+        onDigit: (d) {
+          final idx = _pin.indexWhere((p) => p.isEmpty);
+          if (idx != -1) setState(() => _pin[idx] = d);
+        },
+        onDelete: () {
+          final idx = _pin.lastIndexWhere((p) => p.isNotEmpty);
+          if (idx != -1) setState(() => _pin[idx] = '');
+        },
+        onContinue: () {
+          if (_pin.every((p) => p.isNotEmpty)) {
+            setState(() => _showConfirmPin = true);
+          }
+        },
+      );
+    } else {
+      return _buildPinEntry(
+        key: const ValueKey('confirmPin'),
+        title: 'Confirm your PIN',
+        subtitle: 'Re-enter your 4-digit PIN to confirm',
+        icon: Icons.shield,
+        pinList: _confirmPin,
+        onDigit: (d) {
+          final idx = _confirmPin.indexWhere((p) => p.isEmpty);
+          if (idx != -1) setState(() => _confirmPin[idx] = d);
+        },
+        onDelete: () {
+          final idx = _confirmPin.lastIndexWhere((p) => p.isNotEmpty);
+          if (idx != -1) setState(() => _confirmPin[idx] = '');
+        },
+        onContinue: () {
+          if (_confirmPin.join() != _pin.join()) {
+            _snack('PINs do not match. Please try again.', isError: true);
+            setState(() {
+              for (int i = 0; i < _confirmPin.length; i++) {
+                _confirmPin[i] = '';
+              }
+            });
+            return;
+          }
+          _businessInfo.pin = _pin.join();
+          _nextStep();
+        },
+      );
+    }
+  }
+
+  Widget _buildPinEntry({
+    required Key key,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required List<String> pinList,
+    required void Function(String) onDigit,
+    required VoidCallback onDelete,
+    required VoidCallback onContinue,
+  }) {
+    final filled = pinList.where((d) => d.isNotEmpty).length;
+    return Column(
+      key: key,
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 20),
+                Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF16A34A).withOpacity(0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, color: const Color(0xFF16A34A), size: 34),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF111827),
+                    fontFamily: 'Effra',
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF6B7280),
+                    fontFamily: 'Effra',
+                  ),
+                ),
+                const SizedBox(height: 36),
+                // 4 dot indicators
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(4, (i) {
+                    final hasDot = i < filled;
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      width: 18,
+                      height: 18,
+                      margin: const EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: hasDot
+                            ? const Color(0xFF16A34A)
+                            : Colors.transparent,
+                        border: Border.all(
+                          color: hasDot
+                              ? const Color(0xFF16A34A)
+                              : const Color(0xFFD1D5DB),
+                          width: 2,
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+                const SizedBox(height: 40),
+                _buildNumPad(onDigit: onDigit, onDelete: onDelete),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        ),
+        _buildCTA(label: 'Continue', onTap: onContinue),
+      ],
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════════
+  // STEP 6 — NIN or BVN
+  // ══════════════════════════════════════════════════════════════════════════════
+
+  Widget _buildNinBvnStep() {
+    const maxLen = 11;
+    final filled = _idDigits.length;
+
+    return Column(
+      key: const ValueKey('ninBvn'),
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Verify your identity with your NIN or BVN',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF6B7280),
+                    height: 1.5,
+                    fontFamily: 'Effra',
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // BVN / NIN toggle
+                Container(
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF3F4F6),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: ['bvn', 'nin'].map((type) {
+                      final selected = _idType == type;
+                      return Expanded(
+                        child: GestureDetector(
+                          onTap: () => setState(() {
+                            _idType = type;
+                            _idDigits = '';
+                          }),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 180),
+                            margin: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: selected
+                                  ? const Color(0xFF16A34A)
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(9),
+                            ),
+                            child: Center(
+                              child: Text(
+                                type.toUpperCase(),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  fontFamily: 'Effra',
+                                  color: selected
+                                      ? Colors.white
+                                      : const Color(0xFF6B7280),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Label
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      _idType == 'bvn'
+                          ? 'Bank Verification Number (BVN)'
+                          : 'National Identification Number (NIN)',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF374151),
+                        fontFamily: 'Effra',
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                // 11 individual boxes
                 Row(
                   children: List.generate(maxLen, (i) {
                     final hasDigit = i < filled;
@@ -923,57 +1144,49 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: isActive
-                                ? const Color(0xFF1A6B35)
+                                ? const Color(0xFF16A34A)
                                 : hasDigit
-                                    ? const Color(0xFF1A6B35).withOpacity(0.4)
+                                    ? const Color(0xFF16A34A).withOpacity(0.4)
                                     : const Color(0xFFE5E7EB),
                             width: isActive ? 2 : 1,
                           ),
                         ),
                         child: Center(
                           child: Text(
-                            hasDigit ? _bvnDigits[i] : '',
+                            hasDigit ? _idDigits[i] : '',
                             style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF111827)),
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF111827),
+                            ),
                           ),
                         ),
                       ),
                     );
                   }),
                 ),
-                if (_addNinToggle) ...[
-                  const SizedBox(height: 24),
-                  const Text(
-                    'National Identification Number (NIN)',
-                    style: TextStyle(
-                        fontSize: 13, color: Color(0xFF6B7280)),
+                const SizedBox(height: 8),
+                Text(
+                  _idType == 'bvn'
+                      ? 'Dial *565*0# on any network to retrieve your BVN'
+                      : 'Dial *346# to retrieve your NIN',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Color(0xFF9CA3AF),
+                    fontFamily: 'Effra',
                   ),
-                  const SizedBox(height: 12),
-                  _buildTextInput(
-                    controller: _ninController,
-                    label: '',
-                    hint: 'Enter 11-digit NIN',
-                    keyboardType: TextInputType.number,
-                  ),
-                ],
-                const SizedBox(height: 24),
-                _buildInfoCallout(
-                  text: 'Your BVN is encrypted and never shared with third parties.',
-                  isGreen: true,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
                 _buildNumPad(
                   onDigit: (d) {
-                    if (_bvnDigits.length < maxLen) {
-                      setState(() => _bvnDigits += d);
+                    if (_idDigits.length < maxLen) {
+                      setState(() => _idDigits += d);
                     }
                   },
                   onDelete: () {
-                    if (_bvnDigits.isNotEmpty) {
-                      setState(() => _bvnDigits =
-                          _bvnDigits.substring(0, _bvnDigits.length - 1));
+                    if (_idDigits.isNotEmpty) {
+                      setState(() => _idDigits =
+                          _idDigits.substring(0, _idDigits.length - 1));
                     }
                   },
                 ),
@@ -981,341 +1194,157 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
             ),
           ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const SizedBox(width: 20),
-            GestureDetector(
-              onTap: () {
-                setState(() => _addNinToggle = !_addNinToggle);
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xFF1A6B35)),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      _addNinToggle ? 'Remove NIN' : 'Also add NIN',
-                      style: const TextStyle(
-                          fontSize: 11,
-                          color: Color(0xFF1A6B35),
-                          fontWeight: FontWeight.w600),
-                    ),
-                    const SizedBox(width: 4),
-                    Icon(
-                      _addNinToggle ? Icons.remove : Icons.add,
-                      size: 14,
-                      color: const Color(0xFF1A6B35),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+        _buildCTA(
+          label: 'Continue',
+          onTap: () {
+            if (_idDigits.length == 11) {
+              _businessInfo.idType = _idType;
+              _businessInfo.idNumber = _idDigits;
+              _nextStep();
+            } else {
+              _snack('Please enter a valid 11-digit ${_idType.toUpperCase()}',
+                  isError: true);
+            }
+          },
         ),
-        _buildBottomCTA(label: 'Continue', onTap: _nextStep),
       ],
     );
   }
 
-  // Screen 4: Selfie + Liveness Check
-  Widget _buildSelfieLivenessScreen({Key? key}) {
+  // ══════════════════════════════════════════════════════════════════════════════
+  // STEP 7 — Photo Capture
+  // ══════════════════════════════════════════════════════════════════════════════
+
+  Widget _buildPhotoCaptureStep() {
     return Column(
-      key: key,
+      key: const ValueKey('photoCapture'),
       children: [
-        _buildHeader(),
         Expanded(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Info banner
                 Container(
-                  width: double.infinity,
-                  height: 320,
+                  padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF5F5F5),
-                    borderRadius: BorderRadius.circular(16),
+                    color: const Color(0xFFF0FAF4),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                        color: const Color(0xFF166C46).withOpacity(0.2)),
                   ),
-                  child: Stack(
+                  child: const Row(
                     children: [
-                      Center(
-                        child: Container(
-                          width: 200,
-                          height: 270,
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: const Color(0xFF1A6B35),
-                              width: 2,
-                            ),
-                            borderRadius: BorderRadius.circular(140),
+                      Icon(Icons.camera_alt_outlined,
+                          color: Color(0xFF166C46), size: 20),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'Take a clear selfie for identity verification.',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF166C46),
+                            height: 1.4,
+                            fontFamily: 'Effra',
                           ),
-                        ),
-                      ),
-                      const Center(
-                        child: Icon(
-                          Icons.face,
-                          size: 48,
-                          color: Color(0xFF98A2B3),
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF0FAF4),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFF1A6B35)),
-                  ),
-                  child: const Text(
-                    'Look straight ahead',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF1A6B35),
+                const SizedBox(height: 24),
+                // Camera placeholder
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    width: double.infinity,
+                    height: 300,
+                    color: Colors.black87,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.camera_alt,
+                              color: Colors.white54, size: 44),
+                        ),
+                        const SizedBox(height: 14),
+                        const Text(
+                          'Camera preview will appear here',
+                          style: TextStyle(
+                            color: Colors.white54,
+                            fontSize: 13,
+                            fontFamily: 'Effra',
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                const SizedBox(height: 20),
+                // Tip chips
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
-                    _buildTipChip('Good lighting'),
-                    const SizedBox(width: 8),
-                    _buildTipChip('No glasses'),
-                    const SizedBox(width: 8),
-                    _buildTipChip('Face forward'),
+                    _tipChip('Good lighting'),
+                    _tipChip('No glasses'),
+                    _tipChip('Face forward'),
+                    _tipChip('Plain background'),
                   ],
                 ),
               ],
             ),
           ),
         ),
-        _buildBottomCTA(
-          label: 'Start Camera',
-          onTap: _nextStep,
-          footerContent: const Text(
-            'RimaPay needs camera access to complete this step',
-            style: TextStyle(
-              fontSize: 12,
-              color: Color(0xFF667085),
-            ),
-          ),
+        _buildCTA(
+          label: 'Take Photo',
+          onTap: () {
+            // Mock delay simulating photo capture
+            setState(() => _isLoading = true);
+            Future.delayed(const Duration(milliseconds: 800), () {
+              if (mounted) {
+                setState(() => _isLoading = false);
+                _nextStep();
+              }
+            });
+          },
+          loading: _isLoading,
         ),
       ],
     );
   }
 
-  Widget _buildTipChip(String text) {
+  Widget _tipChip(String label) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F5),
+        color: const Color(0xFFF3F4F6),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontSize: 12,
-          color: Color(0xFF667085),
-        ),
-      ),
+      child: Text(label,
+          style: const TextStyle(
+            fontSize: 12,
+            color: Color(0xFF6B7280),
+            fontFamily: 'Effra',
+          )),
     );
   }
 
-  // Screen 5: Create PIN
-  Widget _buildCreatePinScreen({Key? key}) {
-    final filled = _pin.where((d) => d.isNotEmpty).length;
-    return Column(
-      key: key,
-      children: [
-        _buildHeader(),
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 72,
-                  height: 72,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1A6B35).withOpacity(0.12),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.shield_outlined,
-                      color: Color(0xFF1A6B35), size: 34),
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                  'Create a PIN',
-                  style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF111827)),
-                ),
-                const SizedBox(height: 6),
-                const Text(
-                  'Secure your account with a 4-digit PIN',
-                  style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
-                ),
-                const SizedBox(height: 36),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(4, (i) {
-                    final hasDot = i < filled;
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 150),
-                      width: 18,
-                      height: 18,
-                      margin: const EdgeInsets.symmetric(horizontal: 10),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: hasDot
-                            ? const Color(0xFF1A6B35)
-                            : Colors.transparent,
-                        border: Border.all(
-                          color: hasDot
-                              ? const Color(0xFF1A6B35)
-                              : const Color(0xFFD1D5DB),
-                          width: 2,
-                        ),
-                      ),
-                    );
-                  }),
-                ),
-                const SizedBox(height: 40),
-                _buildNumPad(
-                  onDigit: (d) {
-                    final idx = _pin.indexWhere((p) => p.isEmpty);
-                    if (idx != -1) setState(() => _pin[idx] = d);
-                  },
-                  onDelete: () {
-                    final idx = _pin.lastIndexWhere((p) => p.isNotEmpty);
-                    if (idx != -1) setState(() => _pin[idx] = '');
-                  },
-                ),
-                const SizedBox(height: 20),
-              ],
-            ),
-          ),
-        ),
-        _buildBottomCTA(label: 'Continue', onTap: _nextStep),
-      ],
-    );
-  }
+  // ══════════════════════════════════════════════════════════════════════════════
+  // STEP 8 — Business Details
+  // ══════════════════════════════════════════════════════════════════════════════
 
-  // Screen 6: Confirm PIN
-  Widget _buildConfirmPinScreen({Key? key}) {
-    final filled = _confirmPinEntry.where((d) => d.isNotEmpty).length;
+  Widget _buildBusinessDetailsStep() {
     return Column(
-      key: key,
+      key: const ValueKey('businessDetails'),
       children: [
-        _buildHeader(),
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 72,
-                  height: 72,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1A6B35).withOpacity(0.12),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.shield,
-                      color: Color(0xFF1A6B35), size: 34),
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                  'Confirm your PIN',
-                  style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF111827)),
-                ),
-                const SizedBox(height: 6),
-                const Text(
-                  'Re-enter your 4-digit PIN to confirm',
-                  style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
-                ),
-                const SizedBox(height: 36),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(4, (i) {
-                    final hasDot = i < filled;
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 150),
-                      width: 18,
-                      height: 18,
-                      margin: const EdgeInsets.symmetric(horizontal: 10),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: hasDot
-                            ? const Color(0xFF1A6B35)
-                            : Colors.transparent,
-                        border: Border.all(
-                          color: hasDot
-                              ? const Color(0xFF1A6B35)
-                              : const Color(0xFFD1D5DB),
-                          width: 2,
-                        ),
-                      ),
-                    );
-                  }),
-                ),
-                const SizedBox(height: 40),
-                _buildNumPad(
-                  onDigit: (d) {
-                    final idx = _confirmPinEntry.indexWhere((p) => p.isEmpty);
-                    if (idx != -1) setState(() => _confirmPinEntry[idx] = d);
-                  },
-                  onDelete: () {
-                    final idx =
-                        _confirmPinEntry.lastIndexWhere((p) => p.isNotEmpty);
-                    if (idx != -1) setState(() => _confirmPinEntry[idx] = '');
-                  },
-                ),
-                const SizedBox(height: 20),
-              ],
-            ),
-          ),
-        ),
-        _buildBottomCTA(label: 'Continue', onTap: _onConfirmPin),
-      ],
-    );
-  }
-
-  void _onConfirmPin() {
-    if (_confirmPinEntry.join() != _pin.join()) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: const Text('PINs do not match. Please try again.'),
-        backgroundColor: Colors.red,
-      ));
-      setState(() {
-        for (int i = 0; i < _confirmPinEntry.length; i++) {
-          _confirmPinEntry[i] = '';
-        }
-      });
-      return;
-    }
-    _businessInfo.pin = _pin.join();
-    _nextStep();
-  }
-
-  // Screen 7: Create Password
-  Widget _buildCreatePasswordScreen({Key? key}) {
-    return Column(
-      key: key,
-      children: [
-        _buildHeader(),
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
@@ -1323,1100 +1352,491 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Create a password to secure your account',
+                  'Tell us about your business',
                   style: TextStyle(
-                      fontSize: 14, color: Color(0xFF6B7280), height: 1.5),
-                ),
-                const SizedBox(height: 24),
-                _buildTextInput(
-                  controller: _passwordController,
-                  label: 'Password',
-                  hint: 'Min 8 characters',
-                  obscureText: !_showPassword,
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _showPassword ? Icons.visibility_off : Icons.visibility,
-                      color: const Color(0xFF98A2B3),
-                    ),
-                    onPressed: () {
-                      setState(() => _showPassword = !_showPassword);
-                    },
-                  ),
-                ),
-                const SizedBox(height: 4),
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Min 8 chars with uppercase, lowercase & number',
-                    style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF)),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                _buildTextInput(
-                  controller: _confirmPasswordController,
-                  label: 'Confirm Password',
-                  hint: 'Re-enter your password',
-                  obscureText: !_showConfirmPassword,
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _showConfirmPassword
-                          ? Icons.visibility_off
-                          : Icons.visibility,
-                      color: const Color(0xFF98A2B3),
-                    ),
-                    onPressed: () {
-                      setState(() => _showConfirmPassword = !_showConfirmPassword);
-                    },
+                    fontSize: 14,
+                    color: Color(0xFF6B7280),
+                    height: 1.5,
+                    fontFamily: 'Effra',
                   ),
                 ),
                 const SizedBox(height: 24),
-              ],
-            ),
-          ),
-        ),
-        _buildBottomCTA(label: 'Continue', onTap: _onPasswordContinue),
-      ],
-    );
-  }
-
-  void _onPasswordContinue() {
-    if (_passwordController.text != _confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: const Text('Passwords do not match. Please try again.'),
-        backgroundColor: Colors.red,
-      ));
-      return;
-    }
-    if (_passwordController.text.length < 8) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: const Text('Password must be at least 8 characters.'),
-        backgroundColor: Colors.red,
-      ));
-      return;
-    }
-    _businessInfo.password = _passwordController.text;
-    _nextStep();
-  }
-
-  Widget _buildPinDots(String pinString) {
-    List<String> pinList = pinString.isEmpty ? [] : pinString.split('');
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(6, (index) {
-        bool isFilled = index < pinList.length && pinList[index].isNotEmpty;
-        return GestureDetector(
-          onTap: () {},
-          child: Container(
-            width: 14,
-            height: 14,
-            margin: EdgeInsets.only(right: index < 5 ? 8 : 0),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isFilled ? const Color(0xFF1A6B35) : const Color(0xFFE5E7EB),
-            ),
-          ),
-        );
-      }),
-    );
-  }
-
-  double _calculatePasswordStrength(String password) {
-    if (password.isEmpty) return 0;
-    double strength = 0;
-    if (password.length >= 8) strength += 0.25;
-    if (RegExp(r'[A-Z]').hasMatch(password)) strength += 0.25;
-    if (RegExp(r'[0-9]').hasMatch(password)) strength += 0.25;
-    if (RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(password)) strength += 0.25;
-    return strength;
-  }
-
-  String _getPasswordStrengthLabel(double strength) {
-    if (strength <= 0.25) return 'Weak';
-    if (strength <= 0.5) return 'Fair';
-    if (strength <= 0.75) return 'Strong';
-    return 'Very Strong';
-  }
-
-  Color _getPasswordStrengthColor(double strength) {
-    if (strength <= 0.25) return Colors.red;
-    if (strength <= 0.5) return Colors.orange;
-    if (strength <= 0.75) return Colors.green;
-    return const Color(0xFF1A6B35);
-  }
-
-  // Screen 6: Business Type
-  Widget _buildBusinessTypeScreen({Key? key}) {
-    return Column(
-      key: key,
-      children: [
-        _buildHeader(),
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                GridView.count(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  childAspectRatio: 1.63,
-                  children: [
-                    _buildBusinessTypeCard(
-                      icon: Icons.person_outline,
-                      label: 'Sole Trader',
-                      isSelected: _businessInfo.businessType == 'sole_trader',
-                      onTap: () {
-                        setState(() => _businessInfo.businessType = 'sole_trader');
-                      },
-                    ),
-                    _buildBusinessTypeCard(
-                      icon: Icons.business,
-                      label: 'Limited Company',
-                      isSelected: _businessInfo.businessType == 'limited_company',
-                      onTap: () {
-                        setState(() => _businessInfo.businessType = 'limited_company');
-                      },
-                    ),
-                    _buildBusinessTypeCard(
-                      icon: Icons.handshake_outlined,
-                      label: 'Partnership',
-                      isSelected: _businessInfo.businessType == 'partnership',
-                      onTap: () {
-                        setState(() => _businessInfo.businessType = 'partnership');
-                      },
-                    ),
-                    _buildBusinessTypeCard(
-                      icon: Icons.favorite_outline,
-                      label: 'NGO / Non-profit',
-                      isSelected: _businessInfo.businessType == 'ngo',
-                      onTap: () {
-                        setState(() => _businessInfo.businessType = 'ngo');
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-        _buildBottomCTA(label: 'Continue', onTap: _nextStep),
-      ],
-    );
-  }
-
-  Widget _buildBusinessTypeCard({
-    required IconData icon,
-    required String label,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFF0FAF4) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected ? const Color(0xFF1A6B35) : const Color(0xFFEEEEEE),
-            width: isSelected ? 2 : 1,
-          ),
-        ),
-        child: Stack(
-          children: [
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    icon,
-                    size: 32,
-                    color: const Color(0xFF1A6B35),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    label,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF101828),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (isSelected)
-              Positioned(
-                top: 8,
-                right: 8,
-                child: Container(
-                  width: 16,
-                  height: 16,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Color(0xFF1A6B35),
-                  ),
-                  child: const Icon(
-                    Icons.check,
-                    size: 12,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Screen 7: Business Details
-  Widget _buildBusinessDetailsScreen({Key? key}) {
-    return Column(
-      key: key,
-      children: [
-        _buildHeader(),
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildTextInput(
+                _sectionLabel('Business Name'),
+                const SizedBox(height: 8),
+                TextField(
                   controller: _businessNameController,
-                  label: 'Business Name',
-                  hint: 'Enter business name',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF111827),
+                    fontFamily: 'Effra',
+                  ),
+                  decoration: _inputDec(hint: 'e.g. Ayo Ventures Ltd'),
+                  onChanged: (v) => _businessInfo.businessName = v.trim(),
                 ),
                 const SizedBox(height: 16),
-                _buildTextInput(
-                  controller: _industryController,
-                  label: 'Industry',
-                  hint: 'Select industry',
-                  suffixIcon: const Icon(
-                    Icons.keyboard_arrow_down,
-                    color: Color(0xFF98A2B3),
+                _sectionLabel('Business Type'),
+                const SizedBox(height: 8),
+                GestureDetector(
+                  onTap: () => _showOptionsSheet(
+                    'Business Type',
+                    [
+                      'Sole Proprietorship',
+                      'Partnership',
+                      'LLC',
+                      'PLC',
+                    ],
+                    (v) => setState(() => _businessInfo.businessType = v),
+                  ),
+                  child: _dropdownField(
+                    value: _businessInfo.businessType.isEmpty
+                        ? null
+                        : _businessInfo.businessType,
+                    hint: 'Select business type',
                   ),
                 ),
                 const SizedBox(height: 16),
-                _buildTextInput(
-                  controller: _businessAddressController,
-                  label: 'Business Address',
-                  hint: 'Enter business address',
-                ),
-                const SizedBox(height: 16),
-                _buildTextInput(
-                  controller: _stateController,
-                  label: 'State',
-                  hint: 'Select state',
-                  suffixIcon: const Icon(
-                    Icons.keyboard_arrow_down,
-                    color: Color(0xFF98A2B3),
+                _sectionLabel('RC/BN Number'),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _rcBnController,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF111827),
+                    fontFamily: 'Effra',
                   ),
+                  decoration:
+                      _inputDec(hint: 'e.g. RC1234567 or BN1234567'),
+                  onChanged: (v) => _businessInfo.rcBnNumber = v.trim(),
                 ),
                 const SizedBox(height: 16),
-                _buildTextInput(
-                  controller: _lgaController,
-                  label: 'LGA',
-                  hint: 'Select LGA',
-                  suffixIcon: const Icon(
-                    Icons.keyboard_arrow_down,
-                    color: Color(0xFF98A2B3),
+                _sectionLabel('Industry'),
+                const SizedBox(height: 8),
+                GestureDetector(
+                  onTap: () => _showOptionsSheet(
+                    'Industry',
+                    [
+                      'Technology',
+                      'Finance',
+                      'Agriculture',
+                      'Manufacturing',
+                      'Retail',
+                      'Healthcare',
+                      'Education',
+                      'Transportation',
+                      'Real Estate',
+                      'Others',
+                    ],
+                    (v) => setState(() {
+                      _businessInfo.industry = v;
+                      _industryController.text = v;
+                    }),
                   ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        _buildBottomCTA(label: 'Continue', onTap: _nextStep),
-      ],
-    );
-  }
-
-  // Screen 8: CAC Details
-  Widget _buildCacDetailsScreen({Key? key}) {
-    return Column(
-      key: key,
-      children: [
-        _buildHeader(),
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildTextInput(
-                  controller: _rcNumberController,
-                  label: 'RC Number',
-                  hint: 'Enter 7-digit RC Number',
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: 16),
-                _buildTextInput(
-                  controller: _dobController,
-                  label: 'Date of Incorporation',
-                  hint: 'DD/MM/YYYY',
-                  readOnly: true,
-                  suffixIcon: const Icon(
-                    Icons.calendar_today,
-                    color: Color(0xFF98A2B3),
+                  child: _dropdownField(
+                    value: _businessInfo.industry.isEmpty
+                        ? null
+                        : _businessInfo.industry,
+                    hint: 'Select industry',
                   ),
                 ),
                 const SizedBox(height: 24),
-                _buildInfoCallout(
-                  text: 'Sole traders may not need a CAC number. Tap Skip if this doesn\'t apply to you.',
-                ),
-                const SizedBox(height: 16),
-                Center(
-                  child: TextButton(
-                    onPressed: () => _animateTo(BusinessAccountStep.directorInfo),
-                    child: const Text(
-                      'Skip this step',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF1A6B35),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
         ),
-        _buildBottomCTA(label: 'Continue', onTap: _nextStep),
+        _buildCTA(label: 'Continue', onTap: _nextStep),
       ],
     );
   }
 
-  // Screen 9: Director Info
-  Widget _buildDirectorInfoScreen({Key? key}) {
+  // ══════════════════════════════════════════════════════════════════════════════
+  // STEP 9 — Business Address
+  // ══════════════════════════════════════════════════════════════════════════════
+
+  Widget _buildBusinessAddressStep() {
+    final states = [
+      'Abia',
+      'Adamawa',
+      'Akwa Ibom',
+      'Anambra',
+      'Bauchi',
+      'Bayelsa',
+      'Benue',
+      'Borno',
+      'Cross River',
+      'Delta',
+      'Ebonyi',
+      'Edo',
+      'Ekiti',
+      'Enugu',
+      'FCT',
+      'Gombe',
+      'Imo',
+      'Jigawa',
+      'Kaduna',
+      'Kano',
+      'Katsina',
+      'Kebbi',
+      'Kogi',
+      'Kwara',
+      'Lagos',
+      'Nasarawa',
+      'Niger',
+      'Ogun',
+      'Ondo',
+      'Osun',
+      'Oyo',
+      'Plateau',
+      'Rivers',
+      'Sokoto',
+      'Taraba',
+      'Yobe',
+      'Zamfara',
+    ];
+
     return Column(
-      key: key,
+      key: const ValueKey('businessAddress'),
       children: [
-        _buildHeader(),
         Expanded(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Director 1',
+                  'Where is your business located?',
                   style: TextStyle(
                     fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF101828),
+                    color: Color(0xFF6B7280),
+                    height: 1.5,
+                    fontFamily: 'Effra',
                   ),
                 ),
-                const SizedBox(height: 16),
-                _buildTextInput(
-                  controller: _fullNameController,
-                  label: 'Full Name',
-                  hint: 'Enter full name',
-                ),
-                const SizedBox(height: 16),
-                _buildTextInput(
-                  controller: _dobController,
-                  label: 'Date of Birth',
-                  hint: 'DD/MM/YYYY',
-                  readOnly: true,
-                  suffixIcon: const Icon(
-                    Icons.calendar_today,
-                    color: Color(0xFF98A2B3),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                _buildTextInput(
-                  controller: _ownershipController,
-                  label: 'Ownership %',
-                  hint: 'Enter percentage',
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: 16),
-                _buildTextInput(
-                  controller: _directorBvnController,
-                  label: 'Director\'s BVN',
-                  hint: 'Enter 11-digit BVN',
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: 16),
-                GestureDetector(
-                  onTap: () {},
-                  child: Row(
-                    children: const [
-                      Icon(
-                        Icons.add_circle_outline,
-                        size: 24,
-                        color: Color(0xFF1A6B35),
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        'Add another director',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF1A6B35),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        _buildBottomCTA(label: 'Continue', onTap: _nextStep),
-      ],
-    );
-  }
-
-  // Screen 10: Document Upload
-  Widget _buildDocumentUploadScreen({Key? key}) {
-    List<UploadedDocument> documents = [
-      UploadedDocument(title: 'CAC Certificate or Proof of Registration'),
-      UploadedDocument(title: 'Utility Bill (business address proof)'),
-      UploadedDocument(title: 'Director\'s ID — Passport or NIN Slip'),
-    ];
-
-    return Column(
-      key: key,
-      children: [
-        _buildHeader(),
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ...documents.map((doc) => _buildDocumentCard(doc)),
-                if (_businessInfo.businessType == 'sole_trader') ...[
-                  const SizedBox(height: 16),
-                  _buildInfoCallout(
-                    text: 'As a sole trader, your BVN + NIN may be sufficient. CAC upload is optional.',
-                    isGreen: true,
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-        _buildBottomCTA(label: 'Submit Documents', onTap: _nextStep),
-      ],
-    );
-  }
-
-  Widget _buildDocumentCard(UploadedDocument doc) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFEEEEEE)),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(
-                Icons.description_outlined,
-                size: 24,
-                color: Color(0xFF1A6B35),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  doc.title,
+                const SizedBox(height: 24),
+                _sectionLabel('Street Address'),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _streetAddressController,
                   style: const TextStyle(
                     fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF101828),
+                    color: Color(0xFF111827),
+                    fontFamily: 'Effra',
+                  ),
+                  decoration:
+                      _inputDec(hint: 'e.g. 15 Adeola Odeku Street, VI'),
+                  onChanged: (v) => _businessInfo.streetAddress = v.trim(),
+                ),
+                const SizedBox(height: 16),
+                _sectionLabel('State'),
+                const SizedBox(height: 8),
+                GestureDetector(
+                  onTap: () => _showOptionsSheet(
+                    'Select State',
+                    states,
+                    (v) => setState(() => _businessInfo.state = v),
+                  ),
+                  child: _dropdownField(
+                    value: _businessInfo.state.isEmpty
+                        ? null
+                        : _businessInfo.state,
+                    hint: 'Select state',
                   ),
                 ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF3E0),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Text(
-                  'Required',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFFF59E0B),
+                const SizedBox(height: 16),
+                _sectionLabel('LGA'),
+                const SizedBox(height: 8),
+                GestureDetector(
+                  onTap: () => _showOptionsSheet(
+                    'Select LGA',
+                    ['Eti-Osa', 'Ikeja', 'Lagos Island', 'Surulere', 'Alimosho', 'Kosofe'],
+                    (v) => setState(() => _businessInfo.lga = v),
+                  ),
+                  child: _dropdownField(
+                    value:
+                        _businessInfo.lga.isEmpty ? null : _businessInfo.lga,
+                    hint: _businessInfo.state.isEmpty
+                        ? 'Select state first'
+                        : 'Select LGA',
+                    enabled: _businessInfo.state.isNotEmpty,
                   ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              const Icon(
-                Icons.keyboard_arrow_down,
-                color: Color(0xFF98A2B3),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Container(
-            width: double.infinity,
-            height: 140,
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: const Color(0xFFCCCCCC),
-                style: BorderStyle.solid,
-                width: 1.5,
-              ),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Icon(
-                  Icons.cloud_upload_outlined,
-                  size: 32,
-                  color: Color(0xFF98A2B3),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  'Tap to upload or take a photo',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF667085),
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'PDF, JPG, PNG — max 5MB',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF98A2B3),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.camera_alt_outlined, size: 18),
-                  label: const Text('Camera'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF667085),
-                    side: const BorderSide(color: Color(0xFFEEEEEE)),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.photo_library_outlined, size: 18),
-                  label: const Text('Gallery'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF667085),
-                    side: const BorderSide(color: Color(0xFFEEEEEE)),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Screen 11: Review & Submit
-  Widget _buildReviewSubmitScreen({Key? key}) {
-    return Column(
-      key: key,
-      children: [
-        _buildHeader(),
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildReviewSection(
-                  'Personal Info',
-                  [
-                    _buildReviewRow('Full Name', _fullNameController.text),
-                    _buildReviewRow('Phone Number', _phoneController.text),
-                    _buildReviewRow('BVN', '*******'),
-                  ],
-                ),
-                _buildReviewSection(
-                  'Business Info',
-                  [
-                    _buildReviewRow('Business Name', _businessNameController.text),
-                    _buildReviewRow('Type', _businessInfo.businessType),
-                    _buildReviewRow('Address', _businessAddressController.text),
-                    _buildReviewRow('RC Number', _rcNumberController.text),
-                  ],
-                ),
-                _buildReviewSection(
-                  'Directors',
-                  [
-                    _buildReviewRow('Director Name', _fullNameController.text),
-                    _buildReviewRow('Ownership %', _ownershipController.text),
-                  ],
-                ),
-                _buildReviewSection(
-                  'Documents',
-                  [
-                    _buildReviewRow('CAC Certificate', '✓'),
-                    _buildReviewRow('Utility Bill', '✓'),
-                    _buildReviewRow('Director ID', '✓'),
-                  ],
-                ),
+                const SizedBox(height: 24),
               ],
             ),
           ),
         ),
-        _buildBottomCTA(
-          label: 'Submit Application',
-          onTap: _nextStep,
-          footerContent: RichText(
-            text: const TextSpan(
-              children: [
-                TextSpan(
-                  text: 'By submitting you agree to ',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF667085),
-                  ),
-                ),
-                TextSpan(
-                  text: 'Terms of Service',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF1A6B35),
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-                TextSpan(
-                  text: ' and ',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF667085),
-                  ),
-                ),
-                TextSpan(
-                  text: 'Privacy Policy',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF1A6B35),
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+        _buildCTA(label: 'Continue', onTap: _nextStep),
       ],
     );
   }
 
-  Widget _buildReviewSection(String title, List<Widget> rows) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Column(
-        children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFAFAFA),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
+  // ══════════════════════════════════════════════════════════════════════════════
+  // STEP 10 — PEP Declaration
+  // ══════════════════════════════════════════════════════════════════════════════
+
+  Widget _buildPepStep() {
+    return Column(
+      key: const ValueKey('pepDeclaration'),
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF101828),
+                const SizedBox(height: 32),
+                Container(
+                  width: 120,
+                  height: 120,
+                  decoration: const BoxDecoration(
+                      color: Colors.white, shape: BoxShape.circle),
+                  child: const Icon(Icons.group,
+                      color: Color(0xFF16A34A), size: 60),
+                ),
+                const SizedBox(height: 28),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 28),
+                  child: Text(
+                    'Are you a Politically Exposed Person?',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF111827),
+                      height: 1.4,
+                      fontFamily: 'Effra',
+                    ),
                   ),
                 ),
-                const Spacer(),
-                const Icon(
-                  Icons.check_circle,
-                  size: 16,
-                  color: Color(0xFF1A6B35),
-                ),
-                const SizedBox(width: 8),
-                GestureDetector(
-                  onTap: () {},
-                  child: const Text(
-                    'Edit',
+                const SizedBox(height: 16),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 28),
+                  child: Text(
+                    'A PEP (Politically Exposed Person) is someone who currently holds or has held an important public position, which gives them influence over public funds or decisions. This includes family members and close associates of such persons.',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 13,
-                      color: Color(0xFF1A6B35),
+                      color: Color(0xFF6B7280),
+                      height: 1.5,
+                      fontFamily: 'Effra',
                     ),
                   ),
                 ),
-              ],
-            ),
-          ),
-          ...rows,
-        ],
-      ),
-    );
-  }
-
-  Widget _buildReviewRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Color(0xFF667085),
-            ),
-          ),
-          const Spacer(),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Color(0xFF101828),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Screen 12: Auto-Check Processing
-  Widget _buildAutoCheckProcessingScreen({Key? key}) {
-    return Center(
-      key: key,
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: 80,
-              height: 80,
-              child: CircularProgressIndicator(
-                strokeWidth: 4,
-                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF1A6B35)),
-              ),
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Verifying your details…',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF101828),
-              ),
-            ),
-            const SizedBox(height: 32),
-            _buildProcessingItem('✓', 'Identity confirmed'),
-            const SizedBox(height: 12),
-            _buildProcessingItem('✓', 'Business details validated'),
-            const SizedBox(height: 12),
-            _buildProcessingItem('⟳', 'Documents being reviewed…', isSpinning: true),
-            const SizedBox(height: 32),
-            const Text(
-              'Please don\'t close the app',
-              style: TextStyle(
-                fontSize: 13,
-                color: Color(0xFF667085),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProcessingItem(String icon, String label, {bool isSpinning = false}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (isSpinning)
-          SizedBox(
-            width: 16,
-            height: 16,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.grey[400]!),
-            ),
-          )
-        else
-          const Icon(
-            Icons.check,
-            size: 16,
-            color: Color(0xFF1A6B35),
-          ),
-        const SizedBox(width: 12),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 14,
-            color: Color(0xFF667085),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // Screen 13: Auto-Check Fail
-  Widget _buildAutoCheckFailScreen({Key? key}) {
-    return Column(
-      key: key,
-      children: [
-        _buildHeader(),
-        Expanded(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Color(0xFFFFEBEE),
-                    ),
-                    child: const Icon(
-                      Icons.error_outline,
-                      size: 32,
-                      color: Color(0xFFD32F2F),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'We found an issue',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF101828),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'One or more documents couldn\'t be verified',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF667085),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFF5F5),
-                      borderRadius: BorderRadius.circular(8),
-                      border: const Border(
-                        left: BorderSide(color: Color(0xFFD32F2F), width: 3),
-                      ),
-                    ),
-                    child: const Text(
-                      'Your Director\'s ID could not be verified. Please upload a clearer, unobstructed copy.',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF667085),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        _buildBottomCTA(
-          label: 'Re-upload Document',
-          onTap: _nextStep,
-          footerContent: TextButton(
-            onPressed: () {},
-            child: const Text(
-              'Contact RimaPay Support',
-              style: TextStyle(
-                fontSize: 14,
-                color: Color(0xFF667085),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // Screen 14: Manual Review Pending
-  Widget _buildManualReviewPendingScreen({Key? key}) {
-    return Column(
-      key: key,
-      children: [
-        _buildHeader(),
-        Expanded(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.hourglass_empty,
-                    size: 80,
-                    color: Color(0xFF98A2B3),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Application submitted!',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF1A6B35),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Our compliance team is reviewing your business. This typically takes 1–3 business days.',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF667085),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF0FAF4),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      children: const [
-                        Icon(
-                          Icons.notifications_active_outlined,
-                          size: 20,
-                          color: Color(0xFF1A6B35),
-                        ),
-                        SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            'We\'ll notify you by SMS and email once your account is approved.',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Color(0xFF667085),
+                const SizedBox(height: 32),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Row(
+                    children: ['Yes', 'No'].map((label) {
+                      final val = label == 'Yes';
+                      final selected = _businessInfo.isPep == val;
+                      return Expanded(
+                        child: GestureDetector(
+                          onTap: () =>
+                              setState(() => _businessInfo.isPep = val),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 180),
+                            margin: const EdgeInsets.symmetric(horizontal: 6),
+                            padding: const EdgeInsets.symmetric(vertical: 18),
+                            decoration: BoxDecoration(
+                              color: selected
+                                  ? const Color(0xFF16A34A)
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                color: selected
+                                    ? const Color(0xFF16A34A)
+                                    : const Color(0xFFE5E7EB),
+                                width: 1.5,
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                label,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  fontFamily: 'Effra',
+                                  color: selected
+                                      ? Colors.white
+                                      : const Color(0xFF374151),
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ],
-                    ),
+                      );
+                    }).toList(),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
-        _buildBottomCTA(label: 'Got it', onTap: _nextStep),
+        _buildCTA(
+          label: 'Continue',
+          onTap: () {
+            if (_businessInfo.isPep == null) {
+              _snack('Please select Yes or No', isError: true);
+              return;
+            }
+            _nextStep();
+          },
+        ),
       ],
     );
   }
 
-  // Screen 15: Rejection
-  Widget _buildRejectionScreen({Key? key}) {
+  // ══════════════════════════════════════════════════════════════════════════════
+  // STEP 11 — Sources of Revenue
+  // ══════════════════════════════════════════════════════════════════════════════
+
+  Widget _buildSourcesOfRevenueStep() {
+    const sources = [
+      'Sales',
+      'Services',
+      'Investments',
+      'Government Contracts',
+      'Donations',
+      'Other',
+    ];
+
     return Column(
-      key: key,
+      key: const ValueKey('sourcesOfRevenue'),
       children: [
-        _buildHeader(),
         Expanded(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Color(0xFFFFEBEE),
-                    ),
-                    child: const Icon(
-                      Icons.close,
-                      size: 32,
-                      color: Color(0xFFD32F2F),
-                    ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Select all sources of revenue for your business',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF6B7280),
+                    height: 1.5,
+                    fontFamily: 'Effra',
                   ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Application declined',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF101828),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'We were unable to verify your business at this time.',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF667085),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF5F5F5),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Text(
-                      'Reason: Director ID did not match BVN records.',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF667085),
+                ),
+                const SizedBox(height: 24),
+                ...sources.map((source) {
+                  final isSelected = _selectedRevenueSources.contains(source);
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (isSelected) {
+                          _selectedRevenueSources.remove(source);
+                        } else {
+                          _selectedRevenueSources.add(source);
+                        }
+                      });
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 14),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: isSelected
+                              ? const Color(0xFF166C46)
+                              : const Color(0xFFE4E7EC),
+                          width: isSelected ? 1.5 : 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 150),
+                            width: 22,
+                            height: 22,
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? const Color(0xFF166C46)
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                color: isSelected
+                                    ? const Color(0xFF166C46)
+                                    : const Color(0xFFD1D5DB),
+                                width: 1.5,
+                              ),
+                            ),
+                            child: isSelected
+                                ? const Icon(Icons.check,
+                                    color: Colors.white, size: 14)
+                                : null,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            source,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF374151),
+                              fontFamily: 'Effra',
+                            ),
+                          ),
+                        ],
                       ),
                     ),
+                  );
+                }),
+                if (_selectedRevenueSources.contains('Other')) ...[
+                  const SizedBox(height: 8),
+                  _sectionLabel('Please specify'),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _otherRevenueController,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF111827),
+                      fontFamily: 'Effra',
+                    ),
+                    decoration: _inputDec(hint: 'Describe other revenue source'),
+                    onChanged: (v) =>
+                        _businessInfo.otherRevenueSource = v.trim(),
                   ),
                 ],
-              ),
+                const SizedBox(height: 24),
+              ],
             ),
           ),
         ),
-        _buildBottomCTA(
-          label: 'Appeal this decision',
-          onTap: _nextStep,
-          footerContent: TextButton(
-            onPressed: () {},
-            child: const Text(
-              'Contact Support',
-              style: TextStyle(
-                fontSize: 14,
-                color: Color(0xFF667085),
-              ),
-            ),
-          ),
+        _buildCTA(
+          label: 'Continue',
+          onTap: () {
+            if (_selectedRevenueSources.isEmpty) {
+              _snack('Please select at least one revenue source',
+                  isError: true);
+              return;
+            }
+            _businessInfo.revenueSources = List.from(_selectedRevenueSources);
+            // Mock delay simulating submission
+            setState(() => _isLoading = true);
+            Future.delayed(const Duration(milliseconds: 1500), () {
+              if (mounted) {
+                setState(() => _isLoading = false);
+                _nextStep();
+              }
+            });
+          },
+          loading: _isLoading,
         ),
       ],
     );
   }
 
-  // Screen 16: Approval
-  Widget _buildApprovalScreen({Key? key}) {
+  // ══════════════════════════════════════════════════════════════════════════════
+  // SUCCESS — Approval Screen with Confetti
+  // ══════════════════════════════════════════════════════════════════════════════
+
+  Widget _buildSuccessStep() {
+    final accountNumber =
+        _phoneDigits.isNotEmpty ? '0$_phoneDigits' : '08XXXXXXXXX';
     return Stack(
-      key: key,
+      key: const ValueKey('success'),
       children: [
         Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
@@ -2444,7 +1864,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
             children: [
               const Spacer(),
               Image.asset(
-                'assets/images/AppIcon.png',
+                'assets/images/mild.png',
                 width: 64,
                 height: 64,
                 errorBuilder: (_, __, ___) => const SizedBox.shrink(),
@@ -2469,6 +1889,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                   fontSize: 26,
                   fontWeight: FontWeight.w900,
                   color: Colors.white,
+                  fontFamily: 'Effra',
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -2479,9 +1900,11 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                   'Your business account has been created successfully.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.white.withOpacity(0.75),
-                      height: 1.5),
+                    fontSize: 15,
+                    color: Colors.white.withOpacity(0.75),
+                    height: 1.5,
+                    fontFamily: 'Effra',
+                  ),
                 ),
               ),
               const SizedBox(height: 36),
@@ -2508,34 +1931,35 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                             width: 40,
                             height: 40,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF1A6B35).withOpacity(0.1),
+                              color: const Color(0xFF16A34A).withOpacity(0.1),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
                                 Icons.account_balance_wallet_outlined,
-                                color: Color(0xFF1A6B35),
+                                color: Color(0xFF16A34A),
                                 size: 20),
                           ),
                           const SizedBox(width: 12),
                           const Text(
                             'Your Account Number',
                             style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF6B7280)),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF6B7280),
+                              fontFamily: 'Effra',
+                            ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        _businessInfo.phoneNumber.isNotEmpty
-                            ? _businessInfo.phoneNumber
-                            : '08XXXXXXXXX',
+                        accountNumber,
                         style: const TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.w900,
                           color: Color(0xFF111827),
                           letterSpacing: 2,
+                          fontFamily: 'Effra',
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -2547,18 +1971,20 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(color: const Color(0xFFBBF7D0)),
                         ),
-                        child: Row(
+                        child: const Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: const [
+                          children: [
                             Icon(Icons.business_outlined,
-                                size: 14, color: Color(0xFF1A6B35)),
+                                size: 14, color: Color(0xFF16A34A)),
                             SizedBox(width: 6),
                             Text(
                               'Your business account is now active',
                               style: TextStyle(
-                                  fontSize: 11,
-                                  color: Color(0xFF166534),
-                                  fontWeight: FontWeight.w500),
+                                fontSize: 11,
+                                color: Color(0xFF166534),
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'Effra',
+                              ),
                             ),
                           ],
                         ),
@@ -2589,9 +2015,11 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                     child: Text(
                       'Go to Dashboard',
                       style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF166C46)),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF166C46),
+                        fontFamily: 'Effra',
+                      ),
                     ),
                   ),
                 ),
@@ -2602,7 +2030,245 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
       ],
     );
   }
+
+  // ══════════════════════════════════════════════════════════════════════════════
+  // Shared Widgets
+  // ══════════════════════════════════════════════════════════════════════════════
+
+  Widget _buildCTA(
+      {String? label,
+      bool loading = false,
+      VoidCallback? onTap,
+      Widget? footerContent}) {
+    final enabled = !loading;
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+          20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(top: BorderSide(color: Color(0xFFF3F4F6))),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          GestureDetector(
+            onTap: loading ? null : onTap,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              width: double.infinity,
+              height: 54,
+              decoration: BoxDecoration(
+                color: enabled ? const Color(0xFF166C46) : const Color(0xFFCCCCCC),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Center(
+                child: loading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation(Colors.white)))
+                    : Text(
+                        label ?? 'Continue',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Effra',
+                          color:
+                              enabled ? Colors.white : const Color(0xFF9CA3AF),
+                        ),
+                      ),
+              ),
+            ),
+          ),
+          if (footerContent != null) ...[
+            const SizedBox(height: 8),
+            footerContent,
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNumPad(
+      {required void Function(String) onDigit,
+      required VoidCallback onDelete}) {
+    const rows = [
+      ['1', '2', '3'],
+      ['4', '5', '6'],
+      ['7', '8', '9'],
+      ['', '0', '⌫']
+    ];
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        children: rows
+            .map((row) => Row(
+                  children: row.map((key) {
+                    if (key.isEmpty) return const Expanded(child: SizedBox());
+                    return Expanded(
+                      child: GestureDetector(
+                        onTap: () =>
+                            key == '⌫' ? onDelete() : onDigit(key),
+                        child: Container(
+                          margin: const EdgeInsets.all(6),
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                  color: Colors.black.withOpacity(0.04),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2))
+                            ],
+                          ),
+                          child: Center(
+                            child: key == '⌫'
+                                ? const Icon(Icons.backspace_outlined,
+                                    size: 20, color: Color(0xFF374151))
+                                : Text(key,
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF111827),
+                                      fontFamily: 'Effra',
+                                    )),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ))
+            .toList(),
+      ),
+    );
+  }
+
+  InputDecoration _inputDec({String hint = '', Widget? suffix}) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(
+          color: Color(0xFFD1D5DB), fontSize: 14, fontFamily: 'Effra'),
+      suffixIcon: suffix,
+      filled: true,
+      fillColor: Colors.white,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: Color(0xFFE4E7EC))),
+      enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: Color(0xFFE4E7EC))),
+      focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: Color(0xFF166C46), width: 1.5)),
+    );
+  }
+
+  Widget _sectionLabel(String label) {
+    return Text(label,
+        style: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: Color(0xFF344054),
+          fontFamily: 'Effra',
+        ));
+  }
+
+  Widget _dropdownField({
+    required String? value,
+    required String hint,
+    bool enabled = true,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: enabled ? Colors.white : const Color(0xFFF9FAFB),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFE4E7EC)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              value ?? hint,
+              style: TextStyle(
+                fontSize: 14,
+                fontFamily: 'Effra',
+                color: value != null
+                    ? const Color(0xFF111827)
+                    : const Color(0xFFD1D5DB),
+              ),
+            ),
+          ),
+          Icon(Icons.keyboard_arrow_down,
+              color:
+                  enabled ? const Color(0xFF6B7280) : const Color(0xFFD1D5DB),
+              size: 20),
+        ],
+      ),
+    );
+  }
+
+  void _showOptionsSheet(
+      String title, List<String> options, void Function(String) onSelect) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding:
+            EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 12),
+            Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                    color: const Color(0xFFE5E7EB),
+                    borderRadius: BorderRadius.circular(2))),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(title,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF111827),
+                    fontFamily: 'Effra',
+                  )),
+            ),
+            const SizedBox(height: 8),
+            const Divider(),
+            ...options.map((o) => ListTile(
+                  title: Text(o,
+                      style: const TextStyle(
+                          fontSize: 15, fontFamily: 'Effra')),
+                  trailing:
+                      const Icon(Icons.chevron_right, color: Color(0xFFD1D5DB)),
+                  onTap: () {
+                    onSelect(o);
+                    Navigator.pop(context);
+                  },
+                )),
+          ],
+        ),
+      ),
+    );
+  }
 }
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Confetti Particle & Painter (preserved)
+// ══════════════════════════════════════════════════════════════════════════════
 
 class _CParticle {
   final double x;

@@ -123,7 +123,7 @@ class _AirtimeCashScreenState extends State<AirtimeCashScreen> {
                   const SizedBox(height: 16),
 
                   // Network selector
-                  const Text('Select Network', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF374151))),
+                  Text('Select Network', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85))),
                   const SizedBox(height: 10),
                   Row(
                     children: _networks.asMap().entries.map((e) {
@@ -138,16 +138,16 @@ class _AirtimeCashScreenState extends State<AirtimeCashScreen> {
                             margin: EdgeInsets.only(right: isLast ? 0 : 8),
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             decoration: BoxDecoration(
-                              color: isSelected ? n.bgColor : const Color(0xFFF9FAFB),
+                              color: isSelected ? (Theme.of(context).brightness == Brightness.dark ? n.color.withOpacity(0.15) : n.bgColor) : Theme.of(context).scaffoldBackgroundColor,
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: isSelected ? n.color : const Color(0xFFE5E7EB), width: isSelected ? 2 : 1),
+                              border: Border.all(color: isSelected ? n.color : Theme.of(context).dividerColor, width: isSelected ? 2 : 1),
                             ),
                             child: Column(
                               children: [
                                 Text(n.emoji, style: TextStyle(fontSize: 20)),
                                 const SizedBox(height: 4),
                                 Text(n.name, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600,
-                                    color: isSelected ? n.color : const Color(0xFF6B7280))),
+                                    color: isSelected ? n.color : Theme.of(context).colorScheme.onSurface.withOpacity(0.55))),
                               ],
                             ),
                           ),
@@ -198,7 +198,7 @@ class _AirtimeCashScreenState extends State<AirtimeCashScreen> {
                               children: [
                                 Text('₦${_amountController.text} airtime',
                                     style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
-                                const Text('converts to', style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
+                                Text('converts to', style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4))),
                               ],
                             ),
                           ),
@@ -235,7 +235,7 @@ class _AirtimeCashCTA extends StatelessWidget {
         : 'Continue';
     return Container(
       padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
-      decoration: BoxDecoration(color: Theme.of(context).cardColor, border: Border(top: BorderSide(color: Color(0xFFF3F4F6)))),
+      decoration: BoxDecoration(color: Theme.of(context).cardColor, border: Border(top: BorderSide(color: Theme.of(context).scaffoldBackgroundColor))),
       child: GestureDetector(
         onTap: enabled ? onTap : null,
         child: AnimatedContainer(
@@ -247,7 +247,7 @@ class _AirtimeCashCTA extends StatelessWidget {
             color: enabled ? null : const Color(0xFFCCCCCC),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Center(child: Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: enabled ? Colors.white : const Color(0xFF9CA3AF)))),
+          child: Center(child: Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: enabled ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.4)))),
         ),
       ),
     );

@@ -197,7 +197,7 @@ class _HeaderSection extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Hi, Mustapha 👋',
+                    'Good Morning 👋',
                     style: GoogleFonts.dmSans(fontSize: 13, color: textGray),
                   ),
                   Text(
@@ -387,7 +387,7 @@ class _BalanceCardState extends State<_BalanceCard> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Row(
@@ -419,6 +419,8 @@ class _ActionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
       child: Row(
@@ -464,9 +466,9 @@ class _ActionButtons extends StatelessWidget {
                 height: 70,
                 margin: const EdgeInsets.only(left: 8),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
+                  color: isDark ? Color(0xFF1A1F2E) : Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Theme.of(context).dividerColor),
+                  border: Border.all(color: isDark ? Color(0xFF2D3348) : Theme.of(context).dividerColor),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
@@ -474,8 +476,8 @@ class _ActionButtons extends StatelessWidget {
                     Container(
                       width: 40,
                       height: 40,
-                      decoration: const BoxDecoration(
-                        color: lightGreenBg,
+                      decoration: BoxDecoration(
+                        color: isDark ? brandGreen.withOpacity(0.15) : lightGreenBg,
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(Icons.add, color: brandGreen, size: 22),
@@ -625,15 +627,20 @@ class _QuickServiceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final tileBg = isDark ? Color(0xFF1A1F2E) : Theme.of(context).cardColor;
+    final tileBorder = isDark ? Color(0xFF2D3348) : Theme.of(context).dividerColor;
+    final iconBg = isDark ? iconColor.withOpacity(0.15) : iconBgColor;
+
     return GestureDetector(
       onTap: () => context.push(route),
       behavior: HitTestBehavior.opaque,
       child: Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
+          color: tileBg,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: Theme.of(context).dividerColor,
+            color: tileBorder,
             width: 0.8,
           ),
         ),
@@ -644,7 +651,7 @@ class _QuickServiceTile extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: iconBgColor,
+                color: iconBg,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: iconColor, size: 20),

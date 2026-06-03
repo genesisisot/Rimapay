@@ -482,7 +482,7 @@ class _ServiceCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: service.isLocked
-                ? const Color(0xFFE4E7EC)
+                ? Theme.of(context).dividerColor
                 : service.color.withOpacity(0.15),
           ),
           boxShadow: [
@@ -505,8 +505,10 @@ class _ServiceCard extends StatelessWidget {
                     height: 48,
                     decoration: BoxDecoration(
                       color: service.isLocked
-                          ? const Color(0xFFF4F6F8)
-                          : service.bgColor,
+                          ? Theme.of(context).scaffoldBackgroundColor
+                          : Theme.of(context).brightness == Brightness.dark
+                              ? service.color.withOpacity(0.15)
+                              : service.bgColor,
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Center(
@@ -543,8 +545,8 @@ class _ServiceCard extends StatelessWidget {
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                   color: service.isLocked
-                      ? const Color(0xFF98A2B3)
-                      : const Color(0xFF101828),
+                      ? Theme.of(context).colorScheme.onSurface.withOpacity(0.4)
+                      : Theme.of(context).colorScheme.onSurface,
                 ),
                 textAlign: TextAlign.center,
                 maxLines: 1,
@@ -559,7 +561,7 @@ class _ServiceCard extends StatelessWidget {
                   fontSize: 10,
                   color: service.isLocked
                       ? const Color(0xFFff6b35)
-                      : const Color(0xFF667085),
+                      : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                   fontWeight:
                       service.isLocked ? FontWeight.w600 : FontWeight.normal,
                 ),

@@ -318,7 +318,7 @@ class _TierCard extends StatelessWidget {
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isCurrent ? color : const Color(0xFFE4E7EC),
+          color: isCurrent ? color : Theme.of(context).dividerColor,
           width: isCurrent ? 2 : 1,
         ),
         boxShadow: [
@@ -435,7 +435,7 @@ class _TierCard extends StatelessWidget {
                           b,
                           style: TextStyle(
                             fontSize: 13,
-                            color: Color(0xFF374151),
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
                             fontFamily: 'Effra',
                           ),
                         ),
@@ -454,13 +454,13 @@ class _TierCard extends StatelessWidget {
                       color: Theme.of(context).scaffoldBackgroundColor,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Text(
                         'Current Plan',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF9CA3AF),
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                           fontFamily: 'Effra',
                         ),
                       ),
@@ -510,12 +510,12 @@ class _TierCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: Theme.of(context).dividerColor),
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Text(
                         'Complete lower tiers first',
                         style: TextStyle(
                           fontSize: 13,
-                          color: Color(0xFF9CA3AF),
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                           fontFamily: 'Effra',
                         ),
                       ),
@@ -553,7 +553,7 @@ class _LimitBox extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 11,
-                color: Color(0xFF9CA3AF),
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                 fontFamily: 'Effra',
               ),
             ),
@@ -791,7 +791,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
           'Your ${widget.needsNin ? "NIN" : "BVN"} is used solely for identity verification and is encrypted.',
           style: TextStyle(
             fontSize: 12,
-            color: Color(0xFF9CA3AF),
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
             fontFamily: 'Effra',
           ),
         ),
@@ -1162,7 +1162,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
                             decoration: BoxDecoration(
                               color: done
                                   ? const Color(0xFF8B5CF6)
-                                  : const Color(0xFFE4E7EC),
+                                  : Theme.of(context).dividerColor,
                               borderRadius: BorderRadius.circular(999),
                             ),
                           ),
@@ -1246,12 +1246,12 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
         const SizedBox(height: 24),
 
         // Document type selector
-        const Text(
+        Text(
           'Document Type',
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF374151),
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
             fontFamily: 'Effra',
           ),
         ),
@@ -1273,7 +1273,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
                   color: selected ? color.withOpacity(0.08) : Colors.white,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: selected ? color : const Color(0xFFE4E7EC),
+                    color: selected ? color : Theme.of(context).dividerColor,
                     width: selected ? 1.5 : 1,
                   ),
                 ),
@@ -1282,7 +1282,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: selected ? color : const Color(0xFF374151),
+                    color: selected ? color : Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
                     fontFamily: 'Effra',
                   ),
                 ),
@@ -1293,12 +1293,12 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
         const SizedBox(height: 24),
 
         // Upload area
-        const Text(
+        Text(
           'Upload Document',
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF374151),
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
             fontFamily: 'Effra',
           ),
         ),
@@ -1314,7 +1314,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
             decoration: BoxDecoration(
               color: selectedFile != null
                   ? color.withOpacity(0.04)
-                  : const Color(0xFFF9FAFB),
+                  : Theme.of(context).scaffoldBackgroundColor,
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
                 color: selectedFile != null
@@ -1332,7 +1332,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
                   decoration: BoxDecoration(
                     color: selectedFile != null
                         ? color.withOpacity(0.1)
-                        : const Color(0xFFEEEEEE),
+                        : Theme.of(context).dividerColor,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -1340,7 +1340,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
                         ? Icons.check_circle_rounded
                         : Icons.cloud_upload_outlined,
                     size: 26,
-                    color: selectedFile != null ? color : const Color(0xFF9CA3AF),
+                    color: selectedFile != null ? color : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -1349,7 +1349,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: selectedFile != null ? color : const Color(0xFF374151),
+                    color: selectedFile != null ? color : Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
                     fontFamily: 'Effra',
                   ),
                 ),
@@ -1362,7 +1362,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
                           : 'JPG, PNG or PDF · Max 5MB',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF9CA3AF),
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                     fontFamily: 'Effra',
                   ),
                 ),
@@ -1406,7 +1406,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
                   fontWeight: FontWeight.w700,
                   color: (selectedType != null && selectedFile != null)
                       ? Colors.white
-                      : const Color(0xFF9CA3AF),
+                      : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                   fontFamily: 'Effra',
                 ),
               ),
@@ -1636,7 +1636,7 @@ class _OtpBox extends StatelessWidget {
           counterText: '',
           contentPadding: EdgeInsets.zero,
           filled: true,
-          fillColor: Colors.white,
+          fillColor: Theme.of(context).cardColor,
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(color: Theme.of(context).dividerColor, width: 1.5),
@@ -1697,7 +1697,7 @@ class _ReviewItem extends StatelessWidget {
                   label,
                   style: TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF9CA3AF),
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                     fontFamily: 'Effra',
                   ),
                 ),
@@ -1757,7 +1757,7 @@ class _SuccessBenefitRow extends StatelessWidget {
               text,
               style: TextStyle(
                 fontSize: 14,
-                color: Color(0xFF374151),
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
                 fontFamily: 'Effra',
               ),
             ),

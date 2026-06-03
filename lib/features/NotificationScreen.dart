@@ -275,7 +275,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     fontFamily: 'Effra',
                     color: selected
                         ? AppColors.goldPrimary
-                        : const Color(0xFF98A2B3),
+                        : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                   ),
                 ),
               ),

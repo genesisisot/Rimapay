@@ -121,7 +121,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
                       border: Border.all(
                         color: _aboveNisab
                             ? const Color(0xFF1A6B35).withOpacity(0.3)
-                            : const Color(0xFFE4E7EC),
+                            : Theme.of(context).dividerColor,
                       ),
                     ),
                     child: Column(
@@ -154,7 +154,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
                                     fontSize: 16,
                                     color: _aboveNisab
                                         ? const Color(0xFF1A6B35)
-                                        : const Color(0xFF98A2B3))),
+                                        : Theme.of(context).colorScheme.onSurface.withOpacity(0.4))),
                           ],
                         ),
                         if (!_aboveNisab && _totalWealth > 0) ...[
@@ -188,7 +188,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
                             border: Border.all(
                               color: active
                                   ? const Color(0xFF1A6B35)
-                                  : const Color(0xFFE4E7EC),
+                                  : Theme.of(context).dividerColor,
                               width: active ? 2 : 1,
                             ),
                           ),
@@ -274,7 +274,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
             prefixStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8), fontWeight: FontWeight.w600),
             hintStyle: TextStyle(color: Theme.of(context).dividerColor),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: Theme.of(context).cardColor,
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),

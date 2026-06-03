@@ -34,7 +34,7 @@ class _SourceOfIncomeScreenState extends State<SourceOfIncomeScreen> {
         style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF374151)));
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85)));
   }
 
   Widget _dropdownField({
@@ -64,8 +64,8 @@ class _SourceOfIncomeScreenState extends State<SourceOfIncomeScreen> {
                 ),
               ),
             ),
-            const Icon(Icons.keyboard_arrow_down,
-                color: Color(0xFF6B7280), size: 20),
+            Icon(Icons.keyboard_arrow_down,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55), size: 20),
           ],
         ),
       ),
@@ -169,8 +169,8 @@ class _SourceOfIncomeScreenState extends State<SourceOfIncomeScreen> {
                         color: Theme.of(context).scaffoldBackgroundColor,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.arrow_back_ios_new,
-                          color: Color(0xFF6B7280), size: 18),
+                      child: Icon(Icons.arrow_back_ios_new,
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55), size: 18),
                     ),
                   ),
                   const Spacer(),
@@ -200,9 +200,9 @@ class _SourceOfIncomeScreenState extends State<SourceOfIncomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Provide details of your source of income',
+                    Text('Provide details of your source of income',
                         style:
-                            TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
+                            TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55))),
                     const SizedBox(height: 24),
                     _sectionLabel('Occupation'),
                     const SizedBox(height: 8),

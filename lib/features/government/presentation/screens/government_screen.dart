@@ -144,7 +144,7 @@ class _GovernmentScreenState extends State<GovernmentScreen> {
                         decoration: BoxDecoration(
                           color: isSelected ? const Color(0xFFF2F7F3) : const Color(0xFFFAFBFC),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: isSelected ? AppColors.goldPrimary.withOpacity(0.4) : const Color(0xFFE4E7EC)),
+                          border: Border.all(color: isSelected ? AppColors.goldPrimary.withOpacity(0.4) : Theme.of(context).dividerColor),
                         ),
                         child: Row(
                           children: [
@@ -168,7 +168,7 @@ class _GovernmentScreenState extends State<GovernmentScreen> {
                                 child: Text('₦${svc.fixedAmount}', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: svc.color)),
                               )
                             else
-                              const Icon(Icons.keyboard_arrow_right_rounded, color: Color(0xFF9CA3AF), size: 18),
+                              Icon(Icons.keyboard_arrow_right_rounded, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), size: 18),
                             if (isSelected) ...[
                               const SizedBox(width: 6),
                               const Icon(Icons.check_circle, color: Color(0xFF166C46), size: 20),
@@ -262,7 +262,7 @@ class _GovernmentScreenState extends State<GovernmentScreen> {
                     value: _selectedService == null ? null : '${_selectedService!.name} (${_selectedService!.agency})',
                     hint: 'Select a service to pay',
                     icon: _selectedService?.icon ?? Icons.account_balance_outlined,
-                    iconColor: _selectedService?.color ?? const Color(0xFF9CA3AF),
+                    iconColor: _selectedService?.color ?? Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                     onTap: _openServiceSheet,
                   ),
                   const SizedBox(height: 16),
@@ -357,11 +357,11 @@ class _SelectorTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: hasValue ? AppColors.goldPrimary.withOpacity(0.4) : const Color(0xFFE4E7EC)),
+          border: Border.all(color: hasValue ? AppColors.goldPrimary.withOpacity(0.4) : Theme.of(context).dividerColor),
         ),
         child: Row(
           children: [
-            Icon(icon, size: 20, color: hasValue ? iconColor : const Color(0xFF9CA3AF)),
+            Icon(icon, size: 20, color: hasValue ? iconColor : Theme.of(context).colorScheme.onSurface.withOpacity(0.4)),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -369,16 +369,16 @@ class _SelectorTile extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500,
-                      color: hasValue ? AppColors.goldPrimary : const Color(0xFF9CA3AF))),
+                      color: hasValue ? AppColors.goldPrimary : Theme.of(context).colorScheme.onSurface.withOpacity(0.4))),
                   const SizedBox(height: 2),
                   Text(value ?? hint, style: TextStyle(fontSize: 14,
                       fontWeight: hasValue ? FontWeight.w600 : FontWeight.normal,
-                      color: hasValue ? const Color(0xFF101828) : const Color(0xFFD0D5DD)),
+                      color: hasValue ? Theme.of(context).colorScheme.onSurface : Theme.of(context).dividerColor),
                       maxLines: 1, overflow: TextOverflow.ellipsis),
                 ],
               ),
             ),
-            const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF9CA3AF)),
+            Icon(Icons.keyboard_arrow_down_rounded, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4)),
           ],
         ),
       ),
@@ -400,7 +400,7 @@ class _GovCTA extends StatelessWidget {
         : 'Continue';
     return Container(
       padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
-      decoration: BoxDecoration(color: Theme.of(context).cardColor, border: Border(top: BorderSide(color: Color(0xFFF3F4F6)))),
+      decoration: BoxDecoration(color: Theme.of(context).cardColor, border: Border(top: BorderSide(color: Theme.of(context).scaffoldBackgroundColor))),
       child: GestureDetector(
         onTap: enabled ? onTap : null,
         child: AnimatedContainer(
@@ -412,7 +412,7 @@ class _GovCTA extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
           ),
           child: Center(child: Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600,
-              color: enabled ? Colors.white : const Color(0xFF9CA3AF)))),
+              color: enabled ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.4)))),
         ),
       ),
     );

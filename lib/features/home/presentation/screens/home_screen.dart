@@ -224,7 +224,7 @@ class _HeroSection extends StatelessWidget {
                 child: Opacity(
                   opacity: 0.07,
                   child: Image.asset(
-                    'assets/images/AppIcon.png',
+                    'assets/images/mild.png',
                     width: 100,
                     height: 100,
                     errorBuilder: (_, __, ___) => const SizedBox.shrink(),
@@ -608,7 +608,7 @@ class _QuickActionsSection extends StatelessWidget {
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                      color: action.bgColor,
+                      color: Theme.of(context).brightness == Brightness.dark ? action.iconColor.withOpacity(0.15) : action.bgColor,
                       borderRadius: BorderRadius.circular(18),
                     ),
                     child: Icon(action.icon,
@@ -674,7 +674,7 @@ class _TierUpgradeCard extends StatelessWidget {
                             value: 0.4,
                             strokeWidth: 4,
                             backgroundColor:
-                                const Color(0xFFE4E7EC),
+                                Theme.of(context).dividerColor,
                             valueColor:
                                 const AlwaysStoppedAnimation<Color>(
                                     Color(0xFFff6b35)),
@@ -1012,12 +1012,12 @@ class _AccountTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: isActive
             ? AppColors.goldPrimary.withOpacity(0.06)
-            : const Color(0xFFF9FAFB),
+            : Theme.of(context).scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isActive
               ? AppColors.goldPrimary.withOpacity(0.3)
-              : const Color(0xFFE4E7EC),
+              : Theme.of(context).dividerColor,
         ),
       ),
       child: Row(
@@ -1107,7 +1107,7 @@ class CardManagementScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Cards'),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        foregroundColor: const Color(0xFF101828),
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
         elevation: 0,
       ),
       body: const Center(child: Text('Cards coming soon')),

@@ -323,7 +323,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                         scale: _scaleAnimation,
                         child: Row(
                           children: [
-                            Image.asset('assets/images/AppIcon.png',
+                            Image.asset('assets/images/mild.png',
                                 width: 48, height: 48),
                             const SizedBox(width: 12),
                             const Text(
@@ -361,12 +361,31 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                       // Phone field
                       _AuthFloatingField(
                         label: 'Phone Number',
-                        hint: '0801 234 5678',
+                        hint: '8012 345 678',
                         controller: _phoneController,
                         keyboardType: TextInputType.phone,
-                        prefixIcon: Icons.phone_outlined,
-                        onChanged: (v) => setState(() =>
-                            _loginForm['phoneNumber'] = addLeadingZero(v)),
+                        prefixWidget: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '+234',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF374151),
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            SizedBox(
+                              width: 1,
+                              height: 18,
+                              child: ColoredBox(color: Color(0xFFD1D5DB)),
+                            ),
+                          ],
+                        ),
+                        prefixWidth: 72,
+                        onChanged: (v) => setState(
+                            () => _loginForm['phoneNumber'] = '+234$v'),
                       ),
                       const SizedBox(height: 18),
 
@@ -757,6 +776,22 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                     ),
                   ),
 
+                  const SizedBox(height: 16),
+
+                  // Rima MFB Logo
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Image.asset(
+                        'assets/images/mild.png',
+                        width: MediaQuery.of(context).size.width * 0.40,
+                        fit: BoxFit.fitWidth,
+                        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                      ),
+                    ),
+                  ),
+
                   const Spacer(),
 
                   // Hero text
@@ -806,7 +841,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                         ),
                         const SizedBox(height: 14),
                         _buildAccountTypeCard(
-                          title: 'Business Account',
+                          title: 'Corporate Account',
                           subtitle: 'For businesses and organizations',
                           icon: Icons.business_outlined,
                           onTap: () {
@@ -1336,7 +1371,9 @@ class _AuthFloatingField extends StatefulWidget {
   final String hint;
   final TextEditingController controller;
   final TextInputType keyboardType;
-  final IconData prefixIcon;
+  final IconData? prefixIcon;
+  final Widget? prefixWidget;
+  final double prefixWidth;
   final bool obscureText;
   final ValueChanged<String> onChanged;
   final Widget? suffixIcon;
@@ -1346,7 +1383,9 @@ class _AuthFloatingField extends StatefulWidget {
     required this.hint,
     required this.controller,
     this.keyboardType = TextInputType.text,
-    required this.prefixIcon,
+    this.prefixIcon,
+    this.prefixWidget,
+    this.prefixWidth = 48,
     this.obscureText = false,
     required this.onChanged,
     this.suffixIcon,
@@ -1402,22 +1441,23 @@ class _AuthFloatingFieldState extends State<_AuthFloatingField> {
       ),
       child: Stack(
         children: [
-          // Prefix icon
+          // Prefix icon or widget
           Positioned(
             left: 14,
             top: 0,
             bottom: 0,
             child: Center(
-              child: Icon(widget.prefixIcon,
-                  size: 18,
-                  color: _focused
-                      ? AppColors.goldPrimary
-                      : const Color(0xFF9CA3AF)),
+              child: widget.prefixWidget ??
+                  Icon(widget.prefixIcon,
+                      size: 18,
+                      color: _focused
+                          ? AppColors.goldPrimary
+                          : const Color(0xFF9CA3AF)),
             ),
           ),
           // Text field — always in tree so taps always register
           Positioned(
-            left: 48,
+            left: widget.prefixWidth,
             right: widget.suffixIcon != null ? 44 : 16,
             top: active ? 24 : 0,
             bottom: active ? 6 : 0,
@@ -1452,7 +1492,7 @@ class _AuthFloatingFieldState extends State<_AuthFloatingField> {
             duration: const Duration(milliseconds: 180),
             curve: Curves.easeOut,
             top: active ? 8 : 20,
-            left: 48,
+            left: widget.prefixWidth,
             child: IgnorePointer(
               child: AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 180),

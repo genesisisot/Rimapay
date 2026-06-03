@@ -117,13 +117,13 @@ class _EventsScreenState extends State<EventsScreen> {
                             margin: EdgeInsets.only(right: i == _categories.length - 1 ? 0 : 8),
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                             decoration: BoxDecoration(
-                              color: isSelected ? AppColors.goldPrimary : Colors.white,
+                              color: isSelected ? AppColors.goldPrimary : Theme.of(context).cardColor,
                               borderRadius: BorderRadius.circular(999),
-                              border: Border.all(color: isSelected ? AppColors.goldPrimary : const Color(0xFFE4E7EC)),
+                              border: Border.all(color: isSelected ? AppColors.goldPrimary : Theme.of(context).dividerColor),
                             ),
                             child: Text(cat, style: TextStyle(
                               fontSize: 13, fontWeight: FontWeight.w600,
-                              color: isSelected ? Colors.white : const Color(0xFF374151),
+                              color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
                             )),
                           ),
                         );
@@ -133,7 +133,7 @@ class _EventsScreenState extends State<EventsScreen> {
                   const SizedBox(height: 16),
 
                   // Events list
-                  const Text('Available Events', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF374151))),
+                  Text('Available Events', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85))),
                   const SizedBox(height: 10),
 
                   ..._filteredEvents.map((event) {
@@ -148,10 +148,10 @@ class _EventsScreenState extends State<EventsScreen> {
                         margin: const EdgeInsets.only(bottom: 12),
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: isSelected ? event.bgColor : Colors.white,
+                          color: isSelected ? (Theme.of(context).brightness == Brightness.dark ? event.color.withOpacity(0.15) : event.bgColor) : Colors.white,
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
-                            color: isSelected ? event.color.withOpacity(0.5) : const Color(0xFFE4E7EC),
+                            color: isSelected ? event.color.withOpacity(0.5) : Theme.of(context).dividerColor,
                             width: isSelected ? 2 : 1,
                           ),
                         ),
@@ -160,7 +160,7 @@ class _EventsScreenState extends State<EventsScreen> {
                             Container(
                               width: 52,
                               height: 52,
-                              decoration: BoxDecoration(color: event.bgColor, borderRadius: BorderRadius.circular(12)),
+                              decoration: BoxDecoration(color: Theme.of(context).brightness == Brightness.dark ? event.color.withOpacity(0.15) : event.bgColor, borderRadius: BorderRadius.circular(12)),
                               child: Center(child: Text(event.emoji, style: TextStyle(fontSize: 26))),
                             ),
                             const SizedBox(width: 12),
@@ -174,9 +174,9 @@ class _EventsScreenState extends State<EventsScreen> {
                                   const SizedBox(height: 2),
                                   Row(
                                     children: [
-                                      const Icon(Icons.calendar_today_outlined, size: 11, color: Color(0xFF9CA3AF)),
+                                      Icon(Icons.calendar_today_outlined, size: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4)),
                                       const SizedBox(width: 4),
-                                      Text(event.date, style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
+                                      Text(event.date, style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4))),
                                     ],
                                   ),
                                 ],
@@ -187,7 +187,7 @@ class _EventsScreenState extends State<EventsScreen> {
                               children: [
                                 Text('₦${event.price.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}',
                                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: event.color)),
-                                const Text('/ticket', style: TextStyle(fontSize: 10, color: Color(0xFF9CA3AF))),
+                                Text('/ticket', style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4))),
                                 if (isSelected)
                                   const Icon(Icons.check_circle, color: Color(0xFF166C46), size: 18),
                               ],
@@ -215,7 +215,7 @@ class _EventsScreenState extends State<EventsScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text('Number of Tickets', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)),
-                                Text('Max 10 tickets per order', style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
+                                Text('Max 10 tickets per order', style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4))),
                               ],
                             ),
                           ),
@@ -226,10 +226,10 @@ class _EventsScreenState extends State<EventsScreen> {
                                 child: Container(
                                   width: 32, height: 32,
                                   decoration: BoxDecoration(
-                                    color: _quantity > 1 ? const Color(0xFFF2F7F3) : const Color(0xFFF3F4F6),
+                                    color: _quantity > 1 ? Color(0xFFF2F7F3) : Theme.of(context).dividerColor,
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: Icon(Icons.remove, size: 16, color: _quantity > 1 ? AppColors.goldPrimary : const Color(0xFFD0D5DD)),
+                                  child: Icon(Icons.remove, size: 16, color: _quantity > 1 ? AppColors.goldPrimary : Theme.of(context).dividerColor),
                                 ),
                               ),
                               SizedBox(width: 16, child: Center(child: Text('$_quantity', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)))),
@@ -290,7 +290,7 @@ class _EventCTA extends StatelessWidget {
     final label = enabled ? 'Buy $quantity Ticket${quantity > 1 ? 's' : ''} — ₦$total' : 'Continue';
     return Container(
       padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
-      decoration: BoxDecoration(color: Theme.of(context).cardColor, border: Border(top: BorderSide(color: Color(0xFFF3F4F6)))),
+      decoration: BoxDecoration(color: Theme.of(context).cardColor, border: Border(top: BorderSide(color: Theme.of(context).scaffoldBackgroundColor))),
       child: GestureDetector(
         onTap: enabled ? onTap : null,
         child: AnimatedContainer(
@@ -301,7 +301,7 @@ class _EventCTA extends StatelessWidget {
             color: enabled ? null : const Color(0xFFCCCCCC),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Center(child: Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: enabled ? Colors.white : const Color(0xFF9CA3AF)))),
+          child: Center(child: Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: enabled ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.4)))),
         ),
       ),
     );

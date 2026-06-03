@@ -6,6 +6,33 @@ import '../../core/theme/app_colors.dart';
 
 export 'package:flutter/services.dart' show TextInputFormatter;
 
+class CommaFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    final digits = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digits.isEmpty) {
+      return const TextEditingValue(
+          text: '', selection: TextSelection.collapsed(offset: 0));
+    }
+    final formatted = _addCommas(digits);
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
+  }
+
+  static String _addCommas(String digits) {
+    final buf = StringBuffer();
+    final len = digits.length;
+    for (var i = 0; i < len; i++) {
+      if (i > 0 && (len - i) % 3 == 0) buf.write(',');
+      buf.write(digits[i]);
+    }
+    return buf.toString();
+  }
+}
+
 /// Shared green gradient header for all bill payment screens.
 class BillGreenHeader extends StatelessWidget {
   final String title;
@@ -328,12 +355,12 @@ class BillDailyLimitCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Daily Limit Usage',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF374151),
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
                 ),
               ),
               Text(
@@ -475,7 +502,7 @@ class BillOrangeCTA extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: enabled ? Colors.white : const Color(0xFF9CA3AF),
+                color: enabled ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
               ),
             ),
           ),
@@ -538,7 +565,7 @@ class BillSimpleInput extends StatelessWidget {
                   hintText: placeholder,
                   hintStyle: TextStyle(
                     fontSize: 15,
-                    color: Color(0xFF9CA3AF),
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                     fontWeight: FontWeight.normal,
                     fontFamily: 'Effra',
                   ),
@@ -606,7 +633,7 @@ class BillAmountCard extends StatelessWidget {
                     controller: controller,
                     focusNode: focusNode,
                     keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    inputFormatters: [CommaFormatter()],
                     onChanged: onChanged,
                     style: TextStyle(
                       fontSize: 32,
@@ -643,17 +670,17 @@ class BillAmountCard extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.info_outline_rounded,
                     size: 14,
-                    color: Color(0xFF9CA3AF),
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                   ),
                   const SizedBox(width: 6),
                   Text(
                     minMax!,
                     style: TextStyle(
                       fontSize: 12,
-                      color: Color(0xFF9CA3AF),
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                     ),
                   ),
                 ],
@@ -736,7 +763,7 @@ class _BillFloatingFieldState extends State<BillFloatingField> {
               ? AppColors.goldPrimary
               : hasValue
                   ? const Color(0xFF166C46).withOpacity(0.4)
-                  : const Color(0xFFE4E7EC),
+                  : Theme.of(context).dividerColor,
           width: _isFocused ? 2 : 1,
         ),
       ),
@@ -757,7 +784,7 @@ class _BillFloatingFieldState extends State<BillFloatingField> {
                   fontWeight: FontWeight.w500,
                   color: isActive
                       ? AppColors.goldPrimary
-                      : const Color(0xFF98A2B3),
+                      : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                   fontFamily: 'Effra',
                 ),
                 child: Text(widget.label),
@@ -926,7 +953,7 @@ class _PinConfirmSheetState extends State<_PinConfirmSheet> {
                         item['label']!,
                         style: TextStyle(
                           fontSize: 13,
-                          color: Color(0xFF6B7280),
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
                         ),
                       ),
                       Text(
@@ -960,16 +987,16 @@ class _PinConfirmSheetState extends State<_PinConfirmSheet> {
                   shape: BoxShape.circle,
                   color: filled
                       ? AppColors.goldPrimary
-                      : const Color(0xFFE4E7EC),
+                      : Theme.of(context).dividerColor,
                 ),
               );
             }),
           ),
 
           const SizedBox(height: 6),
-          const Text(
+          Text(
             'Enter your 4-digit PIN',
-            style: TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
+            style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4)),
           ),
 
           const SizedBox(height: 20),
@@ -1028,12 +1055,12 @@ class _PinConfirmSheetState extends State<_PinConfirmSheet> {
                     Expanded(
                       child: GestureDetector(
                         onTap: _onDelete,
-                        child: const SizedBox(
+                        child: SizedBox(
                           height: 52,
                           child: Center(
                             child: Icon(
                               Icons.backspace_outlined,
-                              color: Color(0xFF374151),
+                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
                               size: 22,
                             ),
                           ),

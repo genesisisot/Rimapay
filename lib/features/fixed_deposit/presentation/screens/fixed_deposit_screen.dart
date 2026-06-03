@@ -96,7 +96,7 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
                       hintText: '0',
                       hintStyle: TextStyle(color: Theme.of(context).dividerColor, fontSize: 18),
                       filled: true,
-                      fillColor: Colors.white,
+                      fillColor: Theme.of(context).cardColor,
                       contentPadding:
                           const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                       border: OutlineInputBorder(
@@ -130,10 +130,10 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
                           duration: const Duration(milliseconds: 200),
                           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                           decoration: BoxDecoration(
-                            color: active ? const Color(0xFF1A6B35) : Colors.white,
+                            color: active ? Color(0xFF1A6B35) : Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: active ? const Color(0xFF1A6B35) : const Color(0xFFE4E7EC),
+                              color: active ? Color(0xFF1A6B35) : Theme.of(context).dividerColor,
                             ),
                           ),
                           child: Column(
@@ -142,14 +142,14 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
                                   style: TextStyle(
                                     fontWeight: FontWeight.w700,
                                     fontSize: 13,
-                                    color: active ? Colors.white : const Color(0xFF344054),
+                                    color: active ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
                                   )),
                               Text('${t.rate}% p.a.',
                                   style: TextStyle(
                                     fontSize: 11,
                                     color: active
                                         ? Colors.white.withOpacity(0.8)
-                                        : const Color(0xFF667085),
+                                        : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                                   )),
                             ],
                           ),
@@ -231,7 +231,7 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
                           : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF1A6B35),
-                        disabledBackgroundColor: const Color(0xFFE4E7EC),
+                        disabledBackgroundColor: Theme.of(context).dividerColor,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
                       child: Text('Place Fixed Deposit',
@@ -256,13 +256,13 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
         Text(label,
             style: TextStyle(
                 fontSize: 13,
-                color: highlight ? const Color(0xFF101828) : const Color(0xFF667085),
+                color: highlight ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                 fontWeight: highlight ? FontWeight.w700 : FontWeight.normal)),
         Text(value,
             style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: highlight ? const Color(0xFF1A6B35) : const Color(0xFF101828))),
+                color: highlight ? Color(0xFF1A6B35) : Theme.of(context).colorScheme.onSurface)),
       ],
     );
   }

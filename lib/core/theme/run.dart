@@ -233,7 +233,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                           spacing: 10,
                           children: [
                             Image.asset(
-                              "assets/images/AppIcon.png",
+                              "assets/images/mild.png",
                               height: 30,
                               width: 30,
                             ),

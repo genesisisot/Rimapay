@@ -392,7 +392,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF1D2939),
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -548,12 +548,12 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               'My To-dos',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF1D2939),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             TextButton(
@@ -638,7 +638,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF1D2939),
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -903,7 +903,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF1D2939),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               textAlign: TextAlign.center,
             ),
@@ -927,12 +927,12 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Quick Actions',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF1D2939),
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 12),
@@ -1003,7 +1003,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
-                                color: Color(0xFF1D2939),
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                           ),
@@ -1037,12 +1037,12 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               'Business Services',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF1D2939),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             TextButton(
@@ -1124,7 +1124,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w700,
-                                    color: Color(0xFF1D2939),
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
                                 ),
                               ),
@@ -1180,12 +1180,12 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               'Recent Activity',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF1D2939),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             TextButton(
@@ -1264,7 +1264,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
-                              color: Color(0xFF1D2939),
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                           ),
                           Text(

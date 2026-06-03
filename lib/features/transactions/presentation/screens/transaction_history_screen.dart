@@ -719,7 +719,7 @@ class _TxCard extends StatelessWidget {
                             fontFamily: 'Effra',
                             color: isIncoming
                                 ? AppColors.goldDark
-                                : const Color(0xFF101828),
+                                : Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         const SizedBox(width: 14),
@@ -953,7 +953,7 @@ class _FilterModal extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: active
                                 ? AppColors.primary500.withOpacity(0.06)
-                                : const Color(0xFFF9FAFB),
+                                : Theme.of(context).scaffoldBackgroundColor,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: active
@@ -976,7 +976,7 @@ class _FilterModal extends StatelessWidget {
                                     size: 18,
                                     color: active
                                         ? AppColors.primary500
-                                        : const Color(0xFF98A2B3)),
+                                        : Theme.of(context).colorScheme.onSurface.withOpacity(0.4)),
                               ),
                               const SizedBox(width: 14),
                               Expanded(
@@ -989,7 +989,7 @@ class _FilterModal extends StatelessWidget {
                                         : FontWeight.w500,
                                     color: active
                                         ? AppColors.primary500
-                                        : const Color(0xFF344054),
+                                        : Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
                                     fontFamily: 'Effra',
                                   ),
                                 ),

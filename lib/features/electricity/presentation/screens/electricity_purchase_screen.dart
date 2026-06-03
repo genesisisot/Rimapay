@@ -299,12 +299,12 @@ class _ElectricityPurchaseScreenState
                   const SizedBox(height: 24),
 
                   // ── Quick amounts ──
-                  const Text(
+                  Text(
                     'Quick Select Amount',
                     style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF374151)),
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85)),
                   ),
                   const SizedBox(height: 10),
                   Row(
@@ -328,12 +328,12 @@ class _ElectricityPurchaseScreenState
                             decoration: BoxDecoration(
                               color: isSelected
                                   ? const Color(0xFFF2F7F3)
-                                  : const Color(0xFFF9FAFB),
+                                  : Theme.of(context).scaffoldBackgroundColor,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: isSelected
                                     ? AppColors.goldPrimary
-                                    : const Color(0xFFE5E7EB),
+                                    : Theme.of(context).dividerColor,
                                 width: isSelected ? 2 : 1,
                               ),
                             ),
@@ -345,7 +345,7 @@ class _ElectricityPurchaseScreenState
                                   fontWeight: FontWeight.w600,
                                   color: isSelected
                                       ? AppColors.goldPrimary
-                                      : const Color(0xFF374151),
+                                      : Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
                                 ),
                               ),
                             ),
@@ -439,14 +439,14 @@ class _ProviderSheet extends StatelessWidget {
               ],
             ),
           ),
-          const Divider(height: 1, color: Color(0xFFF3F4F6)),
+          Divider(height: 1, color: Theme.of(context).scaffoldBackgroundColor),
           ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             padding: const EdgeInsets.symmetric(vertical: 8),
             itemCount: providers.length,
             separatorBuilder: (_, __) =>
-                const Divider(height: 1, indent: 68, color: Color(0xFFF3F4F6)),
+                Divider(height: 1, indent: 68, color: Theme.of(context).scaffoldBackgroundColor),
             itemBuilder: (_, i) {
               final p = providers[i];
               final isSelected = selected?.id == p.id;
@@ -466,7 +466,7 @@ class _ProviderSheet extends StatelessWidget {
                             image: AssetImage(p.logo),
                             fit: BoxFit.cover,
                           ),
-                          color: p.bgColor,
+                          color: Theme.of(context).brightness == Brightness.dark ? p.color.withOpacity(0.15) : p.bgColor,
                         ),
                       ),
                       const SizedBox(width: 14),
@@ -480,11 +480,11 @@ class _ProviderSheet extends StatelessWidget {
                                     fontWeight: FontWeight.w700,
                                     color: isSelected
                                         ? AppColors.goldPrimary
-                                        : const Color(0xFF101828))),
+                                        : Theme.of(context).colorScheme.onSurface)),
                             Text(p.name,
                                 style: TextStyle(
                                     fontSize: 12,
-                                    color: Color(0xFF6B7280)),
+                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55)),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis),
                           ],
@@ -537,7 +537,7 @@ class _DropdownField extends StatelessWidget {
           border: Border.all(
             color: hasValue
                 ? AppColors.goldPrimary.withOpacity(0.4)
-                : const Color(0xFFE4E7EC),
+                : Theme.of(context).dividerColor,
             width: hasValue ? 1.5 : 1,
           ),
         ),
@@ -576,7 +576,7 @@ class _DropdownField extends StatelessWidget {
                     height: 1.2,
                     color: hasValue
                         ? AppColors.goldPrimary
-                        : const Color(0xFF9CA3AF),
+                        : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                   ),
                   child: Text(label),
                 ),
@@ -611,7 +611,7 @@ class _DropdownField extends StatelessWidget {
                   Icons.keyboard_arrow_down_rounded,
                   color: hasValue
                       ? AppColors.goldPrimary
-                      : const Color(0xFF9CA3AF),
+                      : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                   size: 22,
                 ),
               ),
@@ -647,10 +647,10 @@ class _MeterTypeBtn extends StatelessWidget {
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: selected ? const Color(0xFFF2F7F3) : Colors.white,
+            color: selected ? Color(0xFFF2F7F3) : Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: selected ? AppColors.goldPrimary : const Color(0xFFE5E7EB),
+              color: selected ? AppColors.goldPrimary : Theme.of(context).dividerColor,
               width: selected ? 2 : 1,
             ),
           ),
@@ -664,7 +664,7 @@ class _MeterTypeBtn extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: selected ? AppColors.goldPrimary : const Color(0xFF6B7280),
+                  color: selected ? AppColors.goldPrimary : Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
                 ),
               ),
             ],
@@ -742,7 +742,7 @@ class _EFloatingFieldState extends State<_EFloatingField> {
               ? AppColors.goldPrimary
               : _hasValue
                   ? AppColors.goldPrimary.withOpacity(0.4)
-                  : const Color(0xFFE4E7EC),
+                  : Theme.of(context).dividerColor,
           width: _focused ? 2 : 1,
         ),
       ),
@@ -763,7 +763,7 @@ class _EFloatingFieldState extends State<_EFloatingField> {
                   height: 1.2,
                   color: isActive
                       ? AppColors.goldPrimary
-                      : const Color(0xFF9CA3AF),
+                      : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                 ),
                 child: Text(widget.label),
               ),
@@ -849,10 +849,10 @@ class _AmountCardState extends State<_AmountCard> {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       decoration: BoxDecoration(
-        color: _focused ? Colors.white : const Color(0xFFF9FAFB),
+        color: _focused ? Theme.of(context).cardColor : Theme.of(context).scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: _focused ? AppColors.goldPrimary : const Color(0xFFE5E7EB),
+          color: _focused ? AppColors.goldPrimary : Theme.of(context).dividerColor,
           width: _focused ? 2 : 1,
         ),
       ),
@@ -869,7 +869,7 @@ class _AmountCardState extends State<_AmountCard> {
                         fontWeight: FontWeight.w700,
                         color: _focused
                             ? const Color(0xFF111827)
-                            : const Color(0xFF6B7280))),
+                            : Theme.of(context).colorScheme.onSurface.withOpacity(0.55))),
                 const SizedBox(width: 6),
                 Expanded(
                   child: TextField(
@@ -937,7 +937,7 @@ class _BillCTA extends StatelessWidget {
           20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        border: Border(top: BorderSide(color: Color(0xFFF3F4F6))),
+        border: Border(top: BorderSide(color: Theme.of(context).scaffoldBackgroundColor)),
       ),
       child: GestureDetector(
         onTap: enabled ? onTap : null,
@@ -949,7 +949,7 @@ class _BillCTA extends StatelessWidget {
             gradient: enabled
                 ? AppColors.goldGradient
                 : null,
-            color: enabled ? null : const Color(0xFFF3F4F6),
+            color: enabled ? null : Theme.of(context).dividerColor,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Center(
@@ -958,7 +958,7 @@ class _BillCTA extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: enabled ? Colors.white : const Color(0xFF9CA3AF),
+                color: enabled ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
               ),
             ),
           ),

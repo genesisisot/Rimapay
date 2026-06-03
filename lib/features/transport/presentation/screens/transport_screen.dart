@@ -106,7 +106,7 @@ class _TransportScreenState extends State<TransportScreen> {
                         decoration: BoxDecoration(
                           color: isSelected ? const Color(0xFFF2F7F3) : const Color(0xFFFAFBFC),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: isSelected ? AppColors.goldPrimary.withOpacity(0.4) : const Color(0xFFE4E7EC)),
+                          border: Border.all(color: isSelected ? AppColors.goldPrimary.withOpacity(0.4) : Theme.of(context).dividerColor),
                         ),
                         child: Row(
                           children: [
@@ -155,7 +155,7 @@ class _TransportScreenState extends State<TransportScreen> {
                 decoration: BoxDecoration(
                   color: _selectedOperator?.id == op.id ? const Color(0xFFF2F7F3) : const Color(0xFFFAFBFC),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: _selectedOperator?.id == op.id ? const Color(0xFF166C46).withOpacity(0.4) : const Color(0xFFE4E7EC)),
+                  border: Border.all(color: _selectedOperator?.id == op.id ? Color(0xFF166C46).withOpacity(0.4) : Theme.of(context).dividerColor),
                 ),
                 child: Row(
                   children: [
@@ -278,7 +278,7 @@ class _TransportScreenState extends State<TransportScreen> {
                             Text('${_travelDate.day}/${_travelDate.month}/${_travelDate.year}',
                                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)),
                           ])),
-                          const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF9CA3AF)),
+                          Icon(Icons.keyboard_arrow_down_rounded, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4)),
                         ],
                       ),
                     ),
@@ -298,14 +298,14 @@ class _TransportScreenState extends State<TransportScreen> {
                       children: [
                         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                           Text('Number of Passengers', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)),
-                          Text('Max 4 per booking', style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
+                          Text('Max 4 per booking', style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4))),
                         ])),
                         Row(children: [
                           GestureDetector(
                             onTap: () { if (_passengers > 1) setState(() => _passengers--); },
                             child: Container(width: 32, height: 32,
-                                decoration: BoxDecoration(color: _passengers > 1 ? const Color(0xFFF2F7F3) : const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(8)),
-                                child: Icon(Icons.remove, size: 16, color: _passengers > 1 ? AppColors.goldPrimary : const Color(0xFFD0D5DD))),
+                                decoration: BoxDecoration(color: _passengers > 1 ? Color(0xFFF2F7F3) : Theme.of(context).dividerColor, borderRadius: BorderRadius.circular(8)),
+                                child: Icon(Icons.remove, size: 16, color: _passengers > 1 ? AppColors.goldPrimary : Theme.of(context).dividerColor)),
                           ),
                           SizedBox(width: 20, child: Center(child: Text('$_passengers', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)))),
                           GestureDetector(
@@ -368,11 +368,11 @@ class _RouteSelector extends StatelessWidget {
           Icon(icon, color: iconColor, size: 20),
           const SizedBox(width: 12),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(label, style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF), fontWeight: FontWeight.w500)),
+            Text(label, style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), fontWeight: FontWeight.w500)),
             Text(value ?? hint, style: TextStyle(fontSize: 15, fontWeight: value != null ? FontWeight.w600 : FontWeight.normal,
-                color: value != null ? const Color(0xFF101828) : const Color(0xFFD0D5DD))),
+                color: value != null ? Theme.of(context).colorScheme.onSurface : Theme.of(context).dividerColor)),
           ])),
-          const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF9CA3AF), size: 18),
+          Icon(Icons.keyboard_arrow_down_rounded, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), size: 18),
         ],
       ),
     );
@@ -395,16 +395,16 @@ class _SelectorTile extends StatelessWidget {
       child: Container(
         height: 60, padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: hasValue ? AppColors.goldPrimary.withOpacity(0.4) : const Color(0xFFE4E7EC))),
+            border: Border.all(color: hasValue ? AppColors.goldPrimary.withOpacity(0.4) : Theme.of(context).dividerColor)),
         child: Row(
           children: [
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
-              Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: hasValue ? AppColors.goldPrimary : const Color(0xFF9CA3AF))),
+              Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: hasValue ? AppColors.goldPrimary : Theme.of(context).colorScheme.onSurface.withOpacity(0.4))),
               const SizedBox(height: 2),
               Text(value ?? hint, style: TextStyle(fontSize: 15, fontWeight: hasValue ? FontWeight.w600 : FontWeight.normal,
-                  color: hasValue ? const Color(0xFF101828) : const Color(0xFFD0D5DD))),
+                  color: hasValue ? Theme.of(context).colorScheme.onSurface : Theme.of(context).dividerColor)),
             ])),
-            const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF9CA3AF)),
+            Icon(Icons.keyboard_arrow_down_rounded, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4)),
           ],
         ),
       ),
@@ -424,7 +424,7 @@ class _TransportCTA extends StatelessWidget {
     final label = enabled ? 'Book Ticket — ₦$amount' : 'Continue';
     return Container(
       padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
-      decoration: BoxDecoration(color: Theme.of(context).cardColor, border: Border(top: BorderSide(color: Color(0xFFF3F4F6)))),
+      decoration: BoxDecoration(color: Theme.of(context).cardColor, border: Border(top: BorderSide(color: Theme.of(context).scaffoldBackgroundColor))),
       child: GestureDetector(
         onTap: enabled ? onTap : null,
         child: AnimatedContainer(
@@ -435,7 +435,7 @@ class _TransportCTA extends StatelessWidget {
             color: enabled ? null : const Color(0xFFCCCCCC),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Center(child: Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: enabled ? Colors.white : const Color(0xFF9CA3AF)))),
+          child: Center(child: Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: enabled ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.4)))),
         ),
       ),
     );

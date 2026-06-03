@@ -16,7 +16,8 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends State<ProfileScreen>
+    with TickerProviderStateMixin {
   String? _profileImage;
   bool _isEditing = false;
   bool _showImageOptions = false;
@@ -31,6 +32,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _emailController =
       TextEditingController(text: 'adebayo.johnson@mail.com');
 
+  // PIN management
+  final _currentPinController = TextEditingController();
+  final _newPinController = TextEditingController();
+  final _confirmPinController = TextEditingController();
+  bool _pinChangeSuccess = false;
+  late AnimationController _successAnimController;
+  late Animation<double> _scaleAnim;
+
   final Map<String, String> _data = {
     'fullName': 'Adebayo Johnson',
     'phone': '08137954069',
@@ -44,9 +53,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
   static const _tierLevel = 'basic';
 
   @override
+  void initState() {
+    super.initState();
+    _successAnimController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+    _scaleAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _successAnimController, curve: Curves.elasticOut),
+    );
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
+    _currentPinController.dispose();
+    _newPinController.dispose();
+    _confirmPinController.dispose();
+    _successAnimController.dispose();
     super.dispose();
   }
 
@@ -311,6 +336,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               );
             },
           ),
+          const SizedBox(height: 16),
+
+          // Security section
+          _buildSecuritySection(context),
           const SizedBox(height: 12),
 
           // Logout
@@ -477,11 +506,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color:
-              isCompleted ? const Color(0xFFF0FDF4) : const Color(0xFFF9FAFB),
+              isCompleted ? Color(0xFFF0FDF4) : Theme.of(context).scaffoldBackgroundColor,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color:
-                isCompleted ? const Color(0xFFBBF7D0) : const Color(0xFFE4E7EC),
+                isCompleted ? Color(0xFFBBF7D0) : Theme.of(context).dividerColor,
           ),
         ),
         child: Row(
@@ -492,14 +521,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
               decoration: BoxDecoration(
                 color: isCompleted
                     ? const Color(0xFF16A34A).withOpacity(0.1)
-                    : const Color(0xFFF3F4F6),
+                    : Theme.of(context).dividerColor,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 isCompleted ? Icons.check : icon,
                 color: isCompleted
                     ? const Color(0xFF16A34A)
-                    : const Color(0xFF6B7280),
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
                 size: isCompleted ? 18 : 16,
               ),
             ),
@@ -512,7 +541,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   fontWeight: FontWeight.w500,
                   color: isCompleted
                       ? const Color(0xFF166534)
-                      : const Color(0xFF101828),
+                      : Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),
@@ -526,7 +555,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 border: Border.all(
                   color: isCompleted
                       ? const Color(0xFF16A34A)
-                      : const Color(0xFF9CA3AF),
+                      : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                   width: 2,
                 ),
               ),
@@ -767,7 +796,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: bgColor,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? iconColor.withOpacity(0.15)
+                  : bgColor,
               borderRadius: BorderRadius.circular(11),
             ),
             child: Icon(icon, color: iconColor, size: 20),
@@ -857,7 +888,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 fontSize: 14, fontWeight: FontWeight.w600, fontFamily: 'Effra'),
           ),
           style: OutlinedButton.styleFrom(
-            foregroundColor: const Color(0xFF344054),
+            foregroundColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
             side: BorderSide(color: Theme.of(context).dividerColor),
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -880,7 +911,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 });
               },
               style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF667085),
+                foregroundColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                 side: BorderSide(color: Theme.of(context).dividerColor),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
@@ -919,6 +950,371 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  // ── Security Section ──────────────────────────────────────────────────────
+
+  Widget _buildSecuritySection(BuildContext context) {
+    final items = [
+      _SecurityItem(Icons.lock_outline, 'Change Login PIN', 'Update your login PIN'),
+      _SecurityItem(Icons.vpn_key_outlined, 'Change Transaction PIN', 'Update your transaction PIN'),
+      _SecurityItem(Icons.refresh, 'Reset Transaction PIN', 'Forgot your PIN? Reset it here'),
+    ];
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Theme.of(context).dividerColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+            child: Text(
+              'SECURITY',
+              style: TextStyle(
+                fontSize: 11,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.6,
+                fontFamily: 'Effra',
+              ),
+            ),
+          ),
+          ...items.asMap().entries.map((e) {
+            final i = e.key;
+            final item = e.value;
+            final isLast = i == items.length - 1;
+            return GestureDetector(
+              onTap: () {
+                if (i == 2) {
+                  _showResetPinModal();
+                } else {
+                  _showChangePinModal(i == 0 ? 'Login PIN' : 'Transaction PIN');
+                }
+              },
+              behavior: HitTestBehavior.opaque,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+                decoration: BoxDecoration(
+                  border: isLast
+                      ? null
+                      : Border(
+                          bottom: BorderSide(
+                            color: Theme.of(context).dividerColor.withOpacity(0.5),
+                          ),
+                        ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF166C46).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(item.icon, color: const Color(0xFF166C46), size: 18),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(item.title,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontFamily: 'Effra',
+                              )),
+                          Text(item.subtitle,
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                                fontFamily: 'Effra',
+                              )),
+                        ],
+                      ),
+                    ),
+                    Icon(Icons.chevron_right,
+                        size: 18,
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3)),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  void _showChangePinModal(String pinType) {
+    _currentPinController.clear();
+    _newPinController.clear();
+    _confirmPinController.clear();
+    _pinChangeSuccess = false;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => StatefulBuilder(
+        builder: (ctx, setModalState) {
+          bool isPinValid() =>
+              _currentPinController.text.length == 4 &&
+              _newPinController.text.length == 4 &&
+              _newPinController.text == _confirmPinController.text;
+
+          return Container(
+            height: MediaQuery.of(context).size.height * 0.7,
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: _pinChangeSuccess
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ScaleTransition(
+                          scale: _scaleAnim,
+                          child: Container(
+                            width: 64,
+                            height: 64,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: const Color(0xFF16A34A).withOpacity(0.1),
+                            ),
+                            child: const Icon(Icons.check_circle,
+                                size: 32, color: Color(0xFF16A34A)),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text('$pinType Changed!',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontFamily: 'Effra',
+                            )),
+                        const SizedBox(height: 6),
+                        Text('Your $pinType has been updated',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                            )),
+                      ],
+                    ),
+                  )
+                : Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Row(
+                          children: [
+                            Text('Change $pinType',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                  fontFamily: 'Effra',
+                                )),
+                            const Spacer(),
+                            GestureDetector(
+                              onTap: () => Navigator.pop(ctx),
+                              child: Container(
+                                width: 32,
+                                height: 32,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.08),
+                                ),
+                                child: Icon(Icons.close,
+                                    size: 16,
+                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5)),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Column(
+                            children: [
+                              _pinField('Current PIN', _currentPinController, setModalState),
+                              const SizedBox(height: 14),
+                              _pinField('New PIN', _newPinController, setModalState),
+                              const SizedBox(height: 14),
+                              _pinField('Confirm New PIN', _confirmPinController, setModalState),
+                              const SizedBox(height: 24),
+                              SizedBox(
+                                width: double.infinity,
+                                height: 50,
+                                child: ElevatedButton(
+                                  onPressed: isPinValid()
+                                      ? () {
+                                          setModalState(() => _pinChangeSuccess = true);
+                                          _successAnimController.forward(from: 0);
+                                          Future.delayed(const Duration(seconds: 2), () {
+                                            if (mounted) Navigator.pop(ctx);
+                                          });
+                                        }
+                                      : null,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF166C46),
+                                    disabledBackgroundColor: Theme.of(context).dividerColor,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12)),
+                                  ),
+                                  child: Text('Change $pinType',
+                                      style: const TextStyle(
+                                          fontFamily: 'Effra', fontWeight: FontWeight.w700)),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _pinField(String label, TextEditingController controller, StateSetter setModalState) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+              fontFamily: 'Effra',
+            )),
+        const SizedBox(height: 6),
+        TextFormField(
+          controller: controller,
+          obscureText: true,
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(4),
+          ],
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 20, letterSpacing: 10, fontFamily: 'monospace'),
+          decoration: InputDecoration(
+            hintText: '----',
+            hintStyle: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
+              letterSpacing: 10,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Theme.of(context).dividerColor),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Theme.of(context).dividerColor),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
+            ),
+            contentPadding: const EdgeInsets.symmetric(vertical: 14),
+          ),
+          onChanged: (_) => setModalState(() {}),
+        ),
+      ],
+    );
+  }
+
+  void _showResetPinModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => Container(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom + 32,
+        ),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).dividerColor,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+              Text('Reset Transaction PIN',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontFamily: 'Effra',
+                  )),
+              const SizedBox(height: 8),
+              Text(
+                'An OTP will be sent to your registered phone number to reset your transaction PIN.',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                  height: 1.5,
+                  fontFamily: 'Effra',
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('OTP sent to your registered number'),
+                        behavior: SnackBarBehavior.floating,
+                        backgroundColor: const Color(0xFF166C46),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF166C46),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const Text('Send OTP',
+                      style: TextStyle(
+                          fontFamily: 'Effra', fontWeight: FontWeight.w700)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -1008,7 +1404,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: OutlinedButton(
                       onPressed: () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF667085),
+                        foregroundColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                         side: BorderSide(color: Theme.of(context).dividerColor),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12)),
@@ -1127,20 +1523,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
         onPressed: onTap,
         icon: Icon(icon,
             color:
-                destructive ? const Color(0xFFDC2626) : const Color(0xFF344054),
+                destructive ? Color(0xFFDC2626) : Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
             size: 18),
         label: Text(
           label,
           style: TextStyle(
             color:
-                destructive ? const Color(0xFFDC2626) : const Color(0xFF344054),
+                destructive ? Color(0xFFDC2626) : Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
             fontWeight: FontWeight.w600,
             fontFamily: 'Effra',
           ),
         ),
         style: TextButton.styleFrom(
           backgroundColor:
-              destructive ? const Color(0xFFFEF2F2) : const Color(0xFFF9FAFB),
+              destructive ? Color(0xFFFEF2F2) : Theme.of(context).scaffoldBackgroundColor,
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -1176,4 +1572,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _showImageOptions = false;
     });
   }
+}
+
+class _SecurityItem {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  const _SecurityItem(this.icon, this.title, this.subtitle);
 }
