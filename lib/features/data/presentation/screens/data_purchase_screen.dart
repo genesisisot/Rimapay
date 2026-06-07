@@ -9,6 +9,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
 import '../../../success/presentation/screens/success_screen.dart';
+import '../../../../shared/widgets/rimapay_logo.dart';
 
 enum PurchaseStep { form, processing }
 
@@ -79,7 +80,7 @@ class DataPurchaseScreen extends ConsumerStatefulWidget {
 
 class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-  final _phoneController = TextEditingController(text: '08137954069');
+  final _phoneController = TextEditingController(text: '8137954069');
 
   late AnimationController _animationController;
   late AnimationController _processingController;
@@ -282,39 +283,39 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
 
   void _detectNetwork() {
     final phone = _phoneController.text.replaceAll(' ', '');
-    if (phone.length >= 4) {
-      final prefix = phone.substring(0, 4);
+    if (phone.length >= 3) {
+      final prefix = phone.substring(0, 3);
       NetworkProvider? detectedNetwork;
 
       final Map<String, String> prefixes = {
-        '0803': 'mtn',
-        '0806': 'mtn',
-        '0810': 'mtn',
-        '0813': 'mtn',
-        '0814': 'mtn',
-        '0816': 'mtn',
-        '0903': 'mtn',
-        '0906': 'mtn',
-        '0913': 'mtn',
-        '0916': 'mtn',
-        '0805': 'glo',
-        '0807': 'glo',
-        '0815': 'glo',
-        '0811': 'glo',
-        '0905': 'glo',
-        '0915': 'glo',
-        '0802': 'airtel',
-        '0808': 'airtel',
-        '0812': 'airtel',
-        '0701': 'airtel',
-        '0902': 'airtel',
-        '0907': 'airtel',
-        '0901': 'airtel',
-        '0809': '9mobile',
-        '0818': '9mobile',
-        '0817': '9mobile',
-        '0908': '9mobile',
-        '0909': '9mobile'
+        '803': 'mtn',
+        '806': 'mtn',
+        '810': 'mtn',
+        '813': 'mtn',
+        '814': 'mtn',
+        '816': 'mtn',
+        '903': 'mtn',
+        '906': 'mtn',
+        '913': 'mtn',
+        '916': 'mtn',
+        '805': 'glo',
+        '807': 'glo',
+        '815': 'glo',
+        '811': 'glo',
+        '905': 'glo',
+        '915': 'glo',
+        '802': 'airtel',
+        '808': 'airtel',
+        '812': 'airtel',
+        '701': 'airtel',
+        '902': 'airtel',
+        '907': 'airtel',
+        '901': 'airtel',
+        '809': '9mobile',
+        '818': '9mobile',
+        '817': '9mobile',
+        '908': '9mobile',
+        '909': '9mobile'
       };
 
       final networkId = prefixes[prefix];
@@ -332,9 +333,9 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
   }
 
   String _formatPhoneNumber(String phone) {
-    if (phone.length >= 4) {
+    if (phone.length >= 3) {
       return phone.replaceAllMapped(
-        RegExp(r'(\d{4})(\d{3})(\d{4})'),
+        RegExp(r'(\d{3})(\d{3})(\d{4})'),
         (match) => '${match[1]} ${match[2]} ${match[3]}',
       );
     }
@@ -351,7 +352,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
     return _dataPlans[_selectedNetwork!.id]?.where((plan) => plan.category == _selectedCategory).toList() ?? [];
   }
 
-  bool get _isFormValid => _phoneController.text.length == 11 && _selectedPlan != null && _selectedNetwork != null;
+  bool get _isFormValid => _phoneController.text.length == 10 && _selectedPlan != null && _selectedNetwork != null;
 
   void _showDataPinSheet() {
     if (!_isFormValid) return;
@@ -448,13 +449,33 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                   _DataFloatingField(
                     controller: _phoneController,
                     label: 'Phone Number',
-                    hint: '0801 234 5678',
+                    hint: '801 234 5678',
                     keyboardType: TextInputType.phone,
                     inputFormatters: [
                       FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(11),
+                      LengthLimitingTextInputFormatter(10),
                     ],
                     onChanged: (_) => setState(() {}),
+                    prefixWidget: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '+234',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        SizedBox(
+                          width: 1,
+                          height: 18,
+                          child: ColoredBox(color: Theme.of(context).dividerColor),
+                        ),
+                      ],
+                    ),
+                    prefixWidth: 72,
                     suffix: _selectedNetwork != null
                         ? Container(
                             width: 26,
@@ -580,7 +601,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? network.bgColor
+                                  ? (Theme.of(context).brightness == Brightness.dark ? network.color.withOpacity(0.15) : network.bgColor)
                                   : Theme.of(context).scaffoldBackgroundColor,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
@@ -664,7 +685,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: 8, vertical: 4),
                                           decoration: BoxDecoration(
-                                            color: const Color(0xFFF2F7F3),
+                                            color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
                                             borderRadius:
                                                 BorderRadius.circular(6),
                                           ),
@@ -777,16 +798,16 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
               const SizedBox(height: 24),
               Text(
                 'Processing Payment',
-                style: AppTextStyles.heading3.copyWith(
-                  color: AppColors.neutral900,
+                style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Please wait while we process your data purchase...',
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.neutral600,
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -864,20 +885,19 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset(
-                    "assets/images/mild.png",
+                  const RimapayLogo(
                     width: 36,
                     height: 36,
                   ),
                   const SizedBox(width: 8),
-                  const Text(
-                    'Data',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF111827),
+                    Text(
+                      'Data',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                     ),
-                  ),
                   const SizedBox(width: 4),
                   Container(
                     width: 16,
@@ -971,13 +991,32 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
         const SizedBox(height: 10),
         BillSimpleInput(
           controller: _phoneController,
-          placeholder: 'Enter phone number',
+          placeholder: '801 234 5678',
           keyboardType: TextInputType.phone,
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,
-            LengthLimitingTextInputFormatter(11),
+            LengthLimitingTextInputFormatter(10),
           ],
           onChanged: (_) => setState(() {}),
+          prefixWidget: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '+234',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(width: 8),
+              SizedBox(
+                width: 1,
+                height: 18,
+                child: ColoredBox(color: Theme.of(context).dividerColor),
+              ),
+            ],
+          ),
           suffix: _selectedNetwork != null
               ? Container(
                   width: 26,
@@ -994,11 +1033,11 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                 )
               : null,
         ),
-        if (_phoneController.text.isNotEmpty && _phoneController.text.length < 11)
+        if (_phoneController.text.isNotEmpty && _phoneController.text.length < 10)
           const Padding(
             padding: EdgeInsets.only(top: 4),
             child: Text(
-              'Please enter a complete 11-digit phone number',
+              'Please enter a complete 10-digit phone number',
               style: TextStyle(
                 fontSize: 11,
                 color: Colors.red,
@@ -1228,7 +1267,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: isSelected ? Colors.white : Colors.black,
+                        color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -1236,7 +1275,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                       plan.validity,
                       style: TextStyle(
                         fontSize: 10,
-                        color: isSelected ? Colors.white.withOpacity(0.8) : Colors.grey[600],
+                        color: isSelected ? Colors.white.withOpacity(0.8) : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                       ),
                     ),
                     const Spacer(),
@@ -1245,7 +1284,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: isSelected ? Colors.white : Colors.black,
+                        color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ],
@@ -1308,7 +1347,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                             width: 32,
                             height: 32,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF2F7F3),
+                              color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Center(
@@ -1336,7 +1375,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w500,
-                                          color: Color(0xFF111827),
+                                          color: Theme.of(context).colorScheme.onSurface,
                                         ),
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -1391,7 +1430,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                 child: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF2F7F3).withOpacity(0.5),
+                    color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Center(
@@ -1570,7 +1609,7 @@ class _PlanPickerSheetState extends State<_PlanPickerSheet> {
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? const Color(0xFFF2F7F3)
+                                ? Theme.of(context).colorScheme.surface.withOpacity(0.5)
                                 : Theme.of(context).scaffoldBackgroundColor,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
@@ -1697,6 +1736,8 @@ class _DataFloatingField extends StatefulWidget {
   final List<TextInputFormatter>? inputFormatters;
   final void Function(String)? onChanged;
   final Widget? suffix;
+  final Widget? prefixWidget;
+  final double prefixWidth;
 
   const _DataFloatingField({
     required this.controller,
@@ -1706,6 +1747,8 @@ class _DataFloatingField extends StatefulWidget {
     this.inputFormatters,
     this.onChanged,
     this.suffix,
+    this.prefixWidget,
+    this.prefixWidth = 0,
   });
 
   @override
@@ -1755,11 +1798,16 @@ class _DataFloatingFieldState extends State<_DataFloatingField> {
       ),
       child: Stack(
         children: [
+          if (widget.prefixWidget != null)
+            Positioned(
+              left: 14, top: 0, bottom: 0,
+              child: Center(child: widget.prefixWidget!),
+            ),
           AnimatedPositioned(
             duration: const Duration(milliseconds: 150),
             curve: Curves.easeOut,
             top: isActive ? 9 : 20,
-            left: 16,
+            left: widget.prefixWidget != null ? widget.prefixWidth : 16,
             right: widget.suffix != null ? 52 : 16,
             child: IgnorePointer(
               child: AnimatedDefaultTextStyle(
@@ -1777,7 +1825,7 @@ class _DataFloatingFieldState extends State<_DataFloatingField> {
             ),
           ),
           Positioned(
-            left: 14,
+            left: widget.prefixWidget != null ? widget.prefixWidth : 14,
             right: widget.suffix != null ? 48 : 14,
             top: isActive ? 28 : 18,
             bottom: 6,
@@ -1854,7 +1902,7 @@ class _DataCTA extends StatelessWidget {
             gradient: enabled
                 ? AppColors.goldGradient
                 : null,
-            color: enabled ? null : const Color(0xFFCCCCCC),
+            color: enabled ? null : Theme.of(context).dividerColor,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Center(

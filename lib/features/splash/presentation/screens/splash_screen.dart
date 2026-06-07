@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/rimapay_logo.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -59,8 +60,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                 child: SizedBox(
                   width: 140,
                   height: 140,
-                  child: Image.asset(
-                    'assets/images/mild.png',
+                  child: const RimapayLogo(
                     fit: BoxFit.contain,
                   ),
                 ),

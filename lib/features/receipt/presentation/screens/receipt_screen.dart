@@ -12,6 +12,7 @@ import '../../../../core/providers/app_state_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/localization/app_localizations.dart';
+import '../../../../shared/widgets/rimapay_logo.dart';
 
 class ReceiptScreen extends StatefulWidget {
   final ReceiptData receiptData;
@@ -435,7 +436,7 @@ www.rimapay.com
                                 // const SizedBox(width: 8),
                                 Text(
                                   "Receipt",
-                                  style: AppTextStyles.h6.copyWith(
+                                  style: Theme.of(context).textTheme.titleSmall!.copyWith(
                                     fontWeight: FontWeight.bold,
                                     fontSize: isSmallScreen ? 16 : 18,
                                   ),
@@ -504,8 +505,7 @@ www.rimapay.com
                                     const SizedBox(height: 12),
                                     Text(
                                       'Transaction ${statusConfig['label']}',
-                                      style: AppTextStyles.h6.copyWith(
-                                        color: statusConfig['text'],
+                                      style: Theme.of(context).textTheme.titleSmall!.copyWith(
                                         fontWeight: FontWeight.bold,
                                         fontSize: isSmallScreen ? 16 : 20,
                                       ),
@@ -513,8 +513,7 @@ www.rimapay.com
                                     const SizedBox(height: 8),
                                     Text(
                                       'Your ${widget.receiptData.type.toLowerCase()} transaction has been ${statusConfig['label'].toString().toLowerCase()}',
-                                      style: AppTextStyles.body2.copyWith(
-                                        color: statusConfig['text'],
+                                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                         fontSize: isSmallScreen ? 12 : 14,
                                       ),
                                       textAlign: TextAlign.center,
@@ -563,15 +562,14 @@ www.rimapay.com
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          Image.asset(
-                                            "assets/images/mild.png",
+                                          RimapayLogo(
                                             width: isSmallScreen ? 24 : 32,
                                             height: isSmallScreen ? 24 : 32,
                                           ),
                                           const SizedBox(width: 8),
                                           Text(
                                             'RimaPay',
-                                            style: AppTextStyles.h6.copyWith(
+                                            style: Theme.of(context).textTheme.titleSmall!.copyWith(
                                               fontWeight: FontWeight.bold,
                                               fontSize: isSmallScreen ? 16 : 20,
                                             ),
@@ -587,15 +585,14 @@ www.rimapay.com
                                       children: [
                                         Text(
                                           'Amount',
-                                          style: AppTextStyles.body2.copyWith(
-                                            color: AppColors.neutral600,
+                                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                             fontSize: isSmallScreen ? 12 : 14,
                                           ),
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
                                           _formatAmount(widget.receiptData.amount),
-                                          style: AppTextStyles.heading3.copyWith(
+                                          style: Theme.of(context).textTheme.headlineSmall!.copyWith(
                                             fontWeight: FontWeight.w900,
                                             fontSize: isSmallScreen ? 24 : 32,
                                           ),
@@ -604,8 +601,7 @@ www.rimapay.com
                                           const SizedBox(height: 4),
                                           Text(
                                             'Fee: ${_formatAmount(widget.receiptData.fee!)}',
-                                            style: AppTextStyles.caption.copyWith(
-                                              color: AppColors.neutral500,
+                                            style: Theme.of(context).textTheme.bodySmall!.copyWith(
                                               fontSize: isSmallScreen ? 10 : 12,
                                             ),
                                           ),
@@ -668,20 +664,19 @@ www.rimapay.com
                                         children: [
                                           Text(
                                             'Transaction Reference',
-                                            style: AppTextStyles.caption.copyWith(
-                                              color: AppColors.neutral600,
+                                            style: Theme.of(context).textTheme.bodySmall!.copyWith(
                                               fontSize: isSmallScreen ? 10 : 12,
                                             ),
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
                                             widget.receiptData.reference,
-                                            style: TextStyle(
-                                              fontFamily: 'monospace',
-                                              fontWeight: FontWeight.w500,
-                                              color: AppColors.neutral900,
-                                              fontSize: isSmallScreen ? 11 : 13,
-                                            ),
+                                          style: TextStyle(
+                                            fontFamily: 'monospace',
+                                            fontWeight: FontWeight.w500,
+                                            color: Theme.of(context).colorScheme.onSurface,
+                                            fontSize: isSmallScreen ? 11 : 13,
+                                          ),
                                           ),
                                         ],
                                       ),
@@ -699,7 +694,7 @@ www.rimapay.com
                                           onTap: _copyReference,
                                           child: Icon(
                                             Icons.copy,
-                                            color: AppColors.neutral600,
+                                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                                             size: 16,
                                           ),
                                         ),
@@ -731,7 +726,7 @@ www.rimapay.com
                                       icon: const Icon(Icons.download, size: 16),
                                       label: Text(
                                         'Download PDF Receipt',
-                                        style: AppTextStyles.buttonMedium.copyWith(
+                                        style: Theme.of(context).textTheme.labelLarge!.copyWith(
                                           fontSize: isSmallScreen ? 14 : 16,
                                         ),
                                       ),
@@ -793,16 +788,14 @@ www.rimapay.com
                                 children: [
                                   Text(
                                     'Thank you for using RimaPay',
-                                    style: AppTextStyles.body2.copyWith(
-                                      color: AppColors.neutral500,
+                                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                       fontSize: isSmallScreen ? 11 : 12,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
                                     'Questions? Contact support@rimapay.com',
-                                    style: AppTextStyles.caption.copyWith(
-                                      color: AppColors.neutral400,
+                                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
                                       fontSize: isSmallScreen ? 10 : 11,
                                     ),
                                   ),
@@ -834,8 +827,7 @@ www.rimapay.com
         children: [
           Text(
             label,
-            style: AppTextStyles.body2.copyWith(
-              color: AppColors.neutral600,
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
               fontSize: isSmallScreen ? 12 : 14,
             ),
           ),
@@ -843,12 +835,11 @@ www.rimapay.com
           Expanded(
             child: Text(
               value,
-              style: AppTextStyles.body2.copyWith(
-                fontWeight: FontWeight.w600,
-                color: AppColors.neutral900,
-                fontSize: isSmallScreen ? 12 : 14,
-                fontFamily: isMonospace ? 'monospace' : null,
-              ),
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+              fontWeight: FontWeight.w600,
+              fontSize: isSmallScreen ? 12 : 14,
+              fontFamily: isMonospace ? 'monospace' : null,
+            ),
               textAlign: TextAlign.right,
             ),
           ),

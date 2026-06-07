@@ -12,7 +12,9 @@ class StorageService {
   static const String _languageKey = 'rimapay_language';
   static const String _themeKey = 'rimapay_theme';
   static const String _biometricEnabledKey = 'rimapay_biometric_enabled';
-  
+  static const String _accessTokenKey = 'rimapay_access_token';
+  static const String _refreshTokenKey = 'rimapay_refresh_token';
+
   static SharedPreferences? _prefs;
   
   static Future<void> initialize() async {
@@ -80,6 +82,36 @@ class StorageService {
   static Future<void> clearUser() async {
     await initialize();
     await prefs.remove(_userKey);
+  }
+
+  // Auth Token Management (used by DioClient for Bearer auth + 401 refresh)
+  static Future<void> saveTokens({
+    required String? accessToken,
+    required String? refreshToken,
+  }) async {
+    await initialize();
+    if (accessToken != null && accessToken.isNotEmpty) {
+      await prefs.setString(_accessTokenKey, accessToken);
+    }
+    if (refreshToken != null && refreshToken.isNotEmpty) {
+      await prefs.setString(_refreshTokenKey, refreshToken);
+    }
+  }
+
+  static Future<String?> getAccessToken() async {
+    await initialize();
+    return prefs.getString(_accessTokenKey);
+  }
+
+  static Future<String?> getRefreshToken() async {
+    await initialize();
+    return prefs.getString(_refreshTokenKey);
+  }
+
+  static Future<void> clearTokens() async {
+    await initialize();
+    await prefs.remove(_accessTokenKey);
+    await prefs.remove(_refreshTokenKey);
   }
   
   // Transaction Management

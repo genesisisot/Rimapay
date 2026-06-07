@@ -45,7 +45,7 @@ class _AirtimeCashScreenState extends State<AirtimeCashScreen> {
 
   bool get _isFormValid =>
       _selectedNetwork != null &&
-      _phoneController.text.length == 11 &&
+      _phoneController.text.length == 10 &&
       (_amountController.text.isNotEmpty && (double.tryParse(_amountController.text) ?? 0) >= 500);
 
   void _handleNext() {
@@ -103,7 +103,7 @@ class _AirtimeCashScreenState extends State<AirtimeCashScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFFBEB),
+                      color: Theme.of(context).colorScheme.surface.withOpacity(0.3),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(color: const Color(0xFFF59E0B).withOpacity(0.3)),
                     ),
@@ -162,10 +162,30 @@ class _AirtimeCashScreenState extends State<AirtimeCashScreen> {
                     controller: _phoneController,
                     focusNode: _phoneFocus,
                     label: 'Phone Number',
-                    hint: '0801 234 5678',
+                    hint: '801 234 5678',
                     keyboardType: TextInputType.phone,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(11)],
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(10)],
                     onChanged: (_) => setState(() {}),
+                    prefixWidget: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '+234',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        SizedBox(
+                          width: 1,
+                          height: 18,
+                          child: ColoredBox(color: Theme.of(context).dividerColor),
+                        ),
+                      ],
+                    ),
+                    prefixWidth: 72,
                   ),
                   const SizedBox(height: 20),
 
@@ -184,7 +204,7 @@ class _AirtimeCashScreenState extends State<AirtimeCashScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF2F7F3),
+                        color: Theme.of(context).colorScheme.primaryContainer,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: const Color(0xFF166C46).withOpacity(0.2)),
                       ),
@@ -244,7 +264,7 @@ class _AirtimeCashCTA extends StatelessWidget {
           height: 54,
           decoration: BoxDecoration(
             gradient: enabled ? AppColors.goldGradient : null,
-            color: enabled ? null : const Color(0xFFCCCCCC),
+            color: enabled ? null : Theme.of(context).colorScheme.onSurface.withOpacity(0.12),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Center(child: Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: enabled ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.4)))),

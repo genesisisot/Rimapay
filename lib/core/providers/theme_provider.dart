@@ -5,6 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Riverpod provider — true = dark mode, false = light mode
 final darkModeProvider = StateProvider<bool>((ref) => false);
 
+/// Proper theme provider with persistence and system-mode support
+final themeProvider = ChangeNotifierProvider<ThemeProvider>((ref) => ThemeProvider());
+
 enum AppThemeMode {
   light,
   dark,
@@ -14,7 +17,7 @@ enum AppThemeMode {
 class ThemeProvider extends ChangeNotifier {
   static const String _themePreferenceKey = 'theme_mode';
   
-  AppThemeMode _themeMode = AppThemeMode.system;
+  AppThemeMode _themeMode = AppThemeMode.light;
   bool _isInitialized = false;
   Brightness _systemBrightness = Brightness.light;
 
@@ -77,7 +80,7 @@ class ThemeProvider extends ChangeNotifier {
             _themeMode = AppThemeMode.system;
             break;
           default:
-            _themeMode = AppThemeMode.system;
+            _themeMode = AppThemeMode.light;
         }
       } else {
         _themeMode = AppThemeMode.system;

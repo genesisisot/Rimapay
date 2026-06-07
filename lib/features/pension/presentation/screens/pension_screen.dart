@@ -88,7 +88,7 @@ class _PensionScreenState extends State<PensionScreen> {
                         margin: const EdgeInsets.only(bottom: 10),
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFFF2F7F3) : const Color(0xFFFAFBFC),
+                          color: isSelected ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).colorScheme.surface,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: isSelected ? AppColors.goldPrimary.withOpacity(0.4) : Theme.of(context).dividerColor),
                         ),
@@ -177,7 +177,7 @@ class _PensionScreenState extends State<PensionScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEFF6FF),
+                      color: Theme.of(context).colorScheme.surface.withOpacity(0.3),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.3)),
                     ),
@@ -227,7 +227,7 @@ class _PensionScreenState extends State<PensionScreen> {
                             margin: EdgeInsets.only(right: type == 'Voluntary' ? 8 : 0),
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             decoration: BoxDecoration(
-                              color: isSelected ? const Color(0xFFF2F7F3) : Colors.white,
+                              color: isSelected ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).colorScheme.surface,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(color: isSelected ? AppColors.goldPrimary : Theme.of(context).dividerColor, width: isSelected ? 2 : 1),
                             ),
@@ -331,7 +331,7 @@ class _PensionCTA extends StatelessWidget {
           width: double.infinity, height: 54,
           decoration: BoxDecoration(
             gradient: enabled ? AppColors.goldGradient : null,
-            color: enabled ? null : const Color(0xFFCCCCCC),
+            color: enabled ? null : Theme.of(context).colorScheme.onSurface.withOpacity(0.12),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Center(child: Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: enabled ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.4)))),

@@ -64,7 +64,7 @@ class AirtimePurchaseScreen extends ConsumerStatefulWidget {
 class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
     with TickerProviderStateMixin {
   // ── Controllers ─────────────────────────────────────────────────────────
-  final _phoneController = TextEditingController(text: '08137954069');
+  final _phoneController = TextEditingController(text: '8137954069');
   final _amountController = TextEditingController();
   final _phoneFocus = FocusNode();
   final _amountFocus = FocusNode();
@@ -172,13 +172,13 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
   // ── Helpers ───────────────────────────────────────────────────────────────
   void _detectNetwork() {
     final phone = _phoneController.text.replaceAll(' ', '');
-    if (phone.length < 4) return;
-    final prefix = phone.substring(0, 4);
+    if (phone.length < 3) return;
+    final prefix = phone.substring(0, 3);
     const prefixMap = {
-      'mtn': ['0803','0806','0810','0813','0814','0816','0903','0906','0913','0916'],
-      'glo': ['0805','0807','0815','0811','0905','0915'],
-      'airtel': ['0802','0808','0812','0701','0902','0907','0901'],
-      '9mobile': ['0809','0818','0817','0908','0909'],
+      'mtn': ['803','806','810','813','814','816','903','906','913','916'],
+      'glo': ['805','807','815','811','905','915'],
+      'airtel': ['802','808','812','701','902','907','901'],
+      '9mobile': ['809','818','817','908','909'],
     };
     NetworkProvider? found;
     for (final entry in prefixMap.entries) {
@@ -198,12 +198,12 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
   }
 
   bool get _airtimeValid =>
-      _phoneController.text.replaceAll(' ', '').length == 11 &&
+      _phoneController.text.replaceAll(' ', '').length == 10 &&
       _amountController.text.isNotEmpty &&
       _selectedNetwork != null;
 
   bool get _dataValid =>
-      _phoneController.text.replaceAll(' ', '').length == 11 &&
+      _phoneController.text.replaceAll(' ', '').length == 10 &&
       _selectedPlan != null &&
       _selectedNetwork != null;
 
@@ -437,13 +437,33 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
       controller: _phoneController,
       focusNode: _phoneFocus,
       label: 'Phone Number',
-      hint: '0801 234 5678',
+      hint: '801 234 5678',
       keyboardType: TextInputType.phone,
       inputFormatters: [
         FilteringTextInputFormatter.digitsOnly,
-        LengthLimitingTextInputFormatter(11),
+        LengthLimitingTextInputFormatter(10),
       ],
       onChanged: (_) => setState(() {}),
+      prefixWidget: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            '+234',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(width: 8),
+          SizedBox(
+            width: 1,
+            height: 18,
+            child: ColoredBox(color: Theme.of(context).dividerColor),
+          ),
+        ],
+      ),
+      prefixWidth: 72,
       suffix: _selectedNetwork != null
           ? Container(
               width: 26,
@@ -587,11 +607,11 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
 
   List<Widget> _buildAirtimeContent() {
     return [
-      const Text('Quick Select Amount',
+      Text('Quick Select Amount',
           style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF4B5563),
+              color: Theme.of(context).colorScheme.onSurface,
               fontFamily: 'Effra')),
       const SizedBox(height: 10),
       Row(
@@ -611,7 +631,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? const Color(0xFFF2F7F3)
+                      ? Theme.of(context).colorScheme.surface.withOpacity(0.5)
                       : Theme.of(context).scaffoldBackgroundColor,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
@@ -637,11 +657,11 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
         }).toList(),
       ),
       const SizedBox(height: 20),
-      const Text('Enter Amount',
+      Text('Enter Amount',
           style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF4B5563),
+              color: Theme.of(context).colorScheme.onSurface,
               fontFamily: 'Effra')),
       const SizedBox(height: 10),
       _AmountInputCard(
@@ -754,7 +774,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
             gradient: enabled
                 ? AppColors.goldGradient
                 : null,
-            color: enabled ? null : const Color(0xFFCCCCCC),
+            color: enabled ? null : Theme.of(context).dividerColor,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Center(
@@ -782,6 +802,8 @@ class _FloatingField extends StatefulWidget {
   final List<TextInputFormatter>? inputFormatters;
   final void Function(String)? onChanged;
   final Widget? suffix;
+  final Widget? prefixWidget;
+  final double prefixWidth;
 
   const _FloatingField({
     required this.controller,
@@ -792,6 +814,8 @@ class _FloatingField extends StatefulWidget {
     this.inputFormatters,
     this.onChanged,
     this.suffix,
+    this.prefixWidget,
+    this.prefixWidth = 0,
   });
 
   @override
@@ -844,11 +868,16 @@ class _FloatingFieldState extends State<_FloatingField> {
       ),
       child: Stack(
         children: [
+          if (widget.prefixWidget != null)
+            Positioned(
+              left: 14, top: 0, bottom: 0,
+              child: Center(child: widget.prefixWidget!),
+            ),
           AnimatedPositioned(
             duration: const Duration(milliseconds: 150),
             curve: Curves.easeOut,
             top: isActive ? 9 : 20,
-            left: 16,
+            left: widget.prefixWidget != null ? widget.prefixWidth : 16,
             right: widget.suffix != null ? 52 : 16,
             child: IgnorePointer(
               child: AnimatedDefaultTextStyle(
@@ -867,7 +896,7 @@ class _FloatingFieldState extends State<_FloatingField> {
             ),
           ),
           Positioned(
-            left: 14,
+            left: widget.prefixWidget != null ? widget.prefixWidth : 14,
             right: widget.suffix != null ? 48 : 14,
             top: isActive ? 28 : 0,
             bottom: isActive ? 6 : 0,
@@ -956,7 +985,7 @@ class _AmountInputCardState extends State<_AmountInputCard> {
                         fontSize: 26,
                         fontWeight: FontWeight.w700,
                         color: _focused
-                            ? const Color(0xFF111827)
+                            ? Theme.of(context).colorScheme.onSurface
                             : Theme.of(context).colorScheme.onSurface.withOpacity(0.55))),
                 const SizedBox(width: 6),
                 Expanded(
@@ -964,17 +993,17 @@ class _AmountInputCardState extends State<_AmountInputCard> {
                     controller: widget.controller,
                     focusNode: widget.focusNode,
                     keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    inputFormatters: [CommaFormatter()],
                     onChanged: widget.onChanged,
                     style: TextStyle(
                         fontSize: 36,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF111827)),
+                        color: Theme.of(context).colorScheme.onSurface),
                     decoration: InputDecoration(
                       hintText: '0',
                       hintStyle: TextStyle(
                           fontSize: 36,
-                          color: Color(0xFFD1D5DB),
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                           fontWeight: FontWeight.w300),
                       border: InputBorder.none,
                       enabledBorder: InputBorder.none,
@@ -994,10 +1023,10 @@ class _AmountInputCardState extends State<_AmountInputCard> {
             child: Row(
               children: [
                 Icon(Icons.info_outline_rounded,
-                    size: 14, color: Colors.grey[400]),
+                    size: 14, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4)),
                 const SizedBox(width: 6),
                 Text('Min: ₦50, Max: ₦50,000',
-                    style: TextStyle(fontSize: 12, color: Colors.grey[500])),
+                    style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
               ],
             ),
           ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../shared/widgets/bill_screen_widgets.dart';
 
 class GrantsScreen extends StatefulWidget {
   const GrantsScreen({super.key});
@@ -132,7 +133,7 @@ class _GrantsScreenState extends State<GrantsScreen> {
                   TextField(
                     controller: _amountController,
                     keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    inputFormatters: [CommaFormatter()],
                     onChanged: (_) => setState(() {}),
                     decoration: _inputDecoration('Enter donation amount'),
                   ),

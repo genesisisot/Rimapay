@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_text_styles.dart';
 import '../../core/theme/app_spacing.dart';
 
 class SettingsSection extends StatelessWidget {
@@ -31,7 +30,7 @@ class SettingsSection extends StatelessWidget {
           ),
           child: Text(
             title,
-            style: AppTextStyles.labelMedium.copyWith(
+            style: theme.textTheme.titleSmall!.copyWith(
               color: theme.colorScheme.onSurface.withOpacity(0.7),
               fontWeight: FontWeight.w600,
               letterSpacing: 0.5,

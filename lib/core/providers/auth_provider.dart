@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../services/storage_service.dart';
 import '../services/biometric_service.dart';
+import '../../features/auth/data/auth_api_service.dart';
+import '../../features/auth/data/auth_dtos.dart';
 
 enum TierLevel { tier0, tier1, tier2, tier3 }
 enum AccountType { underbanking, basic, premium, business }
@@ -230,6 +232,125 @@ class AuthProvider extends ChangeNotifier {
     }
   }
   
+  /// Real login against the RIMA Identity API (`POST /api/auth/login`).
+  /// Supply phoneNumber OR email plus the password the user set during
+  /// onboarding. On success the access/refresh tokens and user are persisted.
+  Future<bool> loginWithCredentials({
+    String? phoneNumber,
+    String? email,
+    required String password,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final res = await AuthApiService().login(LoginRequest(
+        phoneNumber: phoneNumber,
+        email: email,
+        password: password,
+      ));
+      if (res.isSuccess && res.data != null) {
+        final d = res.data!;
+        await StorageService.saveTokens(
+          accessToken: d.token,
+          refreshToken: d.refreshToken,
+        );
+        _user = User(
+          id: d.userId ?? '',
+          email: d.email ?? (email ?? ''),
+          firstName: d.firstName,
+          lastName: d.lastName,
+          phoneNumber: phoneNumber,
+          accountType: AccountType.basic,
+          tierLevel: TierLevel.tier1,
+          isVerified: d.emailConfirmed,
+          bvnVerified: false,
+        );
+        await StorageService.saveUser(_user!);
+        return true;
+      }
+      _error = res.errorMessage ?? 'Login failed. Please try again.';
+      return false;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// POST /api/auth/forgot-password — request a password reset code by email.
+  Future<bool> forgotPassword(String email) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      final res = await AuthApiService().forgotPassword(email);
+      if (res.isSuccess) return true;
+      _error = res.errorMessage ?? 'Could not send reset email.';
+      return false;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// POST /api/auth/reset-password — set a new password using the emailed token.
+  Future<bool> resetPassword({
+    required String email,
+    required String token,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      final res = await AuthApiService().resetPassword(ResetPasswordRequest(
+        email: email,
+        token: token,
+        newPassword: newPassword,
+        confirmPassword: confirmPassword,
+      ));
+      if (res.isSuccess) return true;
+      _error = res.errorMessage ?? 'Could not reset password.';
+      return false;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// GET /api/auth/verify-email — confirm an email address with its token.
+  Future<bool> verifyEmail({
+    required String token,
+    required String email,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      final res = await AuthApiService().verifyEmail(token: token, email: email);
+      if (res.isSuccess) return true;
+      _error = res.errorMessage ?? 'Could not verify email.';
+      return false;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<bool> register(String email, String password, String firstName, String lastName, String phoneNumber) async {
     _isLoading = true;
     _error = null;

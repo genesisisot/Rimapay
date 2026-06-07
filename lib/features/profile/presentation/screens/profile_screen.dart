@@ -5,7 +5,7 @@ import 'package:rimapay/core/theme/app_colors.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../../../core/providers/theme_provider.dart' show darkModeProvider;
+import '../../../../core/providers/theme_provider.dart';
 import '../../../../shared/widgets/noise_painter.dart';
 import 'package:flutter/foundation.dart';
 
@@ -305,7 +305,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           const SizedBox(height: 4),
           Consumer(
             builder: (_, ref, __) {
-              final darkMode = ref.watch(darkModeProvider);
+              final darkMode = ref.watch(themeProvider).isDarkMode;
               return Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                 decoration: BoxDecoration(
@@ -318,18 +318,18 @@ class _ProfileScreenState extends State<ProfileScreen>
                     Icon(Icons.dark_mode,
                         color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), size: 20),
                     const SizedBox(width: 12),
-                    const Text('Dark Mode',
+                    Text('Dark Mode',
                         style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w500)),
+                            fontSize: 14, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurface)),
                     const Spacer(),
                     Switch(
                       value: darkMode,
                       onChanged: (value) {
                         HapticFeedback.lightImpact();
-                        ref.read(darkModeProvider.notifier).state = value;
+                        ref.read(themeProvider).setThemeMode(
+                          value ? AppThemeMode.dark : AppThemeMode.light,
+                        );
                       },
-                      activeThumbColor: Colors.white,
-                      activeTrackColor: const Color(0xFF166C46),
                     ),
                   ],
                 ),

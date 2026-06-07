@@ -260,7 +260,12 @@ class AppTheme {
           statusBarColor: Colors.transparent,
           statusBarIconBrightness: Brightness.light,
         ),
-        titleTextStyle: AppTextStyles.heading3,
+        titleTextStyle: TextStyle(
+          color: _darkText,
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          fontFamily: AppTextStyles.fontFamily,
+        ),
       ),
 
       cardTheme: CardThemeData(
@@ -378,6 +383,65 @@ class AppTheme {
         tileColor: Colors.transparent,
         textColor: _darkText,
         iconColor: _darkSubtext,
+      ),
+
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary500,
+          foregroundColor: Colors.white,
+          textStyle: AppTextStyles.buttonMedium,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+          ),
+          elevation: 2,
+          minimumSize: const Size(double.infinity, AppSpacing.buttonHeight),
+          padding: AppSpacing.buttonInsets,
+        ),
+      ),
+
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: AppColors.primary400,
+          textStyle: AppTextStyles.buttonMedium,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+          ),
+          padding: AppSpacing.buttonInsets,
+        ),
+      ),
+
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.primary400,
+          backgroundColor: Colors.transparent,
+          textStyle: AppTextStyles.buttonMedium,
+          side: const BorderSide(color: AppColors.primary400),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+          ),
+          minimumSize: const Size(double.infinity, AppSpacing.buttonHeight),
+          padding: AppSpacing.buttonInsets,
+        ),
+      ),
+
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: AppColors.primary500,
+        foregroundColor: Colors.white,
+        elevation: 4,
+        shape: CircleBorder(),
+      ),
+
+      sliderTheme: const SliderThemeData(
+        activeTrackColor: AppColors.primary400,
+        inactiveTrackColor: _darkSurface2,
+        thumbColor: AppColors.primary400,
+        overlayColor: AppColors.primary800,
+      ),
+
+      progressIndicatorTheme: const ProgressIndicatorThemeData(
+        color: AppColors.primary400,
+        linearTrackColor: _darkSurface2,
+        circularTrackColor: _darkSurface2,
       ),
 
       textTheme: const TextTheme(

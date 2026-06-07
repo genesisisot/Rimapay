@@ -156,7 +156,7 @@ class _TransactionHistoryScreenState
     final grouped = _grouped(filtered);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F6F8),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Stack(
         children: [
           FadeTransition(
@@ -599,16 +599,16 @@ class _TxCard extends StatelessWidget {
       return AppColors.goldPrimary.withOpacity(0.08);
     switch (tx.type) {
       case TransactionType.transfer:
-        return const Color(0xFFEFF6FF);
+        return const Color(0xFF3B82F6).withOpacity(0.1);
       case TransactionType.electricity:
-        return const Color(0xFFFEFCE8);
+        return const Color(0xFFF59E0B).withOpacity(0.1);
       case TransactionType.cable:
-        return const Color(0xFFFDF2F8);
+        return const Color(0xFFEC4899).withOpacity(0.1);
       case TransactionType.data:
       case TransactionType.airtime:
-        return const Color(0xFFF5F3FF);
+        return const Color(0xFF8B5CF6).withOpacity(0.1);
       default:
-        return const Color(0xFFF2F7F3);
+        return AppColors.primary500.withOpacity(0.08);
     }
   }
 
@@ -753,8 +753,8 @@ class _TxCard extends StatelessWidget {
                               horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
                             color: isPending
-                                ? const Color(0xFFFFF8EC)
-                                : const Color(0xFFF2F7F3),
+                                ? const Color(0xFFF59E0B).withOpacity(0.15)
+                                : Theme.of(context).colorScheme.primary.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -778,7 +778,7 @@ class _TxCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 7, vertical: 2),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF5F3FF),
+                          color: const Color(0xFF8B5CF6).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -932,7 +932,7 @@ class _FilterModal extends StatelessWidget {
                             width: 30,
                             height: 30,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF4F6F8),
+                              color: Theme.of(context).colorScheme.surface,
                               borderRadius: BorderRadius.circular(15),
                             ),
                             child: Icon(Icons.close,
@@ -969,7 +969,7 @@ class _FilterModal extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   color: active
                                       ? AppColors.primary500.withOpacity(0.1)
-                                      : const Color(0xFFEEF2F7),
+                                      : Theme.of(context).colorScheme.surface,
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Icon(opt.icon,

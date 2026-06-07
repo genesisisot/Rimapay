@@ -148,7 +148,7 @@ class _EventsScreenState extends State<EventsScreen> {
                         margin: const EdgeInsets.only(bottom: 12),
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: isSelected ? (Theme.of(context).brightness == Brightness.dark ? event.color.withOpacity(0.15) : event.bgColor) : Colors.white,
+                          color: isSelected ? (Theme.of(context).brightness == Brightness.dark ? event.color.withOpacity(0.15) : event.bgColor) : Theme.of(context).colorScheme.surface,
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
                             color: isSelected ? event.color.withOpacity(0.5) : Theme.of(context).dividerColor,
@@ -298,7 +298,7 @@ class _EventCTA extends StatelessWidget {
           width: double.infinity, height: 54,
           decoration: BoxDecoration(
             gradient: enabled ? AppColors.goldGradient : null,
-            color: enabled ? null : const Color(0xFFCCCCCC),
+            color: enabled ? null : Theme.of(context).colorScheme.onSurface.withOpacity(0.12),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Center(child: Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: enabled ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.4)))),

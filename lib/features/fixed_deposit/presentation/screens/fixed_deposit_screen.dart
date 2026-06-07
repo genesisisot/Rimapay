@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../shared/widgets/bill_screen_widgets.dart';
 
 class FixedDepositScreen extends StatefulWidget {
   const FixedDepositScreen({super.key});
@@ -58,7 +59,7 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE8F5ED),
+                      color: Theme.of(context).colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: const Color(0xFF1A6B35).withOpacity(0.2)),
                     ),
@@ -86,7 +87,7 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
                   TextField(
                     controller: _amountController,
                     keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    inputFormatters: [CommaFormatter()],
                     onChanged: (_) => setState(() {}),
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                     decoration: InputDecoration(

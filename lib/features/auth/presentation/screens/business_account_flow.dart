@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rimapay/shared/widgets/noise_painter.dart';
+import 'package:rimapay/shared/widgets/rimapay_logo.dart';
 import 'package:rimapay/core/theme/app_colors.dart';
 
 // ─── Step enum ───────────────────────────────────────────────────────────────
@@ -46,6 +47,21 @@ class BusinessInfo {
 }
 
 // ─── Widget ──────────────────────────────────────────────────────────────────
+//
+// TODO(backend): Business onboarding is NOT yet wired to the live API and runs
+// as a local UI flow. Two blockers, confirmed against the swagger
+// (api.rimabank.ng/{accounts,profile}):
+//   1. No business-specific endpoints/fields exist. `onboarding/*` and
+//      `profile/create` only model an individual (name, dob, gender, address,
+//      BVN/NIN). businessName, businessType, rcBnNumber, industry and
+//      revenueSources have nowhere to be sent.
+//   2. This flow's step order is phone → otp → email → password → pin → id →
+//      photo, but the onboarding API requires identity + facial validation
+//      BEFORE create-password/create-pin. Wiring as-is would need the
+//      create-password/create-pin calls deferred to the photo step (after
+//      validate-face) — and would still drop all business data.
+// Once the backend exposes business onboarding, mirror the per-step wiring used
+// in personal_account_flow.dart (onboardingProvider + profileProvider).
 
 class BusinessAccountFlow extends ConsumerStatefulWidget {
   const BusinessAccountFlow({super.key});
@@ -1863,11 +1879,9 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
           child: Column(
             children: [
               const Spacer(),
-              Image.asset(
-                'assets/images/mild.png',
+              const RimapayLogo(
                 width: 64,
                 height: 64,
-                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
               ),
               const SizedBox(height: 20),
               Container(
@@ -2219,8 +2233,8 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (_) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         padding:
@@ -2233,27 +2247,27 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                    color: const Color(0xFFE5E7EB),
+                    color: Theme.of(context).dividerColor,
                     borderRadius: BorderRadius.circular(2))),
             const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Text(title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF111827),
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontFamily: 'Effra',
                   )),
             ),
             const SizedBox(height: 8),
-            const Divider(),
+            Divider(color: Theme.of(context).dividerColor),
             ...options.map((o) => ListTile(
                   title: Text(o,
                       style: const TextStyle(
                           fontSize: 15, fontFamily: 'Effra')),
-                  trailing:
-                      const Icon(Icons.chevron_right, color: Color(0xFFD1D5DB)),
+                  trailing: Icon(Icons.chevron_right,
+                      color: Theme.of(context).dividerColor),
                   onTap: () {
                     onSelect(o);
                     Navigator.pop(context);

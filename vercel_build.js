@@ -2,7 +2,7 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const FLUTTER_VERSION = '3.24.0';
+const FLUTTER_VERSION = '3.41.2';
 const FLUTTER_TARBALL = `https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz`;
 
 async function main() {

@@ -10,6 +10,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import 'dart:math' as math;
+import '../../../../shared/widgets/rimapay_logo.dart';
 import 'dart:math' show Random;
 import 'package:share_plus/share_plus.dart';
 
@@ -251,9 +252,9 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFFF8FAFC),
-                  Color(0xFFF0FDF4),
-                  Color(0xFFF2F7F3),
+                  Theme.of(context).colorScheme.surface,
+                  Theme.of(context).colorScheme.surface.withOpacity(0.97),
+                  Theme.of(context).colorScheme.surface,
                 ],
               ),
             ),
@@ -274,8 +275,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                           const SizedBox(height: 24),
 
                           // RimaPay Logo
-                          Image.asset(
-                            'assets/images/mild.png',
+                          const RimapayLogo(
                             height: 56,
                             width: 56,
                           ),
@@ -400,7 +400,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF0F172A), // neutral-900
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -409,7 +409,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                   'Your ${widget.props.transactionType.toLowerCase()} has been processed successfully',
                   style: TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF64748B), // neutral-600
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -432,9 +432,9 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
             child: Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.7),
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white.withOpacity(0.3)),
+                border: Border.all(color: Theme.of(context).dividerColor),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.05),
@@ -454,7 +454,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                         style: TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.w900,
-                          color: Color(0xFF0F172A), // neutral-900
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -504,7 +504,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF0F172A), // neutral-900
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               textAlign: TextAlign.right,
               overflow: TextOverflow.ellipsis,
@@ -721,12 +721,12 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Save Beneficiary',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF0F172A), // neutral-900
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       IconButton(
@@ -741,10 +741,10 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                             color: Theme.of(context).scaffoldBackgroundColor, // neutral-100
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.close,
                             size: 16,
-                            color: Color(0xFF4B5563), // neutral-600
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                           ),
                         ),
                       ),
@@ -768,7 +768,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF0F172A), // neutral-900
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -776,7 +776,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                           '${widget.props.beneficiaryData?.accountNumber} • ${widget.props.beneficiaryData?.bank}',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Color(0xFF4B5563), // neutral-600
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                           ),
                         ),
                       ],

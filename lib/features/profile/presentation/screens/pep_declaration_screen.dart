@@ -56,20 +56,20 @@ class _PepDeclarationScreenState extends State<PepDeclarationScreen> {
                     ),
                   ),
                   const Spacer(),
-                  const Text(
-                    'PEP Declaration',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF111827),
-                    ),
-                  ),
+                      Text(
+                        'PEP Declaration',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
                   const Spacer(),
                   Text(
                     '10/12',
                     style: TextStyle(
                       fontSize: 13,
-                      color: Colors.black.withOpacity(0.4),
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -90,18 +90,18 @@ class _PepDeclarationScreenState extends State<PepDeclarationScreen> {
                           color: Color(0xFF16A34A), size: 60),
                     ),
                     const SizedBox(height: 28),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 28),
-                      child: Text(
-                        'Are you a Politically Exposed Person or a family member/close associate of a PEP?',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFF111827),
-                            height: 1.4),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 28),
+                        child: Text(
+                          'Are you a Politically Exposed Person or a family member/close associate of a PEP?',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              color: Theme.of(context).colorScheme.onSurface,
+                              height: 1.4),
+                        ),
                       ),
-                    ),
                     const SizedBox(height: 16),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 28),
@@ -133,7 +133,7 @@ class _PepDeclarationScreenState extends State<PepDeclarationScreen> {
                                 decoration: BoxDecoration(
                                   color: selected
                                       ? const Color(0xFF16A34A)
-                                      : Colors.white,
+                                      : Theme.of(context).colorScheme.surface,
                                   borderRadius: BorderRadius.circular(14),
                                   border: Border.all(
                                     color: selected

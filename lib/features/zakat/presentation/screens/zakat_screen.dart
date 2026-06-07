@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../shared/widgets/bill_screen_widgets.dart';
 
 class ZakatScreen extends StatefulWidget {
   const ZakatScreen({super.key});
@@ -66,7 +67,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFF7ED),
+                      color: Theme.of(context).colorScheme.surface.withOpacity(0.3),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: const Color(0xFFFF6B35).withOpacity(0.3)),
                     ),
@@ -115,8 +116,8 @@ class _ZakatScreenState extends State<ZakatScreen> {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: _aboveNisab
-                          ? const Color(0xFFE8F5ED)
-                          : const Color(0xFFF4F6F8),
+                          ? Theme.of(context).colorScheme.primaryContainer
+                          : Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: _aboveNisab
@@ -183,7 +184,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
                           margin: const EdgeInsets.only(bottom: 8),
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: active ? const Color(0xFFE8F5ED) : Colors.white,
+                            color: active ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: active
@@ -266,7 +267,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
         TextField(
           controller: ctrl,
           keyboardType: TextInputType.number,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          inputFormatters: [CommaFormatter()],
           onChanged: (_) => setState(() {}),
           decoration: InputDecoration(
             hintText: '0',

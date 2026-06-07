@@ -157,7 +157,7 @@ class _CardsScreenState extends State<CardsScreen> {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFF7ED),
+                      color: Theme.of(context).colorScheme.surface.withOpacity(0.3),
                       borderRadius: BorderRadius.circular(12),
                       border:
                           Border.all(color: const Color(0xFFFF6B35).withOpacity(0.3)),
@@ -171,7 +171,7 @@ class _CardsScreenState extends State<CardsScreen> {
                           child: Text(
                             'Card fee of ${_cardTypes[_selectedCard].fee} will be deducted from your account. Delivery in ${_cardTypes[_selectedCard].deliveryDays} working days.',
                             style: TextStyle(
-                                color: Color(0xFF9A3412), fontSize: 12, height: 1.4),
+                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), fontSize: 12, height: 1.4),
                           ),
                         ),
                       ],

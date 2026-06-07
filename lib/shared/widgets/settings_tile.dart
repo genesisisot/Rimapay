@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_text_styles.dart';
 import '../../core/theme/app_spacing.dart';
 
 class SettingsTile extends StatelessWidget {
@@ -66,7 +65,7 @@ class SettingsTile extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: AppTextStyles.bodyMedium.copyWith(
+                    style: theme.textTheme.bodyMedium!.copyWith(
                       color: theme.colorScheme.onSurface,
                       fontWeight: FontWeight.w500,
                     ),
@@ -75,7 +74,7 @@ class SettingsTile extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       subtitle!,
-                      style: AppTextStyles.bodySmall.copyWith(
+                      style: theme.textTheme.bodySmall!.copyWith(
                         color: theme.colorScheme.onSurface.withOpacity(0.6),
                       ),
                     ),

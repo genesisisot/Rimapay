@@ -267,7 +267,7 @@ class _ElectricityPurchaseScreenState
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF2F7F3),
+                        color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: AppColors.goldPrimary.withOpacity(0.3)),
                       ),
@@ -327,7 +327,7 @@ class _ElectricityPurchaseScreenState
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? const Color(0xFFF2F7F3)
+                                  ? Theme.of(context).colorScheme.surface.withOpacity(0.5)
                                   : Theme.of(context).scaffoldBackgroundColor,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
@@ -357,12 +357,12 @@ class _ElectricityPurchaseScreenState
 
                   const SizedBox(height: 20),
 
-                  const Text(
+                  Text(
                     'Enter Amount',
                     style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF4B5563)),
+                        color: Theme.of(context).colorScheme.onSurface),
                   ),
                   const SizedBox(height: 10),
                   _AmountCard(
@@ -421,7 +421,7 @@ class _ProviderSheet extends StatelessWidget {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: const Color(0xFFD1D5DB),
+              color: Theme.of(context).dividerColor,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -647,7 +647,7 @@ class _MeterTypeBtn extends StatelessWidget {
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: selected ? Color(0xFFF2F7F3) : Theme.of(context).cardColor,
+            color: selected ? Theme.of(context).colorScheme.surface.withOpacity(0.5) : Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: selected ? AppColors.goldPrimary : Theme.of(context).dividerColor,
@@ -867,26 +867,26 @@ class _AmountCardState extends State<_AmountCard> {
                     style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.w700,
-                        color: _focused
-                            ? const Color(0xFF111827)
-                            : Theme.of(context).colorScheme.onSurface.withOpacity(0.55))),
+                    color: _focused
+                        ? Theme.of(context).colorScheme.onSurface
+                        : Theme.of(context).colorScheme.onSurface.withOpacity(0.55))),
                 const SizedBox(width: 6),
                 Expanded(
                   child: TextField(
                     controller: widget.controller,
                     focusNode: widget.focusNode,
                     keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    inputFormatters: [CommaFormatter()],
                     onChanged: widget.onChanged,
                     style: TextStyle(
                         fontSize: 36,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF111827)),
+                        color: Theme.of(context).colorScheme.onSurface),
                     decoration: InputDecoration(
                       hintText: '0',
                       hintStyle: TextStyle(
                           fontSize: 36,
-                          color: Color(0xFFD1D5DB),
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                           fontWeight: FontWeight.w300),
                       border: InputBorder.none,
                       enabledBorder: InputBorder.none,
@@ -908,10 +908,10 @@ class _AmountCardState extends State<_AmountCard> {
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
             child: Row(
               children: [
-                Icon(Icons.info_outline_rounded, size: 14, color: Colors.grey[400]),
+                Icon(Icons.info_outline_rounded, size: 14, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4)),
                 const SizedBox(width: 6),
                 Text(widget.minMax,
-                    style: TextStyle(fontSize: 12, color: Colors.grey[500])),
+                    style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
               ],
             ),
           ),

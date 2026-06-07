@@ -97,9 +97,7 @@ class _RemitaScreenState extends State<RemitaScreen> {
                             decoration: BoxDecoration(
                               color: active
                                   ? const Color(0xFF1A6B35)
-                                  : isDark
-                                      ? const Color(0xFF1A1F2E)
-                                      : Colors.white,
+                                  : Theme.of(context).colorScheme.surface,
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(
                                 color: active
@@ -313,9 +311,7 @@ class _RemitaScreenState extends State<RemitaScreen> {
                     Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: isDark
-                            ? const Color(0xFF0B2417)
-                            : const Color(0xFFE8F5ED),
+                        color: Theme.of(context).colorScheme.primaryContainer,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                             color: const Color(0xFF1A6B35).withOpacity(0.3)),

@@ -9,6 +9,7 @@ import '../../../../core/providers/language_provider.dart';
 import '../../../../core/providers/auth_provider.dart';
 import '../../../../core/providers/transaction_provider.dart';
 import '../../../../shared/widgets/noise_painter.dart';
+import '../../../../shared/widgets/rimapay_logo.dart';
 import '../../../../features/receipt/presentation/screens/receipt_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -223,11 +224,9 @@ class _HeroSection extends StatelessWidget {
                 bottom: 30,
                 child: Opacity(
                   opacity: 0.07,
-                  child: Image.asset(
-                    'assets/images/mild.png',
+                  child: const RimapayLogo(
                     width: 100,
                     height: 100,
-                    errorBuilder: (_, __, ___) => const SizedBox.shrink(),
                   ),
                 ),
               ),
@@ -267,7 +266,7 @@ class _HeroSection extends StatelessWidget {
                               ),
                               child: Icon(
                                 Icons.notifications_outlined,
-                                color: Theme.of(context).cardColor,
+                                color: Colors.white,
                                 size: 20,
                               ),
                             ),
@@ -313,7 +312,7 @@ class _HeroSection extends StatelessWidget {
                             child: Text(
                               'AO',
                               style: TextStyle(
-                                color: Theme.of(context).cardColor,
+                                color: Colors.white,
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -323,7 +322,7 @@ class _HeroSection extends StatelessWidget {
                           Text(
                             'Adebayo Okafor',
                             style: TextStyle(
-                              color: Theme.of(context).cardColor,
+                              color: Colors.white,
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                             ),
@@ -357,7 +356,7 @@ class _HeroSection extends StatelessWidget {
                       Text(
                         balanceVisible ? '₦15,750.00' : '••••••',
                         style: TextStyle(
-                          color: Theme.of(context).cardColor,
+                          color: Colors.white,
                           fontSize: 30,
                           fontWeight: FontWeight.w800,
                           letterSpacing: -0.5,
@@ -440,12 +439,12 @@ class _HeroSection extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(Icons.send_rounded,
-                                    color: Theme.of(context).cardColor, size: 17),
+                                    color: Colors.white, size: 17),
                                 SizedBox(width: 7),
                                 Text(
                                   'Transfer',
                                   style: TextStyle(
-                                    color: Theme.of(context).cardColor,
+                                    color: Colors.white,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w700,
                                   ),
@@ -471,12 +470,12 @@ class _HeroSection extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(Icons.add_circle_outline,
-                                    color: Theme.of(context).cardColor, size: 18),
+                                    color: Colors.white, size: 18),
                                 SizedBox(width: 7),
                                 Text(
                                   'Add Money',
                                   style: TextStyle(
-                                    color: Theme.of(context).cardColor,
+                                    color: Colors.white,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w700,
                                   ),

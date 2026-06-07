@@ -114,7 +114,7 @@ class AccountLimitsScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE8F5ED),
+                      color: Theme.of(context).colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                           color: const Color(0xFF1A6B35).withOpacity(0.2)),

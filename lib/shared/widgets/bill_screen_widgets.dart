@@ -326,7 +326,7 @@ class BillPaginationDots extends StatelessWidget {
           decoration: BoxDecoration(
             color: isActive
                 ? AppColors.goldPrimary
-                : const Color(0xFFD1D5DB),
+                : Theme.of(context).dividerColor,
             borderRadius: BorderRadius.circular(999),
           ),
         );
@@ -379,7 +379,7 @@ class BillDailyLimitCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: usagePercent,
               minHeight: 4,
-              backgroundColor: const Color(0xFFD1D5DB),
+              backgroundColor: Theme.of(context).dividerColor,
               valueColor:
                   const AlwaysStoppedAnimation<Color>(Color(0xFFff6b35)),
             ),
@@ -493,7 +493,7 @@ class BillOrangeCTA extends StatelessWidget {
                     colors: [Color(0xFF166C46), Color(0xFF166C46)],
                   )
                 : null,
-            color: enabled ? null : const Color(0xFFD1D5DB),
+            color: enabled ? null : Theme.of(context).colorScheme.onSurface.withOpacity(0.12),
             borderRadius: BorderRadius.circular(999),
           ),
           child: Center(
@@ -522,6 +522,7 @@ class BillSimpleInput extends StatelessWidget {
   final void Function(String)? onChanged;
   final Widget? suffix;
   final bool readOnly;
+  final Widget? prefixWidget;
 
   const BillSimpleInput({
     super.key,
@@ -533,6 +534,7 @@ class BillSimpleInput extends StatelessWidget {
     this.onChanged,
     this.suffix,
     this.readOnly = false,
+    this.prefixWidget,
   });
 
   @override
@@ -548,6 +550,10 @@ class BillSimpleInput extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
           children: [
+            if (prefixWidget != null) ...[
+              prefixWidget!,
+              const SizedBox(width: 8),
+            ],
             Expanded(
               child: TextField(
                 controller: controller,
@@ -704,6 +710,8 @@ class BillFloatingField extends StatefulWidget {
   final void Function(String)? onChanged;
   final Widget? suffix;
   final bool readOnly;
+  final Widget? prefixWidget;
+  final double prefixWidth;
 
   const BillFloatingField({
     super.key,
@@ -716,6 +724,8 @@ class BillFloatingField extends StatefulWidget {
     this.onChanged,
     this.suffix,
     this.readOnly = false,
+    this.prefixWidget,
+    this.prefixWidth = 0,
   });
 
   @override
@@ -769,11 +779,17 @@ class _BillFloatingFieldState extends State<BillFloatingField> {
       ),
       child: Stack(
         children: [
+          // Prefix widget
+          if (widget.prefixWidget != null)
+            Positioned(
+              left: 14, top: 0, bottom: 0,
+              child: Center(child: widget.prefixWidget!),
+            ),
           // Floating label
           AnimatedPositioned(
             duration: const Duration(milliseconds: 150),
             curve: Curves.easeOut,
-            left: 14,
+            left: widget.prefixWidget != null ? widget.prefixWidth : 14,
             right: widget.suffix != null ? 48 : 14,
             top: isActive ? 9 : 19,
             child: IgnorePointer(
@@ -793,7 +809,7 @@ class _BillFloatingFieldState extends State<BillFloatingField> {
           ),
           // TextField — always in tree so taps always register
           Positioned(
-            left: 14,
+            left: widget.prefixWidget != null ? widget.prefixWidth : 14,
             right: widget.suffix != null ? 48 : 14,
             top: isActive ? 28 : 0,
             bottom: isActive ? 6 : 0,
@@ -1013,7 +1029,7 @@ class _PinConfirmSheetState extends State<_PinConfirmSheet> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF2F7F3),
+                    color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(

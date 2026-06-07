@@ -200,8 +200,8 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> with Tick
             colors: [
               AppColors.primary500,
               AppColors.primary500,
-              const Color(0xFFF0F9F4),
-              const Color(0xFFF8FCF9),
+              Theme.of(context).colorScheme.surface,
+              Theme.of(context).colorScheme.surface,
             ],
           ),
         ),
@@ -315,8 +315,8 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> with Tick
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFDCFCE7),
-                  borderRadius: BorderRadius.circular(16),
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(16),
                 ),
                 child: Center(
                   child: Text(
@@ -438,8 +438,8 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> with Tick
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: const Color(0xFFDCFCE7),
-              borderRadius: BorderRadius.circular(24),
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(24),
             ),
             child: const Icon(
               Icons.shield_outlined,
@@ -555,16 +555,16 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> with Tick
               width: double.infinity,
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFFFEF2F2),
+                color: Theme.of(context).colorScheme.error.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFFECACA)),
+                border: Border.all(color: Theme.of(context).colorScheme.error.withOpacity(0.3)),
               ),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.error_outline,
                     size: 12,
-                    color: Color(0xFFDC2626),
+                    color: Theme.of(context).colorScheme.error,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -572,7 +572,7 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> with Tick
                       _error,
                       style: TextStyle(
                         fontSize: 12,
-                        color: Color(0xFFB91C1C),
+                        color: Theme.of(context).colorScheme.onErrorContainer,
                       ),
                     ),
                   ),
@@ -588,9 +588,9 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> with Tick
             width: double.infinity,
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFFEFF6FF),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFBFDBFE)),
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.2)),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -600,7 +600,7 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> with Tick
                   height: 12,
                   margin: const EdgeInsets.only(top: 2),
                   decoration: BoxDecoration(
-                    color: Color(0xFF3B82F6),
+                    color: Theme.of(context).colorScheme.primary,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -610,7 +610,7 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> with Tick
                   ),
                 ),
                 const SizedBox(width: 8),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -619,7 +619,7 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> with Tick
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
-                          color: Color(0xFF1E40AF),
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                       SizedBox(height: 2),
@@ -627,7 +627,7 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> with Tick
                         'Your PIN is encrypted and never stored for security.',
                         style: TextStyle(
                           fontSize: 10,
-                          color: Color(0xFF1D4ED8),
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                           height: 1.4,
                         ),
                       ),

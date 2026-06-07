@@ -261,22 +261,23 @@ class _ResidentialAddressScreenState extends State<ResidentialAddressScreen> {
   void _showStatePicker(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
         height: 400,
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Select State',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF111827),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 16),
@@ -288,7 +289,7 @@ class _ResidentialAddressScreenState extends State<ResidentialAddressScreen> {
                   return ListTile(
                     title: Text(state,
                         style: TextStyle(
-                            fontSize: 15, color: Color(0xFF111827))),
+                            fontSize: 15, color: Theme.of(context).colorScheme.onSurface)),
                     onTap: () {
                       setState(() {
                         _selectedState = state;

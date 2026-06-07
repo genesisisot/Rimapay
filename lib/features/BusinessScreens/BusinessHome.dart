@@ -290,7 +290,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
       case 'low':
         return Colors.blue.shade50;
       default:
-        return Colors.grey.shade50;
+        return Theme.of(context).colorScheme.surface.withOpacity(0.5);
     }
   }
 
@@ -303,7 +303,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
       case 'low':
         return Colors.blue.shade200;
       default:
-        return Colors.grey.shade200;
+        return Theme.of(context).dividerColor;
     }
   }
 
@@ -316,7 +316,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
       case 'low':
         return Colors.blue.shade600;
       default:
-        return Colors.grey.shade600;
+        return Theme.of(context).colorScheme.onSurface.withOpacity(0.6);
     }
   }
 
@@ -383,7 +383,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                   'Good morning',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey.shade600,
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -416,11 +416,11 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: Colors.grey.shade100,
+          color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: Theme.of(context).dividerColor),
         ),
-        child: Icon(icon, color: Colors.grey.shade600, size: 16),
+        child: Icon(icon, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), size: 16),
       ),
     );
   }
@@ -434,11 +434,11 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
+              color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.shade200),
+              border: Border.all(color: Theme.of(context).dividerColor),
             ),
-            child: Icon(Icons.notifications, color: Colors.grey.shade600, size: 16),
+            child: Icon(Icons.notifications, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), size: 16),
           ),
           if (todoItems.isNotEmpty)
             Positioned(
@@ -629,7 +629,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                           ),
                           child: Icon(item.icon, color: getIconColor(item.priority), size: 12),
                         ),
-                        const Icon(Icons.chevron_right, color: Colors.grey, size: 16),
+                        Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), size: 16),
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -649,7 +649,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                         item.description,
                         style: TextStyle(
                           fontSize: 9,
-                          color: Colors.grey.shade600,
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -912,7 +912,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
               style: TextStyle(
                 fontSize: 8,
                 fontWeight: FontWeight.w500,
-                color: Colors.grey,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
               ),
               textAlign: TextAlign.center,
             ),
@@ -977,7 +977,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade200),
+                  border: Border.all(color: Theme.of(context).dividerColor),
                 ),
                 child: Row(
                   children: [
@@ -1013,7 +1013,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                               style: TextStyle(
                                 fontSize: 8,
                                 fontWeight: FontWeight.w500,
-                                color: Colors.grey.shade600,
+                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                               ),
                             ),
                           ),
@@ -1099,7 +1099,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey.shade200),
+                      border: Border.all(color: Theme.of(context).dividerColor),
                     ),
                     child: Row(
                       children: [
@@ -1134,7 +1134,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                                   style: TextStyle(
                                     fontSize: 8,
                                     fontWeight: FontWeight.w500,
-                                    color: Colors.grey.shade600,
+                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                                   ),
                                 ),
                               ),
@@ -1237,7 +1237,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.grey.shade200),
+                  border: Border.all(color: Theme.of(context).dividerColor),
                 ),
                 child: Row(
                   children: [
@@ -1272,7 +1272,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
-                              color: Colors.grey.shade600,
+                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                             ),
                           ),
                         ],
@@ -1294,7 +1294,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w500,
-                            color: Colors.grey.shade600,
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                           ),
                         ),
                       ],

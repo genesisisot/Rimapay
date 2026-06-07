@@ -1,25 +1,29 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart' as legacy_provider;
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:google_places_autocomplete_text_field/google_places_autocomplete_text_field.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:rimapay/Constants/En.dart';
-import 'package:rimapay/Services/PersonAuthServices/CreatePinService.dart';
-import 'package:rimapay/Services/PersonAuthServices/OtpServices.dart';
-import 'package:rimapay/Services/PersonAuthServices/PersonalSignUpService.dart';
-import 'package:rimapay/Services/SessionServices/GetSessionId.dart';
 import 'package:rimapay/Utils/Logics.dart';
+import 'package:rimapay/core/providers/auth_provider.dart';
+import 'package:rimapay/core/services/storage_service.dart';
+import 'package:rimapay/features/onboarding/data/onboarding_dtos.dart';
+import 'package:rimapay/features/onboarding/presentation/providers/onboarding_provider.dart';
+import 'package:rimapay/features/profile/data/profile_dtos.dart';
+import 'package:rimapay/features/profile/presentation/providers/profile_provider.dart';
 
 import 'package:rimapay/core/Models/CountryStateLgaModel.dart';
 import 'package:rimapay/core/Utils/En.dart';
 import 'package:rimapay/core/services/GetPlaceDetailsService.dart';
 import 'package:rimapay/shared/widgets/noise_painter.dart';
+import 'package:rimapay/shared/widgets/rimapay_logo.dart';
 import 'package:rimapay/core/theme/app_colors.dart';
 
 // ─── Step enum ───────────────────────────────────────────────────────────────
@@ -174,6 +178,10 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     );
     final rng = math.Random();
     _confettiParticles = List.generate(70, (_) => _CParticle(rng));
+    // Start each signup attempt from a clean onboarding session.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(onboardingProvider.notifier).reset();
+    });
   }
 
   @override
@@ -296,70 +304,9 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
 
   @override
   Widget build(BuildContext context) {
-    // Provider listeners (unchanged from original)
-    ref.listen<PersonalSignupResponse?>(signupResponseStateProvider,
-        (previous, next) {
-      if (next != null) {
-        setState(() => _isLoading = false);
-        if (next.status == SUCCESS) {
-          _animateTo(AccountStep.otpVerification);
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(
-                next.errmessage ?? 'Verification code sent to your phone.'),
-            backgroundColor: const Color(0xFF166C46),
-          ));
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(next.errmessage ??
-                'Failed to create account. Please try again.'),
-            backgroundColor: Colors.red,
-          ));
-        }
-      }
-    });
-
-    ref.listen(verifyOtpResponseStateProvider, (prev, next) {
-      setState(() => _isLoading = false);
-      if (next?.model != null) {
-        _animateTo(_isUnderbanked
-            ? AccountStep.facialVerification
-            : AccountStep.idEntry);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-              next?.errmessage ?? 'Failed to verify OTP. Please try again.'),
-          backgroundColor: Colors.red,
-        ));
-      }
-    });
-
-    ref.listen(resendOtpResponseStateProvider, (prev, next) {
-      setState(() => _isResending = false);
-      if (next?.model != null) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('OTP Resent Successfully'),
-          backgroundColor: Colors.green,
-        ));
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(next?.errmessage ?? 'Failed to resend OTP.'),
-          backgroundColor: Colors.red,
-        ));
-      }
-    });
-
-    ref.listen(createPinResponseStateProvider, (prev, next) {
-      setState(() => _creatingPin = false);
-      if (next?.model != null) {
-        _animateTo(AccountStep.accountCreatedSuccess);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(next?.errmessage ?? ERROR_TEXT),
-          backgroundColor: Colors.red,
-        ));
-      }
-    });
-
+    // Onboarding API calls are driven directly from each step's handler
+    // (initiate / verifyOtp / submitIdentity / validateFace / createPassword /
+    // createPin) via [onboardingProvider]; navigation stays local to this flow.
     return WillPopScope(
       onWillPop: () async {
         _goBack();
@@ -757,16 +704,35 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
             ),
           ),
         ),
-        _buildCTA(label: 'Continue →', onTap: _onPhoneContinue),
+        _buildCTA(
+            label: 'Continue →', loading: _isLoading, onTap: _onPhoneContinue),
       ],
     );
   }
 
-  void _onPhoneContinue() {
-    if (_phoneDigits.length == 10) {
-      _personalInfo.phoneNumber = '0$_phoneDigits';
+  void _onPhoneContinue() async {
+    if (_phoneDigits.length != 10) {
+      _snack('Enter a valid phone number.', isError: true);
+      return;
     }
-    _nextStep();
+    _personalInfo.phoneNumber = '0$_phoneDigits';
+    setState(() => _isLoading = true);
+    final ok = await ref.read(onboardingProvider.notifier).initiate(
+          phoneNumber: '+234$_phoneDigits',
+          email: _personalInfo.emailAddress.isNotEmpty
+              ? _personalInfo.emailAddress
+              : null,
+        );
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+    if (ok) {
+      _animateTo(AccountStep.otpVerification);
+    } else {
+      _snack(
+          ref.read(onboardingProvider).error ??
+              'Failed to send verification code. Please try again.',
+          isError: true);
+    }
   }
 
   Widget _buildIdDigitsInput() {
@@ -878,8 +844,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (_) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         padding: EdgeInsets.fromLTRB(
@@ -893,7 +859,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE4E7EC),
+                  color: Theme.of(context).dividerColor,
                   borderRadius: BorderRadius.circular(999),
                 ),
               ),
@@ -914,10 +880,10 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                 const SizedBox(width: 12),
                 Text(
                   isBvn ? 'Retrieve your BVN' : 'Retrieve your NIN',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF101828)),
+                      color: Theme.of(context).colorScheme.onSurface),
                 ),
               ],
             ),
@@ -936,9 +902,9 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                 children: [
                   Text(
                     isBvn ? 'Dial this USSD code:' : 'Dial one of these USSD codes:',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontSize: 13,
-                        color: Color(0xFF374151),
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
                         fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 12),
@@ -1025,7 +991,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
         ),
         const SizedBox(width: 12),
         Text(network,
-            style: const TextStyle(fontSize: 13, color: Color(0xFF667085))),
+            style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
       ],
     );
   }
@@ -1036,8 +1002,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (_) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         padding: EdgeInsets.fromLTRB(
@@ -1051,7 +1017,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                    color: const Color(0xFFE4E7EC),
+                    color: Theme.of(context).dividerColor,
                     borderRadius: BorderRadius.circular(999)),
               ),
             ),
@@ -1067,16 +1033,16 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   color: Color(0xFFF97316), size: 26),
             ),
             const SizedBox(height: 16),
-            const Text('Open Underbanked Account?',
+            Text('Open Underbanked Account?',
                 style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF101828))),
+                    color: Theme.of(context).colorScheme.onSurface)),
             const SizedBox(height: 10),
-            const Text(
+            Text(
               'You\'re about to open a financial inclusion (underbanked) account. This account is designed for those without formal ID documents.',
               style: TextStyle(
-                  fontSize: 13, color: Color(0xFF667085), height: 1.5),
+                  fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), height: 1.5),
             ),
             const SizedBox(height: 16),
             _limitRow(Icons.swap_horiz, '₦10,000 daily transaction limit'),
@@ -1092,15 +1058,15 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                     child: Container(
                       height: 50,
                       decoration: BoxDecoration(
-                        border: Border.all(color: const Color(0xFFE4E7EC)),
+                        border: Border.all(color: Theme.of(context).dividerColor),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Center(
+                      child: Center(
                         child: Text('Cancel',
                             style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: Color(0xFF374151))),
+                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85))),
                       ),
                     ),
                   ),
@@ -1148,8 +1114,9 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           Icon(icon, size: 16, color: const Color(0xFF166C46)),
           const SizedBox(width: 10),
           Text(text,
-              style:
-                  const TextStyle(fontSize: 13, color: Color(0xFF374151))),
+              style: TextStyle(
+                  fontSize: 13,
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85))),
         ],
       ),
     );
@@ -1302,7 +1269,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
         ),
         _buildCTA(
           label: 'Continue →',
-          onTap: _nextStep,
+          loading: _isLoading,
+          onTap: _handleOtpSubmit,
         ),
       ],
     );
@@ -1379,18 +1347,33 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
         ),
         _buildCTA(
           label: 'Continue →',
+          loading: _isLoading,
           onTap: _onPasswordContinue,
         ),
       ],
     );
   }
 
-  void _onPasswordContinue() {
+  void _onPasswordContinue() async {
     if (_password != _confirmPassword) {
       _snack('Passwords do not match. Please try again.', isError: true);
       return;
     }
-    _nextStep();
+    setState(() => _isLoading = true);
+    final ok = await ref.read(onboardingProvider.notifier).createPassword(
+          password: _password,
+          confirmPassword: _confirmPassword,
+        );
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+    if (ok) {
+      _animateTo(AccountStep.createPin);
+    } else {
+      _snack(
+          ref.read(onboardingProvider).error ??
+              'Failed to set password. Please try again.',
+          isError: true);
+    }
   }
 
   // ══════════════════════════════════════════════════════════════════════════════
@@ -1561,7 +1544,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
         ),
         _buildCTA(
           label: 'Set PIN',
-          onTap: _nextStep,
+          loading: _creatingPin,
+          onTap: _onConfirmPin,
         ),
       ],
     );
@@ -1585,8 +1569,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   // ══════════════════════════════════════════════════════════════════════════════
 
   Widget _buildAccountCreatedSuccessStep() {
-    final accountNumber =
-        _phoneDigits.isNotEmpty ? '0$_phoneDigits' : '08XXXXXXXXX';
+    final accountNumber = ref.read(onboardingProvider).accountNumber ??
+        (_phoneDigits.isNotEmpty ? '0$_phoneDigits' : '08XXXXXXXXX');
     return Stack(
       key: const ValueKey('accountCreatedSuccess'),
       children: [
@@ -1618,11 +1602,9 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           child: Column(
             children: [
               const Spacer(),
-              Image.asset(
-                'assets/images/mild.png',
+              const RimapayLogo(
                 width: 64,
                 height: 64,
-                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
               ),
               const SizedBox(height: 20),
               Container(
@@ -1840,11 +1822,9 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           child: Column(
             children: [
               const Spacer(),
-              Image.asset(
-                'assets/images/mild.png',
+              const RimapayLogo(
                 width: 64,
                 height: 64,
-                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
               ),
               const SizedBox(height: 20),
               Container(
@@ -2255,13 +2235,18 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           label: _idType == 'noid'
               ? 'Open Underbanked Account'
               : (isUnderbanked ? 'Continue without ID →' : 'Continue →'),
-          onTap: _idType == 'noid' ? _showNoIdConfirmSheet : _nextStep,
+          loading: _isLoading,
+          onTap: _idType == 'noid' ? _showNoIdConfirmSheet : _onIdContinue,
         ),
       ],
     );
   }
 
-  void _onIdContinue() {
+  void _onIdContinue() async {
+    if (_idDigits.length != 11) {
+      _snack('Enter a valid 11-digit ${_idType.toUpperCase()}.', isError: true);
+      return;
+    }
     if (_idType == 'bvn') {
       _personalInfo.bvn = _idDigits;
       _bvnController.text = _idDigits;
@@ -2269,7 +2254,30 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       _personalInfo.nin = _idDigits;
       _ninController.text = _idDigits;
     }
-    _nextStep();
+    setState(() => _isLoading = true);
+    final ok = await ref.read(onboardingProvider.notifier).submitIdentity(
+          identityNumber: _idDigits,
+          documentType: _idType == 'nin'
+              ? IdentityDocumentType.nin
+              : IdentityDocumentType.bvn,
+        );
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+    if (ok) {
+      final st = ref.read(onboardingProvider);
+      if ((st.validatedFirstName ?? '').isNotEmpty) {
+        _personalInfo.firstname = st.validatedFirstName!;
+      }
+      if ((st.validatedLastName ?? '').isNotEmpty) {
+        _personalInfo.lastname = st.validatedLastName!;
+      }
+      _animateTo(AccountStep.facialVerification);
+    } else {
+      _snack(
+          ref.read(onboardingProvider).error ??
+              'Identity verification failed. Please check your details.',
+          isError: true);
+    }
   }
 
   // ══════════════════════════════════════════════════════════════════════════════
@@ -2617,10 +2625,71 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
         ),
         _buildCTA(
           label: 'Continue →',
-          onTap: _nextStep,
+          loading: _isLoading,
+          onTap: _onCompleteProfile,
         ),
       ],
     );
+  }
+
+  /// Final profile-completion step: submit the collected KYC profile to the
+  /// Profile API (`/api/v1/profile/create`) using the identityUserId produced
+  /// during onboarding, then show the completed screen.
+  void _onCompleteProfile() async {
+    final st = ref.read(onboardingProvider);
+    final identityUserId = st.identityUserId;
+    if (identityUserId == null || identityUserId.isEmpty) {
+      // Account is already created during onboarding; nothing to submit here.
+      _animateTo(AccountStep.profileCompletedSuccess);
+      return;
+    }
+    final idNumber = _personalInfo.bvn.isNotEmpty
+        ? _personalInfo.bvn
+        : (_personalInfo.nin.isNotEmpty ? _personalInfo.nin : null);
+    final docType = _personalInfo.bvn.isNotEmpty
+        ? 'BVN'
+        : (_personalInfo.nin.isNotEmpty ? 'NIN' : null);
+    final address = [
+      _personalInfo.residentialAddress,
+      _personalInfo.lga,
+      _personalInfo.state,
+    ].where((p) => p.trim().isNotEmpty).join(', ');
+    setState(() => _isLoading = true);
+    final ok = await ref.read(profileProvider.notifier).createProfile(
+          CreateProfileRequest(
+            identityUserId: identityUserId,
+            firstName: _personalInfo.firstname.isNotEmpty
+                ? _personalInfo.firstname
+                : null,
+            lastName: _personalInfo.lastname.isNotEmpty
+                ? _personalInfo.lastname
+                : null,
+            email: _personalInfo.emailAddress.isNotEmpty
+                ? _personalInfo.emailAddress
+                : null,
+            phoneNumber: _personalInfo.phoneNumber.isNotEmpty
+                ? _personalInfo.phoneNumber
+                : null,
+            dateOfBirth: _personalInfo.dateOfBirth.isNotEmpty
+                ? _personalInfo.dateOfBirth
+                : null,
+            gender:
+                _personalInfo.gender.isNotEmpty ? _personalInfo.gender : null,
+            address: address.isNotEmpty ? address : null,
+            identityNumber: idNumber,
+            documentType: docType,
+          ),
+        );
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+    if (ok) {
+      _animateTo(AccountStep.profileCompletedSuccess);
+    } else {
+      _snack(
+          ref.read(profileProvider).error ??
+              'Failed to save your profile. Please try again.',
+          isError: true);
+    }
   }
 
   // ═══════════════════���══════════════════════════════════════════════════════════
@@ -2970,11 +3039,9 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
             children: [
               const Spacer(),
               // RimaPay logo
-              Image.asset(
-                'assets/images/mild.png',
+              const RimapayLogo(
                 width: 64,
                 height: 64,
-                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
               ),
               const SizedBox(height: 20),
               // Shield / verified icon
@@ -3259,18 +3326,18 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   InputDecoration _inputDec({String hint = '', Widget? suffix}) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(
-          color: Color(0xFFD1D5DB), fontSize: 14, fontFamily: 'Effra'),
+      hintStyle: TextStyle(
+          color: Theme.of(context).dividerColor, fontSize: 14, fontFamily: 'Effra'),
       suffixIcon: suffix,
       filled: true,
-      fillColor: Colors.white,
+      fillColor: Theme.of(context).cardColor,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+          borderSide: BorderSide(color: Theme.of(context).dividerColor)),
       enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+          borderSide: BorderSide(color: Theme.of(context).dividerColor)),
       focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFF16A34A), width: 1.5)),
@@ -3389,10 +3456,10 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
 
   Widget _sectionLabel(String label) {
     return Text(label,
-        style: const TextStyle(
+        style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF374151)));
+            color: Theme.of(context).colorScheme.onSurface));
   }
 
   void _showOptionsSheet(
@@ -3402,8 +3469,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (_) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         padding:
@@ -3416,23 +3483,23 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                    color: const Color(0xFFE5E7EB),
+                    color: Theme.of(context).dividerColor,
                     borderRadius: BorderRadius.circular(2))),
             const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Text(title,
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF111827))),
+                      color: Theme.of(context).colorScheme.onSurface)),
             ),
             const SizedBox(height: 8),
-            const Divider(),
+            Divider(color: Theme.of(context).dividerColor),
             ...options.map((o) => ListTile(
                   title: Text(o, style: const TextStyle(fontSize: 15)),
-                  trailing:
-                      const Icon(Icons.chevron_right, color: Color(0xFFD1D5DB)),
+                  trailing: Icon(Icons.chevron_right,
+                      color: Theme.of(context).dividerColor),
                   onTap: () {
                     onSelect(o);
                     Navigator.pop(context);
@@ -3456,8 +3523,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       builder: (_) => StatefulBuilder(
         builder: (ctx, setS) => Container(
           height: MediaQuery.of(context).size.height * 0.75,
-          decoration: const BoxDecoration(
-            color: Colors.white,
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
@@ -3467,7 +3534,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                      color: const Color(0xFFE5E7EB),
+                      color: Theme.of(context).dividerColor,
                       borderRadius: BorderRadius.circular(2))),
               const SizedBox(height: 16),
               Padding(
@@ -3482,8 +3549,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                 child: TextField(
                   controller: searchCtrl,
                   decoration: _inputDec(hint: 'Search...').copyWith(
-                    prefixIcon: const Icon(Icons.search,
-                        color: Color(0xFF9CA3AF), size: 18),
+                    prefixIcon: Icon(Icons.search,
+                        color: Theme.of(context).dividerColor, size: 18),
                   ),
                   onChanged: (q) {
                     setS(() {
@@ -3523,8 +3590,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       isScrollControlled: true,
       builder: (_) => Container(
         height: MediaQuery.of(context).size.height * 0.85,
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         padding: EdgeInsets.only(
@@ -3535,7 +3602,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: const Color(0xFFE5E7EB),
+                color: Theme.of(context).dividerColor,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -3701,27 +3768,35 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   void _handleOtpSubmit() async {
     if (_otp.any((d) => d.isEmpty)) return;
     setState(() => _isLoading = true);
-    final session = getSessionId();
-    final params = OtpParams(
-      method: 'validateOtp',
-      otpCode: _otp.join(),
-      requestType: REQUEST_TYPE,
-      sessionId: session,
-    );
-    ref.read(verifyOtpProvider(params));
+    final ok =
+        await ref.read(onboardingProvider.notifier).verifyOtp(_otp.join());
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+    if (ok) {
+      _animateTo(_isUnderbanked
+          ? AccountStep.facialVerification
+          : AccountStep.idEntry);
+    } else {
+      _snack(
+          ref.read(onboardingProvider).error ??
+              'Failed to verify OTP. Please try again.',
+          isError: true);
+    }
   }
 
   Future<void> _handleResendOtp() async {
     if (_resendCountdown > 0 || _isResending) return;
     setState(() => _isResending = true);
-    final session = getSessionId();
-    final params = OtpParams(
-      method: 'resendOtp',
-      requestType: REQUEST_TYPE,
-      sessionId: session,
-    );
-    ref.read(resendOtpProvider(params));
-    _startResendCountdown();
+    final ok = await ref.read(onboardingProvider.notifier).resendOtp();
+    if (!mounted) return;
+    setState(() => _isResending = false);
+    if (ok) {
+      _snack('OTP resent successfully');
+      _startResendCountdown();
+    } else {
+      _snack(ref.read(onboardingProvider).error ?? 'Failed to resend OTP.',
+          isError: true);
+    }
   }
 
   void _startResendCountdown() {
@@ -3738,18 +3813,36 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     });
   }
 
-  void _handlePinSet() {
+  void _handlePinSet() async {
     if (_pin.any((d) => d.isEmpty)) return;
     setState(() => _creatingPin = true);
-    final session = getSessionId();
-    final params = CreatePinParams(
-      requestType: REQUEST_TYPE,
-      method: 'createSoftToken',
-      sentConfirmPIN: _pin.join(),
-      sentPIN: _pin.join(),
-      sessionId: session,
-    );
-    ref.read(createPinProvider(params));
+    final ok = await ref.read(onboardingProvider.notifier).createPin(
+          pin: _pin.join(),
+          confirmPin: _confirmPinEntry.join(),
+        );
+    if (!mounted) return;
+    setState(() => _creatingPin = false);
+    if (ok) {
+      // Keep the PIN locally for in-app transaction verification.
+      await StorageService.savePin(_pin.join());
+      // Best-effort: authenticate with the phone + password just set so the
+      // user lands signed in. Safe to ignore failures (e.g. missing client
+      // secret) — they can still sign in from the login screen.
+      if (_password.isNotEmpty && mounted) {
+        await legacy_provider.Provider.of<AuthProvider>(context, listen: false)
+            .loginWithCredentials(
+          phoneNumber: '+234$_phoneDigits',
+          password: _password,
+        );
+      }
+      if (!mounted) return;
+      _animateTo(AccountStep.accountCreatedSuccess);
+    } else {
+      _snack(
+          ref.read(onboardingProvider).error ??
+              'Failed to create PIN. Please try again.',
+          isError: true);
+    }
   }
 
   // ─── Validation ──────────────────────────────────────────────────────────────
@@ -3917,16 +4010,33 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       return;
     try {
       final image = await _cameraController!.takePicture();
+      final bytes = await image.readAsBytes();
       setState(() {
         _capturedImage = image.path;
         _cameraActive = false;
+        _isLoading = true;
       });
       _cameraController?.dispose();
       _cameraController = null;
-      // Navigate to password after face validation
-      if (mounted) _animateTo(AccountStep.createPassword);
+      final ok = await ref.read(onboardingProvider.notifier).validateFace(
+            capturedImageBase64: base64Encode(bytes),
+            livenessCheckPassed: true,
+          );
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      if (ok) {
+        _animateTo(AccountStep.createPassword);
+      } else {
+        _snack(
+            ref.read(onboardingProvider).error ??
+                'Face verification failed. Please try again.',
+            isError: true);
+      }
     } catch (e) {
-      setState(() => _cameraError = 'Failed to capture photo: $e');
+      setState(() {
+        _cameraError = 'Failed to capture photo: $e';
+        _isLoading = false;
+      });
     }
   }
 }
@@ -4047,10 +4157,10 @@ class _OFloatingFieldState extends State<_OFloatingField> {
               obscureText: widget.obscureText,
               readOnly: widget.readOnly,
               onChanged: widget.onChanged,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF101828),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               decoration: const InputDecoration(
                 border: InputBorder.none,

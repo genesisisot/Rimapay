@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/providers/language_provider.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_text_styles.dart';
 import '../../core/localization/app_localizations.dart';
 
 class UnderbankingBanner extends StatelessWidget {
@@ -48,14 +47,14 @@ class UnderbankingBanner extends StatelessWidget {
               children: [
                 Text(
                   localizations.underbankingAccount,
-                  style: AppTextStyles.body2.copyWith(
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     color: Theme.of(context).cardColor,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(
                   localizations.dailyLimit,
-                  style: AppTextStyles.caption.copyWith(
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
                     color: Colors.white.withOpacity(0.8),
                   ),
                 ),

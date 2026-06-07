@@ -813,7 +813,7 @@ class _SheetOption extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFFFAFBFC),
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: Theme.of(context).dividerColor),
         ),

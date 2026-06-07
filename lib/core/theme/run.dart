@@ -17,6 +17,7 @@ import 'dart:developer';
 import 'package:rimapay/core/Models/CountryStateLgaModel.dart';
 import 'package:rimapay/core/Utils/En.dart';
 import 'package:rimapay/core/services/GetPlaceDetailsService.dart';
+import 'package:rimapay/shared/widgets/rimapay_logo.dart';
 
 enum AccountStep {
   personalInfo,
@@ -232,8 +233,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow> with 
                         Row(
                           spacing: 10,
                           children: [
-                            Image.asset(
-                              "assets/images/mild.png",
+                            const RimapayLogo(
                               height: 30,
                               width: 30,
                             ),

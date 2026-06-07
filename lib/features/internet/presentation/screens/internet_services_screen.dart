@@ -62,7 +62,7 @@ class _InternetServicesScreenState extends State<InternetServicesScreen> {
                             margin: EdgeInsets.only(right: i < _providers.length - 1 ? 10 : 0),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             decoration: BoxDecoration(
-                              color: active ? p.color.withOpacity(0.1) : Colors.white,
+                              color: active ? p.color.withOpacity(0.1) : Theme.of(context).colorScheme.surface,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: active ? p.color : Theme.of(context).dividerColor,
@@ -119,7 +119,7 @@ class _InternetServicesScreenState extends State<InternetServicesScreen> {
                           duration: const Duration(milliseconds: 200),
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: active ? Color(0xFFE8F5ED) : Theme.of(context).cardColor,
+                            color: active ? Theme.of(context).colorScheme.surface.withOpacity(0.5) : Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: active ? Color(0xFF1A6B35) : Theme.of(context).dividerColor,

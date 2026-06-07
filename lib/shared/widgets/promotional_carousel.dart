@@ -4,7 +4,6 @@ import 'package:rimapay/core/router/app_router.dart';
 import '../../core/providers/language_provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
-import '../../core/theme/app_text_styles.dart';
 
 class CarouselSlide {
   final String id;
@@ -293,14 +292,14 @@ class _PromotionalCarouselState extends ConsumerState<PromotionalCarousel> with 
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
-                                child: Text(
-                                  ref.read(languageProvider).countryCode?.toUpperCase() ?? "en",
-                                  style: AppTextStyles.labelSmall.copyWith(
-                                    color: AppColors.primary500,
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 8,
+                                  child: Text(
+                                    ref.read(languageProvider).countryCode?.toUpperCase() ?? "en",
+                                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                      color: AppColors.primary500,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 8,
+                                    ),
                                   ),
-                                ),
                               ),
                             ),
                           ),
@@ -318,7 +317,7 @@ class _PromotionalCarouselState extends ConsumerState<PromotionalCarousel> with 
                       children: [
                         Text(
                           slide.title,
-                          style: AppTextStyles.labelMedium.copyWith(
+                          style: Theme.of(context).textTheme.titleSmall!.copyWith(
                             color: Theme.of(context).cardColor,
                             fontWeight: FontWeight.w700,
                           ),
@@ -328,7 +327,7 @@ class _PromotionalCarouselState extends ConsumerState<PromotionalCarousel> with 
                         const SizedBox(height: 2),
                         Text(
                           slide.description,
-                          style: AppTextStyles.bodySmall.copyWith(
+                          style: Theme.of(context).textTheme.bodySmall!.copyWith(
                             fontSize: 11,
                             color: Colors.white.withOpacity(0.8),
                           ),
@@ -357,7 +356,7 @@ class _PromotionalCarouselState extends ConsumerState<PromotionalCarousel> with 
                       children: [
                         Text(
                           slide.actionText,
-                          style: AppTextStyles.labelSmall.copyWith(
+                          style: Theme.of(context).textTheme.bodySmall!.copyWith(
                             color: Theme.of(context).cardColor,
                             fontWeight: FontWeight.w600,
                           ),

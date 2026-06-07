@@ -702,7 +702,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
                   decoration: BoxDecoration(
                     color: i == _step
                         ? const Color(0xFF3B82F6)
-                        : const Color(0xFFD1D5DB),
+                        : Theme.of(context).dividerColor,
                     borderRadius: BorderRadius.circular(999),
                   ),
                 )),
@@ -740,9 +740,9 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: const Color(0xFFEFF6FF),
+            color: Theme.of(context).colorScheme.surface.withOpacity(0.3),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFBFDBFE)),
+            border: Border.all(color: Theme.of(context).dividerColor),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -754,7 +754,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
                   note,
                   style: TextStyle(
                     fontSize: 13,
-                    color: Color(0xFF1D4ED8),
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                     fontFamily: 'Effra',
                     height: 1.4,
                   ),
@@ -1270,7 +1270,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
                 duration: const Duration(milliseconds: 150),
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                 decoration: BoxDecoration(
-                  color: selected ? color.withOpacity(0.08) : Colors.white,
+                    color: selected ? color.withOpacity(0.08) : Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: selected ? color : Theme.of(context).dividerColor,
@@ -1319,7 +1319,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
               border: Border.all(
                 color: selectedFile != null
                     ? color.withOpacity(0.3)
-                    : const Color(0xFFD1D5DB),
+                    : Theme.of(context).dividerColor,
                 width: 1.5,
                 strokeAlign: BorderSide.strokeAlignInside,
               ),
@@ -1386,7 +1386,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
                   : null,
               color: (selectedType != null && selectedFile != null)
                   ? null
-                  : const Color(0xFFD1D5DB),
+                  : Theme.of(context).colorScheme.onSurface.withOpacity(0.12),
               borderRadius: BorderRadius.circular(14),
               boxShadow: (selectedType != null && selectedFile != null)
                   ? [
@@ -1464,21 +1464,21 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: const Color(0xFFFFF7ED),
+            color: Theme.of(context).colorScheme.surface.withOpacity(0.3),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFFED7AA)),
+            border: Border.all(color: Theme.of(context).dividerColor),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Icon(Icons.schedule_rounded, size: 18, color: Color(0xFFea580c)),
               const SizedBox(width: 10),
-              const Expanded(
+              Expanded(
                 child: Text(
                   'Verification typically takes 1–2 business days. You will be notified once complete.',
                   style: TextStyle(
                     fontSize: 13,
-                    color: Color(0xFF9a3412),
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                     fontFamily: 'Effra',
                     height: 1.4,
                   ),

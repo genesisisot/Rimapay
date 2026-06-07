@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../../shared/widgets/noise_painter.dart';
+import '../../../../../shared/widgets/rimapay_logo.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -103,15 +104,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Image.asset(
-                        'assets/images/mild.png',
+                      RimapayLogo(
                         width: size.width * 0.44,
                         fit: BoxFit.fitWidth,
-                        errorBuilder: (_, __, ___) => const Icon(
-                          Icons.account_balance,
-                          color: Color(0xFFD4AF37),
-                          size: 80,
-                        ),
                       ),
                       const Spacer(),
                       Padding(

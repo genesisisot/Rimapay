@@ -95,12 +95,13 @@ class _SourceOfIncomeScreenState extends State<SourceOfIncomeScreen> {
       String title, List<String> options, void Function(String) onSelect) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
         height: 400,
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,7 +122,7 @@ class _SourceOfIncomeScreenState extends State<SourceOfIncomeScreen> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF111827),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 16),
@@ -133,7 +134,7 @@ class _SourceOfIncomeScreenState extends State<SourceOfIncomeScreen> {
                   return ListTile(
                     title: Text(option,
                         style: TextStyle(
-                            fontSize: 15, color: Color(0xFF111827))),
+                            fontSize: 15, color: Theme.of(context).colorScheme.onSurface)),
                     onTap: () {
                       onSelect(option);
                       Navigator.pop(ctx);

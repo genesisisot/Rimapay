@@ -104,7 +104,7 @@ class _TransportScreenState extends State<TransportScreen> {
                         margin: const EdgeInsets.only(bottom: 8),
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFFF2F7F3) : const Color(0xFFFAFBFC),
+                          color: isSelected ? const Color(0xFFF2F7F3) : Theme.of(context).colorScheme.surface,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: isSelected ? AppColors.goldPrimary.withOpacity(0.4) : Theme.of(context).dividerColor),
                         ),
@@ -153,7 +153,7 @@ class _TransportScreenState extends State<TransportScreen> {
                 margin: const EdgeInsets.only(bottom: 10),
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: _selectedOperator?.id == op.id ? const Color(0xFFF2F7F3) : const Color(0xFFFAFBFC),
+                  color: _selectedOperator?.id == op.id ? const Color(0xFFF2F7F3) : Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: _selectedOperator?.id == op.id ? Color(0xFF166C46).withOpacity(0.4) : Theme.of(context).dividerColor),
                 ),
@@ -432,7 +432,7 @@ class _TransportCTA extends StatelessWidget {
           width: double.infinity, height: 54,
           decoration: BoxDecoration(
             gradient: enabled ? AppColors.goldGradient : null,
-            color: enabled ? null : const Color(0xFFCCCCCC),
+            color: enabled ? null : Theme.of(context).colorScheme.onSurface.withOpacity(0.12),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Center(child: Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: enabled ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.4)))),

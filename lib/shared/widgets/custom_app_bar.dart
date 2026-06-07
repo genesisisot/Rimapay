@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_text_styles.dart';
 import '../../core/theme/app_spacing.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -37,7 +36,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       title: Text(
         title,
-        style: AppTextStyles.titleLarge.copyWith(
+        style: theme.textTheme.titleLarge!.copyWith(
           color: foregroundColor ?? theme.colorScheme.onSurface,
           fontWeight: FontWeight.w600,
         ),

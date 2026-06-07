@@ -1,0 +1,14 @@
+# Only build/web is served (see vercel.json outputDirectory). Keep the upload
+# lean by excluding everything not needed to serve the static web build.
+.dart_tool
+.idea
+android
+ios
+linux
+macos
+windows
+test
+.swagger_tmp
+*.iml
+.flutter-plugins
+.flutter-plugins-dependencies

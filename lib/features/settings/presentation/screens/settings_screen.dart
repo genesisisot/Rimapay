@@ -8,10 +8,11 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/providers/theme_provider.dart' show darkModeProvider;
+import '../../../../core/providers/theme_provider.dart';
 import '../../../../core/providers/auth_provider.dart';
 import '../../../../core/providers/language_provider.dart';
 import '../../../../shared/widgets/custom_app_bar.dart';
+import '../../../../shared/widgets/rimapay_logo.dart';
 
 
 enum SettingsModal {
@@ -144,7 +145,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
             ).animate().scale(delay: 50.ms),
             
             const SizedBox(width: 12),
-          Image.asset("assets/images/mild.png", height: 30, width: 30,),
+          const RimapayLogo(height: 30, width: 30),
             const SizedBox(width: 12),
             
             Text(
@@ -178,7 +179,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
 
   List<Widget> _buildSettingsSections() {
   final language = ref.watch(languageTranslationsProvider);
-  _darkMode = ref.watch(darkModeProvider);
+  _darkMode = ref.watch(themeProvider).isDarkMode;
    
     
     final settingsSections = [
@@ -239,7 +240,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
             toggleValue: _darkMode,
             onToggleChanged: (value) {
               HapticFeedback.lightImpact();
-              ref.read(darkModeProvider.notifier).state = value;
+              ref.read(themeProvider).setThemeMode(
+                value ? AppThemeMode.dark : AppThemeMode.light,
+              );
             },
           ),
           _SettingsItem(

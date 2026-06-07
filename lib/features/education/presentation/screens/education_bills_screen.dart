@@ -331,7 +331,7 @@ class _AmountDisplay extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF2F7F3),
+        color: Theme.of(context).colorScheme.primaryContainer,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFF166C46).withOpacity(0.2)),
       ),
@@ -397,7 +397,7 @@ class _ProviderSheet extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 10),
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: selected?.id == p.id ? const Color(0xFFF2F7F3) : const Color(0xFFFAFBFC),
+                color: selected?.id == p.id ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: selected?.id == p.id ? Color(0xFF166C46).withOpacity(0.4) : Theme.of(context).dividerColor,
@@ -459,7 +459,7 @@ class _ExamSheet extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 10),
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: selected?.id == e.id ? const Color(0xFFF2F7F3) : const Color(0xFFFAFBFC),
+                color: selected?.id == e.id ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: selected?.id == e.id ? Color(0xFF166C46).withOpacity(0.4) : Theme.of(context).dividerColor,
@@ -520,7 +520,7 @@ class _EduCTA extends StatelessWidget {
             gradient: enabled
                 ? AppColors.goldGradient
                 : null,
-            color: enabled ? null : const Color(0xFFCCCCCC),
+            color: enabled ? null : Theme.of(context).colorScheme.onSurface.withOpacity(0.12),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Center(

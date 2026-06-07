@@ -8,7 +8,7 @@ import 'package:rimapay/Utils/MyFlavorsConfig.dart';
 import 'core/providers/language_provider.dart';
 import 'core/providers/auth_provider.dart';
 import 'core/providers/transaction_provider.dart';
-import 'core/providers/theme_provider.dart' show darkModeProvider;
+import 'core/providers/theme_provider.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/services/storage_service.dart';
@@ -54,17 +54,14 @@ class RimaPayApp extends ConsumerStatefulWidget {
 class _RimaPayAppState extends ConsumerState<RimaPayApp> {
   @override
   void initState() {
-    RimaPayApp.globalRef = ref;
-
-    if (mounted) {
-      setState(() {});
-    }
     super.initState();
+    RimaPayApp.globalRef = ref;
+    Future.microtask(() => ref.read(themeProvider).initialize());
   }
 
   @override
   Widget build(BuildContext context) {
-    final isDark = ref.watch(darkModeProvider);
+    final theme = ref.watch(themeProvider);
     const currentLocale = Locale('en', '');
 
     return GestureDetector(
@@ -75,10 +72,10 @@ class _RimaPayAppState extends ConsumerState<RimaPayApp> {
         title: MyAppConfig.getAppTitle(),
         debugShowCheckedModeBanner: false,
 
-        // Theme — wired to darkModeProvider
+        // Theme — wired to themeProvider
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
-        themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+        themeMode: theme.materialThemeMode,
 
         // Routing
         routerConfig: AppRouter.router,
