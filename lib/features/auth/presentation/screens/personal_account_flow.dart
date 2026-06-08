@@ -689,6 +689,10 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                 const SizedBox(height: 24),
                 _buildNumPad(
                   onDigit: (d) {
+                    // The "+234" prefix already implies the trunk "0", so
+                    // swallow a leading 0 if the user types their full local
+                    // number (e.g. 0813… → keep the 10 significant digits).
+                    if (_phoneDigits.isEmpty && d == '0') return;
                     if (_phoneDigits.length < 10) {
                       setState(() => _phoneDigits += d);
                     }
@@ -718,7 +722,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     _personalInfo.phoneNumber = '0$_phoneDigits';
     setState(() => _isLoading = true);
     final ok = await ref.read(onboardingProvider.notifier).initiate(
-          phoneNumber: '+234$_phoneDigits',
+          phoneNumber: '0$_phoneDigits',
           email: _personalInfo.emailAddress.isNotEmpty
               ? _personalInfo.emailAddress
               : null,
@@ -726,12 +730,38 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     if (!mounted) return;
     setState(() => _isLoading = false);
     if (ok) {
-      _animateTo(AccountStep.otpVerification);
+      final st = ref.read(onboardingProvider);
+      if (st.justResumed) {
+        _snack('Resuming your application…');
+      }
+      _animateTo(_accountStepForOnboardingStep(st.currentStep));
     } else {
       _snack(
           ref.read(onboardingProvider).error ??
               'Failed to send verification code. Please try again.',
           isError: true);
+    }
+  }
+
+  /// Maps the onboarding provider's step (which may have advanced via a resumed
+  /// session) to the matching screen in this flow, so a returning user lands
+  /// exactly where they left off instead of always on the OTP screen.
+  AccountStep _accountStepForOnboardingStep(OnboardingStep step) {
+    switch (step) {
+      case OnboardingStep.initialEntry:
+        return AccountStep.phoneEntry;
+      case OnboardingStep.otpVerification:
+        return AccountStep.otpVerification;
+      case OnboardingStep.identitySubmission:
+        return AccountStep.idEntry;
+      case OnboardingStep.facialValidation:
+        return AccountStep.facialVerification;
+      case OnboardingStep.createPassword:
+        return AccountStep.createPassword;
+      case OnboardingStep.createPin:
+        return AccountStep.createPin;
+      case OnboardingStep.completed:
+        return AccountStep.accountCreatedSuccess;
     }
   }
 
@@ -3831,7 +3861,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       if (_password.isNotEmpty && mounted) {
         await legacy_provider.Provider.of<AuthProvider>(context, listen: false)
             .loginWithCredentials(
-          phoneNumber: '+234$_phoneDigits',
+          phoneNumber: '0$_phoneDigits',
           password: _password,
         );
       }

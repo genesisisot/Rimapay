@@ -43,6 +43,18 @@ enum OnboardingStage {
         (e) => e.name == s,
         orElse: () => OnboardingStage.initialDataEntry,
       );
+
+  /// Tolerant parse — the gateway returns the stage as either the enum NAME
+  /// (e.g. "OtpPending") or its integer INDEX (e.g. 0). Handle both.
+  static OnboardingStage fromJson(Object? raw) {
+    if (raw is int) {
+      return (raw >= 0 && raw < OnboardingStage.values.length)
+          ? OnboardingStage.values[raw]
+          : OnboardingStage.initialDataEntry;
+    }
+    if (raw is String) return fromString(raw);
+    return OnboardingStage.initialDataEntry;
+  }
 }
 
 enum OnboardingStatus {
@@ -57,6 +69,17 @@ enum OnboardingStatus {
         (e) => e.name == s,
         orElse: () => OnboardingStatus.inProgress,
       );
+
+  /// Tolerant parse — accepts the enum NAME or its integer INDEX.
+  static OnboardingStatus fromJson(Object? raw) {
+    if (raw is int) {
+      return (raw >= 0 && raw < OnboardingStatus.values.length)
+          ? OnboardingStatus.values[raw]
+          : OnboardingStatus.inProgress;
+    }
+    if (raw is String) return fromString(raw);
+    return OnboardingStatus.inProgress;
+  }
 }
 
 // ── Initiate ────────────────────────────────────────────────────────────────
@@ -114,21 +137,21 @@ class InitiateOnboardingResponse {
     this.message,
   });
 
-  factory InitiateOnboardingResponse.fromJson(Map<String, dynamic> json) =>
-      InitiateOnboardingResponse(
-        sessionId: json['sessionId'] as String,
-        currentStage:
-            OnboardingStage.fromString(json['currentStage'] as String),
-        otpReference: json['otpReference'] as String?,
-        maskedDestination: json['maskedDestination'] as String?,
-        otpExpiresAt: json['otpExpiresAt'] != null
-            ? DateTime.parse(json['otpExpiresAt'] as String)
-            : null,
-        firstName: json['firstName'] as String?,
-        lastName: json['lastName'] as String?,
-        expiresAt: DateTime.parse(json['expiresAt'] as String),
-        message: json['message'] as String?,
-      );
+  factory InitiateOnboardingResponse.fromJson(Map<String, dynamic> json) {
+    return InitiateOnboardingResponse(
+      sessionId: json['sessionId'] as String,
+      currentStage: OnboardingStage.fromJson(json['currentStage']),
+      otpReference: json['otpReference'] as String?,
+      maskedDestination: json['maskedDestination'] as String?,
+      otpExpiresAt: json['otpExpiresAt'] != null
+          ? DateTime.parse(json['otpExpiresAt'] as String)
+          : null,
+      firstName: json['firstName'] as String?,
+      lastName: json['lastName'] as String?,
+      expiresAt: DateTime.parse(json['expiresAt'] as String),
+      message: json['message'] as String?,
+    );
+  }
 }
 
 // ── Verify OTP ──────────────────────────────────────────────────────────────
@@ -170,7 +193,7 @@ class VerifyOnboardingOtpResponse {
       VerifyOnboardingOtpResponse(
         sessionId: json['sessionId'] as String,
         currentStage:
-            OnboardingStage.fromString(json['currentStage'] as String),
+            OnboardingStage.fromJson(json['currentStage']),
         isVerified: json['isVerified'] == true,
         facialValidationHint: json['facialValidationHint'] as String?,
         message: json['message'] as String?,
@@ -226,7 +249,7 @@ class SubmitIdentityResponse {
       SubmitIdentityResponse(
         sessionId: json['sessionId'] as String,
         currentStage:
-            OnboardingStage.fromString(json['currentStage'] as String),
+            OnboardingStage.fromJson(json['currentStage']),
         firstName: json['firstName'] as String?,
         lastName: json['lastName'] as String?,
         message: json['message'] as String?,
@@ -273,7 +296,7 @@ class FacialValidationResponse {
       FacialValidationResponse(
         sessionId: json['sessionId'] as String,
         currentStage:
-            OnboardingStage.fromString(json['currentStage'] as String),
+            OnboardingStage.fromJson(json['currentStage']),
         isMatch: json['isMatch'] == true,
         confidenceScore: (json['confidenceScore'] as num).toDouble(),
         message: json['message'] as String?,
@@ -323,7 +346,7 @@ class CreatePasswordResponse {
       CreatePasswordResponse(
         sessionId: json['sessionId'] as String,
         currentStage:
-            OnboardingStage.fromString(json['currentStage'] as String),
+            OnboardingStage.fromJson(json['currentStage']),
         identityUserId: json['identityUserId'] as String?,
         profileCreated: json['profileCreated'] == true,
         coreBankingAccountPending: json['coreBankingAccountPending'] == true,
@@ -373,7 +396,7 @@ class CreatePinResponse {
       CreatePinResponse(
         sessionId: json['sessionId'] as String,
         finalStage:
-            OnboardingStage.fromString(json['finalStage'] as String),
+            OnboardingStage.fromJson(json['finalStage']),
         identityUserId: json['identityUserId'] as String,
         accountNumber: json['accountNumber'] as String?,
         isOnboardingComplete: json['isOnboardingComplete'] == true,
@@ -425,8 +448,8 @@ class OnboardingStatusResponse {
         hasActiveSession: json['hasActiveSession'] == true,
         sessionId: json['sessionId'] as String?,
         currentStage:
-            OnboardingStage.fromString(json['currentStage'] as String),
-        status: OnboardingStatus.fromString(json['status'] as String),
+            OnboardingStage.fromJson(json['currentStage']),
+        status: OnboardingStatus.fromJson(json['status']),
         canResume: json['canResume'] == true,
         expiresAt: json['expiresAt'] != null
             ? DateTime.parse(json['expiresAt'] as String)
@@ -480,8 +503,8 @@ class ResumeOnboardingResponse {
       ResumeOnboardingResponse(
         sessionId: json['sessionId'] as String,
         currentStage:
-            OnboardingStage.fromString(json['currentStage'] as String),
-        status: OnboardingStatus.fromString(json['status'] as String),
+            OnboardingStage.fromJson(json['currentStage']),
+        status: OnboardingStatus.fromJson(json['status']),
         firstName: json['firstName'] as String?,
         lastName: json['lastName'] as String?,
         requiresOtpResend: json['requiresOtpResend'] == true,
@@ -583,8 +606,8 @@ class OnboardingSessionState {
       OnboardingSessionState(
         sessionId: json['sessionId'] as String,
         currentStage:
-            OnboardingStage.fromString(json['currentStage'] as String),
-        status: OnboardingStatus.fromString(json['status'] as String),
+            OnboardingStage.fromJson(json['currentStage']),
+        status: OnboardingStatus.fromJson(json['status']),
         phoneNumber: json['phoneNumber'] as String?,
         email: json['email'] as String?,
         identityNumber: json['identityNumber'] as String?,

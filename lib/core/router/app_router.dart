@@ -14,6 +14,7 @@ import 'package:rimapay/features/add_money/presentation/screens/add_money_screen
 import 'package:rimapay/features/airtime/presentation/screens/airtime_purchase_screen.dart';
 import 'package:rimapay/features/airtime_cash/presentation/screens/airtime_cash_screen.dart';
 import 'package:rimapay/features/auth/presentation/screens/business_account_flow.dart';
+import 'package:rimapay/features/auth/presentation/screens/forgot_password_screen.dart';
 import 'package:rimapay/features/auth/presentation/screens/personal_account_flow.dart';
 import 'package:rimapay/features/bills/presentation/screens/bill_payments_screen.dart';
 import 'package:rimapay/features/cable/presentation/screens/cable_purchase_screen.dart';
@@ -101,6 +102,12 @@ class AppRouter {
         name: 'business-account',
         pageBuilder: (context, state) =>
             _fadePage(state, BusinessAccountFlow()),
+      ),
+      GoRoute(
+        path: '/forgot-password',
+        name: 'forgot-password',
+        pageBuilder: (context, state) =>
+            _fadePage(state, const ForgotPasswordScreen()),
       ),
       // Profile completion routes
       GoRoute(

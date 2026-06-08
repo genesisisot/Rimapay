@@ -50,6 +50,11 @@ class OnboardingState {
   final bool pinCreated;
   final bool onboardingComplete;
 
+  /// True when the current step was reached by resuming an existing server
+  /// session (ACTIVE_SESSION_EXISTS / check-status), so the UI can show a
+  /// "Resuming…" hint and navigate to the resumed step.
+  final bool justResumed;
+
   const OnboardingState({
     this.isLoading = false,
     this.error,
@@ -70,6 +75,7 @@ class OnboardingState {
     this.identityUserId,
     this.pinCreated = false,
     this.onboardingComplete = false,
+    this.justResumed = false,
   });
 
   OnboardingState copyWith({
@@ -92,6 +98,7 @@ class OnboardingState {
     String? identityUserId,
     bool? pinCreated,
     bool? onboardingComplete,
+    bool? justResumed,
   }) {
     return OnboardingState(
       isLoading: isLoading ?? this.isLoading,
@@ -113,6 +120,7 @@ class OnboardingState {
       identityUserId: identityUserId ?? this.identityUserId,
       pinCreated: pinCreated ?? this.pinCreated,
       onboardingComplete: onboardingComplete ?? this.onboardingComplete,
+      justResumed: justResumed ?? this.justResumed,
     );
   }
 }
@@ -153,8 +161,14 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
         otpExpiresAt: d.otpExpiresAt,
         firstName: d.firstName,
         lastName: d.lastName,
+        justResumed: false,
       );
       return true;
+    }
+    if (!res.isSuccess &&
+        res.errorCode == 'ACTIVE_SESSION_EXISTS' &&
+        res.data != null) {
+      return await _resumeSession(res.data!.sessionId);
     }
     state = state.copyWith(isLoading: false, error: res.errorMessage);
     return false;
@@ -370,29 +384,43 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     if (res.isSuccess && res.data != null) {
       final d = res.data!;
       final step = _mapStageToStep(d.currentStage);
+      final landsOnOtp = step == OnboardingStep.otpVerification;
       state = state.copyWith(
         isLoading: false,
         sessionId: d.sessionId,
         currentStep: step,
         firstName: d.firstName,
         lastName: d.lastName,
-        otpVerified: step != OnboardingStep.otpVerification,
+        otpVerified: !landsOnOtp,
+        justResumed: true,
       );
-      if (d.requiresOtpResend) {
+      // If the session is back at the OTP stage, the old otpReference is gone
+      // (e.g. fresh app load) — request a new code so the OTP screen works.
+      if (landsOnOtp || d.requiresOtpResend) {
         await resendOtp();
       }
       return true;
     }
+    state = state.copyWith(
+      isLoading: false,
+      error: res.errorMessage.isNotEmpty
+          ? res.errorMessage
+          : 'Couldn\'t resume your existing application. Please try again shortly.',
+    );
     return false;
   }
 
   OnboardingStep _mapStageToStep(OnboardingStage stage) {
     return switch (stage) {
+      // An ACTIVE session sitting at any pre-OTP / OTP stage means the phone is
+      // already captured and a code is (or should be) out — land on the OTP
+      // screen rather than bouncing back to phone entry (which would re-trigger
+      // ACTIVE_SESSION_EXISTS).
       OnboardingStage.initialDataEntry ||
       OnboardingStage.identityVerification ||
       OnboardingStage.phoneNumberVerification ||
       OnboardingStage.otpPending =>
-        OnboardingStep.initialEntry,
+        OnboardingStep.otpVerification,
       OnboardingStage.otpVerified => OnboardingStep.identitySubmission,
       OnboardingStage.facialValidationPending =>
         OnboardingStep.facialValidation,

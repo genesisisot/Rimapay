@@ -391,7 +391,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                         ),
                         prefixWidth: 72,
                         onChanged: (v) => setState(
-                            () => _loginForm['phoneNumber'] = '+234$v'),
+                            () => _loginForm['phoneNumber'] = '0$v'),
                       ),
                       const SizedBox(height: 18),
 
@@ -417,11 +417,11 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: GestureDetector(
-                          onTap: () {},
-                          child: const Text('Forgot Password?',
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: GestureDetector(
+                            onTap: () => context.push('/forgot-password'),
+                            child: const Text('Forgot Password?',
                               style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
@@ -1120,7 +1120,7 @@ class _LinkDeviceSheetState extends State<_LinkDeviceSheet> {
               SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Use the phone number registered on your existing RimaPay account.',
+                  'Use your account number to link your existing RimaPay account.',
                   style: TextStyle(
                       fontSize: 12, color: Color(0xFF78350F), height: 1.4),
                 ),
@@ -1129,7 +1129,7 @@ class _LinkDeviceSheetState extends State<_LinkDeviceSheet> {
           ),
         ),
         const SizedBox(height: 20),
-        Text('Registered Phone Number',
+        Text('Account Number',
             style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -1137,33 +1137,11 @@ class _LinkDeviceSheetState extends State<_LinkDeviceSheet> {
         const SizedBox(height: 8),
         TextField(
           controller: _phoneCtrl,
-          keyboardType: TextInputType.phone,
+          keyboardType: TextInputType.text,
           style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSurface),
           decoration: InputDecoration(
-            hintText: '801 234 5678',
+            hintText: 'e.g. 1234567890',
             hintStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), fontSize: 14),
-            prefixIcon: Padding(
-              padding: const EdgeInsets.only(left: 12),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    '+234',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  SizedBox(
-                    width: 1,
-                    height: 18,
-                    child: ColoredBox(color: Theme.of(context).dividerColor),
-                  ),
-                ],
-              ),
-            ),
             filled: true,
             fillColor: Theme.of(context).colorScheme.surface,
             contentPadding:
@@ -1228,12 +1206,7 @@ class _LinkDeviceSheetState extends State<_LinkDeviceSheet> {
           text: TextSpan(
             style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
             children: [
-              const TextSpan(text: 'Code sent to '),
-              TextSpan(
-                text: _phoneCtrl.text.trim(),
-                style: const TextStyle(
-                    fontWeight: FontWeight.w700, color: Color(0xFF166C46)),
-              ),
+              const TextSpan(text: 'Code sent to your registered phone number'),
             ],
           ),
         ),

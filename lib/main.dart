@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' hide ChangeNotifierProvider;
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
 import 'package:rimapay/Utils/MyFlavorsConfig.dart';
 
 import 'core/providers/language_provider.dart';
@@ -68,37 +69,40 @@ class _RimaPayAppState extends ConsumerState<RimaPayApp> {
       onTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
       },
-      child: MaterialApp.router(
-        title: MyAppConfig.getAppTitle(),
-        debugShowCheckedModeBanner: false,
+      child: ChangeNotifierProvider<AuthProvider>(
+        create: (_) => AuthProvider(),
+        child: MaterialApp.router(
+          title: MyAppConfig.getAppTitle(),
+          debugShowCheckedModeBanner: false,
 
-        // Theme — wired to themeProvider
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: theme.materialThemeMode,
+          // Theme — wired to themeProvider
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: theme.materialThemeMode,
 
-        // Routing
-        routerConfig: AppRouter.router,
+          // Routing
+          routerConfig: AppRouter.router,
 
-        // Localization - Use English for Material components
-        locale: currentLocale,
-        localizationsDelegates: const [
-          // Only include English Material localizations to avoid conflicts
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          // Your custom app localizations if you have them
-          // AppLocalizations.delegate,
-        ],
+          // Localization - Use English for Material components
+          locale: currentLocale,
+          localizationsDelegates: const [
+            // Only include English Material localizations to avoid conflicts
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            // Your custom app localizations if you have them
+            // AppLocalizations.delegate,
+          ],
 
-        // Supported locales - keep it simple
-        supportedLocales: AppLocalizationsExtension.supportedLocales,
+          // Supported locales - keep it simple
+          supportedLocales: AppLocalizationsExtension.supportedLocales,
 
-        // Fallback locale
-        localeResolutionCallback: (locale, supportedLocales) {
-          // Always return English as fallback
-          return const Locale('en', '');
-        },
+          // Fallback locale
+          localeResolutionCallback: (locale, supportedLocales) {
+            // Always return English as fallback
+            return const Locale('en', '');
+          },
+        ),
       ),
     );
   }
