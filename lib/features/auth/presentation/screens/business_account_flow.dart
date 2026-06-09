@@ -504,7 +504,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                 const SizedBox(height: 24),
                 _buildNumPad(
                   onDigit: (d) {
-                    if (_phoneDigits.length < 10) {
+                    if (_phoneDigits.length < 11) {
                       setState(() => _phoneDigits += d);
                     }
                   },
@@ -522,11 +522,14 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
         _buildCTA(
           label: 'Continue',
           onTap: () {
-            if (_phoneDigits.length == 10) {
-              _businessInfo.phoneNumber = '0$_phoneDigits';
+            final phoneNum = _phoneDigits.startsWith('0')
+                ? _phoneDigits
+                : '0$_phoneDigits';
+            if (phoneNum.length >= 11) {
+              _businessInfo.phoneNumber = phoneNum;
               _nextStep();
             } else {
-              _snack('Please enter a valid 10-digit phone number',
+              _snack('Please enter a valid 11-digit phone number',
                   isError: true);
             }
           },
@@ -1847,7 +1850,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
 
   Widget _buildSuccessStep() {
     final accountNumber =
-        _phoneDigits.isNotEmpty ? '0$_phoneDigits' : '08XXXXXXXXX';
+        _phoneDigits.startsWith('0') ? _phoneDigits : '0$_phoneDigits';
     return Stack(
       key: const ValueKey('success'),
       children: [

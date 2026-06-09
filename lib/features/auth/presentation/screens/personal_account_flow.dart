@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,6 +26,10 @@ import 'package:rimapay/core/services/GetPlaceDetailsService.dart';
 import 'package:rimapay/shared/widgets/noise_painter.dart';
 import 'package:rimapay/shared/widgets/rimapay_logo.dart';
 import 'package:rimapay/core/theme/app_colors.dart';
+
+/// Temporary build marker so we can confirm which deployment is actually
+/// running in the browser (shown tiny under the phone-step button).
+const String kBuildTag = 'build #9 · 2026-06-09';
 
 // ─── Step enum ───────────────────────────────────────────────────────────────
 
@@ -689,11 +694,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                 const SizedBox(height: 24),
                 _buildNumPad(
                   onDigit: (d) {
-                    // The "+234" prefix already implies the trunk "0", so
-                    // swallow a leading 0 if the user types their full local
-                    // number (e.g. 0813… → keep the 10 significant digits).
-                    if (_phoneDigits.isEmpty && d == '0') return;
-                    if (_phoneDigits.length < 10) {
+                    if (_phoneDigits.length < 11) {
                       setState(() => _phoneDigits += d);
                     }
                   },
@@ -709,20 +710,28 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           ),
         ),
         _buildCTA(
-            label: 'Continue →', loading: _isLoading, onTap: _onPhoneContinue),
+          label: 'Continue →',
+          loading: _isLoading,
+          onTap: _onPhoneContinue,
+          footerContent: Text(
+            kBuildTag,
+            style: const TextStyle(fontSize: 10, color: Color(0xFFB0B7C3)),
+          ),
+        ),
       ],
     );
   }
 
   void _onPhoneContinue() async {
-    if (_phoneDigits.length != 10) {
+    final phoneNum = _phoneDigits.startsWith('0') ? _phoneDigits : '0$_phoneDigits';
+    if (phoneNum.length < 11) {
       _snack('Enter a valid phone number.', isError: true);
       return;
     }
-    _personalInfo.phoneNumber = '0$_phoneDigits';
+    _personalInfo.phoneNumber = phoneNum;
     setState(() => _isLoading = true);
-    final ok = await ref.read(onboardingProvider.notifier).initiate(
-          phoneNumber: '0$_phoneDigits',
+    final ok = await ref.read(onboardingProvider.notifier).beginOnboarding(
+          phoneNumber: phoneNum,
           email: _personalInfo.emailAddress.isNotEmpty
               ? _personalInfo.emailAddress
               : null,
@@ -731,7 +740,11 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     setState(() => _isLoading = false);
     if (ok) {
       final st = ref.read(onboardingProvider);
-      if (st.justResumed) {
+      // Surface a resume/resend problem (e.g. backend resend-otp failing)
+      // rather than hiding it behind a "Resuming…" toast on a code-less screen.
+      if (st.error != null) {
+        _snack(st.error!, isError: true);
+      } else if (st.justResumed) {
         _snack('Resuming your application…');
       }
       _animateTo(_accountStepForOnboardingStep(st.currentStep));
@@ -1162,8 +1175,10 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       }
     }
     // Store phone if filled
-    if (_phoneDigits.length == 10) {
-      _personalInfo.phoneNumber = '0$_phoneDigits';
+    if (_phoneDigits.length >= 10) {
+      _personalInfo.phoneNumber = _phoneDigits.startsWith('0')
+          ? _phoneDigits
+          : '0$_phoneDigits';
     }
 
     // Navigate regardless of validation
@@ -2828,14 +2843,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           ),
           _buildCTA(
             label: _cameraActive ? 'Take Photo' : 'Start Camera',
-            onTap: _cameraActive
-                ? _capturePhoto
-                : _requestCameraPermission,
-            footerContent: TextButton(
-              onPressed: () => _animateTo(AccountStep.createPassword),
-              child: const Text('Skip for now',
-                  style: TextStyle(color: Color(0xFF6B7280), fontSize: 13)),
-            ),
+            onTap: _cameraActive ? _capturePhoto : _requestCameraPermission,
           ),
         ],
       );
@@ -2978,13 +2986,6 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextButton(
-                        onPressed: () => _animateTo(AccountStep.createPassword),
-                        child: const Text('Skip for now',
-                            style: TextStyle(
-                                color: Color(0xFF6B7280), fontSize: 13)),
                       ),
                     ],
                   ),
@@ -3859,9 +3860,10 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       // user lands signed in. Safe to ignore failures (e.g. missing client
       // secret) — they can still sign in from the login screen.
       if (_password.isNotEmpty && mounted) {
+        final phoneNum = _phoneDigits.startsWith('0') ? _phoneDigits : '0$_phoneDigits';
         await legacy_provider.Provider.of<AuthProvider>(context, listen: false)
             .loginWithCredentials(
-          phoneNumber: '0$_phoneDigits',
+          phoneNumber: phoneNum,
           password: _password,
         );
       }
@@ -4008,7 +4010,11 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       final front = cameras.firstWhere(
           (c) => c.lensDirection == CameraLensDirection.front,
           orElse: () => cameras.first);
-      _cameraController = CameraController(front, ResolutionPreset.medium);
+      _cameraController = CameraController(
+        front,
+        ResolutionPreset.medium,
+        enableAudio: false, // face capture only — avoids mic prompt/failure on web
+      );
       await _cameraController!.initialize();
       if (mounted)
         setState(() {
@@ -4024,6 +4030,12 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   }
 
   Future<void> _requestCameraPermission() async {
+    // On web there is no permission_handler camera flow — the browser shows its
+    // own permission prompt when the camera stream starts. Go straight to init.
+    if (kIsWeb) {
+      await _initializeCamera();
+      return;
+    }
     final status = await Permission.camera.request();
     if (status.isGranted) {
       await _initializeCamera();
@@ -4055,6 +4067,14 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       if (!mounted) return;
       setState(() => _isLoading = false);
       if (ok) {
+        final st = ref.read(onboardingProvider);
+        final c = st.confidenceScore;
+        String pct = '';
+        if (c != null) {
+          final v = c <= 1 ? c * 100 : c;
+          pct = ' • ${v.clamp(0, 100).toStringAsFixed(0)}% match';
+        }
+        _snack(st.facialMatch ? 'Face matched ✓$pct' : 'Face captured$pct');
         _animateTo(AccountStep.createPassword);
       } else {
         _snack(

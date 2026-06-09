@@ -134,6 +134,29 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
 
   final OnboardingApiService _api;
 
+  /// Entry point for the phone step. Decides whether to resume an existing
+  /// session or start a fresh one, using check-status so we only ever call
+  /// `resume` when the backend says `canResume` (per backend guidance — don't
+  /// call resume on a non-resumable session).
+  Future<bool> beginOnboarding({
+    required String phoneNumber,
+    String? email,
+  }) async {
+    state = state.copyWith(isLoading: true, error: null);
+    final status = await _api.checkStatus(
+      CheckOnboardingStatusRequest(phoneNumber: phoneNumber),
+    );
+    if (status.isSuccess && status.data != null) {
+      final s = status.data!;
+      if (s.hasActiveSession && s.canResume && s.sessionId != null) {
+        return await _resumeSession(s.sessionId!);
+      }
+      // No session, or it can't be resumed → start a fresh one.
+    }
+    // check-status failed (network) or there's nothing to resume → initiate.
+    return await initiate(phoneNumber: phoneNumber, email: email);
+  }
+
   /// Step 1: Initiate onboarding (BVN/NIN + phone -> OTP sent).
   Future<bool> initiate({
     required String phoneNumber,
@@ -165,10 +188,20 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       );
       return true;
     }
-    if (!res.isSuccess &&
-        res.errorCode == 'ACTIVE_SESSION_EXISTS' &&
-        res.data != null) {
-      return await _resumeSession(res.data!.sessionId);
+    if (!res.isSuccess) {
+      if (res.errorCode == 'ACTIVE_SESSION_EXISTS' && res.data != null) {
+        return await _resumeSession(res.data!.sessionId);
+      }
+      if (res.errorCode == 'CANNOT_RESUME') {
+        state = state.copyWith(
+          isLoading: false,
+          error: res.errorMessage,
+          currentStep: OnboardingStep.initialEntry,
+          sessionId: null,
+          otpReference: null,
+        );
+        return false;
+      }
     }
     state = state.copyWith(isLoading: false, error: res.errorMessage);
     return false;
@@ -276,15 +309,15 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     ));
     if (res.isSuccess && res.data != null) {
       final d = res.data!;
+      // The backend accepted and processed the face → move on to the next step.
+      // (isMatch + confidenceScore are kept so the UI can show the result.)
       state = state.copyWith(
         isLoading: false,
         facialMatch: d.isMatch,
         confidenceScore: d.confidenceScore,
-        currentStep: d.isMatch
-            ? OnboardingStep.createPassword
-            : OnboardingStep.facialValidation,
+        currentStep: OnboardingStep.createPassword,
       );
-      return d.isMatch;
+      return true;
     }
     state = state.copyWith(isLoading: false, error: res.errorMessage);
     return false;
@@ -394,12 +427,24 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
         otpVerified: !landsOnOtp,
         justResumed: true,
       );
-      // If the session is back at the OTP stage, the old otpReference is gone
-      // (e.g. fresh app load) — request a new code so the OTP screen works.
-      if (landsOnOtp || d.requiresOtpResend) {
+      // Only request a fresh OTP when the resumed session is actually back at
+      // the OTP step (resume never returns an otpReference). For later stages
+      // (identity/face/password/pin) the backend rejects resend with
+      // "Cannot resend OTP at current stage", so never call it there.
+      if (landsOnOtp) {
         await resendOtp();
       }
       return true;
+    }
+    if (res.errorCode == 'CANNOT_RESUME') {
+      state = state.copyWith(
+        isLoading: false,
+        error: res.errorMessage,
+        currentStep: OnboardingStep.initialEntry,
+        sessionId: null,
+        otpReference: null,
+      );
+      return false;
     }
     state = state.copyWith(
       isLoading: false,

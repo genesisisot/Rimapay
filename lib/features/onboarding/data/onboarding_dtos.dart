@@ -40,7 +40,9 @@ enum OnboardingStage {
 
   static OnboardingStage fromString(String s) =>
       OnboardingStage.values.firstWhere(
-        (e) => e.name == s,
+        // Backend sends PascalCase ("FacialValidationPending"); enum names are
+        // camelCase. Compare case-insensitively so stages map correctly.
+        (e) => e.name.toLowerCase() == s.toLowerCase(),
         orElse: () => OnboardingStage.initialDataEntry,
       );
 
@@ -66,7 +68,7 @@ enum OnboardingStatus {
 
   static OnboardingStatus fromString(String s) =>
       OnboardingStatus.values.firstWhere(
-        (e) => e.name == s,
+        (e) => e.name.toLowerCase() == s.toLowerCase(),
         orElse: () => OnboardingStatus.inProgress,
       );
 
