@@ -1,33 +1,71 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class PepDeclarationScreen extends StatefulWidget {
+import '../../data/profile_dtos.dart';
+import '../providers/profile_provider.dart';
+
+class PepDeclarationScreen extends ConsumerStatefulWidget {
   const PepDeclarationScreen({super.key});
 
   @override
-  State<PepDeclarationScreen> createState() => _PepDeclarationScreenState();
+  ConsumerState<PepDeclarationScreen> createState() =>
+      _PepDeclarationScreenState();
 }
 
-class _PepDeclarationScreenState extends State<PepDeclarationScreen> {
+class _PepDeclarationScreenState extends ConsumerState<PepDeclarationScreen> {
   bool? _isPep;
+  bool _saving = false;
 
-  void _showSuccessAndPop() {
-    Navigator.of(context).pushReplacement(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            _CompletionSuccessScreen(
-          title: 'PEP Declaration',
-          message: 'Your declaration has been saved successfully.',
-          onComplete: () {
-            context.pop(true);
-          },
+  Future<void> _saveAndShowSuccess() async {
+    if (_isPep == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select an option'),
+          backgroundColor: Colors.red,
         ),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(opacity: animation, child: child);
-        },
-        transitionDuration: const Duration(milliseconds: 300),
-      ),
-    );
+      );
+      return;
+    }
+
+    setState(() => _saving = true);
+
+    final request = PepCompletionRequest(isPep: _isPep!);
+    final success = await ref
+        .read(profileProvider.notifier)
+        .completePep(request);
+
+    setState(() => _saving = false);
+
+    if (!mounted) return;
+
+    if (success) {
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              _CompletionSuccessScreen(
+            title: 'PEP Declaration',
+            message: 'Your declaration has been saved successfully.',
+            onComplete: () {
+              context.pop(true);
+            },
+          ),
+          transitionsBuilder:
+              (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 300),
+        ),
+      );
+    } else {
+      final error = ref.read(profileProvider).error;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error ?? 'Failed to save declaration'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -175,38 +213,37 @@ class _PepDeclarationScreenState extends State<PepDeclarationScreen> {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: GestureDetector(
-        onTap: () {
-          if (_isPep == null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Please select an option'),
-                backgroundColor: Colors.red,
+          onTap: _saving ? null : _saveAndShowSuccess,
+          child: Container(
+            width: double.infinity,
+            height: 54,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF166C46), Color(0xFF0B4F2F)],
               ),
-            );
-            return;
-          }
-          _showSuccessAndPop();
-        },
-        child: Container(
-          width: double.infinity,
-          height: 54,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF166C46), Color(0xFF0B4F2F)],
+              borderRadius: BorderRadius.circular(12),
             ),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Center(
-            child: Text(
-              'Continue →',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).cardColor,
-              ),
+            child: Center(
+              child: _saving
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : Text(
+                      'Continue →',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).cardColor,
+                      ),
+                    ),
             ),
           ),
-        ),
       ),
     );
   }

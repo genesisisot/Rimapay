@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import '../../../core/providers/auth_provider.dart';
 
 const Color brandGreen = Color(0xFF1A6B35);
 const Color darkGreen = Color(0xFF155C2C);
@@ -21,14 +23,14 @@ class DashboardScreen extends StatelessWidget {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
-            children: const [
-              _HeaderSection(),
-              _BalanceCard(),
-              _ActionButtons(),
-              _QuickServices(),
-              _BannerCarousel(),
-              _RecentTransactions(),
-              SizedBox(height: 24),
+            children: [
+              const _HeaderSection(),
+              const _BalanceCard(),
+              const _ActionButtons(),
+              const _QuickServices(),
+              const _BannerCarousel(),
+              const _RecentTransactions(),
+              const SizedBox(height: 24),
             ],
           ),
         ),
@@ -176,9 +178,13 @@ class _HeaderSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    final user = auth.user;
     final textDark = Theme.of(context).colorScheme.onSurface;
     final textGray = Theme.of(context).colorScheme.onSurface.withOpacity(0.55);
     final iconBg = Theme.of(context).colorScheme.onSurface.withOpacity(0.07);
+    final hour = DateTime.now().hour;
+    final greeting = hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening';
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
@@ -197,11 +203,11 @@ class _HeaderSection extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Good Morning 👋',
+                    '$greeting 👋',
                     style: GoogleFonts.dmSans(fontSize: 13, color: textGray),
                   ),
                   Text(
-                    'Mustapha',
+                    user?.firstName ?? 'User',
                     style: TextStyle(
                       fontFamily: 'Effra',
                       fontSize: 18,
@@ -286,6 +292,16 @@ class _BalanceCardState extends State<_BalanceCard> {
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    final user = auth.user;
+    final balance = user?.balance ?? 0.0;
+    final formattedBalance = '₦${balance.toStringAsFixed(2)}';
+    final accountNumber = user?.accountNumber ?? '';
+    final displayAccount = accountNumber.isNotEmpty
+        ? '${accountNumber.substring(0, 4)} ${accountNumber.substring(4, 8)} ${accountNumber.substring(8)}'
+        : '';
+    final tierName = user?.tierName ?? 'Basic Tier';
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
@@ -324,7 +340,7 @@ class _BalanceCardState extends State<_BalanceCard> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  _balanceVisible ? '₦15,750.00' : '••••••',
+                  _balanceVisible ? formattedBalance : '••••••',
                   style: const TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.w700,
@@ -332,32 +348,33 @@ class _BalanceCardState extends State<_BalanceCard> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                GestureDetector(
-                  onTap: () {
-                    Clipboard.setData(const ClipboardData(text: '2138547690'));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('Account number copied'),
-                        behavior: SnackBarBehavior.floating,
-                        duration: const Duration(seconds: 2),
-                        backgroundColor: const Color(0xFF155C2C),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                      ),
-                    );
-                  },
-                  child: const Row(
-                    children: [
-                      Text('Account No. 2138 5476 90',
-                          style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w400,
-                              color: Color(0xFFAAAAAA))),
-                      SizedBox(width: 6),
-                      Icon(Icons.copy_outlined, color: Colors.white54, size: 14),
-                    ],
+                if (accountNumber.isNotEmpty)
+                  GestureDetector(
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: accountNumber));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('Account number copied'),
+                          behavior: SnackBarBehavior.floating,
+                          duration: const Duration(seconds: 2),
+                          backgroundColor: const Color(0xFF155C2C),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                        ),
+                      );
+                    },
+                    child: Row(
+                      children: [
+                        Text('Account No. $displayAccount',
+                            style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w400,
+                                color: Color(0xFFAAAAAA))),
+                        const SizedBox(width: 6),
+                        const Icon(Icons.copy_outlined, color: Colors.white54, size: 14),
+                      ],
+                    ),
                   ),
-                ),
               ],
             ),
             Row(
@@ -370,12 +387,12 @@ class _BalanceCardState extends State<_BalanceCard> {
                     color: const Color.fromRGBO(255, 255, 255, 0.15),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Text('⭐', style: TextStyle(fontSize: 12)),
-                      SizedBox(width: 4),
-                      Text('Basic Tier',
-                          style: TextStyle(
+                      const Text('⭐', style: TextStyle(fontSize: 12)),
+                      const SizedBox(width: 4),
+                      Text(tierName,
+                          style: const TextStyle(
                               fontFamily: 'Effra',
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -508,7 +525,6 @@ class _QuickServices extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textDark = Theme.of(context).colorScheme.onSurface;
-    final textGray = Theme.of(context).colorScheme.onSurface.withOpacity(0.55);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
@@ -904,7 +920,6 @@ class _RecentTransactions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textDark = Theme.of(context).colorScheme.onSurface;
-    final textGray = Theme.of(context).colorScheme.onSurface.withOpacity(0.55);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),

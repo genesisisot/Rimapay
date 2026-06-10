@@ -66,6 +66,68 @@ class ProfileApiService {
     }
   }
 
+  /// POST /api/v1/profile/completion/address
+  Future<CompletionResponse> completeAddress(
+      AddressCompletionRequest request) async {
+    return _postCompletion('/api/v1/profile/completion/address',
+        request.toJson());
+  }
+
+  /// POST /api/v1/profile/completion/pep
+  Future<CompletionResponse> completePep(
+      PepCompletionRequest request) async {
+    return _postCompletion('/api/v1/profile/completion/pep',
+        request.toJson());
+  }
+
+  /// POST /api/v1/profile/completion/source-of-income
+  Future<CompletionResponse> completeSourceOfIncome(
+      SourceOfIncomeRequest request) async {
+    return _postCompletion(
+        '/api/v1/profile/completion/source-of-income', request.toJson());
+  }
+
+  /// GET /api/v1/profile/completion
+  Future<ProfileCompletionStatusDto?> getCompletionStatus() async {
+    try {
+      final res = await _dio.get('/api/v1/profile/completion');
+      final data = res.data;
+      if (data is Map<String, dynamic>) {
+        return ProfileCompletionStatusDto.fromJson(data);
+      }
+      return null;
+    } on DioException catch (_) {
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<CompletionResponse> _postCompletion(
+      String path, Map<String, dynamic> body) async {
+    try {
+      final res = await _dio.post(path, data: body);
+      final data = res.data;
+      if (data is Map<String, dynamic>) {
+        return CompletionResponse.fromJson(data);
+      }
+      return CompletionResponse(
+        isSuccess: false,
+        errorMessage: 'Unexpected response (${res.statusCode}).',
+      );
+    } on DioException catch (e) {
+      return CompletionResponse(
+        isSuccess: false,
+        errorMessage: _dioMessage(e),
+      );
+    } catch (e) {
+      return CompletionResponse(
+        isSuccess: false,
+        errorMessage: 'Unexpected error: $e',
+      );
+    }
+  }
+
   String _dioMessage(DioException e) {
     if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.receiveTimeout ||

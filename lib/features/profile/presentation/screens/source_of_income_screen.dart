@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class SourceOfIncomeScreen extends StatefulWidget {
+import '../../data/profile_dtos.dart';
+import '../providers/profile_provider.dart';
+
+class SourceOfIncomeScreen extends ConsumerStatefulWidget {
   const SourceOfIncomeScreen({super.key});
 
   @override
-  State<SourceOfIncomeScreen> createState() => _SourceOfIncomeScreenState();
+  ConsumerState<SourceOfIncomeScreen> createState() =>
+      _SourceOfIncomeScreenState();
 }
 
-class _SourceOfIncomeScreenState extends State<SourceOfIncomeScreen> {
+class _SourceOfIncomeScreenState extends ConsumerState<SourceOfIncomeScreen> {
   String? _occupation;
   String? _annualIncome;
+  bool _saving = false;
 
   final List<String> _occupations = [
     'Farmer',
@@ -72,23 +78,58 @@ class _SourceOfIncomeScreenState extends State<SourceOfIncomeScreen> {
     );
   }
 
-  void _showSuccessAndPop() {
-    Navigator.of(context).pushReplacement(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            _CompletionSuccessScreen(
-          title: 'Source of Income',
-          message: 'Your income details have been saved successfully.',
-          onComplete: () {
-            context.pop(true);
-          },
+  Future<void> _saveAndShowSuccess() async {
+    if (_occupation == null || _annualIncome == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select occupation and income'),
+          backgroundColor: Colors.red,
         ),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(opacity: animation, child: child);
-        },
-        transitionDuration: const Duration(milliseconds: 300),
-      ),
+      );
+      return;
+    }
+
+    setState(() => _saving = true);
+
+    final request = SourceOfIncomeRequest(
+      occupation: _occupation!,
+      annualIncome: _annualIncome!,
     );
+    final success = await ref
+        .read(profileProvider.notifier)
+        .completeSourceOfIncome(request);
+
+    setState(() => _saving = false);
+
+    if (!mounted) return;
+
+    if (success) {
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              _CompletionSuccessScreen(
+            title: 'Source of Income',
+            message: 'Your income details have been saved successfully.',
+            onComplete: () {
+              context.pop(true);
+            },
+          ),
+          transitionsBuilder:
+              (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 300),
+        ),
+      );
+    } else {
+      final error = ref.read(profileProvider).error;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error ?? 'Failed to save income details'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void _showOptionsSheet(
@@ -239,18 +280,7 @@ class _SourceOfIncomeScreenState extends State<SourceOfIncomeScreen> {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: GestureDetector(
-        onTap: () {
-          if (_occupation == null || _annualIncome == null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Please select occupation and income'),
-                backgroundColor: Colors.red,
-              ),
-            );
-            return;
-          }
-          _showSuccessAndPop();
-        },
+        onTap: _saving ? null : _saveAndShowSuccess,
         child: Container(
           width: double.infinity,
           height: 54,
@@ -261,14 +291,24 @@ class _SourceOfIncomeScreenState extends State<SourceOfIncomeScreen> {
             borderRadius: BorderRadius.circular(12),
           ),
           child: Center(
-            child: Text(
-              'Continue →',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).cardColor,
-              ),
-            ),
+            child: _saving
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : Text(
+                    'Continue →',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).cardColor,
+                    ),
+                  ),
           ),
         ),
       ),

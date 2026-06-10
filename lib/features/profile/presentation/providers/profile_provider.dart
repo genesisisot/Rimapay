@@ -10,12 +10,18 @@ class ProfileState {
   final String? error;
   final UserProfileDetails? profile;
   final bool profileCreated;
+  final bool addressCompleted;
+  final bool pepCompleted;
+  final bool sourceOfIncomeCompleted;
 
   const ProfileState({
     this.isLoading = false,
     this.error,
     this.profile,
     this.profileCreated = false,
+    this.addressCompleted = false,
+    this.pepCompleted = false,
+    this.sourceOfIncomeCompleted = false,
   });
 
   ProfileState copyWith({
@@ -23,12 +29,19 @@ class ProfileState {
     String? error,
     UserProfileDetails? profile,
     bool? profileCreated,
+    bool? addressCompleted,
+    bool? pepCompleted,
+    bool? sourceOfIncomeCompleted,
   }) {
     return ProfileState(
       isLoading: isLoading ?? this.isLoading,
       error: error,
       profile: profile ?? this.profile,
       profileCreated: profileCreated ?? this.profileCreated,
+      addressCompleted: addressCompleted ?? this.addressCompleted,
+      pepCompleted: pepCompleted ?? this.pepCompleted,
+      sourceOfIncomeCompleted:
+          sourceOfIncomeCompleted ?? this.sourceOfIncomeCompleted,
     );
   }
 }
@@ -87,6 +100,53 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
       error: res.errorMessage ?? res.errorCode ?? 'Profile creation failed.',
     );
     return false;
+  }
+
+  Future<bool> completeAddress(AddressCompletionRequest request) async {
+    state = state.copyWith(isLoading: true, error: null);
+    final res = await _api.completeAddress(request);
+    state = state.copyWith(isLoading: false);
+    if (res.isSuccess) {
+      state = state.copyWith(addressCompleted: true);
+      return true;
+    }
+    state = state.copyWith(error: res.errorMessage ?? 'Failed to save address.');
+    return false;
+  }
+
+  Future<bool> completePep(PepCompletionRequest request) async {
+    state = state.copyWith(isLoading: true, error: null);
+    final res = await _api.completePep(request);
+    state = state.copyWith(isLoading: false);
+    if (res.isSuccess) {
+      state = state.copyWith(pepCompleted: true);
+      return true;
+    }
+    state = state.copyWith(error: res.errorMessage ?? 'Failed to save PEP declaration.');
+    return false;
+  }
+
+  Future<bool> completeSourceOfIncome(SourceOfIncomeRequest request) async {
+    state = state.copyWith(isLoading: true, error: null);
+    final res = await _api.completeSourceOfIncome(request);
+    state = state.copyWith(isLoading: false);
+    if (res.isSuccess) {
+      state = state.copyWith(sourceOfIncomeCompleted: true);
+      return true;
+    }
+    state = state.copyWith(error: res.errorMessage ?? 'Failed to save income details.');
+    return false;
+  }
+
+  Future<void> fetchCompletionStatus() async {
+    final status = await _api.getCompletionStatus();
+    if (status != null) {
+      state = state.copyWith(
+        addressCompleted: status.residentialAddressProvided,
+        pepCompleted: status.isPepDeclared == true,
+        sourceOfIncomeCompleted: status.sourceOfIncomeProvided,
+      );
+    }
   }
 
   void clearError() {

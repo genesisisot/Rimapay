@@ -7,25 +7,22 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/providers/theme_provider.dart';
 import '../../../../shared/widgets/noise_painter.dart';
+import '../providers/profile_provider.dart';
 import 'package:flutter/foundation.dart';
+import '../../../../core/providers/auth_provider.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen>
+class _ProfileScreenState extends ConsumerState<ProfileScreen>
     with TickerProviderStateMixin {
   String? _profileImage;
   bool _isEditing = false;
   bool _showImageOptions = false;
-
-  // Track profile completion status - in real app, check from backend/local storage
-  bool _residentialAddressCompleted = false;
-  bool _pepCompleted = false;
-  bool _sourceOfIncomeCompleted = false;
 
   final _imagePicker = ImagePicker();
   final _nameController = TextEditingController(text: 'Adebayo Johnson');
@@ -62,6 +59,9 @@ class _ProfileScreenState extends State<ProfileScreen>
     _scaleAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _successAnimController, curve: Curves.elasticOut),
     );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(profileProvider.notifier).fetchCompletionStatus();
+    });
   }
 
   @override
@@ -250,9 +250,9 @@ class _ProfileScreenState extends State<ProfileScreen>
           const SizedBox(height: 20),
 
           // Complete Profile Section (if profile not fully completed)
-          if (!_residentialAddressCompleted ||
-              !_pepCompleted ||
-              !_sourceOfIncomeCompleted)
+          if (!ref.watch(profileProvider).addressCompleted ||
+              !ref.watch(profileProvider).pepCompleted ||
+              !ref.watch(profileProvider).sourceOfIncomeCompleted)
             _buildCompleteProfileSection(context),
 
           // Account tier card
@@ -344,6 +344,10 @@ class _ProfileScreenState extends State<ProfileScreen>
 
           // Logout
           _buildLogoutButton(context),
+          const SizedBox(height: 12),
+
+          // Delete Account
+          _buildDeleteAccountButton(context),
           const SizedBox(height: 40),
         ],
       ),
@@ -429,6 +433,10 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   Widget _buildCompleteProfileSection(BuildContext context) {
+    final profileState = ref.watch(profileProvider);
+    final addressDone = profileState.addressCompleted;
+    final pepDone = profileState.pepCompleted;
+    final incomeDone = profileState.sourceOfIncomeCompleted;
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -470,7 +478,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           _buildProfileItem(
             icon: Icons.home_outlined,
             title: 'Residential Address',
-            isCompleted: _residentialAddressCompleted,
+            isCompleted: addressDone,
             onTap: () => _navigateToProfileStep(context, 'residentialAddress'),
           ),
           const SizedBox(height: 12),
@@ -478,7 +486,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           _buildProfileItem(
             icon: Icons.verified_outlined,
             title: 'PEP Declaration',
-            isCompleted: _pepCompleted,
+            isCompleted: pepDone,
             onTap: () => _navigateToProfileStep(context, 'pepDeclaration'),
           ),
           const SizedBox(height: 12),
@@ -486,7 +494,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           _buildProfileItem(
             icon: Icons.work_outline,
             title: 'Source of Income',
-            isCompleted: _sourceOfIncomeCompleted,
+            isCompleted: incomeDone,
             onTap: () => _navigateToProfileStep(context, 'sourceOfIncome'),
           ),
         ],
@@ -501,7 +509,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     required VoidCallback onTap,
   }) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: isCompleted ? null : onTap,
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
@@ -581,19 +589,10 @@ class _ProfileScreenState extends State<ProfileScreen>
     await context.push<bool>(path);
     if (!mounted) return;
 
-    setState(() {
-      if (step == 'residentialAddress') {
-        _residentialAddressCompleted = true;
-      } else if (step == 'pepDeclaration') {
-        _pepCompleted = true;
-      } else if (step == 'sourceOfIncome') {
-        _sourceOfIncomeCompleted = true;
-      }
-    });
-
-    final allCompleted = _residentialAddressCompleted &&
-        _pepCompleted &&
-        _sourceOfIncomeCompleted;
+    final profileState = ref.read(profileProvider);
+    final allCompleted = profileState.addressCompleted &&
+        profileState.pepCompleted &&
+        profileState.sourceOfIncomeCompleted;
     if (allCompleted) {
       _showProfileCompleteSuccess(context);
     }
@@ -1433,6 +1432,147 @@ class _ProfileScreenState extends State<ProfileScreen>
                             borderRadius: BorderRadius.circular(12)),
                       ),
                       child: const Text('Log Out',
+                          style: TextStyle(
+                              fontFamily: 'Effra',
+                              fontWeight: FontWeight.w700)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Delete Account ───────────────────────────────────────────────────────
+
+  Widget _buildDeleteAccountButton(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: ElevatedButton.icon(
+        onPressed: () => _confirmDeleteAccount(context),
+        icon: const Icon(Icons.delete_forever_rounded, size: 18),
+        label: const Text(
+          'Delete Account',
+          style: TextStyle(
+              fontSize: 15, fontWeight: FontWeight.w700, fontFamily: 'Effra'),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFFFEF2F2),
+          foregroundColor: const Color(0xFFDC2626),
+          elevation: 0,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          side: const BorderSide(color: Color(0xFFFECACA)),
+        ),
+      ),
+    );
+  }
+
+  void _confirmDeleteAccount(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 36),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: Theme.of(context).dividerColor,
+                borderRadius: BorderRadius.circular(999),
+              ),
+            ),
+            Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                color: const Color(0xFFFEF2F2),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.delete_forever_rounded,
+                  color: Color(0xFFDC2626), size: 28),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Delete Account?',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: Theme.of(context).colorScheme.onSurface,
+                fontFamily: 'Effra',
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'This will permanently delete your account and all data. This action cannot be undone.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                height: 1.4,
+                fontFamily: 'Effra',
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 50,
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                        side: BorderSide(color: Theme.of(context).dividerColor),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: const Text('Cancel',
+                          style: TextStyle(
+                              fontFamily: 'Effra',
+                              fontWeight: FontWeight.w600)),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: SizedBox(
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        Navigator.pop(context);
+                        final res = await AuthProvider().deleteAccount();
+                        if (res.isSuccess && context.mounted) {
+                          context.go('/welcome');
+                        } else if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(res.message ?? 'Failed to delete account'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFDC2626),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: const Text('Delete',
                           style: TextStyle(
                               fontFamily: 'Effra',
                               fontWeight: FontWeight.w700)),

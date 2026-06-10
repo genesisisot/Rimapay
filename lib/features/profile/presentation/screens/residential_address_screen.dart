@@ -1,20 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class ResidentialAddressScreen extends StatefulWidget {
+import '../../data/profile_dtos.dart';
+import '../providers/profile_provider.dart';
+
+class ResidentialAddressScreen extends ConsumerStatefulWidget {
   const ResidentialAddressScreen({super.key});
 
   @override
-  State<ResidentialAddressScreen> createState() =>
+  ConsumerState<ResidentialAddressScreen> createState() =>
       _ResidentialAddressScreenState();
 }
 
-class _ResidentialAddressScreenState extends State<ResidentialAddressScreen> {
+class _ResidentialAddressScreenState
+    extends ConsumerState<ResidentialAddressScreen> {
   final _addressController = TextEditingController();
   final _houseNoController = TextEditingController();
   final _areaController = TextEditingController();
   final _stateController = TextEditingController();
+  final _lgaController = TextEditingController();
   String _selectedState = '';
+  bool _saving = false;
 
   final List<String> _states = [
     'Abia',
@@ -83,23 +90,83 @@ class _ResidentialAddressScreenState extends State<ResidentialAddressScreen> {
     );
   }
 
-  void _showSuccessAndPop() {
-    Navigator.of(context).pushReplacement(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            _CompletionSuccessScreen(
-          title: 'Residential Address',
-          message: 'Your address has been saved successfully.',
-          onComplete: () {
-            context.pop(true); // Pop with result to indicate completion
-          },
+  Future<void> _saveAndShowSuccess() async {
+    if (_addressController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter your address'),
+          backgroundColor: Colors.red,
         ),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(opacity: animation, child: child);
-        },
-        transitionDuration: const Duration(milliseconds: 300),
-      ),
+      );
+      return;
+    }
+    if (_selectedState.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select your state'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    if (_lgaController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter your LGA'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _saving = true);
+
+    final request = AddressCompletionRequest(
+      addressLine: _addressController.text.trim(),
+      houseNumber: _houseNoController.text.trim().isEmpty
+          ? null
+          : _houseNoController.text.trim(),
+      areaLandmark: _areaController.text.trim().isEmpty
+          ? null
+          : _areaController.text.trim(),
+      state: _selectedState,
+      lga: _lgaController.text.trim(),
     );
+
+    final success =
+        await ref.read(profileProvider.notifier).completeAddress(request);
+
+    setState(() => _saving = false);
+
+    if (!mounted) return;
+
+    if (success) {
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              _CompletionSuccessScreen(
+            title: 'Residential Address',
+            message: 'Your address has been saved successfully.',
+            onComplete: () {
+              context.pop(true);
+            },
+          ),
+          transitionsBuilder:
+              (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 300),
+        ),
+      );
+    } else {
+      final error = ref.read(profileProvider).error;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error ?? 'Failed to save address'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -108,6 +175,7 @@ class _ResidentialAddressScreenState extends State<ResidentialAddressScreen> {
     _houseNoController.dispose();
     _areaController.dispose();
     _stateController.dispose();
+    _lgaController.dispose();
     super.dispose();
   }
 
@@ -238,6 +306,13 @@ class _ResidentialAddressScreenState extends State<ResidentialAddressScreen> {
                         ),
                       ),
                     ),
+                    _sectionLabel('LGA'),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _lgaController,
+                      style: const TextStyle(fontSize: 14),
+                      decoration: _inputDec(hint: 'e.g. Ikeja'),
+                    ),
                     const SizedBox(height: 20),
                   ],
                 ),
@@ -311,7 +386,7 @@ class _ResidentialAddressScreenState extends State<ResidentialAddressScreen> {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: GestureDetector(
-        onTap: _showSuccessAndPop,
+        onTap: _saving ? null : _saveAndShowSuccess,
         child: Container(
           width: double.infinity,
           height: 54,
@@ -322,14 +397,24 @@ class _ResidentialAddressScreenState extends State<ResidentialAddressScreen> {
             borderRadius: BorderRadius.circular(12),
           ),
           child: Center(
-            child: Text(
-              'Continue →',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).cardColor,
-              ),
-            ),
+            child: _saving
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : Text(
+                    'Continue →',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).cardColor,
+                    ),
+                  ),
           ),
         ),
       ),

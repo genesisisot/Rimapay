@@ -29,7 +29,7 @@ import 'package:rimapay/core/theme/app_colors.dart';
 
 /// Temporary build marker so we can confirm which deployment is actually
 /// running in the browser (shown tiny under the phone-step button).
-const String kBuildTag = 'build #9 · 2026-06-09';
+const String kBuildTag = 'build #11 · 2026-06-09';
 
 // ─── Step enum ───────────────────────────────────────────────────────────────
 
@@ -123,6 +123,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   bool _showConfirmPassword = false;
   bool _acceptTerms = false;
   bool _cameraActive = false;
+  bool _verifyingFace = false;
   String? _capturedImage;
   String? _cameraError;
   bool _permissionDenied = false;
@@ -446,7 +447,13 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       case AccountStep.idEntry:
         return _buildIdVerificationStep();
       case AccountStep.facialVerification:
-        return _buildFacialVerificationStep();
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            _buildFacialVerificationStep(),
+            if (_verifyingFace) _buildFaceVerifyingOverlay(),
+          ],
+        );
       case AccountStep.createPassword:
         return _buildCreatePasswordStep();
       case AccountStep.createPin:
@@ -1738,31 +1745,6 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                           letterSpacing: 2,
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF0FDF4),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFFBBF7D0)),
-                        ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.phone_outlined,
-                                size: 14, color: Color(0xFF16A34A)),
-                            SizedBox(width: 6),
-                            Text(
-                              'Your phone number is your account number',
-                              style: TextStyle(
-                                  fontSize: 11,
-                                  color: Color(0xFF166534),
-                                  fontWeight: FontWeight.w500),
-                            ),
-                          ],
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -3014,6 +2996,46 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     );
   }
 
+  /// Full-screen "verifying" overlay shown while the captured selfie is being
+  /// checked by the backend. Blocks interaction and reassures the user to wait.
+  Widget _buildFaceVerifyingOverlay() {
+    return Positioned.fill(
+      child: Container(
+        color: const Color(0xE60B1F14),
+        alignment: Alignment.center,
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 40),
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _FaceScanLoader(),
+              SizedBox(height: 22),
+              Text(
+                'Verifying your face',
+                style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF111827)),
+              ),
+              SizedBox(height: 8),
+              Text(
+                'Hold on a moment — this can take a few seconds.\nPlease don\'t close or refresh the page.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: 13, color: Color(0xFF6B7280), height: 1.5),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _tipChip(String label) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -3161,31 +3183,6 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                           fontWeight: FontWeight.w900,
                           color: Color(0xFF111827),
                           letterSpacing: 2,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF0FDF4),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFFBBF7D0)),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            Icon(Icons.phone_outlined,
-                                size: 14, color: Color(0xFF16A34A)),
-                            SizedBox(width: 6),
-                            Text(
-                              'Your phone number is also your account number',
-                              style: TextStyle(
-                                  fontSize: 11,
-                                  color: Color(0xFF166534),
-                                  fontWeight: FontWeight.w500),
-                            ),
-                          ],
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -3859,12 +3856,25 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       // Best-effort: authenticate with the phone + password just set so the
       // user lands signed in. Safe to ignore failures (e.g. missing client
       // secret) — they can still sign in from the login screen.
+      final onboardingState = ref.read(onboardingProvider);
       if (_password.isNotEmpty && mounted) {
         final phoneNum = _phoneDigits.startsWith('0') ? _phoneDigits : '0$_phoneDigits';
         await legacy_provider.Provider.of<AuthProvider>(context, listen: false)
             .loginWithCredentials(
           phoneNumber: phoneNum,
           password: _password,
+        );
+      }
+      // Always save user data from onboarding (fallback if login fails).
+      if (mounted) {
+        final phoneNum = _phoneDigits.startsWith('0') ? _phoneDigits : '0$_phoneDigits';
+        legacy_provider.Provider.of<AuthProvider>(context, listen: false)
+            .saveOnboardingUser(
+          phoneNumber: phoneNum,
+          firstName: onboardingState.firstName,
+          lastName: onboardingState.lastName,
+          accountNumber: onboardingState.accountNumber,
+          identityUserId: onboardingState.identityUserId,
         );
       }
       if (!mounted) return;
@@ -4057,6 +4067,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
         _capturedImage = image.path;
         _cameraActive = false;
         _isLoading = true;
+        _verifyingFace = true;
       });
       _cameraController?.dispose();
       _cameraController = null;
@@ -4065,7 +4076,10 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
             livenessCheckPassed: true,
           );
       if (!mounted) return;
-      setState(() => _isLoading = false);
+      setState(() {
+        _isLoading = false;
+        _verifyingFace = false;
+      });
       if (ok) {
         final st = ref.read(onboardingProvider);
         final c = st.confidenceScore;
@@ -4086,8 +4100,84 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       setState(() {
         _cameraError = 'Failed to capture photo: $e';
         _isLoading = false;
+        _verifyingFace = false;
       });
     }
+  }
+}
+
+// ─── Animated face-scan loader (shown while validate-face runs) ───────────────
+
+class _FaceScanLoader extends StatefulWidget {
+  const _FaceScanLoader();
+
+  @override
+  State<_FaceScanLoader> createState() => _FaceScanLoaderState();
+}
+
+class _FaceScanLoaderState extends State<_FaceScanLoader>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1500),
+  )..repeat();
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const green = Color(0xFF166C46);
+    return SizedBox(
+      width: 96,
+      height: 96,
+      child: AnimatedBuilder(
+        animation: _c,
+        builder: (_, __) {
+          return Stack(
+            alignment: Alignment.center,
+            children: [
+              // Expanding pulse rings
+              ...[0.0, 0.5].map((offset) {
+                final t = (_c.value + offset) % 1.0;
+                return Opacity(
+                  opacity: (1 - t) * 0.45,
+                  child: Container(
+                    width: 50 + t * 46,
+                    height: 50 + t * 46,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: green, width: 2),
+                    ),
+                  ),
+                );
+              }),
+              const SizedBox(
+                width: 90,
+                height: 90,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  valueColor: AlwaysStoppedAnimation(green),
+                ),
+              ),
+              Container(
+                width: 58,
+                height: 58,
+                decoration: const BoxDecoration(
+                  color: Color(0x1F166C46),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.face_retouching_natural,
+                    color: green, size: 30),
+              ),
+            ],
+          );
+        },
+      ),
+    );
   }
 }
 

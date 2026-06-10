@@ -56,12 +56,11 @@ class ApiConfig {
 
   // ── Client credentials & defaults ─────────────────────────────────────────
 
-  // TODO: Replace with the real app client credentials issued by the Identity service.
   /// OAuth client id for this mobile app (LoginRequestDto.clientId).
-  static const String clientId = 'rimapay-mobile';
+  static const String clientId = 'swagger-client';
 
   /// OAuth client secret for this mobile app (LoginRequestDto.clientSecret).
-  static const String clientSecret = 'CHANGE_ME';
+  static const String clientSecret = 'swagger-client-secret';
 
   /// Grant type used by end-user password login (GrantType enum: Confidential | Password).
   static const String grantType = 'Password';

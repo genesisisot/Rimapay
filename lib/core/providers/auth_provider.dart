@@ -3,6 +3,7 @@ import '../services/storage_service.dart';
 import '../services/biometric_service.dart';
 import '../../features/auth/data/auth_api_service.dart';
 import '../../features/auth/data/auth_dtos.dart';
+import '../network/api_response.dart';
 
 enum TierLevel { tier0, tier1, tier2, tier3 }
 enum AccountType { underbanking, basic, premium, business }
@@ -20,6 +21,7 @@ class User {
   final double balance;
   final String? profileImageUrl;
   final bool hasBiometricEnabled; // ADDED: Biometric support
+  final String? accountNumber;
   
   User({
     required this.id,
@@ -34,6 +36,7 @@ class User {
     this.balance = 0.0,
     this.profileImageUrl,
     this.hasBiometricEnabled = false, // ADDED: Default to false
+    this.accountNumber,
   });
   
   String get displayName {
@@ -105,7 +108,8 @@ class User {
     bool? bvnVerified,
     double? balance,
     String? profileImageUrl,
-    bool? hasBiometricEnabled, // ADDED: Biometric support in copyWith
+    bool? hasBiometricEnabled,
+    String? accountNumber,
   }) {
     return User(
       id: id ?? this.id,
@@ -120,6 +124,7 @@ class User {
       balance: balance ?? this.balance,
       profileImageUrl: profileImageUrl ?? this.profileImageUrl,
       hasBiometricEnabled: hasBiometricEnabled ?? this.hasBiometricEnabled,
+      accountNumber: accountNumber ?? this.accountNumber,
     );
   }
 
@@ -138,6 +143,7 @@ class User {
       'balance': balance,
       'profileImageUrl': profileImageUrl,
       'hasBiometricEnabled': hasBiometricEnabled,
+      'accountNumber': accountNumber,
     };
   }
 
@@ -162,6 +168,7 @@ class User {
       balance: (json['balance'] ?? 0.0).toDouble(),
       profileImageUrl: json['profileImageUrl'],
       hasBiometricEnabled: json['hasBiometricEnabled'] ?? false,
+      accountNumber: json['accountNumber'],
     );
   }
 }
@@ -402,12 +409,46 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
   
+  /// Save user data directly from onboarding (bypasses login).
+  Future<void> saveOnboardingUser({
+    required String phoneNumber,
+    String? firstName,
+    String? lastName,
+    String? email,
+    String? accountNumber,
+    String? identityUserId,
+  }) async {
+    _user = User(
+      id: identityUserId ?? phoneNumber,
+      email: email ?? '',
+      firstName: firstName,
+      lastName: lastName,
+      phoneNumber: phoneNumber,
+      accountType: AccountType.basic,
+      tierLevel: TierLevel.tier1,
+      isVerified: true,
+      bvnVerified: true,
+      accountNumber: accountNumber,
+    );
+    await StorageService.saveUser(_user!);
+    notifyListeners();
+  }
+
   Future<void> logout() async {
     _user = null;
     _error = null;
     _errorMessage = null; // ADDED: Clear biometric errors
     await StorageService.clearUser();
     notifyListeners();
+  }
+
+  /// DELETE /api/auth/delete-account
+  Future<ApiResponse<void>> deleteAccount() async {
+    final res = await AuthApiService().deleteAccount();
+    if (res.isSuccess) {
+      await logout();
+    }
+    return res;
   }
   
   void updateBalance(double newBalance) {

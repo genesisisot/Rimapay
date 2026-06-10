@@ -70,6 +70,26 @@ class AuthApiService {
     return _postVoid('/api/auth/logout', null);
   }
 
+  /// DELETE /api/auth/delete-account
+  Future<ApiResponse<void>> deleteAccount() async {
+    try {
+      final res = await _dio.delete('/api/auth/delete-account');
+      final data = res.data;
+      if (data is Map<String, dynamic>) {
+        return ApiResponse<void>.fromJson(data);
+      }
+      return ApiResponse<void>(
+        isSuccess: (res.statusCode ?? 500) >= 200 && (res.statusCode ?? 500) < 300,
+        statusCode: res.statusCode?.toString(),
+        message: 'Request failed (${res.statusCode}).',
+      );
+    } on DioException catch (e) {
+      return ApiResponse<void>.failure(_dioMessage(e));
+    } catch (e) {
+      return ApiResponse<void>.failure('Unexpected error: $e');
+    }
+  }
+
   // ── helpers ────────────────────────────────────────────────────────────────
 
   Future<ApiResponse<AuthResponse>> _postAuth(

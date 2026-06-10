@@ -309,15 +309,20 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     ));
     if (res.isSuccess && res.data != null) {
       final d = res.data!;
-      // The backend accepted and processed the face → move on to the next step.
-      // (isMatch + confidenceScore are kept so the UI can show the result.)
+      // Strict KYC: only advance when the backend says the face actually
+      // matched. Otherwise stay on the face step.
       state = state.copyWith(
         isLoading: false,
         facialMatch: d.isMatch,
         confidenceScore: d.confidenceScore,
-        currentStep: OnboardingStep.createPassword,
+        currentStep: d.isMatch
+            ? OnboardingStep.createPassword
+            : OnboardingStep.facialValidation,
+        error: d.isMatch
+            ? null
+            : (d.message ?? 'Face did not match. Please try again.'),
       );
-      return true;
+      return d.isMatch;
     }
     state = state.copyWith(isLoading: false, error: res.errorMessage);
     return false;

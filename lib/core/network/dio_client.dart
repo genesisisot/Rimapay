@@ -44,13 +44,9 @@ class DioClient {
 
   Dio _create(String baseUrl) {
     // Per-service path quirk (verified by probing the live gateway):
-    //   • Identity  → routes are served WITHOUT the swagger `/api` prefix
-    //       e.g. .../identity/auth/login        (.../identity/api/... → 404)
-    //   • Accounts/OTP/Profile → routes keep the `/api` prefix
-    //       e.g. .../accounts/api/v1/onboarding/initiate
-    // So strip the leading `/api` ONLY for the identity gateway.
-    final bool stripApiPrefix = baseUrl == ApiConfig.baseUrl;
-
+    // All gateways serve routes WITH the `/api` prefix (matching their OAS).
+    //   • Identity  → .../identity/api/auth/login
+    //   • Accounts  → .../accounts/api/v1/onboarding/initiate
     final dio = Dio(
       BaseOptions(
         baseUrl: baseUrl,
@@ -71,10 +67,7 @@ class DioClient {
               options.headers['Authorization'] = 'Bearer $token';
             }
           }
-          // Identity gateway serves routes without the swagger `/api` prefix.
-          if (stripApiPrefix && options.path.startsWith('/api/')) {
-            options.path = options.path.substring(4);
-          }
+          // All gateways serve routes with the `/api` prefix — no rewrite needed.
           handler.next(options);
         },
         onResponse: (response, handler) async {
