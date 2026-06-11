@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 import '../providers/auth_provider.dart';
 
 class StorageService {
@@ -14,6 +15,7 @@ class StorageService {
   static const String _biometricEnabledKey = 'rimapay_biometric_enabled';
   static const String _accessTokenKey = 'rimapay_access_token';
   static const String _refreshTokenKey = 'rimapay_refresh_token';
+  static const String _deviceIdKey = 'rimapay_device_id';
 
   static SharedPreferences? _prefs;
   
@@ -112,6 +114,17 @@ class StorageService {
     await initialize();
     await prefs.remove(_accessTokenKey);
     await prefs.remove(_refreshTokenKey);
+  }
+
+  // Device ID (generated once on first launch, persisted for life)
+  static Future<String> getDeviceId() async {
+    await initialize();
+    var id = prefs.getString(_deviceIdKey);
+    if (id == null || id.isEmpty) {
+      id = const Uuid().v4();
+      await prefs.setString(_deviceIdKey, id);
+    }
+    return id;
   }
   
   // Transaction Management

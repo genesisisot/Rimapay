@@ -284,6 +284,8 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
         currentStep: OnboardingStep.facialValidation,
         validatedFirstName: d.firstName,
         validatedLastName: d.lastName,
+        firstName: d.firstName,
+        lastName: d.lastName,
       );
       return true;
     }

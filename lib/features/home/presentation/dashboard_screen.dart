@@ -179,6 +179,11 @@ class _HeaderSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
+    if (!auth.profileFetched) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        auth.fetchProfileFromApi();
+      });
+    }
     final user = auth.user;
     final textDark = Theme.of(context).colorScheme.onSurface;
     final textGray = Theme.of(context).colorScheme.onSurface.withOpacity(0.55);

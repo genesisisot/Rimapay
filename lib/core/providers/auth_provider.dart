@@ -4,6 +4,7 @@ import '../services/biometric_service.dart';
 import '../../features/auth/data/auth_api_service.dart';
 import '../../features/auth/data/auth_dtos.dart';
 import '../network/api_response.dart';
+import '../../features/profile/data/profile_api_service.dart';
 
 enum TierLevel { tier0, tier1, tier2, tier3 }
 enum AccountType { underbanking, basic, premium, business }
@@ -178,6 +179,7 @@ class AuthProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
   String? _errorMessage; // ADDED: For biometric errors
+  bool _profileFetched = false;
   
   User? get user => _user;
   User? get currentUser => _user; // ADDED: Alias for compatibility
@@ -185,6 +187,7 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
   String? get errorMessage => _errorMessage; // ADDED: For biometric errors
+  bool get profileFetched => _profileFetched;
   
   Future<void> initialize() async {
     _isLoading = true;
@@ -252,10 +255,12 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      final deviceId = await StorageService.getDeviceId();
       final res = await AuthApiService().login(LoginRequest(
         phoneNumber: phoneNumber,
         email: email,
         password: password,
+        deviceId: deviceId,
       ));
       if (res.isSuccess && res.data != null) {
         final d = res.data!;
@@ -288,23 +293,43 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  /// POST /api/auth/forgot-password — request a password reset code by email.
-  Future<bool> forgotPassword(String email) async {
+  /// POST /api/auth/forgot-password — request a password reset code by email or phone.
+  /// Returns the response message string (e.g. face-verification prompt) on success, null on failure.
+  Future<String?> forgotPassword({String? email, String? phoneNumber}) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
     try {
-      final res = await AuthApiService().forgotPassword(email);
-      if (res.isSuccess) return true;
-      _error = res.errorMessage ?? 'Could not send reset email.';
-      return false;
+      final res = await AuthApiService().forgotPassword(
+        email: email,
+        phoneNumber: phoneNumber,
+      );
+      if (res.isSuccess) return res.data;
+      _error = res.errorMessage;
+      return null;
     } catch (e) {
       _error = e.toString();
-      return false;
+      return null;
     } finally {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  /// Face verification step of the forgot-password flow.
+  /// Captures a selfie locally for UX.
+  /// The backend sent the OTP when forgotPassword() was called
+  /// ("Password reset initiated"), so we proceed to the OTP step.
+  Future<bool> forgotPasswordFaceVerify({
+    required String capturedImageBase64,
+    required String phoneNumber,
+    bool? livenessCheckPassed,
+  }) async {
+    // The onboarding validate-face endpoint requires an onboarding sessionId
+    // which the forgot-password flow doesn't have.  The backend team should
+    // add a dedicated face-verify endpoint that accepts a phone number.
+    // For now we proceed without the API call — the OTP was already sent.
+    return true;
   }
 
   /// POST /api/auth/reset-password — set a new password using the emailed token.
@@ -449,6 +474,28 @@ class AuthProvider extends ChangeNotifier {
       await logout();
     }
     return res;
+  }
+
+  /// Fetches the user's profile details from the Profile API and updates
+  /// the stored [User] with the real name (fixes existing users who
+  /// onboarded before the name-propagation fix).
+  Future<void> fetchProfileFromApi() async {
+    if (_profileFetched || _user == null) return;
+    _profileFetched = true;
+    try {
+      final profile = await ProfileApiService().getMyProfile();
+      if (profile != null &&
+          (profile.firstName != null || profile.lastName != null)) {
+        _user = _user!.copyWith(
+          firstName: profile.firstName ?? _user!.firstName,
+          lastName: profile.lastName ?? _user!.lastName,
+        );
+        await StorageService.saveUser(_user!);
+        notifyListeners();
+      }
+    } catch (_) {
+      // Silently ignore – the dashboard will show "User" as fallback.
+    }
   }
   
   void updateBalance(double newBalance) {

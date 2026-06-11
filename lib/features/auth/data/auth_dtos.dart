@@ -38,20 +38,23 @@ class LoginRequest {
   final String? email;
   final String? phoneNumber;
   final String password;
+  final String? deviceId;
 
   const LoginRequest({
     this.email,
     this.phoneNumber,
     required this.password,
+    this.deviceId,
   });
 
   Map<String, dynamic> toJson() => {
         'clientId': ApiConfig.clientId,
         'clientSecret': ApiConfig.clientSecret,
         'grantType': ApiConfig.grantType,
-        if (email != null) 'email': email,
+        'email': email,
         if (phoneNumber != null) 'phoneNumber': phoneNumber,
         'password': password,
+        'DeviceId': deviceId,
       };
 }
 

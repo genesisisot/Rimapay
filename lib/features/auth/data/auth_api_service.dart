@@ -37,9 +37,34 @@ class AuthApiService {
     return _postVoid('/api/auth/change-password', request.toJson());
   }
 
-  /// POST /api/auth/forgot-password
-  Future<ApiResponse<void>> forgotPassword(String email) {
-    return _postVoid('/api/auth/forgot-password', {'email': email});
+  /// POST /api/auth/forgot-password — accepts email or phoneNumber
+  Future<ApiResponse<String>> forgotPassword({
+    String? email,
+    String? phoneNumber,
+  }) async {
+    final body = <String, dynamic>{};
+    if (email != null) body['email'] = email;
+    if (phoneNumber != null) body['phoneNumber'] = phoneNumber;
+    try {
+      final res = await _dio.post('/api/auth/forgot-password', data: body);
+      final data = res.data;
+      if (data is Map<String, dynamic>) {
+        return ApiResponse<String>.fromJson(
+          data,
+          fromData: (d) => d as String? ?? '',
+        );
+      }
+      final ok = (res.statusCode ?? 500) >= 200 && (res.statusCode ?? 500) < 300;
+      return ApiResponse<String>(
+        isSuccess: ok,
+        statusCode: res.statusCode?.toString(),
+        message: ok ? 'Reset code sent.' : 'Request failed (${res.statusCode}).',
+      );
+    } on DioException catch (e) {
+      return ApiResponse<String>.failure(_dioMessage(e));
+    } catch (e) {
+      return ApiResponse<String>.failure('Unexpected error: $e');
+    }
   }
 
   /// POST /api/auth/reset-password
