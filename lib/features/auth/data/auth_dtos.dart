@@ -79,20 +79,23 @@ class ChangePasswordRequest {
 
 /// ResetPasswordRequestDto — POST /api/auth/reset-password
 class ResetPasswordRequest {
-  final String email;
+  final String? email;
+  final String? phoneNumber;
   final String token;
   final String newPassword; // min 6
   final String confirmPassword;
 
   const ResetPasswordRequest({
-    required this.email,
+    this.email,
+    this.phoneNumber,
     required this.token,
     required this.newPassword,
     required this.confirmPassword,
   });
 
   Map<String, dynamic> toJson() => {
-        'email': email,
+        if (email != null) 'email': email,
+        if (phoneNumber != null) 'phoneNumber': phoneNumber,
         'token': token,
         'newPassword': newPassword,
         'confirmPassword': confirmPassword,

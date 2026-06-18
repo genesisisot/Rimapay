@@ -316,25 +316,10 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  /// Face verification step of the forgot-password flow.
-  /// Captures a selfie locally for UX.
-  /// The backend sent the OTP when forgotPassword() was called
-  /// ("Password reset initiated"), so we proceed to the OTP step.
-  Future<bool> forgotPasswordFaceVerify({
-    required String capturedImageBase64,
-    required String phoneNumber,
-    bool? livenessCheckPassed,
-  }) async {
-    // The onboarding validate-face endpoint requires an onboarding sessionId
-    // which the forgot-password flow doesn't have.  The backend team should
-    // add a dedicated face-verify endpoint that accepts a phone number.
-    // For now we proceed without the API call — the OTP was already sent.
-    return true;
-  }
-
-  /// POST /api/auth/reset-password — set a new password using the emailed token.
+  /// POST /api/auth/reset-password — set a new password using the emailed/phoned token.
   Future<bool> resetPassword({
-    required String email,
+    String? email,
+    String? phoneNumber,
     required String token,
     required String newPassword,
     required String confirmPassword,
@@ -345,6 +330,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       final res = await AuthApiService().resetPassword(ResetPasswordRequest(
         email: email,
+        phoneNumber: phoneNumber,
         token: token,
         newPassword: newPassword,
         confirmPassword: confirmPassword,

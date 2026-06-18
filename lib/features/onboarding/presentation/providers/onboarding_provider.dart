@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/onboarding_api_service.dart';
 import '../../data/onboarding_dtos.dart';
+import '../../../../core/services/storage_service.dart';
 
 /// Tracks which UI step the onboarding flow is on.
 enum OnboardingStep {
@@ -143,18 +144,29 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     String? email,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
+
+    final deviceId = await StorageService.getDeviceId();
+
     final status = await _api.checkStatus(
       CheckOnboardingStatusRequest(phoneNumber: phoneNumber),
     );
     if (status.isSuccess && status.data != null) {
       final s = status.data!;
-      if (s.hasActiveSession && s.canResume && s.sessionId != null) {
-        return await _resumeSession(s.sessionId!);
+      if (s.status == OnboardingStatus.completed) {
+        state = state.copyWith(
+          isLoading: false,
+          error:
+              'An account already exists with this phone number. Please log in instead.',
+          currentStep: OnboardingStep.initialEntry,
+        );
+        return false;
       }
-      // No session, or it can't be resumed → start a fresh one.
+      if (s.hasActiveSession && s.canResume && s.sessionId != null) {
+        return await _resumeSession(s.sessionId!, deviceId: deviceId);
+      }
     }
-    // check-status failed (network) or there's nothing to resume → initiate.
-    return await initiate(phoneNumber: phoneNumber, email: email);
+    return await initiate(
+        phoneNumber: phoneNumber, email: email, deviceId: deviceId);
   }
 
   /// Step 1: Initiate onboarding (BVN/NIN + phone -> OTP sent).
@@ -190,7 +202,7 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     }
     if (!res.isSuccess) {
       if (res.errorCode == 'ACTIVE_SESSION_EXISTS' && res.data != null) {
-        return await _resumeSession(res.data!.sessionId);
+        return await _resumeSession(res.data!.sessionId, deviceId: deviceId);
       }
       if (res.errorCode == 'CANNOT_RESUME') {
         state = state.copyWith(
@@ -400,6 +412,7 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     String? identityNumber,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
+    final deviceId = await StorageService.getDeviceId();
     final res = await _api.checkStatus(CheckOnboardingStatusRequest(
       phoneNumber: phoneNumber,
       email: email,
@@ -408,7 +421,7 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     if (res.isSuccess && res.data != null) {
       final d = res.data!;
       if (d.hasActiveSession && d.canResume && d.sessionId != null) {
-        return await _resumeSession(d.sessionId!);
+        return await _resumeSession(d.sessionId!, deviceId: deviceId);
       }
       state = state.copyWith(isLoading: false);
       return false;
@@ -417,9 +430,10 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     return false;
   }
 
-  Future<bool> _resumeSession(String sessionId) async {
+  Future<bool> _resumeSession(String sessionId, {String? deviceId}) async {
     final res = await _api.resume(ResumeOnboardingRequest(
       sessionId: sessionId,
+      deviceId: deviceId,
     ));
     if (res.isSuccess && res.data != null) {
       final d = res.data!;

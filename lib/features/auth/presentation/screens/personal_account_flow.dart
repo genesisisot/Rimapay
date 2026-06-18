@@ -756,10 +756,36 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       }
       _animateTo(_accountStepForOnboardingStep(st.currentStep));
     } else {
-      _snack(
-          ref.read(onboardingProvider).error ??
-              'Failed to send verification code. Please try again.',
-          isError: true);
+      final err = ref.read(onboardingProvider).error;
+      if (err != null &&
+          err.contains('account already exists')) {
+        if (!mounted) return;
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Account exists'),
+            content: const Text(
+                'An account already exists with this phone number. Please log in instead.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: const Text('OK'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  context.push('/auth');
+                },
+                child: const Text('Go to Login'),
+              ),
+            ],
+          ),
+        );
+      } else {
+        _snack(
+            err ?? 'Failed to send verification code. Please try again.',
+            isError: true);
+      }
     }
   }
 
@@ -1407,8 +1433,14 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   }
 
   void _onPasswordContinue() async {
-    if (_password != _confirmPassword) {
-      _snack('Passwords do not match. Please try again.', isError: true);
+    final pwdErr = _validatePassword(_password);
+    if (pwdErr != null) {
+      _snack(pwdErr, isError: true);
+      return;
+    }
+    final confirmErr = _validateConfirmPassword(_confirmPassword);
+    if (confirmErr != null) {
+      _snack(confirmErr, isError: true);
       return;
     }
     setState(() => _isLoading = true);
@@ -2936,14 +2968,14 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   child: Column(
                     children: [
                       const Text(
-                        'Remove glasses if wearing any',
+                        'Position your face in the oval',
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
                             color: Color(0xFF111827)),
                       ),
                       const SizedBox(height: 4),
-                      Text('Hold still...',
+                      Text('Ensure good lighting',
                           style: TextStyle(
                               fontSize: 13, color: Colors.grey.shade500)),
                       const SizedBox(height: 16),
@@ -2960,7 +2992,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                           ),
                           child: Center(
                             child: Text(
-                              _cameraActive ? 'Capture' : 'Start Camera',
+                              _cameraActive ? 'Take Selfie' : 'Start Camera',
                               style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -4063,6 +4095,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     try {
       final image = await _cameraController!.takePicture();
       final bytes = await image.readAsBytes();
+      final base64Image = base64Encode(bytes);
       setState(() {
         _capturedImage = image.path;
         _cameraActive = false;
@@ -4071,8 +4104,10 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       });
       _cameraController?.dispose();
       _cameraController = null;
+
+      // Selfie captured live via camera — flag liveness as passed
       final ok = await ref.read(onboardingProvider.notifier).validateFace(
-            capturedImageBase64: base64Encode(bytes),
+            capturedImageBase64: base64Image,
             livenessCheckPassed: true,
           );
       if (!mounted) return;
