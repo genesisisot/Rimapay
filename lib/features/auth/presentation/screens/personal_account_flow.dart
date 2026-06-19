@@ -187,6 +187,10 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     // Start each signup attempt from a clean onboarding session.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(onboardingProvider.notifier).reset();
+      if (widget.accountType == 'underbanked') {
+        ref.read(onboardingProvider.notifier).setMockMode(true);
+        ref.read(profileProvider.notifier).setMockMode(true);
+      }
     });
   }
 

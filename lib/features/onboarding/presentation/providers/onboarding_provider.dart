@@ -56,6 +56,10 @@ class OnboardingState {
   /// "Resuming…" hint and navigate to the resumed step.
   final bool justResumed;
 
+  /// When true all API calls are skipped and fake success data is returned.
+  /// Used by the underbanked flow for UI-only testing.
+  final bool mockMode;
+
   const OnboardingState({
     this.isLoading = false,
     this.error,
@@ -77,6 +81,7 @@ class OnboardingState {
     this.pinCreated = false,
     this.onboardingComplete = false,
     this.justResumed = false,
+    this.mockMode = false,
   });
 
   OnboardingState copyWith({
@@ -100,6 +105,7 @@ class OnboardingState {
     bool? pinCreated,
     bool? onboardingComplete,
     bool? justResumed,
+    bool? mockMode,
   }) {
     return OnboardingState(
       isLoading: isLoading ?? this.isLoading,
@@ -122,6 +128,7 @@ class OnboardingState {
       pinCreated: pinCreated ?? this.pinCreated,
       onboardingComplete: onboardingComplete ?? this.onboardingComplete,
       justResumed: justResumed ?? this.justResumed,
+      mockMode: mockMode ?? this.mockMode,
     );
   }
 }
@@ -144,6 +151,20 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     String? email,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
+
+    if (state.mockMode) {
+      state = state.copyWith(
+        isLoading: false,
+        sessionId: 'mock-session-001',
+        otpReference: 'mock-otp-ref',
+        maskedDestination: '•••••••${phoneNumber.substring(phoneNumber.length - 3)}',
+        otpExpiresAt: DateTime.now().add(const Duration(minutes: 10)),
+        firstName: 'John',
+        lastName: 'Doe',
+        currentStep: OnboardingStep.otpVerification,
+      );
+      return true;
+    }
 
     final deviceId = await StorageService.getDeviceId();
 
@@ -228,6 +249,16 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       return false;
     }
     state = state.copyWith(isLoading: true, error: null);
+
+    if (state.mockMode) {
+      state = state.copyWith(
+        isLoading: false,
+        otpVerified: true,
+        currentStep: OnboardingStep.facialValidation,
+      );
+      return true;
+    }
+
     final res = await _api.verifyOtp(VerifyOnboardingOtpRequest(
       sessionId: sessionId,
       otpCode: otpCode,
@@ -316,6 +347,17 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       return false;
     }
     state = state.copyWith(isLoading: true, error: null);
+
+    if (state.mockMode) {
+      state = state.copyWith(
+        isLoading: false,
+        facialMatch: true,
+        confidenceScore: 0.97,
+        currentStep: OnboardingStep.createPassword,
+      );
+      return true;
+    }
+
     final res = await _api.validateFace(FacialValidationRequest(
       sessionId: sessionId,
       capturedImageBase64: capturedImageBase64,
@@ -353,6 +395,18 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       return false;
     }
     state = state.copyWith(isLoading: true, error: null);
+
+    if (state.mockMode) {
+      state = state.copyWith(
+        isLoading: false,
+        currentStep: OnboardingStep.createPin,
+        accountNumber: '0000000000',
+        identityUserId: 'mock-identity-001',
+        passwordCreated: true,
+      );
+      return true;
+    }
+
     final res = await _api.createPassword(CreatePasswordRequest(
       sessionId: sessionId,
       password: password,
@@ -384,6 +438,17 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       return false;
     }
     state = state.copyWith(isLoading: true, error: null);
+
+    if (state.mockMode) {
+      state = state.copyWith(
+        isLoading: false,
+        currentStep: OnboardingStep.completed,
+        pinCreated: true,
+        onboardingComplete: true,
+      );
+      return true;
+    }
+
     final res = await _api.createPin(CreatePinRequest(
       sessionId: sessionId,
       pin: pin,
@@ -502,6 +567,10 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       OnboardingStage.completed => OnboardingStep.completed,
       OnboardingStage.failed => OnboardingStep.initialEntry,
     };
+  }
+
+  void setMockMode(bool v) {
+    state = state.copyWith(mockMode: v);
   }
 
   void clearError() {

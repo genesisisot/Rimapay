@@ -13,6 +13,7 @@ class ProfileState {
   final bool addressCompleted;
   final bool pepCompleted;
   final bool sourceOfIncomeCompleted;
+  final bool mockMode;
 
   const ProfileState({
     this.isLoading = false,
@@ -22,6 +23,7 @@ class ProfileState {
     this.addressCompleted = false,
     this.pepCompleted = false,
     this.sourceOfIncomeCompleted = false,
+    this.mockMode = false,
   });
 
   ProfileState copyWith({
@@ -32,6 +34,7 @@ class ProfileState {
     bool? addressCompleted,
     bool? pepCompleted,
     bool? sourceOfIncomeCompleted,
+    bool? mockMode,
   }) {
     return ProfileState(
       isLoading: isLoading ?? this.isLoading,
@@ -42,6 +45,7 @@ class ProfileState {
       pepCompleted: pepCompleted ?? this.pepCompleted,
       sourceOfIncomeCompleted:
           sourceOfIncomeCompleted ?? this.sourceOfIncomeCompleted,
+      mockMode: mockMode ?? this.mockMode,
     );
   }
 }
@@ -85,8 +89,21 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
     return false;
   }
 
+  void setMockMode(bool v) {
+    state = state.copyWith(mockMode: v);
+  }
+
   Future<bool> createProfile(CreateProfileRequest request) async {
     state = state.copyWith(isLoading: true, error: null);
+
+    if (state.mockMode) {
+      state = state.copyWith(
+        isLoading: false,
+        profileCreated: true,
+      );
+      return true;
+    }
+
     final res = await _api.create(request);
     if (res.isSuccess) {
       state = state.copyWith(
