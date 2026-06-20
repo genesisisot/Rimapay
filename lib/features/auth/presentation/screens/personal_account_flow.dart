@@ -1213,9 +1213,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     }
     // Store phone if filled
     if (_phoneDigits.length >= 10) {
-      _personalInfo.phoneNumber = _phoneDigits.startsWith('0')
-          ? _phoneDigits
-          : '0$_phoneDigits';
+      final raw = _phoneDigits.replaceAll(RegExp(r'[^\d]'), '').replaceFirst(RegExp('^0+'), '');
+      _personalInfo.phoneNumber = '+234$raw';
     }
 
     // Navigate regardless of validation
@@ -3894,7 +3893,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       // secret) — they can still sign in from the login screen.
       final onboardingState = ref.read(onboardingProvider);
       if (_password.isNotEmpty && mounted) {
-        final phoneNum = _phoneDigits.startsWith('0') ? _phoneDigits : '0$_phoneDigits';
+        final raw = _phoneDigits.replaceAll(RegExp(r'[^\d]'), '').replaceFirst(RegExp('^0+'), '');
+        final phoneNum = '+234$raw';
         await legacy_provider.Provider.of<AuthProvider>(context, listen: false)
             .loginWithCredentials(
           phoneNumber: phoneNum,
@@ -3903,7 +3903,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       }
       // Always save user data from onboarding (fallback if login fails).
       if (mounted) {
-        final phoneNum = _phoneDigits.startsWith('0') ? _phoneDigits : '0$_phoneDigits';
+        final raw = _phoneDigits.replaceAll(RegExp(r'[^\d]'), '').replaceFirst(RegExp('^0+'), '');
+        final phoneNum = '+234$raw';
         legacy_provider.Provider.of<AuthProvider>(context, listen: false)
             .saveOnboardingUser(
           phoneNumber: phoneNum,

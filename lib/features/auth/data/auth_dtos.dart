@@ -54,7 +54,7 @@ class LoginRequest {
         'email': email,
         if (phoneNumber != null) 'phoneNumber': phoneNumber,
         'password': password,
-        'DeviceId': deviceId,
+        'deviceId': deviceId,
       };
 }
 

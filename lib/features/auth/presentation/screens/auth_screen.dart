@@ -391,8 +391,8 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                         ),
                         prefixWidth: 72,
                         onChanged: (v) => setState(() {
-                          final digits = v.replaceAll(RegExp(r'[^\d]'), '');
-                          _loginForm['phoneNumber'] = '234$digits';
+                          final digits = v.replaceAll(RegExp(r'[^\d]'), '').replaceFirst(RegExp('^0+'), '');
+                          _loginForm['phoneNumber'] = '+234$digits';
                         }),
                       ),
                       const SizedBox(height: 18),

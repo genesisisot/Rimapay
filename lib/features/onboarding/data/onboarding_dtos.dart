@@ -237,6 +237,7 @@ class SubmitIdentityResponse {
   final OnboardingStage currentStage;
   final String? firstName;
   final String? lastName;
+  final ValidatedIdentityData? identityData;
   final String? message;
 
   const SubmitIdentityResponse({
@@ -244,6 +245,7 @@ class SubmitIdentityResponse {
     required this.currentStage,
     this.firstName,
     this.lastName,
+    this.identityData,
     this.message,
   });
 
@@ -254,6 +256,10 @@ class SubmitIdentityResponse {
             OnboardingStage.fromJson(json['currentStage']),
         firstName: json['firstName'] as String?,
         lastName: json['lastName'] as String?,
+        identityData: json['identityData'] != null
+            ? ValidatedIdentityData.fromJson(
+                json['identityData'] as Map<String, dynamic>)
+            : null,
         message: json['message'] as String?,
       );
 }

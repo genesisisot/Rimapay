@@ -17,15 +17,21 @@ class DioClient {
 
   static final DioClient instance = DioClient._();
 
-  /// Endpoints that must never carry a stale token or trigger a refresh loop.
-  static const _noAuthPaths = <String>{
+  /// Endpoint prefixes that must never carry a stale token or trigger a refresh loop.
+  /// All onboarding and unauthenticated auth paths are included.
+  static const _noAuthPrefixes = <String>{
     '/api/auth/login',
     '/api/auth/create-user',
     '/api/auth/refresh-token',
     '/api/auth/forgot-password',
     '/api/auth/reset-password',
     '/api/auth/verify-email',
+    '/api/v1/onboarding/',
+    '/api/v1/file/',
   };
+
+  static bool _shouldSkipAuth(String path) =>
+      _noAuthPrefixes.any((p) => path.startsWith(p));
 
   bool _isRefreshing = false;
 
@@ -61,7 +67,7 @@ class DioClient {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          if (!_noAuthPaths.contains(options.path)) {
+          if (!_shouldSkipAuth(options.path)) {
             final token = await StorageService.getAccessToken();
             if (token != null && token.isNotEmpty) {
               options.headers['Authorization'] = 'Bearer $token';
@@ -78,7 +84,7 @@ class DioClient {
 
           if (isAuthError &&
               !alreadyRetried &&
-              !_noAuthPaths.contains(path)) {
+              !_shouldSkipAuth(path)) {
             final refreshed = await _refreshToken();
             if (refreshed) {
               try {
