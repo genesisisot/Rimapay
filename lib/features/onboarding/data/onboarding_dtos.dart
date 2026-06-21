@@ -156,6 +156,29 @@ class InitiateOnboardingResponse {
   }
 }
 
+// ── Initiate Existing ────────────────────────────────────────────────────────
+
+class InitiateExistingOnboardingRequest {
+  final String accountNumber;
+  final String? deviceId;
+  final String? deviceInfo;
+  final String? ipAddress;
+
+  const InitiateExistingOnboardingRequest({
+    required this.accountNumber,
+    this.deviceId,
+    this.deviceInfo,
+    this.ipAddress,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'accountNumber': accountNumber,
+        if (deviceId != null) 'deviceId': deviceId,
+        if (deviceInfo != null) 'deviceInfo': deviceInfo,
+        if (ipAddress != null) 'ipAddress': ipAddress,
+      };
+}
+
 // ── Verify OTP ──────────────────────────────────────────────────────────────
 
 class VerifyOnboardingOtpRequest {

@@ -19,6 +19,13 @@ class OnboardingApiService {
         fromData: (d) => InitiateOnboardingResponse.fromJson(d));
   }
 
+  /// POST /api/v1/onboarding/initiate-existing
+  Future<ApiResponse<InitiateOnboardingResponse>> initiateExisting(
+      InitiateExistingOnboardingRequest request) {
+    return _post('/api/v1/onboarding/initiate-existing', request.toJson(),
+        fromData: (d) => InitiateOnboardingResponse.fromJson(d));
+  }
+
   /// POST /api/v1/onboarding/verify-otp
   Future<ApiResponse<VerifyOnboardingOtpResponse>> verifyOtp(
       VerifyOnboardingOtpRequest request) {

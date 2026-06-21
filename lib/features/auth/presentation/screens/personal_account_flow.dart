@@ -29,14 +29,14 @@ import 'package:rimapay/core/theme/app_colors.dart';
 
 /// Temporary build marker so we can confirm which deployment is actually
 /// running in the browser (shown tiny under the phone-step button).
-const String kBuildTag = 'build #11 · 2026-06-09';
+const String kBuildTag = 'build #12 · 2026-06-20';
 
 // ─── Step enum ───────────────────────────────────────────────────────────────
 
 enum AccountStep {
   phoneEntry, // 1. Enter phone number
   otpVerification, // 2. OTP verification
-  idEntry, // 3. Enter BVN/NIN
+  idEntry, // 4. Enter BVN/NIN
   facialVerification, // 4. Face validation
   createPassword, // 5. Create & Confirm password
   createPin, // 6. Create PIN
@@ -760,35 +760,10 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       }
       _animateTo(_accountStepForOnboardingStep(st.currentStep));
     } else {
-      final err = ref.read(onboardingProvider).error;
-      if (err != null &&
-          err.contains('account already exists')) {
-        if (!mounted) return;
-        showDialog(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: const Text('Account exists'),
-            content: const Text(
-                'An account already exists with this phone number. Please log in instead.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text('OK'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(ctx).pop();
-                  context.push('/auth');
-                },
-                child: const Text('Go to Login'),
-              ),
-            ],
-          ),
-        );
-      } else {
-        _snack(
-            err ?? 'Failed to send verification code. Please try again.',
-            isError: true);
+      final st = ref.read(onboardingProvider);
+      final err = st.error;
+      if (err != null) {
+        _snack(err, isError: true);
       }
     }
   }
@@ -1214,7 +1189,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     // Store phone if filled
     if (_phoneDigits.length >= 10) {
       final raw = _phoneDigits.replaceAll(RegExp(r'[^\d]'), '').replaceFirst(RegExp('^0+'), '');
-      _personalInfo.phoneNumber = '+234$raw';
+      _personalInfo.phoneNumber = '234$raw';
     }
 
     // Navigate regardless of validation
@@ -1456,9 +1431,9 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     if (ok) {
       _animateTo(AccountStep.createPin);
     } else {
+      final st = ref.read(onboardingProvider);
       _snack(
-          ref.read(onboardingProvider).error ??
-              'Failed to set password. Please try again.',
+          st.error ?? 'Failed to set password. Please try again.',
           isError: true);
     }
   }
@@ -3894,7 +3869,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       final onboardingState = ref.read(onboardingProvider);
       if (_password.isNotEmpty && mounted) {
         final raw = _phoneDigits.replaceAll(RegExp(r'[^\d]'), '').replaceFirst(RegExp('^0+'), '');
-        final phoneNum = '+234$raw';
+        final phoneNum = '234$raw';
         await legacy_provider.Provider.of<AuthProvider>(context, listen: false)
             .loginWithCredentials(
           phoneNumber: phoneNum,
@@ -3904,7 +3879,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       // Always save user data from onboarding (fallback if login fails).
       if (mounted) {
         final raw = _phoneDigits.replaceAll(RegExp(r'[^\d]'), '').replaceFirst(RegExp('^0+'), '');
-        final phoneNum = '+234$raw';
+        final phoneNum = '234$raw';
         legacy_provider.Provider.of<AuthProvider>(context, listen: false)
             .saveOnboardingUser(
           phoneNumber: phoneNum,

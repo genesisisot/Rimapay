@@ -316,6 +316,31 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  /// POST /api/auth/verify-face-reset — second step of password reset.
+  /// Returns a new session token on success (for use with reset-password), null on failure.
+  Future<String?> verifyFaceReset({
+    required String sessionToken,
+    required String faceImage,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      final res = await AuthApiService().verifyFaceReset(
+        VerifyFaceResetRequest(sessionToken: sessionToken, faceImage: faceImage),
+      );
+      if (res.isSuccess) return res.data;
+      _error = res.errorMessage;
+      return null;
+    } catch (e) {
+      _error = e.toString();
+      return null;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   /// POST /api/auth/reset-password — set a new password using the emailed/phoned token.
   Future<bool> resetPassword({
     String? email,

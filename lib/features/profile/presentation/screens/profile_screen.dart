@@ -5,10 +5,10 @@ import 'package:rimapay/core/theme/app_colors.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart' hide Consumer;
 import '../../../../core/providers/theme_provider.dart';
 import '../../../../shared/widgets/noise_painter.dart';
 import '../providers/profile_provider.dart';
-import 'package:flutter/foundation.dart';
 import '../../../../core/providers/auth_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -25,9 +25,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
   bool _showImageOptions = false;
 
   final _imagePicker = ImagePicker();
-  final _nameController = TextEditingController(text: 'Adebayo Johnson');
-  final _emailController =
-      TextEditingController(text: 'adebayo.johnson@mail.com');
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
 
   // PIN management
   final _currentPinController = TextEditingController();
@@ -38,11 +37,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
   late Animation<double> _scaleAnim;
 
   final Map<String, String> _data = {
-    'fullName': 'Adebayo Johnson',
-    'phone': '08137954069',
-    'email': 'adebayo.johnson@mail.com',
-    'gender': 'Male',
-    'dateOfBirth': '15th Feb, 1995',
+    'fullName': '',
+    'phone': '',
+    'email': '',
+    'gender': '',
+    'dateOfBirth': '',
   };
 
   // Tier info
@@ -61,7 +60,49 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(profileProvider.notifier).fetchCompletionStatus();
+      _loadUserData();
+      _fetchProfile();
     });
+  }
+
+  void _loadUserData() {
+    final auth = context.read<AuthProvider>();
+    final user = auth.user;
+    if (user != null) {
+      final name = user.displayName;
+      _nameController.text = name;
+      _data['fullName'] = name;
+      _data['phone'] = user.phoneNumber ?? '';
+      _data['email'] = user.email;
+      _emailController.text = user.email;
+    }
+  }
+
+  Future<void> _fetchProfile() async {
+    final ok = await ref.read(profileProvider.notifier).fetchMyProfile();
+    if (ok && mounted) {
+      final profile = ref.read(profileProvider).profile;
+      if (profile != null) {
+        setState(() {
+          final name = [profile.firstName, profile.lastName]
+              .where((s) => s != null && s.isNotEmpty)
+              .join(' ');
+          if (name.isNotEmpty) {
+            _data['fullName'] = name;
+            _nameController.text = name;
+          }
+          if (profile.email != null && profile.email!.isNotEmpty) {
+            _data['email'] = profile.email!;
+            _emailController.text = profile.email!;
+          }
+          if (profile.phoneNumber != null && profile.phoneNumber!.isNotEmpty) {
+            _data['phone'] = profile.phoneNumber!;
+          }
+          _data['gender'] = profile.gender ?? _data['gender']!;
+          _data['dateOfBirth'] = profile.dateOfBirth ?? _data['dateOfBirth']!;
+        });
+      }
+    }
   }
 
   @override
@@ -285,7 +326,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             iconColor: const Color(0xFF3B82F6),
             bgColor: const Color(0xFFEFF6FF),
             label: 'GENDER',
-            value: _data['gender']!,
+            value: _data['gender']!.isNotEmpty ? _data['gender']! : 'Not set',
           ),
           const SizedBox(height: 10),
           _buildInfoCard(
@@ -293,7 +334,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             iconColor: const Color(0xFFEC4899),
             bgColor: const Color(0xFFFDF2F8),
             label: 'DATE OF BIRTH',
-            value: _data['dateOfBirth']!,
+            value: _data['dateOfBirth']!.isNotEmpty ? _data['dateOfBirth']! : 'Not set',
           ),
           const SizedBox(height: 20),
 

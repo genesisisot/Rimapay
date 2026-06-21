@@ -2,11 +2,15 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:rimapay/Utils/Logics.dart';
 import 'package:rimapay/core/router/app_router.dart';
+import 'package:rimapay/core/services/storage_service.dart';
+import 'package:rimapay/features/onboarding/data/onboarding_dtos.dart';
+import 'package:rimapay/features/onboarding/presentation/providers/onboarding_provider.dart';
 import '../../../../core/providers/auth_provider.dart';
 import '../../../../core/providers/language_provider.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -392,7 +396,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                         prefixWidth: 72,
                         onChanged: (v) => setState(() {
                           final digits = v.replaceAll(RegExp(r'[^\d]'), '').replaceFirst(RegExp('^0+'), '');
-                          _loginForm['phoneNumber'] = '+234$digits';
+                          _loginForm['phoneNumber'] = '234$digits';
                         }),
                       ),
                       const SizedBox(height: 18),
@@ -1016,24 +1020,25 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
 
 // ── Link Existing Account Sheet ───────────────────────────────────────────────
 
-class _LinkDeviceSheet extends StatefulWidget {
+class _LinkDeviceSheet extends ConsumerStatefulWidget {
   const _LinkDeviceSheet();
 
   @override
-  State<_LinkDeviceSheet> createState() => _LinkDeviceSheetState();
+  ConsumerState<_LinkDeviceSheet> createState() => _LinkDeviceSheetState();
 }
 
-class _LinkDeviceSheetState extends State<_LinkDeviceSheet> {
-  int _step = 0; // 0=phone, 1=otp+pin, 2=success
-  final _phoneCtrl = TextEditingController();
-  final _pinCtrl = TextEditingController();
+class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
+  int _step = 0; // 0=account, 1=otp, 2=success
+  final _acctCtrl = TextEditingController();
   final List<String> _otp = List.filled(6, '');
   bool _loading = false;
+  String? _error;
+  String? _sessionId;
+  String? _otpRef;
 
   @override
   void dispose() {
-    _phoneCtrl.dispose();
-    _pinCtrl.dispose();
+    _acctCtrl.dispose();
     super.dispose();
   }
 
@@ -1088,7 +1093,7 @@ class _LinkDeviceSheetState extends State<_LinkDeviceSheet> {
                               fontWeight: FontWeight.w800,
                               color: Theme.of(context).colorScheme.onSurface)),
                       const SizedBox(height: 2),
-                      Text('Verify identity to link to this device',
+                      Text('Verify your existing account to continue',
                           style: TextStyle(
                               fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
                     ],
@@ -1096,8 +1101,8 @@ class _LinkDeviceSheetState extends State<_LinkDeviceSheet> {
                 ],
               ),
               const SizedBox(height: 24),
-              if (_step == 0) _buildPhoneStep(),
-              if (_step == 1) _buildOtpPinStep(),
+              if (_step == 0) _buildAccountStep(),
+              if (_step == 1) _buildOtpStep(),
             ],
           ],
         ),
@@ -1105,7 +1110,7 @@ class _LinkDeviceSheetState extends State<_LinkDeviceSheet> {
     );
   }
 
-  Widget _buildPhoneStep() {
+  Widget _buildAccountStep() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1138,7 +1143,7 @@ class _LinkDeviceSheetState extends State<_LinkDeviceSheet> {
                 color: Theme.of(context).colorScheme.onSurface)),
         const SizedBox(height: 8),
         TextField(
-          controller: _phoneCtrl,
+          controller: _acctCtrl,
           keyboardType: TextInputType.text,
           style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSurface),
           decoration: InputDecoration(
@@ -1163,14 +1168,13 @@ class _LinkDeviceSheetState extends State<_LinkDeviceSheet> {
             ),
           ),
         ),
+        if (_error != null) ...[
+          const SizedBox(height: 8),
+          Text(_error!, style: const TextStyle(color: Colors.red, fontSize: 12)),
+        ],
         const SizedBox(height: 20),
         GestureDetector(
-          onTap: () async {
-            if (_phoneCtrl.text.trim().isEmpty) return;
-            setState(() => _loading = true);
-            await Future.delayed(const Duration(seconds: 2));
-            if (mounted) setState(() { _loading = false; _step = 1; });
-          },
+          onTap: _onSendVerification,
           child: Container(
             width: double.infinity,
             height: 52,
@@ -1199,7 +1203,71 @@ class _LinkDeviceSheetState extends State<_LinkDeviceSheet> {
     );
   }
 
-  Widget _buildOtpPinStep() {
+  Future<void> _onSendVerification() async {
+    final acct = _acctCtrl.text.trim();
+    if (acct.isEmpty || acct.length != 10) {
+      setState(() => _error = 'Enter a valid 10-digit account number.');
+      return;
+    }
+    setState(() { _loading = true; _error = null; });
+    try {
+      final deviceId = await StorageService.getDeviceId();
+      final api = ref.read(onboardingApiServiceProvider);
+      final res = await api.initiateExisting(
+        InitiateExistingOnboardingRequest(
+          accountNumber: acct,
+          deviceId: deviceId,
+        ),
+      );
+      if (!mounted) return;
+      if (res.isSuccess && res.data != null) {
+        final d = res.data!;
+        setState(() {
+          _sessionId = d.sessionId;
+          _otpRef = d.otpReference;
+          _step = 1;
+          _loading = false;
+          _error = null;
+        });
+        return;
+      }
+      if (res.errorCode == 'ACTIVE_SESSION_EXISTS' && res.data != null) {
+        // Resume the existing session and get a fresh OTP
+        final resumeRes = await api.resume(ResumeOnboardingRequest(
+          sessionId: res.data!.sessionId,
+          deviceId: deviceId,
+        ));
+        if (!mounted) return;
+        if (resumeRes.isSuccess && resumeRes.data != null) {
+          _sessionId = res.data!.sessionId;
+          if (resumeRes.data!.requiresOtpResend) {
+            final otpRes = await api.resendOtp(
+              ResendOnboardingOtpRequest(sessionId: _sessionId!),
+            );
+            if (!mounted) return;
+            if (otpRes.isSuccess && otpRes.data != null) {
+              _otpRef = otpRes.data!.otpReference;
+            }
+          }
+          setState(() { _step = 1; _loading = false; _error = null; });
+          return;
+        }
+        setState(() {
+          _loading = false;
+          _error = 'Could not resume session. Please try again.';
+        });
+        return;
+      }
+      setState(() {
+        _loading = false;
+        _error = res.errorMessage ?? 'Could not verify account.';
+      });
+    } catch (e) {
+      if (mounted) setState(() { _loading = false; _error = 'Network error. Please try again.'; });
+    }
+  }
+
+  Widget _buildOtpStep() {
     final filled = _otp.where((d) => d.isNotEmpty).length;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1245,8 +1313,11 @@ class _LinkDeviceSheetState extends State<_LinkDeviceSheet> {
             );
           }),
         ),
+        if (_error != null) ...[
+          const SizedBox(height: 8),
+          Text(_error!, style: const TextStyle(color: Colors.red, fontSize: 12)),
+        ],
         const SizedBox(height: 16),
-        // Mini numpad
         ...([['1','2','3'],['4','5','6'],['7','8','9'],['','0','⌫']].map((row) =>
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
@@ -1287,12 +1358,7 @@ class _LinkDeviceSheetState extends State<_LinkDeviceSheet> {
         ).toList()),
         const SizedBox(height: 8),
         GestureDetector(
-          onTap: () async {
-            if (filled < 6) return;
-            setState(() => _loading = true);
-            await Future.delayed(const Duration(seconds: 2));
-            if (mounted) setState(() { _loading = false; _step = 2; });
-          },
+          onTap: _onLinkAccount,
           child: Container(
             width: double.infinity,
             height: 52,
@@ -1323,6 +1389,35 @@ class _LinkDeviceSheetState extends State<_LinkDeviceSheet> {
     );
   }
 
+  Future<void> _onLinkAccount() async {
+    final filled = _otp.where((d) => d.isNotEmpty).length;
+    if (filled < 6) return;
+    if (_sessionId == null || _otpRef == null) {
+      setState(() => _error = 'Session expired. Please start again.');
+      return;
+    }
+    setState(() { _loading = true; _error = null; });
+    try {
+      final api = ref.read(onboardingApiServiceProvider);
+      final res = await api.verifyOtp(
+        VerifyOnboardingOtpRequest(
+          sessionId: _sessionId!,
+          otpCode: _otp.join(),
+          otpReference: _otpRef!,
+        ),
+      );
+      if (!mounted) return;
+      setState(() => _loading = false);
+      if (res.isSuccess && res.data != null && res.data!.isVerified) {
+        setState(() => _step = 2);
+      } else {
+        setState(() => _error = res.errorMessage ?? 'Invalid code. Please try again.');
+      }
+    } catch (e) {
+      if (mounted) setState(() { _loading = false; _error = 'Network error. Please try again.'; });
+    }
+  }
+
   Widget _buildSuccess() {
     return Column(
       children: [
@@ -1350,7 +1445,7 @@ class _LinkDeviceSheetState extends State<_LinkDeviceSheet> {
         GestureDetector(
           onTap: () {
             Navigator.pop(context);
-            // Navigate to home
+            context.go('/home');
           },
           child: Container(
             width: double.infinity,

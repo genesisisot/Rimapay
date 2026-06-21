@@ -102,6 +102,22 @@ class ResetPasswordRequest {
       };
 }
 
+/// VerifyFaceResetRequestDto — POST /api/auth/verify-face-reset
+class VerifyFaceResetRequest {
+  final String sessionToken;
+  final String faceImage;
+
+  const VerifyFaceResetRequest({
+    required this.sessionToken,
+    required this.faceImage,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'sessionToken': sessionToken,
+        'faceImage': faceImage,
+      };
+}
+
 /// AuthResponseDto — returned by create-user / login / refresh-token.
 class AuthResponse {
   final String? userId;

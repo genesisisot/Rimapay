@@ -24,6 +24,7 @@ class DioClient {
     '/api/auth/create-user',
     '/api/auth/refresh-token',
     '/api/auth/forgot-password',
+    '/api/auth/verify-face-reset',
     '/api/auth/reset-password',
     '/api/auth/verify-email',
     '/api/v1/onboarding/',

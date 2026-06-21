@@ -67,6 +67,25 @@ class AuthApiService {
     }
   }
 
+  /// POST /api/auth/verify-face-reset — second step of password reset
+  Future<ApiResponse<String>> verifyFaceReset(VerifyFaceResetRequest request) async {
+    try {
+      final res = await _dio.post('/api/auth/verify-face-reset', data: request.toJson());
+      final data = res.data;
+      if (data is Map<String, dynamic>) {
+        return ApiResponse<String>.fromJson(
+          data,
+          fromData: (d) => d as String? ?? '',
+        );
+      }
+      return ApiResponse<String>.failure('Unexpected response (${res.statusCode}).');
+    } on DioException catch (e) {
+      return ApiResponse<String>.failure(_dioMessage(e));
+    } catch (e) {
+      return ApiResponse<String>.failure('Unexpected error: $e');
+    }
+  }
+
   /// POST /api/auth/reset-password
   Future<ApiResponse<void>> resetPassword(ResetPasswordRequest request) {
     return _postVoid('/api/auth/reset-password', request.toJson());

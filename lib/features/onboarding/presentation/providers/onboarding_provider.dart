@@ -60,6 +60,10 @@ class OnboardingState {
   /// Used by the underbanked flow for UI-only testing.
   final bool mockMode;
 
+  /// Set to true when an API call returns RELATIONSHIP_EXISTS — signals the UI
+  /// to show the account-number entry step for existing bank customers.
+  final bool isExistingUser;
+
   const OnboardingState({
     this.isLoading = false,
     this.error,
@@ -82,6 +86,7 @@ class OnboardingState {
     this.onboardingComplete = false,
     this.justResumed = false,
     this.mockMode = false,
+    this.isExistingUser = false,
   });
 
   OnboardingState copyWith({
@@ -106,6 +111,7 @@ class OnboardingState {
     bool? onboardingComplete,
     bool? justResumed,
     bool? mockMode,
+    bool? isExistingUser,
   }) {
     return OnboardingState(
       isLoading: isLoading ?? this.isLoading,
@@ -129,6 +135,7 @@ class OnboardingState {
       onboardingComplete: onboardingComplete ?? this.onboardingComplete,
       justResumed: justResumed ?? this.justResumed,
       mockMode: mockMode ?? this.mockMode,
+      isExistingUser: isExistingUser ?? this.isExistingUser,
     );
   }
 }
@@ -235,6 +242,46 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
         );
         return false;
       }
+      if (res.errorCode == 'RELATIONSHIP_EXISTS') {
+        state = state.copyWith(
+          isLoading: false,
+          error: res.errorMessage,
+          isExistingUser: true,
+        );
+        return false;
+      }
+    }
+    state = state.copyWith(isLoading: false, error: res.errorMessage);
+    return false;
+  }
+
+  /// Step 1b: Initiate onboarding for existing users (account number + device).
+  Future<bool> initiateExisting({
+    required String accountNumber,
+    String? deviceId,
+  }) async {
+    state = state.copyWith(isLoading: true, error: null);
+    final res = await _api.initiateExisting(InitiateExistingOnboardingRequest(
+      accountNumber: accountNumber,
+      deviceId: deviceId,
+    ));
+    if (res.isSuccess && res.data != null) {
+      final d = res.data!;
+      state = state.copyWith(
+        isLoading: false,
+        currentStep: OnboardingStep.otpVerification,
+        sessionId: d.sessionId,
+        otpReference: d.otpReference,
+        maskedDestination: d.maskedDestination,
+        otpExpiresAt: d.otpExpiresAt,
+        firstName: d.firstName,
+        lastName: d.lastName,
+        justResumed: false,
+      );
+      return true;
+    }
+    if (res.errorCode == 'ACTIVE_SESSION_EXISTS' && res.data != null) {
+      return await _resumeSession(res.data!.sessionId, deviceId: deviceId);
     }
     state = state.copyWith(isLoading: false, error: res.errorMessage);
     return false;
@@ -423,6 +470,14 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       );
       return true;
     }
+    if (res.errorCode == 'RELATIONSHIP_EXISTS') {
+      state = state.copyWith(
+        isLoading: false,
+        error: res.errorMessage,
+        isExistingUser: true,
+      );
+      return false;
+    }
     state = state.copyWith(isLoading: false, error: res.errorMessage);
     return false;
   }
@@ -513,11 +568,10 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
         otpVerified: !landsOnOtp,
         justResumed: true,
       );
-      // Only request a fresh OTP when the resumed session is actually back at
-      // the OTP step (resume never returns an otpReference). For later stages
-      // (identity/face/password/pin) the backend rejects resend with
-      // "Cannot resend OTP at current stage", so never call it there.
-      if (landsOnOtp) {
+      // Only request a fresh OTP when the resumed session is at a pre-OTP
+      // stage and the backend says it is needed. For later stages it would
+      // be rejected, so never call it there.
+      if (landsOnOtp && d.requiresOtpResend) {
         await resendOtp();
       }
       return true;
