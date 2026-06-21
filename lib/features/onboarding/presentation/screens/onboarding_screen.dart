@@ -193,7 +193,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           loading: state.isLoading,
           enabled: canSubmit,
           onTap: () => notifier.initiate(
-            phoneNumber: '+234${_phoneController.text}',
+            phoneNumber: '234${_phoneController.text}',
             identityNumber: _identityController.text,
             documentType: _documentType,
             email: _emailController.text.isEmpty
