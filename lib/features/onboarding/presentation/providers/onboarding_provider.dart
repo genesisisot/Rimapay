@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -206,6 +208,7 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     String? email,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
+    log('[provider] initiate phone=$phoneNumber identity=$identityNumber docType=$documentType');
     final res = await _api.initiate(InitiateOnboardingRequest(
       phoneNumber: phoneNumber,
       identityNumber: identityNumber,
@@ -213,6 +216,7 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       deviceId: deviceId,
       email: email,
     ));
+    log('[provider] initiate → isSuccess=${res.isSuccess} errorCode=${res.errorCode}');
     if (res.isSuccess && res.data != null) {
       final d = res.data!;
       state = state.copyWith(
@@ -261,10 +265,12 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     String? deviceId,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
+    log('[provider] initiateExisting account=$accountNumber');
     final res = await _api.initiateExisting(InitiateExistingOnboardingRequest(
       accountNumber: accountNumber,
       deviceId: deviceId,
     ));
+    log('[provider] initiateExisting → isSuccess=${res.isSuccess} errorCode=${res.errorCode} msg=${res.errorMessage}');
     if (res.isSuccess && res.data != null) {
       final d = res.data!;
       state = state.copyWith(
@@ -280,8 +286,18 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       );
       return true;
     }
-    if (res.errorCode == 'ACTIVE_SESSION_EXISTS' && res.data != null) {
-      return await _resumeSession(res.data!.sessionId, deviceId: deviceId);
+    if (res.errorCode == 'ACTIVE_SESSION_EXISTS') {
+      log('[provider] ACTIVE_SESSION_EXISTS — resuming existing session');
+      final resumeSessionId = res.data?.sessionId;
+      if (resumeSessionId == null) {
+        log('[provider] ACTIVE_SESSION_EXISTS but no sessionId in data');
+        state = state.copyWith(
+          isLoading: false,
+          error: 'An active session exists but could not be resumed.',
+        );
+        return false;
+      }
+      return await _resumeSession(resumeSessionId, deviceId: deviceId);
     }
     state = state.copyWith(isLoading: false, error: res.errorMessage);
     return false;
@@ -551,14 +567,17 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
   }
 
   Future<bool> _resumeSession(String sessionId, {String? deviceId}) async {
+    log('[provider] resume sessionId=$sessionId');
     final res = await _api.resume(ResumeOnboardingRequest(
       sessionId: sessionId,
       deviceId: deviceId,
     ));
+    log('[provider] resume → isSuccess=${res.isSuccess} errorCode=${res.errorCode}');
     if (res.isSuccess && res.data != null) {
       final d = res.data!;
       final step = _mapStageToStep(d.currentStage);
       final landsOnOtp = step == OnboardingStep.otpVerification;
+      log('[provider] resume → stage=${d.currentStage} step=$step requiresOtpResend=${d.requiresOtpResend}');
       state = state.copyWith(
         isLoading: false,
         sessionId: d.sessionId,
@@ -572,11 +591,13 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       // stage and the backend says it is needed. For later stages it would
       // be rejected, so never call it there.
       if (landsOnOtp && d.requiresOtpResend) {
+        log('[provider] resume → resending OTP');
         await resendOtp();
       }
       return true;
     }
     if (res.errorCode == 'CANNOT_RESUME') {
+      log('[provider] resume → CANNOT_RESUME');
       state = state.copyWith(
         isLoading: false,
         error: res.errorMessage,

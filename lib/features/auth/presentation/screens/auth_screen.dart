@@ -1203,9 +1203,11 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
     );
   }
 
+  static final _accountRegex = RegExp(r'^\d{10}$');
+
   Future<void> _onSendVerification() async {
     final acct = _acctCtrl.text.trim();
-    if (acct.isEmpty || acct.length != 10) {
+    if (!_accountRegex.hasMatch(acct)) {
       setState(() => _error = 'Enter a valid 10-digit account number.');
       return;
     }
@@ -1213,6 +1215,7 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
     try {
       final deviceId = await StorageService.getDeviceId();
       final api = ref.read(onboardingApiServiceProvider);
+      log('[auth] initiateExisting account=$acct deviceId=$deviceId');
       final res = await api.initiateExisting(
         InitiateExistingOnboardingRequest(
           accountNumber: acct,
@@ -1220,6 +1223,7 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
         ),
       );
       if (!mounted) return;
+      log('[auth] initiateExisting → isSuccess=${res.isSuccess} errorCode=${res.errorCode}');
       if (res.isSuccess && res.data != null) {
         final d = res.data!;
         setState(() {
@@ -1231,16 +1235,31 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
         });
         return;
       }
-      if (res.errorCode == 'ACTIVE_SESSION_EXISTS' && res.data != null) {
-        // Resume the existing session and get a fresh OTP
+      if (res.errorCode == 'ACTIVE_SESSION_EXISTS') {
+        final resumeSessionId = res.data?.sessionId;
+        if (resumeSessionId == null) {
+          setState(() {
+            _loading = false;
+            _error = 'An active session exists but could not be resumed. Please try again later.';
+          });
+          return;
+        }
+        log('[auth] ACTIVE_SESSION_EXISTS → resume sessionId=$resumeSessionId');
         final resumeRes = await api.resume(ResumeOnboardingRequest(
-          sessionId: res.data!.sessionId,
+          sessionId: resumeSessionId,
           deviceId: deviceId,
         ));
         if (!mounted) return;
         if (resumeRes.isSuccess && resumeRes.data != null) {
-          _sessionId = res.data!.sessionId;
-          if (resumeRes.data!.requiresOtpResend) {
+          final rd = resumeRes.data!;
+          _sessionId = rd.sessionId;
+          _otpRef = null;
+          log('[auth] resume → stage=${rd.currentStage} requiresOtpResend=${rd.requiresOtpResend}');
+          if (rd.currentStage.index >= OnboardingStage.otpVerified.index) {
+            setState(() { _step = 2; _loading = false; _error = null; });
+            return;
+          }
+          if (rd.requiresOtpResend) {
             final otpRes = await api.resendOtp(
               ResendOnboardingOtpRequest(sessionId: _sessionId!),
             );
@@ -1254,7 +1273,7 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
         }
         setState(() {
           _loading = false;
-          _error = 'Could not resume session. Please try again.';
+          _error = 'Could not resume session: ${resumeRes.errorMessage}';
         });
         return;
       }
@@ -1263,6 +1282,7 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
         _error = res.errorMessage ?? 'Could not verify account.';
       });
     } catch (e) {
+      log('[auth] initiateExisting error: $e');
       if (mounted) setState(() { _loading = false; _error = 'Network error. Please try again.'; });
     }
   }
@@ -1399,6 +1419,7 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
     setState(() { _loading = true; _error = null; });
     try {
       final api = ref.read(onboardingApiServiceProvider);
+      log('[auth] verifyOtp sessionId=$_sessionId otpRef=$_otpRef code=${_otp.join()}');
       final res = await api.verifyOtp(
         VerifyOnboardingOtpRequest(
           sessionId: _sessionId!,
@@ -1407,6 +1428,7 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
         ),
       );
       if (!mounted) return;
+      log('[auth] verifyOtp → isSuccess=${res.isSuccess} errorCode=${res.errorCode}');
       setState(() => _loading = false);
       if (res.isSuccess && res.data != null && res.data!.isVerified) {
         setState(() => _step = 2);
@@ -1414,6 +1436,7 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
         setState(() => _error = res.errorMessage ?? 'Invalid code. Please try again.');
       }
     } catch (e) {
+      log('[auth] verifyOtp error: $e');
       if (mounted) setState(() { _loading = false; _error = 'Network error. Please try again.'; });
     }
   }
@@ -1445,7 +1468,6 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
         GestureDetector(
           onTap: () {
             Navigator.pop(context);
-            context.go('/home');
           },
           child: Container(
             width: double.infinity,

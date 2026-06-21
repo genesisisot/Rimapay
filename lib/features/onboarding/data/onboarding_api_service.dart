@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 
 import '../../../core/config/api_config.dart';
@@ -101,7 +103,12 @@ class OnboardingApiService {
     required T Function(Map<String, dynamic> d) fromData,
   }) async {
     try {
+      print('━━━ Onboarding API ━━━');
+      print('▶ POST $path');
+      print('  Body: ${jsonEncode(body)}');
       final res = await _dio.post(path, data: body);
+      print('◀ ${res.statusCode} $path');
+      print('  Response: ${jsonEncode(res.data)}');
       final data = res.data;
       if (data is Map<String, dynamic>) {
         return ApiResponse<T>.fromJson(
@@ -109,7 +116,7 @@ class OnboardingApiService {
           fromData: (d) => fromData(d as Map<String, dynamic>),
         );
       }
-      return ApiResponse<T>.failure('Unexpected response (${res.statusCode}).');
+      return ApiResponse<T>.failure('Unexpected response (${res.statusCode}): ${data.runtimeType}');
     } on DioException catch (e) {
       return ApiResponse<T>.failure(_dioMessage(e));
     } catch (e) {
