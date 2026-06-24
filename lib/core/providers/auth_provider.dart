@@ -341,11 +341,10 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  /// POST /api/auth/reset-password — set a new password using the emailed/phoned token.
+  /// POST /api/auth/reset-password — set a new password using the reset code + session token.
   Future<bool> resetPassword({
-    String? email,
-    String? phoneNumber,
-    required String token,
+    required String sessionToken,
+    required String resetCode,
     required String newPassword,
     required String confirmPassword,
   }) async {
@@ -354,9 +353,8 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final res = await AuthApiService().resetPassword(ResetPasswordRequest(
-        email: email,
-        phoneNumber: phoneNumber,
-        token: token,
+        sessionToken: sessionToken,
+        resetCode: resetCode,
         newPassword: newPassword,
         confirmPassword: confirmPassword,
       ));

@@ -489,6 +489,17 @@ class OnboardingStatusResponse {
       );
 }
 
+// ── Check Onboarded ──────────────────────────────────────────────────────────
+
+class CheckOnboardedResponse {
+  final bool isOnboarded;
+
+  const CheckOnboardedResponse({required this.isOnboarded});
+
+  factory CheckOnboardedResponse.fromJson(Map<String, dynamic> json) =>
+      CheckOnboardedResponse(isOnboarded: json['isOnboarded'] == true);
+}
+
 // ── Resume ──────────────────────────────────────────────────────────────────
 
 class ResumeOnboardingRequest {

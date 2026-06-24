@@ -27,7 +27,7 @@ class DioClient {
     '/api/auth/verify-face-reset',
     '/api/auth/reset-password',
     '/api/auth/verify-email',
-    '/api/v1/onboarding/',
+    '/api/auth/device/register/',
     '/api/v1/file/',
   };
 

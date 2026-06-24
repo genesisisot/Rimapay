@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 
 import '../../../core/network/api_response.dart';
@@ -43,10 +46,16 @@ class AuthApiService {
     String? phoneNumber,
   }) async {
     final body = <String, dynamic>{};
-    if (email != null) body['email'] = email;
-    if (phoneNumber != null) body['phoneNumber'] = phoneNumber;
+    if (email != null) {
+      body['email'] = email;
+    }
+    if (phoneNumber != null) {
+      body['phoneNumber'] = phoneNumber;
+    }
+    log('━━━ Auth API ━━━\n▶ POST /api/auth/forgot-password\n  Body: ${jsonEncode(body)}');
     try {
       final res = await _dio.post('/api/auth/forgot-password', data: body);
+      log('◀ ${res.statusCode} /api/auth/forgot-password\n  Response: ${jsonEncode(res.data)}');
       final data = res.data;
       if (data is Map<String, dynamic>) {
         return ApiResponse<String>.fromJson(
@@ -134,6 +143,65 @@ class AuthApiService {
     }
   }
 
+  /// GET /api/auth/check-account-exists?phoneNumber=
+  Future<ApiResponse<bool>> checkAccountExists({required String phoneNumber}) async {
+    log('━━━ Auth API ━━━\n▶ GET /api/auth/check-account-exists?phoneNumber=$phoneNumber');
+    try {
+      final res = await _dio.get(
+        '/api/auth/check-account-exists',
+        queryParameters: {'phoneNumber': phoneNumber},
+      );
+      log('◀ ${res.statusCode} /api/auth/check-account-exists\n  Response: ${jsonEncode(res.data)}');
+      final data = res.data;
+      if (data is Map<String, dynamic>) {
+        final isSuccess = data['isSuccess'] == true;
+        final rawData = data['data'];
+        return ApiResponse<bool>(
+          isSuccess: isSuccess,
+          errorCode: data['errorCode'] as String?,
+          statusCode: data['statusCode']?.toString(),
+          message: data['message'] as String?,
+          data: rawData is bool ? rawData : null,
+        );
+      }
+      return ApiResponse<bool>.failure('Unexpected response (${res.statusCode}).');
+    } on DioException catch (e) {
+      return ApiResponse<bool>.failure(_dioMessage(e));
+    } catch (e) {
+      return ApiResponse<bool>.failure('Unexpected error: $e');
+    }
+  }
+
+  // ── Device Registration ─────────────────────────────────────────────────────
+
+  /// POST /api/auth/device/register/initiate
+  Future<ApiResponse<String>> initiateDeviceRegistration(
+      InitiateDeviceRegistrationRequest request) async {
+    return _postString(
+        '/api/auth/device/register/initiate', request.toJson());
+  }
+
+  /// POST /api/auth/device/register/verify-face
+  Future<ApiResponse<String>> verifyDeviceFace(
+      VerifyDeviceFaceRequest request) async {
+    return _postString(
+        '/api/auth/device/register/verify-face', request.toJson());
+  }
+
+  /// POST /api/auth/device/register/confirm-otp
+  Future<ApiResponse<String>> confirmDeviceOtp(
+      ConfirmDeviceOtpRequest request) async {
+    return _postString(
+        '/api/auth/device/register/confirm-otp', request.toJson());
+  }
+
+  /// POST /api/auth/device/register/confirm-pin
+  Future<ApiResponse<String>> confirmDevicePin(
+      ConfirmDevicePinRequest request) async {
+    return _postString(
+        '/api/auth/device/register/confirm-pin', request.toJson());
+  }
+
   // ── helpers ────────────────────────────────────────────────────────────────
 
   Future<ApiResponse<AuthResponse>> _postAuth(
@@ -159,13 +227,41 @@ class AuthApiService {
   }
 
   Future<ApiResponse<void>> _postVoid(String path, Object? body) async {
+    log('━━━ Auth API ━━━\n▶ POST $path\n  Body: ${jsonEncode(body)}');
     try {
       final res = await _dio.post(path, data: body);
+      log('◀ ${res.statusCode} $path\n  Response: ${jsonEncode(res.data)}');
       return _parseVoid(res);
     } on DioException catch (e) {
       return ApiResponse<void>.failure(_dioMessage(e));
     } catch (e) {
       return ApiResponse<void>.failure('Unexpected error: $e');
+    }
+  }
+
+  Future<ApiResponse<String>> _postString(String path, Object? body) async {
+    log('━━━ Auth API ━━━\n▶ POST $path\n  Body: ${jsonEncode(body)}');
+    try {
+      final res = await _dio.post(path, data: body);
+      log('◀ ${res.statusCode} $path\n  Response: ${jsonEncode(res.data)}');
+      final data = res.data;
+      if (data is Map<String, dynamic>) {
+        final isSuccess = data['isSuccess'] == true;
+        final rawData = data['data'];
+        return ApiResponse<String>(
+          isSuccess: isSuccess,
+          errorCode: data['errorCode'] as String?,
+          statusCode: data['statusCode']?.toString(),
+          message: data['message'] as String?,
+          devMessage: data['devMessage'] as String?,
+          data: rawData is String ? rawData : (isSuccess ? '' : null),
+        );
+      }
+      return ApiResponse<String>.failure('Unexpected response (${res.statusCode}).');
+    } on DioException catch (e) {
+      return ApiResponse<String>.failure(_dioMessage(e));
+    } catch (e) {
+      return ApiResponse<String>.failure('Unexpected error: $e');
     }
   }
 

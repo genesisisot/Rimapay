@@ -45,6 +45,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   String? _cameraError;
   bool _verifyingFace = false;
 
+  // resend
+  bool _isResending = false;
+  int _resendCountdown = 0;
+  Timer? _resendTimer;
+
   bool _isPhone(String s) =>
       s.isNotEmpty && s.replaceAll(RegExp(r'[+\s]'), '').characters.every((c) => c == '0' || int.tryParse(c) != null);
 
@@ -62,6 +67,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     _passwordCtrl.dispose();
     _confirmCtrl.dispose();
     _cameraController?.dispose();
+    _resendTimer?.cancel();
     super.dispose();
   }
 
@@ -166,7 +172,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       if (!mounted) return;
       setState(() => _verifyingFace = false);
       if (newToken != null) {
-        _resetSessionToken = newToken;
         _snack('Face verified. Enter the reset code sent to your phone.');
         setState(() => _step = 2);
       } else {
@@ -204,9 +209,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     }
     final auth = context.read<AuthProvider>();
     final ok = await auth.resetPassword(
-      email: _isPhoneIdentifier ? null : _emailCtrl.text.trim(),
-      phoneNumber: _isPhoneIdentifier ? _normalisePhone(_emailCtrl.text.trim()) : null,
-      token: token,
+      sessionToken: _resetSessionToken ?? '',
+      resetCode: token,
       newPassword: pwd,
       confirmPassword: confirm,
     );
@@ -216,6 +220,41 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     } else {
       _snack(auth.error ?? 'Could not reset password.', error: true);
     }
+  }
+
+  // ── Resend reset code ─────────────────────────────────────────────
+
+  Future<void> _handleResendResetCode() async {
+    if (_resendCountdown > 0 || _isResending) return;
+    setState(() => _isResending = true);
+    final raw = _emailCtrl.text.trim();
+    final auth = context.read<AuthProvider>();
+    final newToken = await auth.forgotPassword(
+      phoneNumber: _isPhoneIdentifier ? _normalisePhone(raw) : null,
+      email: _isPhoneIdentifier ? null : raw,
+    );
+    if (!mounted) return;
+    setState(() => _isResending = false);
+    if (newToken != null) {
+      _resetSessionToken = newToken;
+    }
+    _snack('Reset code resent to your ${_isPhoneIdentifier ? "phone" : "email"}.');
+    _startResendCountdown();
+  }
+
+  void _startResendCountdown() {
+    _resendCountdown = 45;
+    _resendTimer?.cancel();
+    _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) { timer.cancel(); return; }
+      setState(() {
+        if (_resendCountdown > 0) {
+          _resendCountdown--;
+        } else {
+          timer.cancel();
+        }
+      });
+    });
   }
 
   // ── Build ────────────────────────────────────────────────────────────────
@@ -489,6 +528,39 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             label: 'Reset Code',
             controller: _tokenCtrl,
             hint: _isPhoneIdentifier ? 'Paste the code sent to your phone' : 'Paste the code from your email',
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text("Didn't receive code? ",
+                  style: TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
+              GestureDetector(
+                onTap: (_resendCountdown > 0 || _isResending)
+                    ? null
+                    : _handleResendResetCode,
+                child: _isResending
+                    ? const SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(_green)))
+                    : Text(
+                        _resendCountdown > 0
+                            ? 'Resend in ${_resendCountdown}s'
+                            : 'Resend',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: _resendCountdown > 0
+                              ? const Color(0xFF6B7280)
+                              : _green,
+                        ),
+                      ),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
           _field(

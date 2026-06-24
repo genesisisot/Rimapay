@@ -15,9 +15,12 @@ import 'package:rimapay/Utils/Logics.dart';
 import 'package:rimapay/core/router/app_router.dart';
 import 'package:rimapay/core/services/storage_service.dart';
 import 'package:rimapay/features/onboarding/data/onboarding_dtos.dart';
+import 'package:rimapay/features/onboarding/data/onboarding_api_service.dart';
 import 'package:rimapay/features/onboarding/presentation/providers/onboarding_provider.dart';
 import '../../../../core/providers/auth_provider.dart';
 import '../../../../core/providers/language_provider.dart';
+import '../../data/auth_api_service.dart';
+import '../../data/auth_dtos.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -245,6 +248,24 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
       setState(() {
         _isBiometricLoading = false;
       });
+    }
+  }
+
+  Future<void> _showDeviceLinkSheet(BuildContext context) async {
+    final result = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const _DeviceLinkingSheet(),
+    );
+    if (result != null && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Device linked successfully. Please log in.'),
+          backgroundColor: Color(0xFF166C46),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
   }
 
@@ -589,6 +610,32 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                                 ),
                                 TextSpan(
                                   text: 'Link existing account',
+                                  style: TextStyle(
+                                    color: Color(0xFF166C46),
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Center(
+                        child: GestureDetector(
+                          onTap: () => _showDeviceLinkSheet(context),
+                          child: RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'New phone? ',
+                                  style: TextStyle(
+                                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), fontSize: 13),
+                                ),
+                                TextSpan(
+                                  text: 'Link your device',
                                   style: TextStyle(
                                     color: Color(0xFF166C46),
                                     fontSize: 13,
@@ -1031,6 +1078,848 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
   }
 }
 
+// ── Device Linking Sheet ─────────────────────────────────────────────────────
+
+class _DeviceLinkingSheet extends ConsumerStatefulWidget {
+  const _DeviceLinkingSheet();
+
+  @override
+  ConsumerState<_DeviceLinkingSheet> createState() =>
+      _DeviceLinkingSheetState();
+}
+
+class _DeviceLinkingSheetState extends ConsumerState<_DeviceLinkingSheet> {
+  int _step = 0; // 0=phone, 1=otp, 2=success
+  final _phoneCtrl = TextEditingController();
+  bool _loading = false;
+  String? _error;
+  String? _sessionToken;
+
+  // OTP
+  final List<String> _otp = List.filled(6, '');
+  bool _verifyingOtp = false;
+
+  @override
+  void dispose() {
+    _phoneCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedPadding(
+      duration: const Duration(milliseconds: 150),
+      padding:
+          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).dividerColor,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            if (_step == 0) _buildPhoneStep(),
+            if (_step == 1) _buildOtpStep(),
+            if (_step == 2) _buildSuccessStep(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPhoneStep() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF0FAF4),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.phone_android_rounded,
+                  color: Color(0xFF166C46), size: 22),
+            ),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Link Your Device',
+                    style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                        color: Theme.of(context).colorScheme.onSurface)),
+                const SizedBox(height: 2),
+                Text('Register this device to your account',
+                    style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.6))),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFF7ED),
+            borderRadius: BorderRadius.circular(10),
+            border:
+                Border.all(color: const Color(0xFFFB923C).withOpacity(0.4)),
+          ),
+          child: const Row(
+            children: [
+              Icon(Icons.info_outline, color: Color(0xFFF97316), size: 16),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Enter the phone number linked to your RimaPay account.',
+                  style: TextStyle(
+                      fontSize: 12, color: Color(0xFF78350F), height: 1.4),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+        Text('Phone Number',
+            style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurface)),
+        const SizedBox(height: 8),
+        TextField(
+          controller: _phoneCtrl,
+          keyboardType: TextInputType.phone,
+          style: TextStyle(
+              fontSize: 15,
+              color: Theme.of(context).colorScheme.onSurface),
+          decoration: InputDecoration(
+            hintText: 'e.g. 8012345678',
+            hintStyle: TextStyle(
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withOpacity(0.4),
+                fontSize: 14),
+            prefixText: '+234 ',
+            prefixStyle: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurface),
+            filled: true,
+            fillColor: Theme.of(context).colorScheme.surface,
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide:
+                  BorderSide(color: Theme.of(context).dividerColor),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide:
+                  BorderSide(color: Theme.of(context).dividerColor),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide:
+                  const BorderSide(color: Color(0xFF166C46), width: 1.5),
+            ),
+          ),
+        ),
+        if (_error != null) ...[
+          const SizedBox(height: 8),
+          Text(_error!,
+              style: const TextStyle(color: Colors.red, fontSize: 12)),
+        ],
+        const SizedBox(height: 20),
+        GestureDetector(
+          onTap: _onInitiateDeviceRegistration,
+          child: Container(
+            width: double.infinity,
+            height: 52,
+            decoration: BoxDecoration(
+              color: const Color(0xFF166C46),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Center(
+              child: _loading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white)))
+                  : const Text('Continue →',
+                      style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white)),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOtpStep() {
+    final filled = _otp.where((d) => d.isNotEmpty).length;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF0FAF4),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.sms_rounded,
+                  color: Color(0xFF166C46), size: 22),
+            ),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Enter OTP',
+                    style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                        color: Theme.of(context).colorScheme.onSurface)),
+                const SizedBox(height: 2),
+                Text('We sent a code to your phone',
+                    style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.6))),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 28),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(6, (i) {
+            final hasDigit = i < filled;
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              width: 42,
+              height: 48,
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              decoration: BoxDecoration(
+                color: hasDigit
+                    ? const Color(0xFF166C46)
+                    : Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: hasDigit
+                      ? const Color(0xFF166C46)
+                      : Theme.of(context).dividerColor,
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  _otp[i],
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: hasDigit
+                        ? Colors.white
+                        : Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.3),
+                  ),
+                ),
+              ),
+            );
+          }),
+        ),
+        const SizedBox(height: 24),
+        ...([
+          ['1', '2', '3'],
+          ['4', '5', '6'],
+          ['7', '8', '9'],
+          ['', '0', '⌫']
+        ].map((row) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                children: row.map((k) => Expanded(
+                  child: k.isEmpty
+                      ? const SizedBox()
+                      : GestureDetector(
+                          onTap: () {
+                            if (k == '⌫') {
+                              final idx = _otp
+                                  .lastIndexWhere((d) => d.isNotEmpty);
+                              if (idx != -1) {
+                                setState(() => _otp[idx] = '');
+                              }
+                            } else {
+                              final idx =
+                                  _otp.indexWhere((d) => d.isEmpty);
+                              if (idx != -1) {
+                                setState(() => _otp[idx] = k);
+                              }
+                            }
+                          },
+                          child: Container(
+                            margin:
+                                const EdgeInsets.symmetric(horizontal: 4),
+                            height: 46,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF3F4F6),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Center(
+                              child: k == '⌫'
+                                  ? Icon(Icons.backspace_outlined,
+                                      size: 18,
+                                      color: const Color(0xFF1F2937))
+                                  : Text(k,
+                                      style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600,
+                                          color: Color(0xFF1F2937))),
+                            ),
+                          ),
+                        ),
+                )).toList(),
+              ),
+            ))
+        ).toList(),
+        const SizedBox(height: 12),
+        GestureDetector(
+          onTap: filled == 6 ? _onConfirmOtp : null,
+          child: Container(
+            width: double.infinity,
+            height: 52,
+            decoration: BoxDecoration(
+              color: filled == 6
+                  ? const Color(0xFF166C46)
+                  : const Color(0xFFD1D5DB),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Center(
+              child: _verifyingOtp
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white)))
+                  : const Text('Verify →',
+                      style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white)),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Center(
+          child: Text(
+            'A code was sent to your phone after face verification.',
+            style: TextStyle(
+              fontSize: 12,
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withOpacity(0.4),
+            ),
+          ),
+        ),
+        if (_error != null) ...[
+          const SizedBox(height: 8),
+          Text(_error!,
+              style: const TextStyle(color: Colors.red, fontSize: 12)),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildSuccessStep() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 24),
+      child: Column(
+        children: [
+          const Icon(Icons.check_circle_outline,
+              color: Color(0xFF166C46), size: 64),
+          const SizedBox(height: 16),
+          const Text('Device Linked Successfully',
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF1F2937))),
+          const SizedBox(height: 8),
+          const Text('You can now use this device to access your account.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: Color(0xFF6B7280))),
+          const SizedBox(height: 24),
+          GestureDetector(
+            onTap: () => Navigator.of(context).pop('success'),
+            child: Container(
+              width: double.infinity,
+              height: 52,
+              decoration: BoxDecoration(
+                color: const Color(0xFF166C46),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Center(
+                child: Text('Done',
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white)),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _onInitiateDeviceRegistration() async {
+    final phone = _phoneCtrl.text.trim();
+    if (phone.isEmpty) {
+      setState(() => _error = 'Enter your phone number.');
+      return;
+    }
+    final normalized = '234${phone.replaceAll(RegExp(r'[^\d]'), '').replaceFirst(RegExp('^0+'), '')}';
+    setState(() {_loading = true;_error = null;});
+    try {
+      final api = AuthApiService();
+      final deviceId = await StorageService.getDeviceId();
+      log('[device] initiate phone=$normalized deviceId=$deviceId');
+      final res = await api.initiateDeviceRegistration(
+        InitiateDeviceRegistrationRequest(
+          deviceId: deviceId,
+          phoneNumber: normalized,
+        ),
+      );
+      if (!mounted) return;
+      log('[device] initiate → isSuccess=${res.isSuccess}');
+      if (res.isSuccess) {
+        setState(() {
+          _sessionToken = res.data;
+          _loading = false;
+        });
+        if (!mounted) return;
+        final faceResult = await Navigator.push<bool>(
+          context,
+          MaterialPageRoute(
+            builder: (_) => _DeviceFaceCapturePage(
+              sessionToken: _sessionToken!,
+            ),
+          ),
+        );
+        if (faceResult == true && mounted) {
+          setState(() {
+            _step = 1;
+            _otp
+              ..clear()
+              ..addAll(List.filled(6, ''));
+          });
+        }
+      } else {
+        setState(() {
+          _loading = false;
+          _error = res.message ?? 'Failed to initiate device registration.';
+        });
+      }
+    } catch (e) {
+      log('[device] initiate error: $e');
+      if (mounted) {
+        setState(() {_loading = false;_error = 'Network error. Please try again.';});
+      }
+    }
+  }
+
+  Future<void> _onConfirmOtp() async {
+    final otp = _otp.join();
+    setState(() {_verifyingOtp = true;_error = null;});
+    try {
+      final api = AuthApiService();
+      log('[device] confirmOtp token=${_sessionToken?.substring(0, 20)}...');
+      final res = await api.confirmDeviceOtp(ConfirmDeviceOtpRequest(
+        sessionToken: _sessionToken!,
+        otpCode: otp,
+      ));
+      if (!mounted) return;
+      log('[device] confirmOtp → isSuccess=${res.isSuccess}');
+      if (res.isSuccess) {
+        setState(() {_step = 2;_verifyingOtp = false;});
+      } else {
+        setState(() {
+          _verifyingOtp = false;
+          _error = res.message ?? 'Invalid OTP. Please try again.';
+        });
+      }
+    } catch (e) {
+      log('[device] confirmOtp error: $e');
+      if (mounted) {
+        setState(() {_verifyingOtp = false;_error = 'Network error. Please try again.';});
+      }
+    }
+  }
+}
+
+// ── Device Face Capture (Full-Screen) ────────────────────────────────────────
+
+class _DeviceFaceCapturePage extends ConsumerStatefulWidget {
+  final String sessionToken;
+  const _DeviceFaceCapturePage({required this.sessionToken});
+
+  @override
+  ConsumerState<_DeviceFaceCapturePage> createState() =>
+      _DeviceFaceCapturePageState();
+}
+
+class _DeviceFaceCapturePageState
+    extends ConsumerState<_DeviceFaceCapturePage> {
+  CameraController? _cameraController;
+  bool _cameraActive = false;
+  bool _verifyingFace = false;
+  String? _cameraError;
+  String? _error;
+
+  @override
+  void dispose() {
+    _cameraController?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              const Color(0xFF073D25),
+              const Color(0xFF0B4F2F),
+              const Color(0xFF0D6B3E),
+            ],
+          ),
+        ),
+        child: Stack(
+          children: [
+            // Noise overlay
+            Positioned.fill(
+              child: IgnorePointer(
+                child: CustomPaint(
+                  painter: NoisePainter(opacity: 0.055, seed: 7),
+                ),
+              ),
+            ),
+            Column(
+              children: [
+                // Top bar with back button
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          _cameraController?.dispose();
+                          Navigator.pop(context, false);
+                        },
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                                color: Colors.white.withOpacity(0.18)),
+                          ),
+                          child: const Icon(Icons.arrow_back_ios_new,
+                              color: Colors.white, size: 18),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      if (_cameraActive &&
+                          _cameraController != null &&
+                          _cameraController!.value.isInitialized)
+                        Positioned.fill(
+                            child: CameraPreview(_cameraController!))
+                      else
+                        Container(color: Colors.black87),
+                      Positioned.fill(
+                        child: CustomPaint(
+                          painter: _OvalOverlayPainter(
+                              color: const Color(0xFFD4AF37)),
+                        ),
+                      ),
+                      // Info card
+                      Positioned(
+                        top: 60,
+                        left: 16,
+                        right: 16,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(14),
+                            boxShadow: [
+                              BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 8)
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 36,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF16A34A)
+                                      .withOpacity(0.12),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                    Icons.remove_red_eye_outlined,
+                                    color: Color(0xFF16A34A),
+                                    size: 18),
+                              ),
+                              const SizedBox(width: 12),
+                              const Expanded(
+                                child: Text('Face Verification',
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF111827))),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      // Bottom button
+                      Positioned(
+                        bottom: 40,
+                        left: 24,
+                        right: 24,
+                        child: GestureDetector(
+                          onTap: _cameraActive
+                              ? _capturePhoto
+                              : _requestCameraPermission,
+                          child: Container(
+                            width: double.infinity,
+                            height: 54,
+                            decoration: BoxDecoration(
+                              gradient: AppColors.goldGradient,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Center(
+                              child: Text(
+                                _cameraActive
+                                    ? 'Take Selfie'
+                                    : 'Start Camera',
+                                style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (_cameraError != null)
+                        Positioned.fill(
+                          child: Container(
+                            color: Colors.black54,
+                            child: Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(24),
+                                child: Text(_cameraError!,
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14),
+                                    textAlign: TextAlign.center),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                if (_error != null)
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(_error!,
+                        style: const TextStyle(
+                            color: Colors.red, fontSize: 12)),
+                  ),
+              ],
+            ),
+            if (_verifyingFace) _buildVerifyingOverlay(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVerifyingOverlay() {
+    return Positioned.fill(
+      child: Container(
+        color: const Color(0xE60B1F14),
+        alignment: Alignment.center,
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 40),
+          padding: const EdgeInsets.symmetric(
+              horizontal: 24, vertical: 28),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: 32,
+                height: 32,
+                child: CircularProgressIndicator(
+                    strokeWidth: 3,
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(Color(0xFF166C46))),
+              ),
+              SizedBox(height: 16),
+              Text('Verifying your face…',
+                  style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1F2937))),
+              SizedBox(height: 4),
+              Text('Please hold still',
+                  style: TextStyle(
+                      fontSize: 13, color: Color(0xFF6B7280))),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _requestCameraPermission() async {
+    try {
+      final status = await Permission.camera.request();
+      if (status.isGranted) {
+        _initCamera();
+      } else {
+        setState(() => _cameraError = 'Camera permission denied.');
+      }
+    } catch (e) {
+      setState(() => _cameraError = 'Could not access camera.');
+    }
+  }
+
+  Future<void> _initCamera() async {
+    try {
+      final cameras = await availableCameras();
+      if (cameras.isEmpty) {
+        setState(() => _cameraError = 'No camera available.');
+        return;
+      }
+      final controller = CameraController(
+        cameras.firstWhere(
+          (c) => c.lensDirection == CameraLensDirection.front,
+          orElse: () => cameras.first,
+        ),
+        ResolutionPreset.medium,
+      );
+      await controller.initialize();
+      if (!mounted) return;
+      setState(() {
+        _cameraController = controller;
+        _cameraActive = true;
+      });
+    } catch (e) {
+      log('[face] camera init error: $e');
+      if (mounted) {
+        setState(() => _cameraError = 'Could not open camera.');
+      }
+    }
+  }
+
+  Future<void> _capturePhoto() async {
+    if (_cameraController == null ||
+        !_cameraController!.value.isInitialized) return;
+    try {
+      final image = await _cameraController!.takePicture();
+      final bytes = await image.readAsBytes();
+      final base64Image = base64Encode(bytes);
+      setState(() {
+        _cameraActive = false;
+        _verifyingFace = true;
+      });
+      _cameraController?.dispose();
+      _cameraController = null;
+
+      final api = AuthApiService();
+      final res = await api.verifyDeviceFace(VerifyDeviceFaceRequest(
+        sessionToken: widget.sessionToken,
+        faceImage: base64Image,
+      ));
+      if (!mounted) return;
+      setState(() => _verifyingFace = false);
+      if (res.isSuccess) {
+        Navigator.pop(context, true);
+      } else {
+        setState(() {
+          _error = res.message ?? 'Face verification failed. Please try again.';
+        });
+        _initCamera();
+      }
+    } catch (e) {
+      log('[face] capture error: $e');
+      _cameraController?.dispose();
+      _cameraController = null;
+      if (mounted) {
+        setState(() {
+          _cameraError = 'Failed to capture photo.';
+          _verifyingFace = false;
+        });
+      }
+    }
+  }
+}
+
 // ── Link Existing Account Sheet ───────────────────────────────────────────────
 
 class _LinkDeviceSheet extends ConsumerStatefulWidget {
@@ -1041,17 +1930,21 @@ class _LinkDeviceSheet extends ConsumerStatefulWidget {
 }
 
 class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
-  int _step = 0; // 0=account, 1=otp, 2=success
+  int _step = 0; // 0=account, 1=otp
   final _acctCtrl = TextEditingController();
   final List<String> _otp = List.filled(6, '');
   bool _loading = false;
   String? _error;
   String? _sessionId;
   String? _otpRef;
+  bool _isResending = false;
+  int _resendCountdown = 0;
+  Timer? _resendTimer;
 
   @override
   void dispose() {
     _acctCtrl.dispose();
+    _resendTimer?.cancel();
     super.dispose();
   }
 
@@ -1226,8 +2119,14 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
     }
     setState(() { _loading = true; _error = null; });
     try {
-      final deviceId = await StorageService.getDeviceId();
       final api = ref.read(onboardingApiServiceProvider);
+      final check = await api.checkOnboarded(acct);
+      if (!mounted) return;
+      if (check.isSuccess && check.data != null && check.data!.isOnboarded) {
+        setState(() {_loading = false;_error = 'This account has already been onboarded.';});
+        return;
+      }
+      final deviceId = await StorageService.getDeviceId();
       log('[auth] initiateExisting account=$acct deviceId=$deviceId');
       final res = await api.initiateExisting(
         InitiateExistingOnboardingRequest(
@@ -1350,6 +2249,39 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
           const SizedBox(height: 8),
           Text(_error!, style: const TextStyle(color: Colors.red, fontSize: 12)),
         ],
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text("Didn't receive code? ",
+                style: TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
+            GestureDetector(
+              onTap: (_resendCountdown > 0 || _isResending)
+                  ? null
+                  : _handleResendOtp,
+              child: _isResending
+                  ? const SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Color(0xFF166C46))))
+                  : Text(
+                      _resendCountdown > 0
+                          ? 'Resend in ${_resendCountdown}s'
+                          : 'Resend',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: _resendCountdown > 0
+                            ? const Color(0xFF6B7280)
+                            : const Color(0xFF166C46),
+                      ),
+                    ),
+            ),
+          ],
+        ),
         const SizedBox(height: 16),
         ...([['1','2','3'],['4','5','6'],['7','8','9'],['','0','⌫']].map((row) =>
           Padding(
@@ -1454,6 +2386,41 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
     }
   }
 
+  Future<void> _handleResendOtp() async {
+    if (_sessionId == null) return;
+    setState(() { _isResending = true; _error = null; });
+    try {
+      final api = ref.read(onboardingApiServiceProvider);
+      final res = await api.resendOtp(
+        ResendOnboardingOtpRequest(sessionId: _sessionId!),
+      );
+      if (!mounted) return;
+      setState(() => _isResending = false);
+      if (res.isSuccess) {
+        _startResendCountdown();
+      } else {
+        setState(() => _error = res.errorMessage ?? 'Failed to resend OTP.');
+      }
+    } catch (e) {
+      if (mounted) setState(() { _isResending = false; _error = 'Network error.'; });
+    }
+  }
+
+  void _startResendCountdown() {
+    _resendCountdown = 45;
+    _resendTimer?.cancel();
+    _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) { timer.cancel(); return; }
+      setState(() {
+        if (_resendCountdown > 0) {
+          _resendCountdown--;
+        } else {
+          timer.cancel();
+        }
+      });
+    });
+  }
+
 }
 
 // ── Continue Linking (Full-Screen) ─────────────────────────────────────────────
@@ -1469,9 +2436,10 @@ class _ContinueLinkingPage extends ConsumerStatefulWidget {
 
 class _ContinueLinkingPageState
     extends ConsumerState<_ContinueLinkingPage> {
-  int _step = 0; // 0=facial, 1=password, 2=success
+  int _step = 0; // 0=facial, 1=password, 2=pin, 3=success
   bool _loading = false;
   String? _error;
+  String? _message;
 
   // Camera / facial
   CameraController? _cameraController;
@@ -1484,6 +2452,10 @@ class _ContinueLinkingPageState
   final _confirmPasswordCtrl = TextEditingController();
   bool _showPassword = false;
   bool _showConfirmPassword = false;
+
+  // PIN
+  final List<String> _pin = List.filled(4, '');
+  bool _creatingPin = false;
 
   @override
   void initState() {
@@ -1503,7 +2475,9 @@ class _ContinueLinkingPageState
       if (res.isSuccess && res.data != null) {
         final stage = res.data!.currentStage;
         log('[continue] resume → stage=$stage');
-        if (stage.index >= OnboardingStage.identityAccountCreated.index) {
+        if (stage.index >= OnboardingStage.coreBankingAccountCreated.index) {
+          setState(() => _step = 3);
+        } else if (stage.index >= OnboardingStage.identityAccountCreated.index) {
           setState(() => _step = 2);
         } else if (stage.index >= OnboardingStage.facialValidationCompleted.index) {
           setState(() => _step = 1);
@@ -1529,7 +2503,9 @@ class _ContinueLinkingPageState
       body: SafeArea(
         child: _step == 1
             ? _buildPasswordStep()
-            : Stack(
+            : _step == 2
+                ? _buildPinStep()
+                : Stack(
                 children: [
                   Positioned.fill(
                     child: Container(
@@ -1554,7 +2530,7 @@ class _ContinueLinkingPageState
                     ),
                   ),
                   if (_step == 0) _buildFacialStep(),
-                  if (_step == 2) _buildSuccess(),
+                  if (_step == 3) _buildSuccess(),
                 ],
               ),
       ),
@@ -1954,14 +2930,35 @@ class _ContinueLinkingPageState
                 ),
                 child: Center(
                   child: _loading
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(
-                                      Colors.white)))
+                      ? (_message != null
+                          ? Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor:
+                                          AlwaysStoppedAnimation<Color>(
+                                              Colors.white)),
+                                ),
+                                const SizedBox(width: 10),
+                                Text(_message!,
+                                    style: const TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white)),
+                              ],
+                            )
+                          : const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor:
+                                      AlwaysStoppedAnimation<Color>(
+                                          Colors.white))))
                       : const Text('Continue →',
                           style: TextStyle(
                               fontSize: 15,
@@ -1999,18 +2996,204 @@ class _ContinueLinkingPageState
       ));
       if (!mounted) return;
       log('[auth] createPassword → isSuccess=${res.isSuccess} errorCode=${res.errorCode}');
-      setState(() => _loading = false);
-      if (res.isSuccess && res.data != null) {
+      if (!res.isSuccess || res.data == null) {
+        setState(() {_loading = false;_error = res.errorMessage ?? 'Failed to set password.';});
+        return;
+      }
+      setState(() => _message = 'Finalizing your account...');
+      final ready = await _waitForPinStage(api);
+      if (!mounted) return;
+      setState(() {_loading = false;_message = null;});
+      if (ready) {
         setState(() => _step = 2);
       } else {
-        setState(() =>
-            _error = res.errorMessage ?? 'Failed to set password.');
+        setState(() => _error = 'Account setup is still processing. Please try again in a moment.');
       }
     } catch (e) {
       log('[auth] createPassword error: $e');
       if (mounted) {
         setState(() {
           _loading = false;
+          _error = 'Network error. Please try again.';
+        });
+      }
+    }
+  }
+
+  // ── Create PIN ────────────────────────────────────────────────────
+
+  Widget _buildPinStep() {
+    final filled = _pin.where((d) => d.isNotEmpty).length;
+    return Container(
+      color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 20),
+            const Text('Create PIN',
+                style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF1F2937))),
+            const SizedBox(height: 8),
+            const Text(
+              'Secure your account with a 4-digit PIN',
+              style: TextStyle(
+                  fontSize: 14, color: Color(0xFF6B7280), height: 1.5),
+            ),
+            const SizedBox(height: 36),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(4, (i) {
+                final hasDot = i < filled;
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  width: 18,
+                  height: 18,
+                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: hasDot
+                        ? const Color(0xFF166C46)
+                        : Colors.transparent,
+                    border: Border.all(
+                      color: hasDot
+                          ? const Color(0xFF166C46)
+                          : const Color(0xFFD1D5DB),
+                      width: 2,
+                    ),
+                  ),
+                );
+              }),
+            ),
+            const SizedBox(height: 40),
+            ...([['1','2','3'],['4','5','6'],['7','8','9'],['','0','⌫']].map((row) =>
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: row.map((k) => Expanded(
+                    child: k.isEmpty ? const SizedBox() : GestureDetector(
+                      onTap: () {
+                        if (k == '⌫') {
+                          final idx = _pin.lastIndexWhere((d) => d.isNotEmpty);
+                          if (idx != -1) setState(() => _pin[idx] = '');
+                        } else {
+                          final idx = _pin.indexWhere((d) => d.isEmpty);
+                          if (idx != -1) {
+                            setState(() => _pin[idx] = k);
+                          }
+                        }
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        height: 46,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF3F4F6),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: k == '⌫'
+                              ? Icon(Icons.backspace_outlined,
+                                  size: 18, color: const Color(0xFF1F2937))
+                              : Text(k,
+                                  style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF1F2937))),
+                        ),
+                      ),
+                    ),
+                  )).toList(),
+                ),
+              )
+            ).toList()),
+            const SizedBox(height: 20),
+            GestureDetector(
+              onTap: filled == 4 ? _onPinComplete : null,
+              child: Container(
+                width: double.infinity,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: filled == 4 ? const Color(0xFF166C46) : const Color(0xFFD1D5DB),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Center(
+                  child: _creatingPin
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
+                      : const Text('Proceed →',
+                          style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white)),
+                ),
+              ),
+            ),
+            if (_error != null) ...[
+              const SizedBox(height: 8),
+              Text(_error!,
+                  style: const TextStyle(color: Colors.red, fontSize: 12)),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<bool> _waitForPinStage(OnboardingApiService api) async {
+    const maxAttempts = 30;
+    for (var i = 0; i < maxAttempts; i++) {
+      try {
+        final res = await api.getSession(widget.sessionId);
+        if (!mounted) return false;
+        if (res.isSuccess && res.data != null) {
+          final stage = res.data!.currentStage;
+          log('[auth] poll session stage=$stage');
+          if (stage.index >= OnboardingStage.pinCreationPending.index) {
+            return true;
+          }
+        }
+      } catch (_) {}
+      await Future.delayed(const Duration(seconds: 2));
+      if (!mounted) return false;
+    }
+    return false;
+  }
+
+  Future<void> _onPinComplete() async {
+    setState(() { _creatingPin = true; _error = null; });
+    try {
+      final api = ref.read(onboardingApiServiceProvider);
+      log('[auth] createPin sessionId=${widget.sessionId}');
+      final res = await api.createPin(CreatePinRequest(
+        sessionId: widget.sessionId,
+        pin: _pin.join(),
+        confirmPin: _pin.join(),
+      ));
+      if (!mounted) return;
+      setState(() => _creatingPin = false);
+      log('[auth] createPin → isSuccess=${res.isSuccess} errorCode=${res.errorCode}');
+      if (res.isSuccess && res.data != null) {
+        await StorageService.savePin(_pin.join());
+        setState(() => _step = 3);
+      } else {
+        setState(() {
+          _pin.fillRange(0, 4, '');
+          _error = res.errorMessage ?? 'Failed to create PIN.';
+        });
+      }
+    } catch (e) {
+      log('[auth] createPin error: $e');
+      if (mounted) {
+        setState(() {
+          _creatingPin = false;
+          _pin.fillRange(0, 4, '');
           _error = 'Network error. Please try again.';
         });
       }

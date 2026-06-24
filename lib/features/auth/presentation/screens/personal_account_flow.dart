@@ -16,6 +16,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:rimapay/Utils/Logics.dart';
 import 'package:rimapay/core/providers/auth_provider.dart';
 import 'package:rimapay/core/services/storage_service.dart';
+import 'package:rimapay/features/auth/data/auth_api_service.dart';
 import 'package:rimapay/features/onboarding/data/onboarding_dtos.dart';
 import 'package:rimapay/features/onboarding/presentation/providers/onboarding_provider.dart';
 import 'package:rimapay/features/profile/data/profile_dtos.dart';
@@ -750,6 +751,18 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     }
     _personalInfo.phoneNumber = phoneNum;
     setState(() => _isLoading = true);
+    try {
+      final api = AuthApiService();
+      final exists = await api.checkAccountExists(phoneNumber: phoneNum);
+      if (!mounted) return;
+      if (exists.data == true) {
+        setState(() => _isLoading = false);
+        _snack('An account with this phone number already exists. Please login or link your device.', isError: true);
+        return;
+      }
+    } catch (_) {
+      // network errors — proceed anyway; the backend will handle duplicates
+    }
     final ok = await ref.read(onboardingProvider.notifier).beginOnboarding(
           phoneNumber: phoneNum,
           email: _personalInfo.emailAddress.isNotEmpty
@@ -1508,14 +1521,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   ),
                   onChanged: (v) => setState(() => _password = v),
                 ),
-                const SizedBox(height: 4),
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Min 8 chars with uppercase, lowercase & number',
-                    style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF)),
-                  ),
-                ),
+                const SizedBox(height: 8),
+                _buildPasswordRequirements(),
                 const SizedBox(height: 16),
                 _OFloatingField(
                   controller: _confirmPasswordController,
@@ -4066,11 +4073,51 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     return null;
   }
 
+  Widget _buildPasswordRequirements() {
+    final confirmFilled = _confirmPassword.isNotEmpty;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _passwordReq('At least 8 characters', _password.length >= 8),
+        _passwordReq('Uppercase letter (A-Z)', RegExp(r'[A-Z]').hasMatch(_password)),
+        _passwordReq('Lowercase letter (a-z)', RegExp(r'[a-z]').hasMatch(_password)),
+        _passwordReq('Number (0-9)', RegExp(r'\d').hasMatch(_password)),
+        _passwordReq('Special character (!@#\$%...)', RegExp(r'[^a-zA-Z0-9]').hasMatch(_password)),
+        if (_password.isNotEmpty && confirmFilled)
+          _passwordReq('Passwords match', _confirmPassword == _password),
+      ],
+    );
+  }
+
+  Widget _passwordReq(String label, bool met) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 3),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            met ? Icons.check_circle : Icons.radio_button_unchecked,
+            size: 14,
+            color: met ? const Color(0xFF166C46) : const Color(0xFF9CA3AF),
+          ),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: met ? const Color(0xFF166C46) : const Color(0xFF9CA3AF),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   String? _validatePassword(String? value) {
     if (value == null || value.isEmpty) return 'Password is required';
     if (value.length < 8) return 'Password must be at least 8 characters';
-    if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)').hasMatch(value))
-      return 'Must contain uppercase, lowercase, and number';
+    if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9])').hasMatch(value))
+      return 'Must contain uppercase, lowercase, number & special character';
     return null;
   }
 

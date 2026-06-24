@@ -91,6 +91,13 @@ class OnboardingApiService {
         fromData: (d) => OnboardingSessionState.fromJson(d));
   }
 
+  /// GET /api/v1/onboarding/check-onboarded/{accountNumber}
+  Future<ApiResponse<CheckOnboardedResponse>> checkOnboarded(
+      String accountNumber) {
+    return _get('/api/v1/onboarding/check-onboarded/$accountNumber',
+        fromData: (d) => CheckOnboardedResponse.fromJson(d));
+  }
+
   /// GET /api/v1/accounts/get-all-accounts
   Future<ApiResponse<List<AccountSummary>>> getAllAccounts() {
     return _getList('/api/v1/accounts/get-all-accounts',
