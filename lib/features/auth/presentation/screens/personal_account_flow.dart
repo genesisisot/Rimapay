@@ -753,9 +753,10 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     setState(() => _isLoading = true);
     try {
       final api = AuthApiService();
-      final exists = await api.checkAccountExists(phoneNumber: phoneNum);
+      final normalized = '234${phoneNum.replaceAll(RegExp(r'[^\d]'), '').replaceFirst(RegExp('^0+'), '')}';
+      final exists = await api.checkAccountExists(phoneNumber: normalized);
       if (!mounted) return;
-      if (exists.data == true) {
+      if (exists.isSuccess && exists.data == true) {
         setState(() => _isLoading = false);
         _snack('An account with this phone number already exists. Please login or link your device.', isError: true);
         return;
