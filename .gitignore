@@ -46,3 +46,6 @@ app.*.map.json
 
 .vercel
 .env*.local
+
+# Claude Code local settings (may contain tokens/secrets — never commit)
+.claude/settings.local.json
