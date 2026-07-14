@@ -41,9 +41,15 @@ enum AccountType { tier1, underbanking, business }
 class AuthScreen extends StatefulWidget {
   final AuthMode mode;
 
+  /// When true (e.g. arriving from onboarding after we detect an account
+  /// already exists for the entered phone number), automatically open the
+  /// "Link existing account" sheet once the screen is built.
+  final bool autoLinkExisting;
+
   const AuthScreen({
     super.key,
     required this.mode,
+    this.autoLinkExisting = false,
   });
 
   @override
@@ -124,6 +130,11 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
     _currentFlow = widget.mode == AuthMode.login ? Flow.login : Flow.start;
     _initializeAnimations();
     _checkBiometricSupport();
+    if (widget.autoLinkExisting) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _showLinkDeviceSheet(context);
+      });
+    }
   }
 
   void _initializeAnimations() {

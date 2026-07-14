@@ -1,17 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rimapay/core/theme/app_colors.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:rimapay/core/providers/auth_provider.dart';
+import 'package:rimapay/core/providers/transaction_provider.dart';
+import 'package:rimapay/core/services/storage_service.dart';
+import 'package:rimapay/features/profile/presentation/providers/profile_provider.dart';
+import 'package:rimapay/features/success/presentation/screens/success_screen.dart';
 import 'package:rimapay/shared/widgets/bill_screen_widgets.dart';
 
-class TransferScreen extends StatefulWidget {
+class TransferScreen extends ConsumerStatefulWidget {
   const TransferScreen({super.key});
 
   @override
-  State<TransferScreen> createState() => _TransferScreenState();
+  ConsumerState<TransferScreen> createState() => _TransferScreenState();
 }
 
-class _TransferScreenState extends State<TransferScreen> {
+class _TransferScreenState extends ConsumerState<TransferScreen> {
   String _transferType = 'rimapay';
 
   // RimaPay form
@@ -29,36 +36,33 @@ class _TransferScreenState extends State<TransferScreen> {
   final _bankAccountFocus = FocusNode();
   String _selectedBank = '';
   String _recipientName = '';
+  String _bankError = '';
   bool _validating = false;
 
-  final List<Map<String, String>> _banks = [
-    {'name': 'Access Bank',   'rate': '98'},
-    {'name': 'GTBank',        'rate': '97'},
-    {'name': 'Zenith Bank',   'rate': '97'},
-    {'name': 'First Bank',    'rate': '95'},
-    {'name': 'UBA',           'rate': '96'},
-    {'name': 'Kuda Bank',     'rate': '99'},
-    {'name': 'Opay',          'rate': '98'},
-    {'name': 'PalmPay',       'rate': '97'},
-    {'name': 'Moniepoint',    'rate': '98'},
-    {'name': 'Wema Bank',     'rate': '94'},
-    {'name': 'Stanbic IBTC',  'rate': '96'},
-    {'name': 'FCMB',          'rate': '93'},
-    {'name': 'Fidelity Bank', 'rate': '94'},
-    {'name': 'Ecobank',       'rate': '92'},
+  String _rimaRecipientName = '';
+  bool _validatingRima = false;
+
+  // Seed list — doubles as fallback when the getbanks endpoint is unreachable
+  // and as the source of per-bank success-rate badges (the API has no rate).
+  List<Map<String, String>> _banks = [
+    {'name': 'Access Bank',   'rate': '98', 'code': '044'},
+    {'name': 'GTBank',        'rate': '97', 'code': '058'},
+    {'name': 'Zenith Bank',   'rate': '97', 'code': '057'},
+    {'name': 'First Bank',    'rate': '95', 'code': '011'},
+    {'name': 'UBA',           'rate': '96', 'code': '033'},
+    {'name': 'Kuda Bank',     'rate': '99', 'code': '50211'},
+    {'name': 'Opay',          'rate': '98', 'code': '100004'},
+    {'name': 'PalmPay',       'rate': '97', 'code': '100003'},
+    {'name': 'Moniepoint',    'rate': '98', 'code': '50515'},
+    {'name': 'Wema Bank',     'rate': '94', 'code': '035'},
+    {'name': 'Stanbic IBTC',  'rate': '96', 'code': '039'},
+    {'name': 'FCMB',          'rate': '93', 'code': '214'},
+    {'name': 'Fidelity Bank', 'rate': '94', 'code': '070'},
+    {'name': 'Ecobank',       'rate': '92', 'code': '050'},
   ];
 
-  final List<Map<String, String>> _rimaRecent = [
-    {'name': 'Funmi Adebayo', 'sub': '0123456789', 'initials': 'FA', 'color': 'purple'},
-    {'name': 'David Okafor', 'sub': '0987654321', 'initials': 'DO', 'color': 'blue'},
-    {'name': 'Sarah Johnson', 'sub': '0811223344', 'initials': 'SJ', 'color': 'orange'},
-  ];
-
-  final List<Map<String, String>> _bankRecent = [
-    {'name': 'Adebayo Okafor', 'bank': 'GTBank', 'account': '0987654321', 'initials': 'AO', 'color': 'blue'},
-    {'name': 'Chinwe Nwachukwu', 'bank': 'Zenith Bank', 'account': '1122334455', 'initials': 'CN', 'color': 'purple'},
-    {'name': 'Emeka Eze', 'bank': 'Access Bank', 'account': '3344556677', 'initials': 'EE', 'color': 'green'},
-  ];
+  List<Map<String, String>> _rimaRecent = [];
+  List<Map<String, String>> _bankRecent = [];
 
   @override
   void initState() {
@@ -67,6 +71,49 @@ class _TransferScreenState extends State<TransferScreen> {
     _amountController.addListener(() => setState(() {}));
     _bankAccountController.addListener(() => setState(() {}));
     WidgetsBinding.instance.addPostFrameCallback((_) => _showTypeSheet());
+    _loadBeneficiaries();
+    _loadBanks();
+  }
+
+  Future<void> _loadBanks() async {
+    try {
+      final api = ref.read(profileApiServiceProvider);
+      final banks = await api.getBanks();
+      if (!mounted || banks.isEmpty) return;
+      // Preserve the hand-tuned success-rate badges by matching on code.
+      final rateByCode = {
+        for (final b in _banks) b['code']!: b['rate'] ?? '',
+      };
+      setState(() {
+        _banks = banks
+            .where((b) =>
+                (b.bankName?.isNotEmpty ?? false) &&
+                (b.institutionCode?.isNotEmpty ?? false))
+            .map((b) => {
+                  'name': b.bankName!,
+                  'code': b.institutionCode!,
+                  'rate': rateByCode[b.institutionCode] ?? '',
+                })
+            .toList();
+      });
+    } catch (_) {
+      // Keep the seed list on any failure.
+    }
+  }
+
+  Future<void> _loadBeneficiaries() async {
+    final list = await StorageService.getBeneficiaries();
+    if (!mounted) return;
+    setState(() {
+      _rimaRecent = list
+          .where((b) => b['type'] == 'rimapay')
+          .map((e) => Map<String, String>.from(e))
+          .toList();
+      _bankRecent = list
+          .where((b) => b['type'] == 'bank')
+          .map((e) => Map<String, String>.from(e))
+          .toList();
+    });
   }
 
   @override
@@ -97,16 +144,199 @@ class _TransferScreenState extends State<TransferScreen> {
     );
   }
 
+  Future<void> _validateRimaAccount() async {
+    final acct = _accountController.text;
+    if (acct.length != 10) {
+      if (_rimaRecipientName.isNotEmpty) {
+        setState(() => _rimaRecipientName = '');
+      }
+      return;
+    }
+    setState(() => _validatingRima = true);
+    try {
+      final api = ref.read(profileApiServiceProvider);
+      final details = await api.getAccountDetails(acct);
+      if (mounted) {
+        setState(() {
+          _validatingRima = false;
+          _rimaRecipientName = details?.accountTitle ?? '';
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _validatingRima = false;
+          _rimaRecipientName = '';
+        });
+      }
+    }
+  }
+
+  String _bankCodeFor(String bankName) {
+    return _banks.firstWhere(
+          (b) => b['name'] == bankName,
+          orElse: () => const {'code': ''},
+        )['code'] ??
+        '';
+  }
+
   Future<void> _validateBankAccount() async {
-    if (_bankAccountController.text.length != 10 || _selectedBank.isEmpty) return;
-    setState(() => _validating = true);
-    await Future.delayed(const Duration(seconds: 2));
-    if (mounted) {
+    final acct = _bankAccountController.text;
+    if (acct.length != 10 || _selectedBank.isEmpty) {
+      if (_recipientName.isNotEmpty || _bankError.isNotEmpty) {
+        setState(() {
+          _recipientName = '';
+          _bankError = '';
+        });
+      }
+      return;
+    }
+    final bankCode = _bankCodeFor(_selectedBank);
+    if (bankCode.isEmpty) return;
+
+    setState(() {
+      _validating = true;
+      _recipientName = '';
+      _bankError = '';
+    });
+    try {
+      final api = ref.read(profileApiServiceProvider);
+      final res = await api.nameEnquiryInter(acct, bankCode);
+      if (!mounted) return;
       setState(() {
         _validating = false;
-        _recipientName = 'John Doe';
+        if (res != null && res.isResolved) {
+          _recipientName = res.accountName;
+          _bankError = '';
+        } else {
+          _recipientName = '';
+          _bankError = res?.responseDesc?.isNotEmpty == true
+              ? res!.responseDesc!
+              : 'Could not verify this account. Check the number and bank.';
+        }
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _validating = false;
+        _recipientName = '';
+        _bankError = 'Could not verify this account. Please try again.';
       });
     }
+  }
+
+  /// Bill-payment-style confirmation: a bottom sheet with the transaction
+  /// summary + PIN pad, then runs the real transfer.
+  void _startTransfer() {
+    final auth = context.read<AuthProvider>();
+    final senderAccount = auth.user?.accountNumber ?? '';
+    final isRimaLocal = _transferType == 'rimapay';
+    final recipient = isRimaLocal
+        ? (_rimaRecipientName.isNotEmpty ? _rimaRecipientName : _accountController.text)
+        : (_recipientName.isNotEmpty ? _recipientName : _bankAccountController.text);
+    final bankName = isRimaLocal ? 'RimaPay' : _selectedBank;
+    final bankCode = isRimaLocal ? '000' : _bankCodeFor(_selectedBank);
+    final recipientAccount =
+        isRimaLocal ? _accountController.text : _bankAccountController.text;
+    final amount = double.tryParse(_amountController.text) ?? 0;
+    final note = _noteController.text.trim();
+
+    showPinConfirmSheet(
+      context: context,
+      summary: [
+        {'label': 'Recipient', 'value': recipient},
+        {
+          'label': isRimaLocal ? 'RimaPay Account' : 'Account No.',
+          'value': recipientAccount,
+        },
+        if (!isRimaLocal) {'label': 'Bank', 'value': bankName},
+        {'label': 'Amount', 'value': '₦${amount.toStringAsFixed(2)}'},
+        if (note.isNotEmpty) {'label': 'Note', 'value': note},
+      ],
+      onConfirmed: (pin) async {
+        Navigator.pop(context); // close the confirm sheet
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => const Center(
+            child: CircularProgressIndicator(color: Color(0xFF166C46)),
+          ),
+        );
+
+        final notifier = ref.read(transactionProviders.notifier);
+        final refNo = await notifier.processTransfer(
+          senderAccountNumber: senderAccount,
+          recipientAccountNumber: recipientAccount,
+          recipientBankCode: bankCode,
+          recipientBankName: bankName,
+          amount: amount,
+          narration: note.isEmpty ? null : note,
+          pin: pin,
+          isRimaPay: isRimaLocal,
+        );
+
+        if (!mounted) return;
+        Navigator.of(context, rootNavigator: true).pop(); // dismiss loader
+
+        if (refNo.isNotEmpty) {
+          await _saveBeneficiary(
+            isRima: isRimaLocal,
+            name: recipient,
+            bank: bankName,
+            account: recipientAccount,
+          );
+          await context.read<AuthProvider>().fetchAccounts(silent: true);
+          if (!mounted) return;
+          context.go('/success',
+              extra: SuccessScreenProps(
+                transactionType: 'Transfer',
+                amount: '₦${amount.toStringAsFixed(2)}',
+                recipient: recipient,
+                transactionId: refNo,
+              ));
+        } else {
+          final error = ref.read(transactionProviders).error ??
+              'Transaction failed. Please try again.';
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(error),
+              backgroundColor: const Color(0xFFD33B31),
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  Future<void> _saveBeneficiary({
+    required bool isRima,
+    required String name,
+    required String bank,
+    required String account,
+  }) async {
+    if (name.isEmpty) return;
+    final initials = name
+        .split(' ')
+        .map((w) => w.isNotEmpty ? w[0] : '')
+        .take(2)
+        .join()
+        .toUpperCase();
+    final colors = ['purple', 'blue', 'orange', 'green', 'red'];
+    final color = colors[name.length % colors.length];
+
+    final existing = await StorageService.getBeneficiaries();
+    existing.removeWhere((b) =>
+        isRima ? b['sub'] == account : b['account'] == account);
+    existing.insert(
+        0,
+        isRima
+            ? {'type': 'rimapay', 'name': name, 'sub': account, 'initials': initials, 'color': color}
+            : {'type': 'bank', 'name': name, 'bank': bank, 'account': account, 'initials': initials, 'color': color});
+    if (existing.length > 20) existing.removeRange(20, existing.length);
+    await StorageService.saveBeneficiaries(existing);
   }
 
   void _showBankSelector() {
@@ -120,6 +350,7 @@ class _TransferScreenState extends State<TransferScreen> {
           setState(() {
             _selectedBank = bank;
             _recipientName = '';
+            _bankError = '';
           });
           if (_bankAccountController.text.length == 10) _validateBankAccount();
         },
@@ -228,7 +459,7 @@ class _TransferScreenState extends State<TransferScreen> {
                     Text(
                       'Send Money',
                       style: TextStyle(
-                        color: Theme.of(context).cardColor,
+                        color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
                         fontFamily: 'Effra',
@@ -272,58 +503,82 @@ class _TransferScreenState extends State<TransferScreen> {
             padding: EdgeInsets.fromLTRB(20, 0, 20, MediaQuery.of(context).padding.bottom + 16),
             child: Builder(builder: (context) {
               final isRima = _transferType == 'rimapay';
-              final canContinue = isRima
+              final amount = double.tryParse(_amountController.text) ?? 0;
+              final balance = context.watch<AuthProvider>().user?.balance ?? 0;
+              final insufficient = amount > 0 && amount > balance;
+              final baseFilled = isRima
                   ? _accountController.text.isNotEmpty && _amountController.text.isNotEmpty
                   : _bankAccountController.text.length == 10 &&
                       _selectedBank.isNotEmpty &&
+                      _recipientName.isNotEmpty &&
                       _amountController.text.isNotEmpty;
-              return GestureDetector(
-                onTap: canContinue
-                    ? () {
-                        final recipient = isRima
-                            ? _accountController.text
-                            : _recipientName.isNotEmpty
-                                ? _recipientName
-                                : _bankAccountController.text;
-                        context.push('/pin-verification', extra: {
-                          'type': 'transfer',
-                          'amount': _amountController.text,
-                          'recipient': recipient,
-                          'bank': isRima ? 'RimaPay' : _selectedBank,
-                          'note': _noteController.text,
-                        });
-                      }
-                    : null,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: double.infinity,
-                  height: 54,
-                  decoration: BoxDecoration(
-                    gradient: canContinue ? AppColors.goldGradient : null,
-                    color: canContinue ? null : Theme.of(context).dividerColor,
-                    borderRadius: BorderRadius.circular(14),
-                    boxShadow: canContinue
-                        ? [
-                            BoxShadow(
-                              color: AppColors.goldPrimary.withOpacity(0.3),
-                              blurRadius: 14,
-                              offset: const Offset(0, 5),
+              final canContinue = baseFilled && !insufficient;
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (insufficient) ...[
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      margin: const EdgeInsets.only(bottom: 10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFD33B31).withOpacity(0.06),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFD33B31).withOpacity(0.25)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.account_balance_wallet_outlined, color: Color(0xFFD33B31), size: 18),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              'Insufficient balance. Your wallet balance is ₦${balance.toStringAsFixed(2)}.',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFFD33B31),
+                                fontFamily: 'Effra',
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
-                          ]
-                        : null,
-                  ),
-                  child: Center(
-                    child: Text(
-                      'Continue',
-                      style: TextStyle(
-                        color: canContinue ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        fontFamily: 'Effra',
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  GestureDetector(
+                    onTap: canContinue ? _startTransfer : null,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      width: double.infinity,
+                      height: 54,
+                      decoration: BoxDecoration(
+                        gradient: canContinue ? AppColors.goldGradient : null,
+                        color: canContinue ? null : Theme.of(context).dividerColor,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: canContinue
+                            ? [
+                                BoxShadow(
+                                  color: AppColors.goldPrimary.withOpacity(0.3),
+                                  blurRadius: 14,
+                                  offset: const Offset(0, 5),
+                                ),
+                              ]
+                            : null,
+                      ),
+                      child: Center(
+                        child: Text(
+                          insufficient ? 'Insufficient Balance' : 'Continue',
+                          style: TextStyle(
+                            color: canContinue ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: 'Effra',
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
+                ],
               );
             }),
           ),
@@ -367,74 +622,79 @@ class _TransferScreenState extends State<TransferScreen> {
         const SizedBox(height: 20),
 
         // Recent beneficiaries
-        Text(
-          'Recent',
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
-            fontFamily: 'Effra',
+        if (_rimaRecent.isNotEmpty) ...[
+          Text(
+            'Recent',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
+              fontFamily: 'Effra',
+            ),
           ),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          height: 82,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: _rimaRecent.length,
-            itemBuilder: (_, i) {
-              final r = _rimaRecent[i];
-              final c = _avatarColor(r['color']!);
-              return GestureDetector(
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  setState(() => _accountController.text = r['sub']!);
-                },
-                child: Container(
-                  width: 70,
-                  margin: const EdgeInsets.only(right: 12),
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: c.withOpacity(0.15),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: c.withOpacity(0.25), width: 1.5),
-                        ),
-                        child: Center(
-                          child: Text(
-                            r['initials']!,
-                            style: TextStyle(
-                              color: c,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 14,
-                              fontFamily: 'Effra',
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 82,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: _rimaRecent.length,
+              itemBuilder: (_, i) {
+                final r = _rimaRecent[i];
+                final c = _avatarColor(r['color']!);
+                return GestureDetector(
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    setState(() {
+                      _accountController.text = r['sub']!;
+                      _rimaRecipientName = r['name']!;
+                    });
+                  },
+                  child: Container(
+                    width: 70,
+                    margin: const EdgeInsets.only(right: 12),
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: c.withOpacity(0.15),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: c.withOpacity(0.25), width: 1.5),
+                          ),
+                          child: Center(
+                            child: Text(
+                              r['initials']!,
+                              style: TextStyle(
+                                color: c,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                                fontFamily: 'Effra',
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        r['name']!.split(' ').first,
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
-                          fontFamily: 'Effra',
-                          fontWeight: FontWeight.w500,
+                        const SizedBox(height: 6),
+                        Text(
+                          r['name']!.split(' ').first,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
+                            fontFamily: 'Effra',
+                            fontWeight: FontWeight.w500,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
                         ),
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
-        ),
-        const SizedBox(height: 20),
+          const SizedBox(height: 20),
+        ],
 
         // Account/phone input
         BillFloatingField(
@@ -444,8 +704,69 @@ class _TransferScreenState extends State<TransferScreen> {
           hint: 'Account number or phone',
           keyboardType: TextInputType.number,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          onChanged: (_) => _validateRimaAccount(),
+          suffix: _validatingRima
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF166C46)),
+                )
+              : null,
         ),
         const SizedBox(height: 14),
+
+        // Resolved name
+        if (_rimaRecipientName.isNotEmpty) ...[
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: const Color(0xFF166C46).withOpacity(0.06),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF166C46).withOpacity(0.2)),
+            ),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 18,
+                  backgroundColor: const Color(0xFF166C46),
+                  child: Text(
+                    _rimaRecipientName[0],
+                    style: TextStyle(
+                      color: Theme.of(context).cardColor,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: 'Effra',
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _rimaRecipientName,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                        fontFamily: 'Effra',
+                      ),
+                    ),
+                    Text(
+                      'RimaPay · ${_accountController.text}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                        fontFamily: 'Effra',
+                      ),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                const Icon(Icons.check_circle, color: Color(0xFF166C46), size: 20),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+        ],
 
         // Amount
         BillAmountCard(
@@ -481,78 +802,80 @@ class _TransferScreenState extends State<TransferScreen> {
         const SizedBox(height: 20),
 
         // Recent beneficiaries
-        Text(
-          'Recent',
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
-            fontFamily: 'Effra',
+        if (_bankRecent.isNotEmpty) ...[
+          Text(
+            'Recent',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
+              fontFamily: 'Effra',
+            ),
           ),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          height: 82,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: _bankRecent.length,
-            itemBuilder: (_, i) {
-              final r = _bankRecent[i];
-              final c = _avatarColor(r['color']!);
-              return GestureDetector(
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  setState(() {
-                    _bankAccountController.text = r['account']!;
-                    _selectedBank = r['bank']!;
-                    _recipientName = r['name']!;
-                  });
-                },
-                child: Container(
-                  width: 70,
-                  margin: const EdgeInsets.only(right: 12),
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: c.withOpacity(0.15),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: c.withOpacity(0.25), width: 1.5),
-                        ),
-                        child: Center(
-                          child: Text(
-                            r['initials']!,
-                            style: TextStyle(
-                              color: c,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 14,
-                              fontFamily: 'Effra',
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 82,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: _bankRecent.length,
+              itemBuilder: (_, i) {
+                final r = _bankRecent[i];
+                final c = _avatarColor(r['color']!);
+                return GestureDetector(
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    setState(() {
+                      _bankAccountController.text = r['account']!;
+                      _selectedBank = r['bank']!;
+                      _recipientName = r['name']!;
+                    });
+                  },
+                  child: Container(
+                    width: 70,
+                    margin: const EdgeInsets.only(right: 12),
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: c.withOpacity(0.15),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: c.withOpacity(0.25), width: 1.5),
+                          ),
+                          child: Center(
+                            child: Text(
+                              r['initials']!,
+                              style: TextStyle(
+                                color: c,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                                fontFamily: 'Effra',
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        r['name']!.split(' ').first,
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
-                          fontFamily: 'Effra',
-                          fontWeight: FontWeight.w500,
+                        const SizedBox(height: 6),
+                        Text(
+                          r['name']!.split(' ').first,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
+                            fontFamily: 'Effra',
+                            fontWeight: FontWeight.w500,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
                         ),
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
-        ),
-        const SizedBox(height: 20),
+          const SizedBox(height: 20),
+        ],
 
         // Account number input
         BillFloatingField(
@@ -691,6 +1014,36 @@ class _TransferScreenState extends State<TransferScreen> {
                 ),
                 const Spacer(),
                 const Icon(Icons.check_circle, color: Color(0xFF166C46), size: 20),
+              ],
+            ),
+          ),
+        ],
+
+        // Name-enquiry error
+        if (_bankError.isNotEmpty && _recipientName.isEmpty) ...[
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFD33B31).withOpacity(0.06),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFD33B31).withOpacity(0.25)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Color(0xFFD33B31), size: 18),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    _bankError,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFFD33B31),
+                      fontFamily: 'Effra',
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -1113,7 +1466,7 @@ class _BankSelectorSheetState extends State<_BankSelectorSheet> {
                           ),
                         ),
                         // Success rate badge
-                        if (bank['rate'] != null) ...[
+                        if (bank['rate'] != null && bank['rate']!.isNotEmpty) ...[
                           const SizedBox(width: 8),
                           _SuccessRateBadge(rate: int.parse(bank['rate']!)),
                         ],

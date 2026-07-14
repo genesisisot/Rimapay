@@ -84,8 +84,11 @@ class AppRouter {
         name: 'auth',
         builder: (context, state) {
           final mode = state.uri.queryParameters['mode'] ?? 'login';
+          final autoLinkExisting =
+              state.uri.queryParameters['link'] == 'existing';
           return AuthScreen(
             mode: mode == 'login' ? AuthMode.login : AuthMode.signup,
+            autoLinkExisting: autoLinkExisting,
           );
         },
       ),
