@@ -37,7 +37,6 @@ const String kBuildTag = 'build #12 · 2026-06-20';
 
 enum AccountStep {
   phoneEntry, // 1. Enter phone number
-  accountEntry, // 2. Existing user: enter account number
   otpVerification, // 3. OTP verification
   idEntry, // 4. Enter BVN/NIN
   facialVerification, // 4. Face validation
@@ -106,9 +105,6 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
 
   // ── Phone numpad ───────────────────────────────────────────────────────────
   String _phoneDigits = '';
-
-  // ── Account numpad (existing user) ─────────────────────────────────────────
-  String _accountDigits = '';
 
   // ── ID verification ────────────────────────────────────────────────────────
   String _idType = 'bvn'; // 'bvn', 'nin', or 'noid'
@@ -288,8 +284,6 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     switch (_currentStep) {
       case AccountStep.phoneEntry:
         return 'Phone Number';
-      case AccountStep.accountEntry:
-        return 'Account Number';
       case AccountStep.otpVerification:
         return 'Verify Phone';
       case AccountStep.idEntry:
@@ -455,8 +449,6 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     switch (_currentStep) {
       case AccountStep.phoneEntry:
         return _buildPhoneEntryStep();
-      case AccountStep.accountEntry:
-        return _buildAccountEntryStep();
       case AccountStep.otpVerification:
         return _buildOtpStep();
       case AccountStep.idEntry:
@@ -759,7 +751,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       if (!mounted) return;
       if (exists.isSuccess && exists.data == true) {
         setState(() => _isLoading = false);
-        _snack('An account with this phone number already exists. Please login or link your device.', isError: true);
+        _goToLinkExistingAccount();
         return;
       }
     } catch (_) {
@@ -786,8 +778,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     } else {
       final st = ref.read(onboardingProvider);
       if (st.isExistingUser) {
-        setState(() => _accountDigits = '');
-        _animateTo(AccountStep.accountEntry);
+        _goToLinkExistingAccount();
         return;
       }
       final err = st.error;
@@ -797,130 +788,13 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     }
   }
 
-  // ─── Step 2: Account Number (existing user) ────────────────────────────────
-
-  Widget _buildAccountEntryStep() {
-    return Column(
-      children: [
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'An account already exists with this phone number.',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF6B7280),
-                    height: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  'Enter your 10-digit account number to verify ownership.',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF6B7280),
-                    height: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 20, vertical: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFE5E7EB)),
-                  ),
-                  child: Column(
-                    children: [
-                      Text(
-                        _accountDigits.isEmpty
-                            ? 'Account Number'
-                            : _accountDigits,
-                        style: TextStyle(
-                          fontSize: _accountDigits.isEmpty ? 16 : 24,
-                          fontWeight: FontWeight.w600,
-                          color: _accountDigits.isEmpty
-                              ? const Color(0xFFB0B7C3)
-                              : const Color(0xFF1F2937),
-                          letterSpacing: 2,
-                        ),
-                      ),
-                      if (_accountDigits.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: Text(
-                            '${_accountDigits.length} / 10 digits',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF9CA3AF),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-                _buildNumPad(
-                  onDigit: (d) {
-                    if (_accountDigits.length < 10) {
-                      setState(() => _accountDigits += d);
-                    }
-                  },
-                  onDelete: () {
-                    if (_accountDigits.isNotEmpty) {
-                      setState(() => _accountDigits = _accountDigits.substring(
-                          0, _accountDigits.length - 1));
-                    }
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-        _buildCTA(
-          label: 'Verify →',
-          loading: _isLoading,
-          onTap: _onAccountEntryContinue,
-        ),
-      ],
-    );
-  }
-
-  static final _accountRegex = RegExp(r'^\d{10}$');
-
-  void _onAccountEntryContinue() async {
-    if (!_accountRegex.hasMatch(_accountDigits)) {
-      _snack('Enter a valid 10-digit account number.', isError: true);
-      return;
-    }
-    setState(() => _isLoading = true);
-    final deviceId = await StorageService.getDeviceId();
-    log('[flow] initiateExisting account=$_accountDigits deviceId=$deviceId');
-    final ok = await ref
-        .read(onboardingProvider.notifier)
-        .initiateExisting(
-          accountNumber: _accountDigits,
-          deviceId: deviceId,
-        );
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-    log('[flow] initiateExisting → ok=$ok');
-    if (ok) {
-      final st = ref.read(onboardingProvider);
-      _animateTo(_accountStepForOnboardingStep(st.currentStep));
-    } else {
-      final err = ref.read(onboardingProvider).error;
-      log('[flow] initiateExisting failed: $err');
-      _snack(
-        err ?? 'Could not verify account. Please try again.',
-        isError: true,
-      );
-    }
+  /// An account already exists for this phone number, so signup can't continue.
+  /// Send the user to the auth screen where they can link the existing account
+  /// to this device (no need to re-enter an account number here).
+  void _goToLinkExistingAccount() {
+    _snack('An account already exists with this phone number. '
+        'Link it to this device to continue.');
+    context.go('/auth?link=existing');
   }
 
   /// Maps the onboarding provider's step (which may have advanced via a resumed
@@ -1584,8 +1458,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     } else {
       final st = ref.read(onboardingProvider);
       if (st.isExistingUser) {
-        setState(() => _accountDigits = '');
-        _animateTo(AccountStep.accountEntry);
+        _goToLinkExistingAccount();
         return;
       }
       _snack(
