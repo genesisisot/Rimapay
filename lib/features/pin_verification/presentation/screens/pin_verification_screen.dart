@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' hide Provider;
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/providers/auth_provider.dart';
-import '../../../../core/providers/language_provider.dart';
+import '../../../../core/providers/transaction_provider.dart';
+import '../../../../core/services/storage_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/services/storage_service.dart';
-import '../../../../core/services/biometric_service.dart';
+import '../../../../features/success/presentation/screens/success_screen.dart';
 
-class PinVerificationScreen extends StatefulWidget {
+class PinVerificationScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic> transactionData;
 
   const PinVerificationScreen({
@@ -19,10 +20,12 @@ class PinVerificationScreen extends StatefulWidget {
   });
 
   @override
-  State<PinVerificationScreen> createState() => _PinVerificationScreenState();
+  ConsumerState<PinVerificationScreen> createState() =>
+      _PinVerificationScreenState();
 }
 
-class _PinVerificationScreenState extends State<PinVerificationScreen> with TickerProviderStateMixin {
+class _PinVerificationScreenState extends ConsumerState<PinVerificationScreen>
+    with TickerProviderStateMixin {
   late AnimationController _animationController;
   late AnimationController _loadingController;
   late Animation<double> _fadeAnimation;
@@ -136,35 +139,83 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> with Tick
 
     _loadingController.repeat();
 
-    // Simulate PIN verification - Made instant (300ms)
-    await Future.delayed(const Duration(milliseconds: 300));
+    final extra = widget.transactionData;
+    final isTransfer = extra['type'] == 'transfer';
 
-    _loadingController.stop();
+    if (isTransfer) {
+      final notifier = ref.read(transactionProviders.notifier);
+      final refNo = await notifier.processTransfer(
+        senderAccountNumber:
+            extra['senderAccountNumber'] as String? ?? '',
+        recipientAccountNumber:
+            extra['accountNumber'] as String? ?? '',
+        recipientBankCode: extra['bankCode'] as String? ?? '',
+        recipientBankName: extra['bank'] as String? ?? '',
+        amount:
+            double.tryParse(extra['amount']?.toString() ?? '0') ?? 0,
+        narration: extra['note'] as String?,
+        pin: pinValue,
+        isRimaPay: extra['isRimaPay'] == true,
+      );
 
-    // For demo purposes, accept any 4-digit PIN except "0000"
-    if (pinValue == '0000') {
-      setState(() {
-        _error = 'Invalid PIN. Please try again.';
-        _isLoading = false;
-        _pin = ['', '', '', ''];
-        _focusIndex = 0;
-      });
-      _focusNodes[0].requestFocus();
+      _loadingController.stop();
+
+      if (refNo.isNotEmpty && mounted) {
+        _saveBeneficiary(extra);
+        await Provider.of<AuthProvider>(context, listen: false).fetchAccounts();
+        setState(() => _isLoading = false);
+        context.go('/success', extra: SuccessScreenProps(
+          transactionType: 'Transfer',
+          amount: '₦${double.tryParse(extra['amount']?.toString() ?? '0')?.toStringAsFixed(2) ?? '0.00'}',
+          recipient: extra['recipientName']?.toString() ?? extra['recipient']?.toString() ?? '',
+          transactionId: refNo,
+        ));
+      } else if (mounted) {
+        final error =
+            ref.read(transactionProviders).error ?? 'Transaction failed. Please try again.';
+        setState(() {
+          _error = error;
+          _isLoading = false;
+          _pin = ['', '', '', ''];
+          _focusIndex = 0;
+          _loadingController.stop();
+        });
+        _focusNodes[0].requestFocus();
+      }
     } else {
-      setState(() {
-        _isLoading = false;
-      });
-      _navigateToSuccess();
+      // Non-transfer (airtime, bills, etc.) — keep mock for now
+      await Future.delayed(const Duration(milliseconds: 300));
+      _loadingController.stop();
+      if (mounted) {
+        setState(() => _isLoading = false);
+        context.go('/success', extra: widget.transactionData);
+      }
     }
   }
 
-  void _navigateToSuccess() {
-    // Navigate to success screen or call success callback
-    context.go('/success', extra: widget.transactionData);
+  void _saveBeneficiary(Map<String, dynamic> extra) async {
+    final isRima = extra['isRimaPay'] == true;
+    final name = extra['recipientName']?.toString() ?? extra['recipient']?.toString() ?? '';
+    if (name.isEmpty) return;
+    final initials = name.split(' ').map((w) => w.isNotEmpty ? w[0] : '').take(2).join().toUpperCase();
+    final colors = ['purple', 'blue', 'orange', 'green', 'red'];
+    final color = colors[name.length % colors.length];
+
+    final existing = await StorageService.getBeneficiaries();
+    existing.removeWhere((b) =>
+        isRima
+            ? b['sub'] == extra['accountNumber']
+            : b['account'] == extra['accountNumber']);
+
+    existing.insert(0, isRima
+        ? {'type': 'rimapay', 'name': name, 'sub': (extra['accountNumber'] ?? '').toString(), 'initials': initials, 'color': color}
+        : {'type': 'bank', 'name': name, 'bank': (extra['bank'] ?? '').toString(), 'account': (extra['accountNumber'] ?? '').toString(), 'initials': initials, 'color': color});
+
+    if (existing.length > 20) existing.removeRange(20, existing.length);
+    await StorageService.saveBeneficiaries(existing);
   }
 
   String _formatAmount(String amount) {
-    // Remove currency symbol and format
     final cleanAmount = amount.replaceAll(RegExp(r'[^\d.,]'), '');
     return '₦$cleanAmount';
   }
@@ -259,7 +310,7 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> with Tick
               ),
               child: Icon(
                 Icons.arrow_back_ios_new,
-                color: Theme.of(context).cardColor,
+                color: Colors.white,
                 size: 20,
               ),
             ),
@@ -269,7 +320,7 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> with Tick
             child: Text(
               'Confirm Transaction',
               style: TextStyle(
-                color: Theme.of(context).cardColor,
+                color: Colors.white,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 height: 1.2,

@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../services/storage_service.dart';
 import '../services/biometric_service.dart';
 import '../../features/auth/data/auth_api_service.dart';
 import '../../features/auth/data/auth_dtos.dart';
 import '../network/api_response.dart';
 import '../../features/profile/data/profile_api_service.dart';
+import '../../features/profile/data/accounts_api_service.dart';
 
 enum TierLevel { tier0, tier1, tier2, tier3 }
 enum AccountType { underbanking, basic, premium, business }
@@ -57,7 +61,7 @@ class User {
     return email[0].toUpperCase();
   }
   
-  String get formattedBalance => '₦${balance.toStringAsFixed(2)}';
+  String get formattedBalance => '₦${NumberFormat('#,##0.00').format(balance)}';
   
   Map<String, String> get tierLimits {
     switch (tierLevel) {
@@ -180,6 +184,8 @@ class AuthProvider extends ChangeNotifier {
   String? _error;
   String? _errorMessage; // ADDED: For biometric errors
   bool _profileFetched = false;
+  bool _pinCreated = true;
+  bool _isFetchingBalance = false;
   
   User? get user => _user;
   User? get currentUser => _user; // ADDED: Alias for compatibility
@@ -188,6 +194,8 @@ class AuthProvider extends ChangeNotifier {
   String? get error => _error;
   String? get errorMessage => _errorMessage; // ADDED: For biometric errors
   bool get profileFetched => _profileFetched;
+  bool get pinCreated => _pinCreated;
+  bool get isFetchingBalance => _isFetchingBalance;
   
   Future<void> initialize() async {
     _isLoading = true;
@@ -198,6 +206,7 @@ class AuthProvider extends ChangeNotifier {
       final userData = await StorageService.getUser();
       if (userData != null) {
         _user = userData;
+        unawaited(fetchAccounts());
       }
     } catch (e) {
       _error = e.toString();
@@ -268,6 +277,7 @@ class AuthProvider extends ChangeNotifier {
           accessToken: d.token,
           refreshToken: d.refreshToken,
         );
+        _pinCreated = d.pinCreated;
         _user = User(
           id: d.userId ?? '',
           email: d.email ?? (email ?? ''),
@@ -280,6 +290,7 @@ class AuthProvider extends ChangeNotifier {
           bvnVerified: false,
         );
         await StorageService.saveUser(_user!);
+        unawaited(fetchAccounts());
         return true;
       }
       _error = res.errorMessage ?? 'Login failed. Please try again.';
@@ -290,6 +301,37 @@ class AuthProvider extends ChangeNotifier {
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  /// Fetches real account balance + account number from Accounts API.
+  ///
+  /// Pass [silent] for background refreshes (polling, app-resume,
+  /// pull-to-refresh) so the balance shimmer isn't flashed on every tick —
+  /// the balance simply updates in place when it changes.
+  Future<void> fetchAccounts({bool silent = false}) async {
+    if (!silent) {
+      _isFetchingBalance = true;
+      notifyListeners();
+    }
+    try {
+      final accounts = await AccountsApiService().getAllAccounts();
+      if (accounts.isNotEmpty && _user != null) {
+        final acct = accounts.first;
+        final changed = acct.balance != _user!.balance ||
+            acct.accountNumber != _user!.accountNumber;
+        _user = _user!.copyWith(
+          balance: acct.balance,
+          accountNumber: acct.accountNumber,
+        );
+        await StorageService.saveUser(_user!);
+        if (silent && changed) notifyListeners();
+      }
+    } finally {
+      if (!silent) {
+        _isFetchingBalance = false;
+        notifyListeners();
+      }
     }
   }
 
@@ -468,10 +510,15 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setPinCreated() {
+    _pinCreated = true;
+  }
+
   Future<void> logout() async {
     _user = null;
     _error = null;
     _errorMessage = null; // ADDED: Clear biometric errors
+    _pinCreated = true;
     await StorageService.clearUser();
     notifyListeners();
   }

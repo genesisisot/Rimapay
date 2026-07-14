@@ -189,7 +189,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                       border: Border.all(color: Colors.white.withOpacity(0.2)),
                     ),
                     child: Icon(Icons.arrow_back_ios_new,
-                        color: Theme.of(context).cardColor, size: 17),
+                        color: Colors.white, size: 17),
                   ),
                 ),
               ),
@@ -237,7 +237,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: AppColors.goldGradient,
-              border: Border.all(color: Theme.of(context).cardColor, width: 3),
+              border: Border.all(color: Colors.white.withOpacity(0.3), width: 3),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.18),
@@ -255,7 +255,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                         gradient: AppColors.goldGradient,
                       ),
                       child: Icon(Icons.person,
-                          color: Theme.of(context).cardColor, size: 40),
+                          color: Colors.white, size: 40),
                     ),
             ),
           ),
@@ -271,7 +271,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                   shape: BoxShape.circle,
                 ),
                 child:
-                    Icon(Icons.camera_alt, color: Theme.of(context).cardColor, size: 13),
+                    Icon(Icons.camera_alt, color: Colors.white, size: 13),
               ),
             ),
         ],
@@ -609,7 +609,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                 ),
               ),
               child: isCompleted
-                  ? Icon(Icons.check, color: Theme.of(context).cardColor, size: 16)
+                  ? Icon(Icons.check, color: Colors.white, size: 16)
                   : null,
             ),
           ],
@@ -746,7 +746,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                 shape: BoxShape.circle,
               ),
               child:
-                  Icon(Icons.star_rounded, color: Theme.of(context).cardColor, size: 22),
+                  Icon(Icons.star_rounded, color: Colors.white, size: 22),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -769,7 +769,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
-                      color: Theme.of(context).cardColor,
+                      color: Colors.white,
                       fontFamily: 'Effra',
                     ),
                   ),
@@ -793,7 +793,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               child: Text(
                 'Upgrade',
                 style: TextStyle(
-                  color: Theme.of(context).cardColor,
+                  color: Colors.white,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                   fontFamily: 'Effra',

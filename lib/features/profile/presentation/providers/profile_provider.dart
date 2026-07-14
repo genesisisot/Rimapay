@@ -14,6 +14,8 @@ class ProfileState {
   final bool pepCompleted;
   final bool sourceOfIncomeCompleted;
   final bool mockMode;
+  final DailyLimitResponse? dailyLimit;
+  final DailyLimitBalanceResponse? dailyLimitBalance;
 
   const ProfileState({
     this.isLoading = false,
@@ -24,6 +26,8 @@ class ProfileState {
     this.pepCompleted = false,
     this.sourceOfIncomeCompleted = false,
     this.mockMode = false,
+    this.dailyLimit,
+    this.dailyLimitBalance,
   });
 
   ProfileState copyWith({
@@ -35,6 +39,8 @@ class ProfileState {
     bool? pepCompleted,
     bool? sourceOfIncomeCompleted,
     bool? mockMode,
+    DailyLimitResponse? dailyLimit,
+    DailyLimitBalanceResponse? dailyLimitBalance,
   }) {
     return ProfileState(
       isLoading: isLoading ?? this.isLoading,
@@ -46,6 +52,8 @@ class ProfileState {
       sourceOfIncomeCompleted:
           sourceOfIncomeCompleted ?? this.sourceOfIncomeCompleted,
       mockMode: mockMode ?? this.mockMode,
+      dailyLimit: dailyLimit ?? this.dailyLimit,
+      dailyLimitBalance: dailyLimitBalance ?? this.dailyLimitBalance,
     );
   }
 }
@@ -153,6 +161,37 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
     }
     state = state.copyWith(error: res.errorMessage ?? 'Failed to save income details.');
     return false;
+  }
+
+  Future<void> fetchDailyLimit() async {
+    final limit = await _api.getDailyLimit();
+    if (limit != null) {
+      state = state.copyWith(dailyLimit: limit);
+    }
+  }
+
+  Future<void> fetchDailyLimitBalance() async {
+    final balance = await _api.getDailyLimitBalance();
+    if (balance != null) {
+      state = state.copyWith(dailyLimitBalance: balance);
+    }
+  }
+
+  Future<bool> updateDailyLimit(double limit) async {
+    state = state.copyWith(isLoading: true, error: null);
+    final res =
+        await _api.updateDailyLimit(UpdateDailyLimitRequest(dailyLimit: limit));
+    state = state.copyWith(isLoading: false);
+    if (res != null) {
+      state = state.copyWith(dailyLimit: res);
+      return true;
+    }
+    state = state.copyWith(error: 'Failed to update daily limit.');
+    return false;
+  }
+
+  Future<String?> fetchProfileImageBase64(String identityUserId) async {
+    return _api.getProfileImageBase64(identityUserId);
   }
 
   Future<void> fetchCompletionStatus() async {

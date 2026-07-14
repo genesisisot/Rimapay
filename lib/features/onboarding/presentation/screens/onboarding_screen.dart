@@ -24,6 +24,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final _confirmPinController = TextEditingController();
 
   IdentityDocumentType _documentType = IdentityDocumentType.bvn;
+  bool _obscureId = true;
   bool _showPassword = false;
   bool _showConfirmPassword = false;
   bool _showPin = false;
@@ -705,6 +706,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       ),
       child: TextField(
         controller: _identityController,
+        obscureText: _obscureId,
         keyboardType: TextInputType.number,
         inputFormatters: [
           FilteringTextInputFormatter.digitsOnly,
@@ -717,6 +719,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 14),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 14),
+          suffixIcon: GestureDetector(
+            onTap: () => setState(() => _obscureId = !_obscureId),
+            child: Icon(
+              _obscureId ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+              size: 18,
+              color: Color(0xFF9CA3AF),
+            ),
+          ),
         ),
         style: const TextStyle(fontSize: 14, color: Color(0xFF101828)),
       ),

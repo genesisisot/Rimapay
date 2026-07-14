@@ -113,6 +113,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   // ── ID verification ────────────────────────────────────────────────────────
   String _idType = 'bvn'; // 'bvn', 'nin', or 'noid'
   String _idDigits = '';
+  bool _obscureId = true;
   bool _isUnderbankedMode = false; // set when user picks "No ID"
 
   bool get _isUnderbanked =>
@@ -2393,7 +2394,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                           ),
                           child: Center(
                             child: Text(
-                              hasDigit ? _idDigits[i] : '',
+                              hasDigit ? (_obscureId ? '*' : _idDigits[i]) : '',
                               style: const TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w700,
@@ -2404,7 +2405,21 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                       );
                     }),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      GestureDetector(
+                        onTap: () => setState(() => _obscureId = !_obscureId),
+                        child: Icon(
+                          _obscureId ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                          size: 18,
+                          color: Color(0xFF6B7280),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
                   _buildNumPad(
                     onDigit: (d) {
                       if (_idDigits.length < maxLen)

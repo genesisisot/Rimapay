@@ -93,6 +93,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
   // ── ID verification ────────────────────────────────────────────────────────
   String _idType = 'bvn';
   String _idDigits = '';
+  bool _obscureId = true;
 
   // ── Password ───────────────────────────────────────────────────────────────
   String _password = '';
@@ -1171,21 +1172,35 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                           ),
                         ),
                         child: Center(
-                          child: Text(
-                            hasDigit ? _idDigits[i] : '',
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF111827),
+                            child: Text(
+                              hasDigit ? (_obscureId ? '*' : _idDigits[i]) : '',
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF111827),
+                              ),
                             ),
                           ),
                         ),
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      GestureDetector(
+                        onTap: () => setState(() => _obscureId = !_obscureId),
+                        child: Icon(
+                          _obscureId ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                          size: 18,
+                          color: Color(0xFF6B7280),
+                        ),
                       ),
-                    );
-                  }),
-                ),
-                const SizedBox(height: 8),
-                Text(
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
                   _idType == 'bvn'
                       ? 'Dial *565*0# on any network to retrieve your BVN'
                       : 'Dial *346# to retrieve your NIN',

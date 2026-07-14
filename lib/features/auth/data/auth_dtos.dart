@@ -198,6 +198,7 @@ class AuthResponse {
   final String? role;
   final String? userType;
   final List<String> permissions;
+  final bool pinCreated;
 
   const AuthResponse({
     this.userId,
@@ -211,6 +212,7 @@ class AuthResponse {
     this.role,
     this.userType,
     this.permissions = const [],
+    this.pinCreated = false,
   });
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
@@ -229,6 +231,7 @@ class AuthResponse {
               ?.map((e) => e.toString())
               .toList() ??
           const [],
+      pinCreated: json['hasCreatedPin'] == true,
     );
   }
 }

@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 import 'noise_painter.dart';
+import '../../core/providers/auth_provider.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_theme_colors.dart';
 
 export 'package:flutter/services.dart' show TextInputFormatter;
 
@@ -99,7 +104,7 @@ class BillGreenHeader extends StatelessWidget {
                         ),
                         child: Icon(
                           Icons.arrow_back_ios_new,
-                          color: Theme.of(context).cardColor,
+                          color: Colors.white,
                           size: 16,
                         ),
                       ),
@@ -111,7 +116,7 @@ class BillGreenHeader extends StatelessWidget {
                         Text(
                           title,
                           style: TextStyle(
-                            color: Theme.of(context).cardColor,
+                            color: Colors.white,
                             fontSize: 17,
                             fontWeight: FontWeight.w800,
                           ),
@@ -205,6 +210,15 @@ class BillAccountCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    final user = auth.user;
+    final balance = user?.balance ?? 0.0;
+    final formatted = '₦${NumberFormat('#,##0.00').format(balance)}';
+    final acct = user?.accountNumber ?? '';
+    final displayAcct = acct.length >= 10
+        ? '${acct.substring(0, 4)} ${acct.substring(4, 8)} ${acct.substring(8)}'
+        : acct;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
@@ -219,7 +233,6 @@ class BillAccountCard extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          // Noise texture
           Positioned.fill(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
@@ -231,21 +244,20 @@ class BillAccountCard extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Account row
               Row(
                 children: [
                   Container(
                     width: 38,
                     height: 38,
                     decoration: BoxDecoration(
-                      color: Color(0xFF4B5563),
+                      color: const Color(0xFF4B5563),
                       shape: BoxShape.circle,
                     ),
                     child: Center(
                       child: Text(
                         'CA',
                         style: TextStyle(
-                          color: Theme.of(context).cardColor,
+                          color: Colors.white,
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
                         ),
@@ -259,13 +271,13 @@ class BillAccountCard extends StatelessWidget {
                       Text(
                         'Current Account',
                         style: TextStyle(
-                          color: Theme.of(context).cardColor,
+                          color: Colors.white,
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                       Text(
-                        '0123456789',
+                        displayAcct,
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.55),
                           fontSize: 11,
@@ -284,15 +296,29 @@ class BillAccountCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 2),
-              Text(
-                '₦50,000.00',
-                style: TextStyle(
-                  color: Theme.of(context).cardColor,
+              if (auth.isFetchingBalance)
+                Shimmer.fromColors(
+                  baseColor: Colors.white24,
+                  highlightColor: Colors.white60,
+                  child: Container(
+                    width: 160,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                )
+              else
+                Text(
+                  formatted,
+                  style: TextStyle(
+                  color: Colors.white,
                   fontSize: 28,
                   fontWeight: FontWeight.w800,
                   letterSpacing: -0.5,
+                  ),
                 ),
-              ),
             ],
           ),
         ],
@@ -346,7 +372,7 @@ class BillDailyLimitCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: Theme.of(context).dividerColor),
       ),
@@ -368,7 +394,7 @@ class BillDailyLimitCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFFff6b35),
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
                 ),
               ),
             ],
@@ -381,7 +407,7 @@ class BillDailyLimitCard extends StatelessWidget {
               minHeight: 4,
               backgroundColor: Theme.of(context).dividerColor,
               valueColor:
-                  const AlwaysStoppedAnimation<Color>(Color(0xFFff6b35)),
+                  AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.onSurface.withOpacity(0.8)),
             ),
           ),
           const SizedBox(height: 10),
@@ -391,25 +417,25 @@ class BillDailyLimitCard extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFF7ED),
+                    color: context.bgWarningSubtle,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFFFED7AA)),
+                    border: Border.all(color: Theme.of(context).dividerColor),
                   ),
-                  child: const Column(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Total Limit',
                         style: TextStyle(
-                          color: Color(0xFFff6b35),
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
                           fontSize: 10,
                         ),
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Text(
                         '₦50,000.00',
                         style: TextStyle(
-                          color: Color(0xFFff6b35),
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                         ),
@@ -423,25 +449,25 @@ class BillDailyLimitCard extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF0FDF4),
+                    color: context.bgBrandSubtle,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFFBBF7D0)),
+                    border: Border.all(color: Theme.of(context).dividerColor),
                   ),
-                  child: const Column(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Available',
                         style: TextStyle(
-                          color: Color(0xFF16A34A),
+                          color: Theme.of(context).colorScheme.primary,
                           fontSize: 10,
                         ),
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Text(
                         '₦50,000.00',
                         style: TextStyle(
-                          color: Color(0xFF16A34A),
+                          color: Theme.of(context).colorScheme.primary,
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                         ),

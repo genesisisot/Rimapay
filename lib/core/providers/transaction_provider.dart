@@ -1,5 +1,13 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../services/storage_service.dart';
+import '../../features/profile/data/profile_api_service.dart';
+import '../../features/profile/data/profile_dtos.dart';
+import '../../features/profile/presentation/providers/profile_provider.dart';
 
 enum TransactionType {
   airtime,
@@ -32,7 +40,7 @@ class Transaction {
   final String? bank;
   final double? fee;
   final String reference;
-  
+
   Transaction({
     required this.id,
     required this.type,
@@ -49,10 +57,44 @@ class Transaction {
     this.fee,
     required this.reference,
   });
-  
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'type': type.index,
+        'amount': amount,
+        'recipient': recipient,
+        'description': description,
+        'status': status.index,
+        'timestamp': timestamp.toIso8601String(),
+        'network': network,
+        'plan': plan,
+        'provider': provider,
+        'accountNumber': accountNumber,
+        'bank': bank,
+        'fee': fee,
+        'reference': reference,
+      };
+
+  factory Transaction.fromJson(Map<String, dynamic> json) => Transaction(
+        id: json['id'] as String,
+        type: TransactionType.values[json['type'] as int],
+        amount: (json['amount'] as num).toDouble(),
+        recipient: json['recipient'] as String,
+        description: json['description'] as String?,
+        status: TransactionStatus.values[json['status'] as int],
+        timestamp: DateTime.parse(json['timestamp'] as String),
+        network: json['network'] as String?,
+        plan: json['plan'] as String?,
+        provider: json['provider'] as String?,
+        accountNumber: json['accountNumber'] as String?,
+        bank: json['bank'] as String?,
+        fee: (json['fee'] as num?)?.toDouble(),
+        reference: json['reference'] as String,
+      );
+
   String get formattedAmount => '₦${amount.toStringAsFixed(2)}';
   String get formattedFee => fee != null ? '₦${fee!.toStringAsFixed(2)}' : '₦0.00';
-  
+
   String get typeDisplayName {
     switch (type) {
       case TransactionType.airtime:
@@ -79,7 +121,7 @@ class Transaction {
         return 'Government Service';
     }
   }
-  
+
   String get statusIcon {
     switch (status) {
       case TransactionStatus.success:
@@ -90,7 +132,7 @@ class Transaction {
         return '❌';
     }
   }
-  
+
   Color get statusColor {
     switch (status) {
       case TransactionStatus.success:
@@ -103,7 +145,6 @@ class Transaction {
   }
 }
 
-// Immutable state class for the TransactionNotifier
 @immutable
 class TransactionState {
   final List<Transaction> transactions;
@@ -116,7 +157,6 @@ class TransactionState {
     this.error,
   });
 
-  // Helper method to create a new state object with updated values
   TransactionState copyWith({
     List<Transaction>? transactions,
     bool? isLoading,
@@ -130,86 +170,35 @@ class TransactionState {
   }
 }
 
-// StateNotifier to manage the transaction state
 class TransactionNotifier extends StateNotifier<TransactionState> {
-  TransactionNotifier()
+  TransactionNotifier(this._api)
       : super(const TransactionState(
           transactions: [],
           isLoading: false,
-        )) {
-    // Add some mock transactions on initialization
-    _addMockTransactions();
+        ));
+
+  final ProfileApiService _api;
+
+  Future<void> fetchTransactions() async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final stored = await StorageService.getTransactions();
+      final txs = stored
+          .map((json) => Transaction.fromJson(json))
+          .toList();
+      state = state.copyWith(
+        transactions: txs,
+        isLoading: false,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Failed to load transactions.',
+      );
+    }
   }
 
-  void _addMockTransactions() {
-    state = state.copyWith(
-      transactions: [
-        Transaction(
-          id: 'tx_001',
-          type: TransactionType.airtime,
-          amount: 1000.0,
-          recipient: 'MTN Airtime',
-          description: '08123456789',
-          status: TransactionStatus.success,
-          timestamp: DateTime.now().subtract(const Duration(hours: 2)),
-          network: 'MTN',
-          reference: 'RMP${DateTime.now().millisecondsSinceEpoch}',
-          fee: 10.0,
-        ),
-        Transaction(
-          id: 'tx_002',
-          type: TransactionType.transfer,
-          amount: 25000.0,
-          recipient: 'John Smith',
-          description: 'Payment for services',
-          status: TransactionStatus.success,
-          timestamp: DateTime.now().subtract(const Duration(days: 1)),
-          bank: 'Access Bank',
-          accountNumber: '1234567890',
-          reference: 'RMP${DateTime.now().millisecondsSinceEpoch - 1000}',
-          fee: 25.0,
-        ),
-        Transaction(
-          id: 'tx_003',
-          type: TransactionType.electricity,
-          amount: 5000.0,
-          recipient: 'AEDC Prepaid',
-          description: 'Meter: 12345678901',
-          status: TransactionStatus.success,
-          timestamp: DateTime.now().subtract(const Duration(days: 2)),
-          provider: 'Abuja Electric',
-          reference: 'RMP${DateTime.now().millisecondsSinceEpoch - 2000}',
-          fee: 15.0,
-        ),
-        Transaction(
-          id: 'tx_004',
-          type: TransactionType.data,
-          amount: 2000.0,
-          recipient: 'Glo Data',
-          description: '08098765432',
-          status: TransactionStatus.pending,
-          timestamp: DateTime.now().subtract(const Duration(hours: 5)),
-          network: 'Globacom',
-          plan: '2GB Monthly',
-          reference: 'RMP${DateTime.now().millisecondsSinceEpoch - 3000}',
-          fee: 5.0,
-        ),
-        Transaction(
-          id: 'tx_005',
-          type: TransactionType.cable,
-          amount: 3500.0,
-          recipient: 'DStv Premium',
-          description: 'Smart Card: 1234567890',
-          status: TransactionStatus.success,
-          timestamp: DateTime.now().subtract(const Duration(days: 3)),
-          provider: 'MultiChoice',
-          reference: 'RMP${DateTime.now().millisecondsSinceEpoch - 4000}',
-          fee: 20.0,
-        ),
-      ],
-    );
-  }
-
+  /// General transaction for airtime, data, bills (mock until dedicated endpoints exist).
   Future<String> processTransaction({
     required TransactionType type,
     required double amount,
@@ -223,12 +212,11 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
     double? fee,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
-    
+
     try {
-      // Simulate processing delay
       await Future.delayed(const Duration(seconds: 2));
-      
-      final transaction = Transaction(
+
+      final tx = Transaction(
         id: 'tx_${DateTime.now().millisecondsSinceEpoch}',
         type: type,
         amount: amount,
@@ -244,23 +232,100 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
         fee: fee ?? _calculateFee(amount),
         reference: 'RMP${DateTime.now().millisecondsSinceEpoch}',
       );
-      
-      // Update the state with the new transaction.
+
       state = state.copyWith(
-        transactions: [transaction, ...state.transactions],
+        transactions: [tx, ...state.transactions],
         isLoading: false,
       );
-      
-      return transaction.id;
+      unawaited(_persist());
+
+      return tx.id;
     } catch (e) {
       state = state.copyWith(
         error: e.toString(),
         isLoading: false,
       );
-      rethrow;
+      return '';
     }
   }
-  
+
+  Future<String> processTransfer({
+    required String senderAccountNumber,
+    required String recipientAccountNumber,
+    required String recipientBankCode,
+    required String recipientBankName,
+    required double amount,
+    String? narration,
+    required String pin,
+    String? otpCode,
+    String? otpReference,
+    bool isRimaPay = true,
+  }) async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final refNo = 'WE${List.generate(26, (_) => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[Random().nextInt(36)]).join()}';
+      final req = TransferRequest(
+        senderAccountNumber: senderAccountNumber,
+        recipientAccountNumber: recipientAccountNumber,
+        recipientBankCode: recipientBankCode,
+        recipientBankName: recipientBankName,
+        amount: amount,
+        narration: narration,
+        transactionReference: refNo,
+        pin: pin,
+        otpCode: otpCode,
+        otpReference: otpReference,
+      );
+      // Debug: log request payload
+      debugPrint('processTransfer request: ${req.toJson()}');
+      final res = isRimaPay ? await _api.transfer(req) : await _api.transferInter(req);
+      debugPrint('processTransfer response — isSuccess: ${res.isSuccess}, errorMessage: ${res.errorMessage}, errorCode: ${res.errorCode}');
+
+      if (res.isSuccess) {
+        final tx = Transaction(
+          id: res.transactionReference ??
+              DateTime.now().millisecondsSinceEpoch.toString(),
+          type: TransactionType.transfer,
+          amount: amount,
+          recipient: recipientBankName,
+          description: narration ?? recipientAccountNumber,
+          status: TransactionStatus.success,
+          timestamp: DateTime.now(),
+          accountNumber: recipientAccountNumber,
+          bank: recipientBankName,
+          reference: res.transactionReference ?? '',
+          fee: 0,
+        );
+
+        state = state.copyWith(
+          transactions: [tx, ...state.transactions],
+          isLoading: false,
+        );
+        unawaited(_persist());
+
+        return res.transactionReference ?? '';
+      }
+
+      state = state.copyWith(
+        isLoading: false,
+        error: res.errorMessage ?? 'Transfer failed.',
+      );
+      return '';
+    } catch (e) {
+      state = state.copyWith(
+        error: e.toString(),
+        isLoading: false,
+      );
+      return '';
+    }
+  }
+
+  Future<void> _persist() async {
+    final jsonList = state.transactions.map((tx) => tx.toJson()).toList();
+    await StorageService.saveTransactions(jsonList);
+  }
+
   double _calculateFee(double amount) {
     if (amount <= 1000) return 5.0;
     if (amount <= 5000) return 10.0;
@@ -270,21 +335,26 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
   }
 }
 
-// Provider for the TransactionNotifier
-final transactionProviders = StateNotifierProvider<TransactionNotifier, TransactionState>((ref) {
-  return TransactionNotifier();
+final transactionProviders =
+    StateNotifierProvider<TransactionNotifier, TransactionState>((ref) {
+  final api = ref.watch(profileApiServiceProvider);
+  return TransactionNotifier(api);
 });
 
-// A derived provider for recent transactions, which only rebuilds when the list changes.
 final recentTransactionsProvider = Provider<List<Transaction>>((ref) {
-  return ref.watch(transactionProviders.select((state) => state.transactions)).take(5).toList();
+  return ref
+      .watch(transactionProviders.select((state) => state.transactions))
+      .take(5)
+      .toList();
 });
 
-// A derived provider for today's total spent.
 final totalSpentTodayProvider = Provider<double>((ref) {
-  return ref.watch(transactionProviders.select((state) => state.transactions)).where((tx) {
+  return ref
+      .watch(transactionProviders.select((state) => state.transactions))
+      .where((tx) {
     final now = DateTime.now();
     final startOfDay = DateTime(now.year, now.month, now.day);
-    return tx.timestamp.isAfter(startOfDay) && tx.status == TransactionStatus.success;
+    return tx.timestamp.isAfter(startOfDay) &&
+        tx.status == TransactionStatus.success;
   }).fold(0.0, (sum, tx) => sum + tx.amount);
 });

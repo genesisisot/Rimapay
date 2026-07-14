@@ -544,7 +544,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF0E5C37), // green-600
+                  color: Color(0xFF16A34A), // green-500
                 ),
               ),
             ],

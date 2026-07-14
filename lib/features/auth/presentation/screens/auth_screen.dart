@@ -17,8 +17,12 @@ import 'package:rimapay/core/services/storage_service.dart';
 import 'package:rimapay/features/onboarding/data/onboarding_dtos.dart';
 import 'package:rimapay/features/onboarding/data/onboarding_api_service.dart';
 import 'package:rimapay/features/onboarding/presentation/providers/onboarding_provider.dart';
+import '../../../../core/config/api_config.dart';
+import '../../../../core/network/dio_client.dart';
 import '../../../../core/providers/auth_provider.dart';
 import '../../../../core/providers/language_provider.dart';
+import '../../../security/data/pin_api_service.dart';
+import '../../../security/data/pin_dtos.dart' as security;
 import '../../data/auth_api_service.dart';
 import '../../data/auth_dtos.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -212,9 +216,154 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
     });
 
     if (ok) {
-      AppNavigation.goToHome(context);
+      if (!auth.pinCreated) {
+        _showCreatePinDialog();
+      } else {
+        AppNavigation.goToHome(context);
+      }
     } else {
       _showErrorMessage(auth.error ?? 'Login failed. Please try again.');
+    }
+  }
+
+  Future<void> _showCreatePinDialog() async {
+    final pinController = TextEditingController();
+    final confirmController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    final result = await showModalBottomSheet<bool>(
+      context: context,
+      isDismissible: false,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        decoration: BoxDecoration(
+          color: Theme.of(ctx).cardColor,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: EdgeInsets.only(
+          left: 24,
+          right: 24,
+          top: 12,
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+        ),
+        child: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: Theme.of(ctx).dividerColor,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+              ),
+              Text(
+                'Create Transaction PIN',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: Theme.of(ctx).colorScheme.onSurface,
+                  fontFamily: 'Effra',
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'You need to create a transaction PIN before you can send money.',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Theme.of(ctx).colorScheme.onSurface.withOpacity(0.6),
+                  fontFamily: 'Effra',
+                ),
+              ),
+              const SizedBox(height: 24),
+              TextFormField(
+                controller: pinController,
+                obscureText: true,
+                maxLength: 8,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'PIN (4-8 digits)',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (v) {
+                  if (v == null || v.length < 4) return 'PIN must be 4-8 digits';
+                  return null;
+                },
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: confirmController,
+                obscureText: true,
+                maxLength: 8,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Confirm PIN',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (v) {
+                  if (v != pinController.text) return 'PINs do not match';
+                  return null;
+                },
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 54,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF166C46),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  onPressed: () async {
+                    if (!formKey.currentState!.validate()) return;
+                    final auth = ctx.read<AuthProvider>();
+                    final api = PinApiService(
+                      dio: DioClient.instance.forBaseUrl(
+                        '${ApiConfig.directGateway}/identity',
+                      ),
+                    );
+                    final res = await api.createPin(security.CreatePinRequest(
+                      pin: pinController.text,
+                      confirmPin: confirmController.text,
+                      userId: auth.user?.id ?? '',
+                    ));
+                    log('[pin create] isSuccess=${res.isSuccess} message=${res.message} statusCode=${res.statusCode} errorCode=${res.errorCode}');
+                    if (!ctx.mounted) return;
+                    if (res.isSuccess) {
+                      auth.setPinCreated();
+                      Navigator.pop(ctx, true);
+                    } else {
+                      ScaffoldMessenger.of(ctx).showSnackBar(
+                        SnackBar(content: Text(res.message ?? 'Failed to create PIN')),
+                      );
+                    }
+                  },
+                  child: const Text(
+                    'Create PIN',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: 'Effra',
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (result == true) {
+      AppNavigation.goToHome(context);
     }
   }
 
@@ -1094,16 +1243,15 @@ class _DeviceLinkingSheetState extends ConsumerState<_DeviceLinkingSheet> {
   bool _loading = false;
   String? _error;
   String? _sessionToken;
+  String? _faceImageBase64;
+  String _normalizedPhone = '';
 
   // OTP
   final List<String> _otp = List.filled(6, '');
   bool _verifyingOtp = false;
-
-  @override
-  void dispose() {
-    _phoneCtrl.dispose();
-    super.dispose();
-  }
+  bool _isResending = false;
+  int _resendCountdown = 0;
+  Timer? _resendTimer;
 
   @override
   Widget build(BuildContext context) {
@@ -1394,19 +1542,19 @@ class _DeviceLinkingSheetState extends ConsumerState<_DeviceLinkingSheet> {
                                 const EdgeInsets.symmetric(horizontal: 4),
                             height: 46,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF3F4F6),
+                              color: context.bgInput,
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Center(
                               child: k == '⌫'
                                   ? Icon(Icons.backspace_outlined,
                                       size: 18,
-                                      color: const Color(0xFF1F2937))
+                                       color: Theme.of(context).colorScheme.onSurface)
                                   : Text(k,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.w600,
-                                          color: Color(0xFF1F2937))),
+                                          color: Theme.of(context).colorScheme.onSurface)),
                             ),
                           ),
                         ),
@@ -1444,18 +1592,39 @@ class _DeviceLinkingSheetState extends ConsumerState<_DeviceLinkingSheet> {
           ),
         ),
         const SizedBox(height: 8),
-        Center(
-          child: Text(
-            'A code was sent to your phone after face verification.',
-            style: TextStyle(
-              fontSize: 12,
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurface
-                  .withOpacity(0.4),
+        if (_resendCountdown > 0)
+          Center(
+            child: Text(
+              'Resend code in $_resendCountdown s',
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withOpacity(0.4),
+              ),
+            ),
+          )
+        else
+          Center(
+            child: GestureDetector(
+              onTap: _isResending ? null : _resendOtp,
+              child: _isResending
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Text(
+                      'Resend OTP',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
             ),
           ),
-        ),
         if (_error != null) ...[
           const SizedBox(height: 8),
           Text(_error!,
@@ -1473,15 +1642,15 @@ class _DeviceLinkingSheetState extends ConsumerState<_DeviceLinkingSheet> {
           const Icon(Icons.check_circle_outline,
               color: Color(0xFF166C46), size: 64),
           const SizedBox(height: 16),
-          const Text('Device Linked Successfully',
+          Text('Device Linked Successfully',
               style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF1F2937))),
+                  color: Theme.of(context).colorScheme.onSurface)),
           const SizedBox(height: 8),
-          const Text('You can now use this device to access your account.',
+          Text('You can now use this device to access your account.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: Color(0xFF6B7280))),
+              style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
           const SizedBox(height: 24),
           GestureDetector(
             onTap: () => Navigator.of(context).pop('success'),
@@ -1512,7 +1681,9 @@ class _DeviceLinkingSheetState extends ConsumerState<_DeviceLinkingSheet> {
       setState(() => _error = 'Enter your phone number.');
       return;
     }
-    final normalized = '234${phone.replaceAll(RegExp(r'[^\d]'), '').replaceFirst(RegExp('^0+'), '')}';
+    final digits = phone.replaceAll(RegExp(r'[^\d]'), '').replaceFirst(RegExp('^0+'), '');
+    final normalized = digits.startsWith('234') ? digits : '234$digits';
+    _normalizedPhone = normalized;
     setState(() {_loading = true;_error = null;});
     try {
       final api = AuthApiService();
@@ -1532,7 +1703,7 @@ class _DeviceLinkingSheetState extends ConsumerState<_DeviceLinkingSheet> {
           _loading = false;
         });
         if (!mounted) return;
-        final faceResult = await Navigator.push<bool>(
+        final faceImage = await Navigator.push<String?>(
           context,
           MaterialPageRoute(
             builder: (_) => _DeviceFaceCapturePage(
@@ -1540,9 +1711,10 @@ class _DeviceLinkingSheetState extends ConsumerState<_DeviceLinkingSheet> {
             ),
           ),
         );
-        if (faceResult == true && mounted) {
+        if (faceImage != null && mounted) {
           setState(() {
             _step = 1;
+            _faceImageBase64 = faceImage;
             _otp
               ..clear()
               ..addAll(List.filled(6, ''));
@@ -1588,6 +1760,48 @@ class _DeviceLinkingSheetState extends ConsumerState<_DeviceLinkingSheet> {
         setState(() {_verifyingOtp = false;_error = 'Network error. Please try again.';});
       }
     }
+  }
+
+  Future<void> _resendOtp() async {
+    if (_isResending || _faceImageBase64 == null) return;
+    setState(() {_isResending = true;_error = null;});
+    try {
+      final api = AuthApiService();
+      final res = await api.verifyDeviceFace(VerifyDeviceFaceRequest(
+        sessionToken: _sessionToken!,
+        faceImage: _faceImageBase64!,
+      ));
+      if (!mounted) return;
+      if (res.isSuccess) {
+        _startResendCountdown();
+      } else {
+        setState(() => _error = res.message ?? 'Failed to resend OTP.');
+      }
+    } catch (e) {
+      log('[device] resend error: $e');
+      if (mounted) setState(() => _error = 'Network error. Please try again.');
+    } finally {
+      if (mounted) setState(() => _isResending = false);
+    }
+  }
+
+  void _startResendCountdown() {
+    _resendCountdown = 60;
+    _resendTimer?.cancel();
+    _resendTimer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (!mounted) { t.cancel(); return; }
+      setState(() {
+        _resendCountdown--;
+        if (_resendCountdown <= 0) t.cancel();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _resendTimer?.cancel();
+    _phoneCtrl.dispose();
+    super.dispose();
   }
 }
 
@@ -1883,7 +2097,7 @@ class _DeviceFaceCapturePageState
     try {
       final image = await _cameraController!.takePicture();
       final bytes = await image.readAsBytes();
-      final base64Image = base64Encode(bytes);
+      final base64Image = 'data:image/jpeg;base64,${base64Encode(bytes)}';
       setState(() {
         _cameraActive = false;
         _verifyingFace = true;
@@ -1899,7 +2113,7 @@ class _DeviceFaceCapturePageState
       if (!mounted) return;
       setState(() => _verifyingFace = false);
       if (res.isSuccess) {
-        Navigator.pop(context, true);
+        Navigator.pop(context, base64Image);
       } else {
         setState(() {
           _error = res.message ?? 'Face verification failed. Please try again.';
@@ -2224,7 +2438,7 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
               height: 50,
               margin: EdgeInsets.only(right: i < 5 ? 8 : 0),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
                   color: isActive
@@ -2822,32 +3036,32 @@ class _ContinueLinkingPageState
 
   Widget _buildPasswordStep() {
     return Container(
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 20),
-            const Text('Create Password',
+            Text('Create Password',
                 style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF1F2937))),
+                    color: Theme.of(context).colorScheme.onSurface)),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Create a password to secure your account',
               style: TextStyle(
-                  fontSize: 14, color: Color(0xFF6B7280), height: 1.5),
+                  fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), height: 1.5),
             ),
             const SizedBox(height: 32),
             TextField(
               controller: _passwordCtrl,
               obscureText: !_showPassword,
-              style: const TextStyle(fontSize: 15, color: Color(0xFF1F2937)),
+              style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSurface),
               decoration: InputDecoration(
                 labelText: 'Password',
-                labelStyle: const TextStyle(color: Color(0xFF6B7280)),
+                labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
                 hintText: 'Min 8 characters',
                 hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
                 suffixIcon: GestureDetector(
@@ -2862,7 +3076,7 @@ class _ContinueLinkingPageState
                   ),
                 ),
                 filled: true,
-                fillColor: const Color(0xFFF3F4F6),
+                fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1A1F2E) : const Color(0xFFF3F4F6),
                 contentPadding: const EdgeInsets.symmetric(
                     vertical: 14, horizontal: 16),
                 border: OutlineInputBorder(
@@ -2884,10 +3098,10 @@ class _ContinueLinkingPageState
             TextField(
               controller: _confirmPasswordCtrl,
               obscureText: !_showConfirmPassword,
-              style: const TextStyle(fontSize: 15, color: Color(0xFF1F2937)),
+              style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSurface),
               decoration: InputDecoration(
                 labelText: 'Confirm Password',
-                labelStyle: const TextStyle(color: Color(0xFF6B7280)),
+                labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
                 hintText: 'Re-enter your password',
                 hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
                 suffixIcon: GestureDetector(
@@ -2902,7 +3116,7 @@ class _ContinueLinkingPageState
                   ),
                 ),
                 filled: true,
-                fillColor: const Color(0xFFF3F4F6),
+                fillColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1A1F2E) : const Color(0xFFF3F4F6),
                 contentPadding: const EdgeInsets.symmetric(
                     vertical: 14, horizontal: 16),
                 border: OutlineInputBorder(
@@ -3025,23 +3239,23 @@ class _ContinueLinkingPageState
   Widget _buildPinStep() {
     final filled = _pin.where((d) => d.isNotEmpty).length;
     return Container(
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 20),
-            const Text('Create PIN',
+            Text('Create PIN',
                 style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF1F2937))),
+                    color: Theme.of(context).colorScheme.onSurface)),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Secure your account with a 4-digit PIN',
               style: TextStyle(
-                  fontSize: 14, color: Color(0xFF6B7280), height: 1.5),
+                  fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), height: 1.5),
             ),
             const SizedBox(height: 36),
             Row(
@@ -3090,18 +3304,18 @@ class _ContinueLinkingPageState
                         margin: const EdgeInsets.symmetric(horizontal: 4),
                         height: 46,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF3F4F6),
+                          color: context.bgInput,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Center(
                           child: k == '⌫'
                               ? Icon(Icons.backspace_outlined,
-                                  size: 18, color: const Color(0xFF1F2937))
+                                  size: 18, color: Theme.of(context).colorScheme.onSurface)
                               : Text(k,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w600,
-                                      color: Color(0xFF1F2937))),
+                                      color: Theme.of(context).colorScheme.onSurface)),
                         ),
                       ),
                     ),
@@ -3343,7 +3557,9 @@ class _AuthFloatingFieldState extends State<_AuthFloatingField> {
       duration: const Duration(milliseconds: 200),
       height: 56,
       decoration: BoxDecoration(
-        color: _focused ? Colors.white : Theme.of(context).colorScheme.surface,
+        color: _focused
+            ? Theme.of(context).colorScheme.surfaceContainerHighest
+            : Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: _focused

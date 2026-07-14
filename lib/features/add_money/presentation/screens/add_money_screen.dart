@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:rimapay/core/providers/auth_provider.dart';
 import 'package:rimapay/core/theme/app_colors.dart';
 import 'package:flutter/services.dart';
 
@@ -51,9 +55,20 @@ class _MethodListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    final user = auth.user;
+    final balance = user?.balance ?? 0.0;
+    final formatted = '₦${NumberFormat('#,##0.00').format(balance)}';
+    final displayName = user != null
+        ? '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim()
+        : '';
+    final acct = user?.accountNumber ?? '';
+    final displayAcct = acct.length >= 10
+        ? '${acct.substring(0, 4)} ${acct.substring(4, 8)} ${acct.substring(8)}'
+        : acct;
+
     return Column(
       children: [
-        // Green gradient header (custom, no BillGreenHeader)
         _AddMoneyHeader(title: 'Add Money', subtitle: 'Fund your RimaPay wallet'),
         Expanded(
           child: SingleChildScrollView(
@@ -76,17 +91,31 @@ class _MethodListView extends StatelessWidget {
                     children: [
                       Text('Wallet Balance', style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), fontWeight: FontWeight.w500)),
                       const SizedBox(height: 6),
-                      Text('₦12,450.00', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface)),
+                      if (auth.isFetchingBalance)
+                        Shimmer.fromColors(
+                          baseColor: Colors.grey[300]!,
+                          highlightColor: Colors.grey[100]!,
+                          child: Container(
+                            width: 160,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                          ),
+                        )
+                      else
+                        Text(formatted, style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface)),
                       const SizedBox(height: 14),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(color: const Color(0xFFF2F7F3), borderRadius: BorderRadius.circular(8)),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.account_circle_outlined, size: 14, color: Color(0xFF166C46)),
-                            SizedBox(width: 6),
-                            Text('Adebayo Okafor · 0123456789', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF166C46))),
+                            const Icon(Icons.account_circle_outlined, size: 14, color: Color(0xFF166C46)),
+                            const SizedBox(width: 6),
+                            Text('$displayName · $displayAcct', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF166C46))),
                           ],
                         ),
                       ),
@@ -241,9 +270,9 @@ class _BankTransferView extends StatelessWidget {
     );
   }
 
-  void _copyAll(BuildContext context) {
-    const text = 'Bank: RimaPay MFB\nAccount: 0123456789\nName: Adebayo Okafor';
-    Clipboard.setData(const ClipboardData(text: text));
+  void _copyAll(BuildContext context, String acct, String name) {
+    final text = 'Bank: RimaPay MFB\nAccount: $acct\nName: $name';
+    Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('Account details copied'),
@@ -275,6 +304,11 @@ class _BankTransferView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<AuthProvider>().user;
+    final acct = user?.accountNumber ?? '';
+    final name = '${user?.firstName ?? ''} ${user?.lastName ?? ''}'.trim();
+    final hasAccount = acct.isNotEmpty;
+
     return Column(
       children: [
         _AddMoneyHeader(title: 'Bank Transfer', subtitle: 'Transfer to fund your wallet', onBack: onBack),
@@ -317,13 +351,13 @@ class _BankTransferView extends StatelessWidget {
                             _AccountRow(label: 'Bank Name', value: 'RimaPay MFB', onCopy: null),
                             Divider(height: 20, color: Theme.of(context).scaffoldBackgroundColor),
                             _AccountRow(
-                              label: 'Account Number', value: '0123456789',
-                              onCopy: () => _copy(context, '0123456789', 'Account number'),
+                              label: 'Account Number', value: hasAccount ? acct : '—',
+                              onCopy: hasAccount ? () => _copy(context, acct, 'Account number') : null,
                             ),
                             Divider(height: 20, color: Theme.of(context).scaffoldBackgroundColor),
                             _AccountRow(
-                              label: 'Account Name', value: 'Adebayo Okafor',
-                              onCopy: () => _copy(context, 'Adebayo Okafor', 'Account name'),
+                              label: 'Account Name', value: name.isNotEmpty ? name : '—',
+                              onCopy: name.isNotEmpty ? () => _copy(context, name, 'Account name') : null,
                             ),
                           ],
                         ),
@@ -331,7 +365,7 @@ class _BankTransferView extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                         child: GestureDetector(
-                          onTap: () => _copyAll(context),
+                          onTap: hasAccount ? () => _copyAll(context, acct, name) : null,
                           child: Container(
                             width: double.infinity, height: 44,
                             decoration: BoxDecoration(
@@ -491,7 +525,7 @@ class _AddMoneyHeader extends StatelessWidget {
                 child: Container(
                   width: 36, height: 36,
                   decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(10)),
-                  child: Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).cardColor, size: 16),
+                  child: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 16),
                 ),
               ),
               const SizedBox(width: 14),

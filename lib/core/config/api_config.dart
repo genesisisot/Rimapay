@@ -48,8 +48,8 @@ class ApiConfig {
   /// Base URL for the OTP / Notification API gateway.
   static String get otpBaseUrl => '$_gateway/otp';
 
-  /// Base URL for the Profile API gateway.
-  static String get profileBaseUrl => '$_gateway/profile';
+  /// Base URL for the Profile-Transaction API gateway.
+  static String get profileBaseUrl => '$_gateway/profile-transaction';
 
   /// Base URL for the Accounts / Onboarding API gateway.
   static String get accountsBaseUrl => '$_gateway/accounts';

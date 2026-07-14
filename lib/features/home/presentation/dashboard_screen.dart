@@ -4,7 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../core/providers/auth_provider.dart';
+import '../../../shared/widgets/rimapay_logo.dart';
 
 const Color brandGreen = Color(0xFF1A6B35);
 const Color darkGreen = Color(0xFF155C2C);
@@ -13,25 +15,77 @@ const Color lightGreenBg = Color(0xFFE8F5ED);
 const Color redDebit = Color(0xFFE53935);
 const Color orangeIcon = Color(0xFFFF7043);
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen>
+    with WidgetsBindingObserver {
+  Timer? _pollTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    // Pull a fresh balance the moment the dashboard opens.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _refreshBalance());
+    _startPolling();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _pollTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Money may have arrived while the app was backgrounded — refresh on return.
+    if (state == AppLifecycleState.resumed) {
+      _refreshBalance();
+      _startPolling();
+    } else if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
+      _pollTimer?.cancel();
+    }
+  }
+
+  void _startPolling() {
+    _pollTimer?.cancel();
+    _pollTimer = Timer.periodic(
+        const Duration(seconds: 30), (_) => _refreshBalance());
+  }
+
+  Future<void> _refreshBalance() async {
+    if (!mounted) return;
+    await context.read<AuthProvider>().fetchAccounts(silent: true);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              const _HeaderSection(),
-              const _BalanceCard(),
-              const _ActionButtons(),
-              const _QuickServices(),
-              const _BannerCarousel(),
-              const _RecentTransactions(),
-              const SizedBox(height: 24),
-            ],
+        child: RefreshIndicator(
+          onRefresh: _refreshBalance,
+          color: brandGreen,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              children: [
+                const _HeaderSection(),
+                const _BalanceCard(),
+                const _ActionButtons(),
+                const _QuickServices(),
+                const _BannerCarousel(),
+                const _RecentTransactions(),
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         ),
       ),
@@ -295,12 +349,24 @@ class _BalanceCard extends StatefulWidget {
 class _BalanceCardState extends State<_BalanceCard> {
   bool _balanceVisible = true;
 
+  Widget _skeleton(double w, double h) => Shimmer.fromColors(
+        baseColor: Colors.white24,
+        highlightColor: Colors.white60,
+        child: Container(
+          width: w,
+          height: h,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(6),
+          ),
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final user = auth.user;
-    final balance = user?.balance ?? 0.0;
-    final formattedBalance = '₦${balance.toStringAsFixed(2)}';
+    final formattedBalance = user?.formattedBalance ?? '₦0.00';
     final accountNumber = user?.accountNumber ?? '';
     final displayAccount = accountNumber.isNotEmpty
         ? '${accountNumber.substring(0, 4)} ${accountNumber.substring(4, 8)} ${accountNumber.substring(8)}'
@@ -310,13 +376,23 @@ class _BalanceCardState extends State<_BalanceCard> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
-        height: 160,
+        height: 200,
         decoration: BoxDecoration(
           color: brandGreen,
           borderRadius: BorderRadius.circular(20),
         ),
         padding: const EdgeInsets.all(20),
-        child: Column(
+        child: Stack(
+          children: [
+            Positioned(
+              top: -8,
+              right: -8,
+              child: Opacity(
+                opacity: 0.25,
+                child: RimapayLogo(width: 80, height: 80),
+              ),
+            ),
+            Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -344,14 +420,17 @@ class _BalanceCardState extends State<_BalanceCard> {
                   ],
                 ),
                 const SizedBox(height: 6),
-                Text(
-                  _balanceVisible ? formattedBalance : '••••••',
-                  style: const TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                if (auth.isFetchingBalance && _balanceVisible)
+                  _skeleton(180, 36)
+                else
+                  Text(
+                    _balanceVisible ? formattedBalance : '••••••',
+                    style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
                 const SizedBox(height: 4),
                 if (accountNumber.isNotEmpty)
                   GestureDetector(
@@ -368,16 +447,24 @@ class _BalanceCardState extends State<_BalanceCard> {
                         ),
                       );
                     },
-                    child: Row(
-                      children: [
-                        Text('Account No. $displayAccount',
-                            style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w400,
-                                color: Color(0xFFAAAAAA))),
-                        const SizedBox(width: 6),
-                        const Icon(Icons.copy_outlined, color: Colors.white54, size: 14),
-                      ],
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text('Account No. $displayAccount',
+                              style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white)),
+                          const SizedBox(width: 8),
+                          const Icon(Icons.copy_rounded, color: Colors.white70, size: 16),
+                        ],
+                      ),
                     ),
                   ),
               ],
@@ -412,16 +499,16 @@ class _BalanceCardState extends State<_BalanceCard> {
                     color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
                       Text('Account Details',
                           style: TextStyle(
                               fontFamily: 'Effra',
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: brandGreen)),
-                      SizedBox(width: 2),
-                      Icon(Icons.chevron_right, color: brandGreen, size: 16),
+                              color: Theme.of(context).colorScheme.onSurface)),
+                      const SizedBox(width: 2),
+                      Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5), size: 16),
                     ],
                   ),
                 ),
@@ -429,8 +516,10 @@ class _BalanceCardState extends State<_BalanceCard> {
             ),
           ],
         ),
-      ),
-    );
+      ],
+    ),
+    ),
+  );
   }
 }
 
@@ -551,8 +640,8 @@ class _QuickServices extends StatelessWidget {
                         style: TextStyle(
                             fontFamily: 'Effra',
                             fontSize: 13,
-                            color: brandGreen)),
-                    const Icon(Icons.chevron_right, color: brandGreen, size: 16),
+                            color: Theme.of(context).colorScheme.primary)),
+                    Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.primary, size: 16),
                   ],
                 ),
               ),

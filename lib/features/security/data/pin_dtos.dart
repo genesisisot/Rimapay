@@ -5,10 +5,19 @@
 class CreatePinRequest {
   final String pin; // 4–8 chars
   final String confirmPin;
+  final String userId; // UUID – required by the API
 
-  const CreatePinRequest({required this.pin, required this.confirmPin});
+  const CreatePinRequest({
+    required this.pin,
+    required this.confirmPin,
+    required this.userId,
+  });
 
-  Map<String, dynamic> toJson() => {'pin': pin, 'confirmPin': confirmPin};
+  Map<String, dynamic> toJson() => {
+        'pin': pin,
+        'confirmPin': confirmPin,
+        'userId': userId,
+      };
 }
 
 /// VerifyPinRequestDto — POST /api/security/pin/verify

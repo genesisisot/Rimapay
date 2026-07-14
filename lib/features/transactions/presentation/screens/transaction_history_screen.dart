@@ -50,6 +50,9 @@ class _TransactionHistoryScreenState
     _searchController.addListener(() {
       setState(() => _searchQuery = _searchController.text.toLowerCase());
     });
+    Future.microtask(
+      () => ref.read(transactionProviders.notifier).fetchTransactions(),
+    );
   }
 
   @override
@@ -334,7 +337,7 @@ class _Header extends StatelessWidget {
                         child: Text(
                           'Transaction History',
                           style: TextStyle(
-                            color: Theme.of(context).cardColor,
+                            color: Colors.white,
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
                             fontFamily: 'Effra',
@@ -360,7 +363,7 @@ class _Header extends StatelessWidget {
                     child: TextField(
                       controller: searchController,
                       style: TextStyle(
-                          color: Theme.of(context).cardColor,
+                          color: Colors.white,
                           fontSize: 14,
                           fontFamily: 'Effra'),
                       decoration: InputDecoration(
