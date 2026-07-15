@@ -10,6 +10,8 @@ import '../../../../core/providers/theme_provider.dart';
 import '../../../../shared/widgets/noise_painter.dart';
 import '../providers/profile_provider.dart';
 import '../../../../core/providers/auth_provider.dart';
+import '../../../auth/data/auth_api_service.dart';
+import '../../../auth/data/auth_dtos.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -28,11 +30,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
 
-  // PIN management
-  final _currentPinController = TextEditingController();
-  final _newPinController = TextEditingController();
-  final _confirmPinController = TextEditingController();
-  bool _pinChangeSuccess = false;
+  // Password change
+  final _currentPasswordController = TextEditingController();
+  final _newPasswordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  bool _passwordChangeSuccess = false;
+  bool _passwordChangeLoading = false;
+  String? _passwordChangeError;
   late AnimationController _successAnimController;
   late Animation<double> _scaleAnim;
 
@@ -109,9 +113,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
-    _currentPinController.dispose();
-    _newPinController.dispose();
-    _confirmPinController.dispose();
+    _currentPasswordController.dispose();
+    _newPasswordController.dispose();
+    _confirmPasswordController.dispose();
     _successAnimController.dispose();
     super.dispose();
   }
@@ -997,9 +1001,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
 
   Widget _buildSecuritySection(BuildContext context) {
     final items = [
-      _SecurityItem(Icons.lock_outline, 'Change Login PIN', 'Update your login PIN'),
-      _SecurityItem(Icons.vpn_key_outlined, 'Change Transaction PIN', 'Update your transaction PIN'),
-      _SecurityItem(Icons.refresh, 'Reset Transaction PIN', 'Forgot your PIN? Reset it here'),
+      _SecurityItem(Icons.lock_outline, 'Change Password', 'Update your account password'),
     ];
 
     return Container(
@@ -1029,13 +1031,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             final item = e.value;
             final isLast = i == items.length - 1;
             return GestureDetector(
-              onTap: () {
-                if (i == 2) {
-                  _showResetPinModal();
-                } else {
-                  _showChangePinModal(i == 0 ? 'Login PIN' : 'Transaction PIN');
-                }
-              },
+              onTap: () => _showChangePasswordModal(),
               behavior: HitTestBehavior.opaque,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
@@ -1093,11 +1089,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     );
   }
 
-  void _showChangePinModal(String pinType) {
-    _currentPinController.clear();
-    _newPinController.clear();
-    _confirmPinController.clear();
-    _pinChangeSuccess = false;
+  void _showChangePasswordModal() {
+    _currentPasswordController.clear();
+    _newPasswordController.clear();
+    _confirmPasswordController.clear();
+    setState(() {
+      _passwordChangeSuccess = false;
+      _passwordChangeLoading = false;
+      _passwordChangeError = null;
+    });
 
     showModalBottomSheet(
       context: context,
@@ -1105,10 +1105,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
       backgroundColor: Colors.transparent,
       builder: (_) => StatefulBuilder(
         builder: (ctx, setModalState) {
-          bool isPinValid() =>
-              _currentPinController.text.length == 4 &&
-              _newPinController.text.length == 4 &&
-              _newPinController.text == _confirmPinController.text;
+          bool isPasswordValid() =>
+              _currentPasswordController.text.length >= 8 &&
+              _newPasswordController.text.length >= 8 &&
+              _newPasswordController.text == _confirmPasswordController.text;
 
           return Container(
             height: MediaQuery.of(context).size.height * 0.7,
@@ -1116,7 +1116,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               color: Theme.of(context).cardColor,
               borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
             ),
-            child: _pinChangeSuccess
+            child: _passwordChangeSuccess
                 ? Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -1135,7 +1135,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                           ),
                         ),
                         const SizedBox(height: 16),
-                        Text('$pinType Changed!',
+                        Text('Password Changed!',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
@@ -1143,7 +1143,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                               fontFamily: 'Effra',
                             )),
                         const SizedBox(height: 6),
-                        Text('Your $pinType has been updated',
+                        Text('Your password has been updated',
                             style: TextStyle(
                               fontSize: 13,
                               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
@@ -1157,7 +1157,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                         padding: const EdgeInsets.all(20),
                         child: Row(
                           children: [
-                            Text('Change $pinType',
+                            Text('Change Password',
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w800,
@@ -1187,23 +1187,57 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: Column(
                             children: [
-                              _pinField('Current PIN', _currentPinController, setModalState),
+                              _passwordField('Current Password', _currentPasswordController, setModalState),
                               const SizedBox(height: 14),
-                              _pinField('New PIN', _newPinController, setModalState),
+                              _passwordField('New Password', _newPasswordController, setModalState, hint: 'Minimum 8 characters'),
                               const SizedBox(height: 14),
-                              _pinField('Confirm New PIN', _confirmPinController, setModalState),
+                              _passwordField('Confirm New Password', _confirmPasswordController, setModalState),
+                              if (_passwordChangeError != null) ...[
+                                const SizedBox(height: 10),
+                                Text(_passwordChangeError!,
+                                    style: const TextStyle(color: Color(0xFFD33B31), fontSize: 12)),
+                              ],
                               const SizedBox(height: 24),
                               SizedBox(
                                 width: double.infinity,
                                 height: 50,
                                 child: ElevatedButton(
-                                  onPressed: isPinValid()
-                                      ? () {
-                                          setModalState(() => _pinChangeSuccess = true);
-                                          _successAnimController.forward(from: 0);
-                                          Future.delayed(const Duration(seconds: 2), () {
-                                            if (mounted) Navigator.pop(ctx);
+                                  onPressed: (isPasswordValid() && !_passwordChangeLoading)
+                                      ? () async {
+                                          setModalState(() {
+                                            _passwordChangeLoading = true;
+                                            _passwordChangeError = null;
                                           });
+                                          try {
+                                            final api = AuthApiService();
+                                            final req = ChangePasswordRequest(
+                                              currentPassword: _currentPasswordController.text,
+                                              newPassword: _newPasswordController.text,
+                                              confirmPassword: _confirmPasswordController.text,
+                                            );
+                                            final res = await api.changePassword(req);
+                                            if (!ctx.mounted) return;
+                                            if (res.isSuccess) {
+                                              setModalState(() {
+                                                _passwordChangeSuccess = true;
+                                                _passwordChangeLoading = false;
+                                              });
+                                              _successAnimController.forward(from: 0);
+                                              Future.delayed(const Duration(seconds: 2), () {
+                                                if (mounted) Navigator.pop(ctx);
+                                              });
+                                            } else {
+                                              setModalState(() {
+                                                _passwordChangeError = res.errorMessage;
+                                                _passwordChangeLoading = false;
+                                              });
+                                            }
+                                          } catch (e) {
+                                            setModalState(() {
+                                              _passwordChangeError = 'Something went wrong. Please try again.';
+                                              _passwordChangeLoading = false;
+                                            });
+                                          }
                                         }
                                       : null,
                                   style: ElevatedButton.styleFrom(
@@ -1213,9 +1247,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                                     shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(12)),
                                   ),
-                                  child: Text('Change $pinType',
-                                      style: const TextStyle(
-                                          fontFamily: 'Effra', fontWeight: FontWeight.w700)),
+                                  child: _passwordChangeLoading
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                              strokeWidth: 2, color: Colors.white))
+                                      : const Text('Change Password',
+                                          style: TextStyle(
+                                              fontFamily: 'Effra', fontWeight: FontWeight.w700)),
                                 ),
                               ),
                             ],
@@ -1230,7 +1270,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     );
   }
 
-  Widget _pinField(String label, TextEditingController controller, StateSetter setModalState) {
+  Widget _passwordField(String label, TextEditingController controller, StateSetter setModalState, {String? hint}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1245,18 +1285,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
         TextFormField(
           controller: controller,
           obscureText: true,
-          keyboardType: TextInputType.number,
-          inputFormatters: [
-            FilteringTextInputFormatter.digitsOnly,
-            LengthLimitingTextInputFormatter(4),
-          ],
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 20, letterSpacing: 10, fontFamily: 'monospace'),
+          textAlignVertical: TextAlignVertical.center,
+          style: const TextStyle(fontSize: 15, fontFamily: 'Effra'),
           decoration: InputDecoration(
-            hintText: '----',
+            hintText: hint ?? '',
             hintStyle: TextStyle(
               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
-              letterSpacing: 10,
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -1270,91 +1304,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(color: Color(0xFF166C46), width: 2),
             ),
-            contentPadding: const EdgeInsets.symmetric(vertical: 14),
+            contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
           ),
           onChanged: (_) => setModalState(() {}),
         ),
       ],
-    );
-  }
-
-  void _showResetPinModal() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => Container(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom + 32,
-        ),
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).dividerColor,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-              ),
-              Text('Reset Transaction PIN',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontFamily: 'Effra',
-                  )),
-              const SizedBox(height: 8),
-              Text(
-                'An OTP will be sent to your registered phone number to reset your transaction PIN.',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                  height: 1.5,
-                  fontFamily: 'Effra',
-                ),
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('OTP sent to your registered number'),
-                        behavior: SnackBarBehavior.floating,
-                        backgroundColor: const Color(0xFF166C46),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF166C46),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                  ),
-                  child: const Text('Send OTP',
-                      style: TextStyle(
-                          fontFamily: 'Effra', fontWeight: FontWeight.w700)),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 

@@ -13,6 +13,8 @@ import '../../../../core/providers/auth_provider.dart';
 import '../../../../core/providers/language_provider.dart';
 import '../../../../shared/widgets/custom_app_bar.dart';
 import '../../../../shared/widgets/rimapay_logo.dart';
+import '../../../auth/data/auth_api_service.dart';
+import '../../../auth/data/auth_dtos.dart';
 
 
 enum SettingsModal {
@@ -48,7 +50,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
   final _newPinController = TextEditingController();
   final _confirmPinController = TextEditingController();
   
-  // Success states
+  bool _passwordChangeLoading = false;
   bool _passwordChangeSuccess = false;
   bool _pinChangeSuccess = false;
 
@@ -660,7 +662,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: _isPasswordValid ? _handleChangePassword : null,
+              onPressed: (_isPasswordValid && !_passwordChangeLoading) ? _handleChangePassword : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: _isPasswordValid 
                     ? AppColors.success500 
@@ -671,10 +673,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child: const Text(
-                'Change Password',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-              ),
+              child: _passwordChangeLoading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Colors.white))
+                  : const Text(
+                      'Change Password',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                    ),
             ),
           ),
         ],
@@ -1051,7 +1059,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
            _newPinController.text == _confirmPinController.text;
   }
 
-  void _handleChangePassword() {
+  void _handleChangePassword() async {
     if (_newPasswordController.text != _confirmPasswordController.text) {
       _showErrorSnackBar('Passwords do not match');
       return;
@@ -1061,23 +1069,50 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
       return;
     }
 
-    // Simulate API call
-    Future.delayed(const Duration(milliseconds: 1500), () {
-      setState(() => _passwordChangeSuccess = true);
-      _successAnimationController.forward();
-      
-      Future.delayed(const Duration(milliseconds: 2000), () {
-        Navigator.pop(context);
-        setState(() {
-          _activeModal = null;
-          _passwordChangeSuccess = false;
-          _currentPasswordController.clear();
-          _newPasswordController.clear();
-          _confirmPasswordController.clear();
-        });
-        _successAnimationController.reset();
-      });
+    setState(() {
+      _passwordChangeLoading = true;
     });
+
+    try {
+      final api = AuthApiService();
+      final req = ChangePasswordRequest(
+        currentPassword: _currentPasswordController.text,
+        newPassword: _newPasswordController.text,
+        confirmPassword: _confirmPasswordController.text,
+      );
+      final res = await api.changePassword(req);
+
+      if (!mounted) return;
+
+      if (res.isSuccess) {
+        setState(() => _passwordChangeSuccess = true);
+        _successAnimationController.forward();
+
+        Future.delayed(const Duration(seconds: 2), () {
+          if (!mounted) return;
+          Navigator.pop(context);
+          setState(() {
+            _activeModal = null;
+            _passwordChangeLoading = false;
+            _currentPasswordController.clear();
+            _newPasswordController.clear();
+            _confirmPasswordController.clear();
+          });
+          _successAnimationController.reset();
+        });
+      } else {
+        setState(() {
+          _passwordChangeLoading = false;
+        });
+        _showErrorSnackBar(res.errorMessage);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _passwordChangeLoading = false;
+      });
+      _showErrorSnackBar('Network error. Please try again.');
+    }
   }
 
   void _handleChangePin() {

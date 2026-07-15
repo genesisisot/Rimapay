@@ -227,6 +227,12 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
 
   /// Bill-payment-style confirmation: a bottom sheet with the transaction
   /// summary + PIN pad, then runs the real transfer.
+  /// Parses the amount field, stripping the thousands separators added by
+  /// [CommaFormatter] (e.g. "1,000" → 1000). `double.tryParse` returns null on
+  /// the comma, so without this a typed amount would silently become 0.
+  double _parseAmount(String text) =>
+      double.tryParse(text.replaceAll(',', '')) ?? 0;
+
   void _startTransfer() {
     final auth = context.read<AuthProvider>();
     final senderAccount = auth.user?.accountNumber ?? '';
@@ -238,7 +244,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
     final bankCode = isRimaLocal ? '000' : _bankCodeFor(_selectedBank);
     final recipientAccount =
         isRimaLocal ? _accountController.text : _bankAccountController.text;
-    final amount = double.tryParse(_amountController.text) ?? 0;
+    final amount = _parseAmount(_amountController.text);
     final note = _noteController.text.trim();
 
     showPinConfirmSheet(
@@ -503,7 +509,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
             padding: EdgeInsets.fromLTRB(20, 0, 20, MediaQuery.of(context).padding.bottom + 16),
             child: Builder(builder: (context) {
               final isRima = _transferType == 'rimapay';
-              final amount = double.tryParse(_amountController.text) ?? 0;
+              final amount = _parseAmount(_amountController.text);
               final balance = context.watch<AuthProvider>().user?.balance ?? 0;
               final insufficient = amount > 0 && amount > balance;
               final baseFilled = isRima
