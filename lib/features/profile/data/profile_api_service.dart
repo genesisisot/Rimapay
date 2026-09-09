@@ -306,6 +306,33 @@ class ProfileApiService {
     }
   }
 
+  /// GET /api/v1/payment/statement — account statement / transaction history
+  Future<AccountStatementResponse?> getStatement({
+    required String accountNumber,
+    String? startDate,
+    String? endDate,
+    int pageNumber = 1,
+    int pageSize = 50,
+  }) async {
+    try {
+      final res = await _dio.get(
+        '/api/v1/payment/statement',
+        queryParameters: {
+          'accountNumber': accountNumber,
+          if (startDate != null) 'startDate': startDate,
+          if (endDate != null) 'endDate': endDate,
+          'pageNumber': pageNumber,
+          'pageSize': pageSize,
+        },
+      );
+      return _unwrapData(res.data, AccountStatementResponse.fromJson);
+    } on DioException catch (_) {
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
   /// POST /api/v1/file/upload/base64
   Future<FileUploadResponse?> uploadFileBase64(
       Base64FileUploadRequest request) async {

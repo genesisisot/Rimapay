@@ -154,9 +154,12 @@ class _TransactionHistoryScreenState
 
   @override
   Widget build(BuildContext context) {
-    final all = ref.watch(recentTransactionsProvider);
+    final state = ref.watch(transactionProviders);
+    final all = state.transactions;
     final filtered = _filtered(all);
     final grouped = _grouped(filtered);
+    final showLoading = state.isLoading && all.isEmpty;
+    final showError = !state.isLoading && state.error != null && all.isEmpty;
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -164,7 +167,11 @@ class _TransactionHistoryScreenState
         children: [
           FadeTransition(
             opacity: _fadeAnimation,
-            child: CustomScrollView(
+            child: RefreshIndicator(
+              onRefresh: () =>
+                  ref.read(transactionProviders.notifier).fetchTransactions(),
+              child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
               slivers: [
                 // ── Header ──
                 SliverToBoxAdapter(child: _Header(
@@ -185,7 +192,22 @@ class _TransactionHistoryScreenState
                   ),
 
                 // ── List ──
-                if (filtered.isEmpty)
+                if (showLoading)
+                  const SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                else if (showError)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: _ErrorState(
+                      message: state.error!,
+                      onRetry: () => ref
+                          .read(transactionProviders.notifier)
+                          .fetchTransactions(),
+                    ),
+                  )
+                else if (filtered.isEmpty)
                   SliverFillRemaining(
                     child: _EmptyState(hasSearch: _searchQuery.isNotEmpty),
                   )
@@ -248,6 +270,7 @@ class _TransactionHistoryScreenState
                     ),
                   ),
               ],
+            ),
             ),
           ),
 
@@ -859,6 +882,85 @@ class _EmptyState extends StatelessWidget {
                 height: 1.5,
               ),
               textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Error State ───────────────────────────────────────────────────────────────
+
+class _ErrorState extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+  const _ErrorState({required this.message, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: const Color(0xFFD33B31).withOpacity(0.08),
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Center(
+                child: Icon(
+                  Icons.wifi_off_rounded,
+                  size: 38,
+                  color: const Color(0xFFD33B31).withOpacity(0.6),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Couldn\'t load transactions',
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+                color: Theme.of(context).colorScheme.onSurface,
+                fontFamily: 'Effra',
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              style: TextStyle(
+                fontSize: 13,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                fontFamily: 'Effra',
+                height: 1.5,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            GestureDetector(
+              onTap: onRetry,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.primary500,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text(
+                  'Retry',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    fontFamily: 'Effra',
+                  ),
+                ),
+              ),
             ),
           ],
         ),

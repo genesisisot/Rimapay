@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../services/storage_service.dart';
+import '../../features/profile/data/accounts_api_service.dart';
 import '../../features/profile/data/profile_api_service.dart';
 import '../../features/profile/data/profile_dtos.dart';
 import '../../features/profile/presentation/providers/profile_provider.dart';
@@ -179,16 +180,114 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
 
   final ProfileApiService _api;
 
-  Future<void> fetchTransactions() async {
+  /// Loads the account statement (transaction history) from the backend.
+  ///
+  /// The account number is sourced from the stored user — the same value the
+  /// transfer flow uses (`auth.user?.accountNumber`). Defaults to the last
+  /// 90 days.
+  Future<void> fetchTransactions({
+    DateTime? startDate,
+    DateTime? endDate,
+    int pageSize = 50,
+  }) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      final stored = await StorageService.getTransactions();
-      final txs = stored
-          .map((json) => Transaction.fromJson(json))
-          .toList();
-      state = state.copyWith(
-        transactions: txs,
-        isLoading: false,
+      // Locally-saved optimistic entries (e.g. a transfer just completed) that
+      // the backend statement may not have settled yet. Loaded first so they
+      // stay visible even if the statement call is empty or fails.
+      final pending = await _loadPendingTransactions();
+
+      // Prefer the account number cached on the stored user; if it hasn't been
+      // hydrated yet (AuthProvider.fetchAccounts runs asynchronously), fall
+      // back to the accounts API — the same source it uses.
+      var accountNumber = (await StorageService.getUser())?.accountNumber;
+      if (accountNumber == null || accountNumber.isEmpty) {
+        final accounts = await AccountsApiService().getAllAccounts();
+        if (accounts.isNotEmpty) {
+          accountNumber = accounts.first.accountNumber;
+        }
+      }
+      if (accountNumber == null || accountNumber.isEmpty) {
+        state = state.copyWith(
+          isLoading: false,
+          transactions: pending,
+          error: pending.isEmpty
+              ? 'No account found. Please try again after your account is ready.'
+              : null,
+        );
+        return;
+      }
+
+      final end = endDate ?? DateTime.now();
+      // Backend advice: statement data is indexed from December 2025, so use
+      // that as the default window start rather than a rolling 90 days.
+      final start = startDate ?? DateTime(2025, 12, 1);
+
+      final res = await _api.getStatement(
+        accountNumber: accountNumber,
+        startDate: _fmtDate(start),
+        endDate: _fmtDate(end),
+        pageSize: pageSize,
+      );
+
+      if (res == null) {
+        // Keep the optimistic entries visible; only surface an error if there's
+        // truly nothing to show.
+        state = state.copyWith(
+          isLoading: false,
+          transactions: pending,
+          error: pending.isEmpty
+              ? 'Could not load your transactions. Please try again.'
+              : null,
+        );
+        return;
+      }
+
+      // Debug: log raw statement rows to diagnose missing credits/rows.
+      debugPrint(
+          'statement: acct=$accountNumber ${_fmtDate(start)}..${_fmtDate(end)} '
+          '→ ${res.statementList.length} rows (totalCount=${res.totalCount}, '
+          'responseCode=${res.responseCode}, responseDesc=${res.responseDesc})');
+      for (final item in res.statementList.take(20)) {
+        debugPrint(
+            '  tranType=${item.tranType} amount=${item.tranAmount} date=${item.tranDate} desc=${item.description}');
+      }
+
+      final serverTxs = res.statementList.map(_mapStatementItem).toList();
+      final serverRefs = serverTxs
+          .map((t) => t.reference)
+          .where((r) => r.isNotEmpty)
+          .toSet();
+
+      // Drop any optimistic entry the statement now reflects — matched by
+      // reference, or by same amount within a 10-minute window (the statement
+      // often assigns its own entry reference). Each server row can absorb at
+      // most ONE optimistic entry, otherwise two transfers of the same amount
+      // made minutes apart would both be swallowed by a single settled row.
+      final unmatchedServer = List<Transaction>.of(serverTxs);
+      final stillPending = pending.where((p) {
+        if (p.reference.isNotEmpty && serverRefs.contains(p.reference)) {
+          return false;
+        }
+        final idx = unmatchedServer.indexWhere((s) =>
+            (s.amount - p.amount).abs() < 0.001 &&
+            s.timestamp.difference(p.timestamp).abs() <
+                const Duration(minutes: 10));
+        if (idx != -1) {
+          unmatchedServer.removeAt(idx);
+          return false;
+        }
+        return true;
+      }).toList();
+
+      final merged = [...stillPending, ...serverTxs]
+        ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+      state = state.copyWith(transactions: merged, isLoading: false);
+
+      // Prune storage to only the entries still not reflected server-side, so
+      // it self-cleans and can't grow unbounded.
+      await StorageService.saveTransactions(
+        stillPending.map((t) => t.toJson()).toList(),
       );
     } catch (e) {
       state = state.copyWith(
@@ -197,6 +296,72 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       );
     }
   }
+
+  /// Reads optimistic transactions saved locally by [processTransfer] /
+  /// [processTransaction], keeping only recent, de-duplicated entries.
+  Future<List<Transaction>> _loadPendingTransactions() async {
+    final cutoff = DateTime.now().subtract(const Duration(days: 2));
+    final seen = <String>{};
+    final pending = <Transaction>[];
+    try {
+      final stored = await StorageService.getTransactions();
+      for (final json in stored) {
+        try {
+          final tx = Transaction.fromJson(json);
+          if (tx.timestamp.isBefore(cutoff)) continue;
+          if (tx.reference.isNotEmpty && !seen.add(tx.reference)) continue;
+          pending.add(tx);
+        } catch (_) {}
+      }
+    } catch (_) {}
+    return pending;
+  }
+
+  Transaction _mapStatementItem(StatementItem item) {
+    final ref = item.entryReference ?? item.batchReference ?? '';
+    final ts = DateTime.tryParse(item.tranDate ?? '') ??
+        DateTime.tryParse(item.operationDate ?? '') ??
+        DateTime.now();
+    final desc = (item.description ?? '').trim();
+    return Transaction(
+      id: ref.isNotEmpty ? ref : 'stmt_${ts.microsecondsSinceEpoch}',
+      type: _inferType(desc, item.isCredit),
+      amount: item.amount,
+      recipient: desc.isNotEmpty ? desc : (item.isCredit ? 'Credit' : 'Debit'),
+      description: desc.isNotEmpty ? desc : null,
+      status: TransactionStatus.success,
+      timestamp: ts,
+      reference: ref,
+      fee: 0,
+    );
+  }
+
+  /// The statement API gives only a free-text description + credit/debit flag,
+  /// so infer a category for the UI's icon/colour. Credit → incoming money;
+  /// otherwise keyword-match the description, falling back to a transfer.
+  TransactionType _inferType(String description, bool isCredit) {
+    if (isCredit) return TransactionType.addMoney;
+    final d = description.toLowerCase();
+    if (d.contains('airtime')) return TransactionType.airtime;
+    if (d.contains('data')) return TransactionType.data;
+    if (d.contains('electric') || d.contains('power')) {
+      return TransactionType.electricity;
+    }
+    if (d.contains('cable') || d.contains('tv')) return TransactionType.cable;
+    if (d.contains('school') || d.contains('educat')) {
+      return TransactionType.education;
+    }
+    if (d.contains('transport')) return TransactionType.transport;
+    if (d.contains('govern') || d.contains('tax')) {
+      return TransactionType.government;
+    }
+    return TransactionType.transfer;
+  }
+
+  String _fmtDate(DateTime d) =>
+      '${d.year.toString().padLeft(4, '0')}-'
+      '${d.month.toString().padLeft(2, '0')}-'
+      '${d.day.toString().padLeft(2, '0')}';
 
   /// General transaction for airtime, data, bills (mock until dedicated endpoints exist).
   Future<String> processTransaction({

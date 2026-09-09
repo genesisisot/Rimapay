@@ -425,6 +425,98 @@ class AccountSummaryDto {
       );
 }
 
+// ── Statement / Transaction History DTOs ─────────────────────────────────────
+
+/// A single row in the account statement (`GET /api/v1/payment/statement`).
+///
+/// The API returns every field as a nullable string.
+class StatementItem {
+  final String? batchReference;
+  final String? entryReference;
+  final String? tranDate;
+  final String? operationDate;
+  final String? description;
+  final String? tranType;
+  final String? tranAmount;
+
+  const StatementItem({
+    this.batchReference,
+    this.entryReference,
+    this.tranDate,
+    this.operationDate,
+    this.description,
+    this.tranType,
+    this.tranAmount,
+  });
+
+  factory StatementItem.fromJson(Map<String, dynamic> json) => StatementItem(
+        batchReference: json['batchReference'] as String?,
+        entryReference: json['entryReference'] as String?,
+        tranDate: json['tranDate'] as String?,
+        operationDate: json['operationDate'] as String?,
+        description: json['description'] as String?,
+        tranType: json['tranType'] as String?,
+        tranAmount: json['tranAmount'] as String?,
+      );
+
+  /// Parsed transaction amount (strips commas/currency), 0 when unparseable.
+  double get amount =>
+      double.tryParse((tranAmount ?? '').replaceAll(RegExp(r'[^\d.\-]'), '')) ??
+      0;
+
+  /// True when the row is money coming in. `tranType` values are undocumented,
+  /// so match credit-ish tokens case-insensitively (e.g. 'C', 'CR', 'CRDT',
+  /// 'Credit', 'Credit Transfer'). A negative amount always means debit.
+  bool get isCredit {
+    final t = (tranType ?? '').trim().toLowerCase();
+    if (t.startsWith('d')) return false; // debit / dr / dbit
+    return t.startsWith('c') || t.contains('credit');
+  }
+}
+
+/// Response of `GET /api/v1/payment/statement` (the `data` of the ApiResponse).
+class AccountStatementResponse {
+  final String? responseCode;
+  final String? responseDesc;
+  final String? tranId;
+  final double balanceForward;
+  final int pageNumber;
+  final int pageSize;
+  final int totalCount;
+  final List<StatementItem> statementList;
+
+  const AccountStatementResponse({
+    this.responseCode,
+    this.responseDesc,
+    this.tranId,
+    this.balanceForward = 0,
+    this.pageNumber = 1,
+    this.pageSize = 0,
+    this.totalCount = 0,
+    this.statementList = const [],
+  });
+
+  factory AccountStatementResponse.fromJson(Map<String, dynamic> json) {
+    final list = json['statementList'];
+    return AccountStatementResponse(
+      responseCode: json['responseCode'] as String?,
+      responseDesc: json['responseDesc'] as String?,
+      tranId: json['tranId'] as String?,
+      balanceForward:
+          double.tryParse(json['balanceForward']?.toString() ?? '0') ?? 0,
+      pageNumber: int.tryParse(json['pageNumber']?.toString() ?? '1') ?? 1,
+      pageSize: int.tryParse(json['pageSize']?.toString() ?? '0') ?? 0,
+      totalCount: int.tryParse(json['totalCount']?.toString() ?? '0') ?? 0,
+      statementList: list is List
+          ? list
+              .whereType<Map<String, dynamic>>()
+              .map(StatementItem.fromJson)
+              .toList()
+          : const [],
+    );
+  }
+}
+
 // ── File DTOs ────────────────────────────────────────────────────────────────
 
 class Base64FileUploadRequest {

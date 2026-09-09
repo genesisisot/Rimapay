@@ -4,8 +4,10 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../core/providers/auth_provider.dart';
+import '../../../core/providers/transaction_provider.dart';
 import '../../../shared/widgets/rimapay_logo.dart';
 
 const Color brandGreen = Color(0xFF1A6B35);
@@ -1008,12 +1010,52 @@ class _BannerCarouselState extends State<_BannerCarousel> {
 
 // ── Recent Transactions ───────────────────────────────────────────────────────
 
-class _RecentTransactions extends StatelessWidget {
+class _RecentTransactions extends ConsumerStatefulWidget {
   const _RecentTransactions();
+
+  @override
+  ConsumerState<_RecentTransactions> createState() =>
+      _RecentTransactionsState();
+}
+
+class _RecentTransactionsState extends ConsumerState<_RecentTransactions> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(
+      () => ref.read(transactionProviders.notifier).fetchTransactions(),
+    );
+  }
+
+  String _fmtAmount(double v) {
+    final s = v.toStringAsFixed(2).split('.');
+    final whole = s[0].replaceAllMapped(
+        RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]},');
+    return '$whole.${s[1]}';
+  }
+
+  String _fmtTime(DateTime dt) {
+    final now = DateTime.now();
+    final d = DateTime(dt.year, dt.month, dt.day);
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final dayLabel = d == today
+        ? 'Today'
+        : d == yesterday
+            ? 'Yesterday'
+            : '${dt.day}/${dt.month}/${dt.year}';
+    final h = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
+    final m = dt.minute.toString().padLeft(2, '0');
+    final p = dt.hour >= 12 ? 'PM' : 'AM';
+    return '$dayLabel, ${h.toString().padLeft(2, '0')}:$m $p';
+  }
 
   @override
   Widget build(BuildContext context) {
     final textDark = Theme.of(context).colorScheme.onSurface;
+    final textGray = textDark.withOpacity(0.55);
+    final txs = ref.watch(recentTransactionsProvider);
+    final state = ref.watch(transactionProviders);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
@@ -1043,33 +1085,40 @@ class _RecentTransactions extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 4),
-          _TransactionTile(
-            iconBgColor: brandGreen,
-            icon: Icons.arrow_downward,
-            title: 'Money Received',
-            subtitle: 'From Abdullahi Musa',
-            amount: '+ ₦5,000.00',
-            time: 'Today, 08:45 AM',
-            isCredit: true,
-          ),
-          _TransactionTile(
-            iconBgColor: orangeIcon,
-            icon: Icons.arrow_upward,
-            title: 'Airtime Purchase',
-            subtitle: 'MTN Airtime',
-            amount: '- ₦500.00',
-            time: 'Today, 08:20 AM',
-            isCredit: false,
-          ),
-          _TransactionTile(
-            iconBgColor: brandGreen,
-            icon: Icons.arrow_downward,
-            title: 'POS Settlement',
-            subtitle: 'Rima POS 001',
-            amount: '+ ₦12,000.00',
-            time: 'Yesterday, 06:30 PM',
-            isCredit: true,
-          ),
+          if (state.isLoading && txs.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 28),
+              child: Center(
+                child: SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                      strokeWidth: 2, color: brandGreen),
+                ),
+              ),
+            )
+          else if (txs.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 28),
+              child: Text(
+                'No transactions yet',
+                style: TextStyle(
+                    fontFamily: 'Effra', fontSize: 13, color: textGray),
+              ),
+            )
+          else
+            ...txs.map((tx) {
+              final isCredit = tx.type == TransactionType.addMoney;
+              return _TransactionTile(
+                iconBgColor: isCredit ? brandGreen : orangeIcon,
+                icon: isCredit ? Icons.arrow_downward : Icons.arrow_upward,
+                title: tx.typeDisplayName,
+                subtitle: tx.recipient,
+                amount: '${isCredit ? '+' : '-'} ₦${_fmtAmount(tx.amount)}',
+                time: _fmtTime(tx.timestamp),
+                isCredit: isCredit,
+              );
+            }),
         ],
       ),
     );
