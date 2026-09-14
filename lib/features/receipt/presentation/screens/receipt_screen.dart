@@ -10,6 +10,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import '../../../../core/providers/app_state_provider.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../shared/widgets/rimapay_logo.dart';
@@ -106,40 +107,41 @@ class _ReceiptScreenState extends State<ReceiptScreen> with TickerProviderStateM
   }
 
   Map<String, dynamic> _getStatusConfig(String status) {
+    final isDark = context.isDark;
     switch (status.toLowerCase()) {
       case 'success':
         return {
-          'bg': Colors.green.shade50,
-          'border': Colors.green.shade200,
-          'text': Colors.green.shade800,
-          'icon': Colors.green.shade600,
+          'bg': isDark ? const Color(0xFF0B2417) : Colors.green.shade50,
+          'border': isDark ? const Color(0xFF1E4D33) : Colors.green.shade200,
+          'text': isDark ? Colors.green.shade200 : Colors.green.shade800,
+          'icon': isDark ? Colors.green.shade400 : Colors.green.shade600,
           'label': 'Successful',
           'iconData': Icons.check_circle,
         };
       case 'pending':
         return {
-          'bg': Colors.orange.shade50,
-          'border': Colors.orange.shade200,
-          'text': Colors.orange.shade800,
-          'icon': Colors.orange.shade600,
+          'bg': isDark ? const Color(0xFF2A1A08) : Colors.orange.shade50,
+          'border': isDark ? const Color(0xFF5C3A12) : Colors.orange.shade200,
+          'text': isDark ? Colors.orange.shade200 : Colors.orange.shade800,
+          'icon': isDark ? Colors.orange.shade400 : Colors.orange.shade600,
           'label': 'Pending',
           'iconData': Icons.access_time,
         };
       case 'failed':
         return {
-          'bg': Colors.red.shade50,
-          'border': Colors.red.shade200,
-          'text': Colors.red.shade800,
-          'icon': Colors.red.shade600,
+          'bg': isDark ? const Color(0xFF2A0B08) : Colors.red.shade50,
+          'border': isDark ? const Color(0xFF5C1A12) : Colors.red.shade200,
+          'text': isDark ? Colors.red.shade200 : Colors.red.shade800,
+          'icon': isDark ? Colors.red.shade400 : Colors.red.shade600,
           'label': 'Failed',
           'iconData': Icons.error,
         };
       default:
         return {
-          'bg': Colors.grey.shade50,
-          'border': Colors.grey.shade200,
-          'text': Colors.grey.shade800,
-          'icon': Colors.grey.shade600,
+          'bg': isDark ? const Color(0xFF242938) : Colors.grey.shade50,
+          'border': isDark ? const Color(0xFF3D4456) : Colors.grey.shade200,
+          'text': isDark ? Colors.grey.shade300 : Colors.grey.shade800,
+          'icon': isDark ? Colors.grey.shade400 : Colors.grey.shade600,
           'label': 'Unknown',
           'iconData': Icons.info,
         };
@@ -371,7 +373,7 @@ www.rimapay.com
     final isSmallScreen = screenWidth < 400;
 
     return Scaffold(
-      backgroundColor: AppColors.neutral50,
+      backgroundColor: context.bgPage,
       body: SafeArea(
         child: FadeTransition(
           opacity: _fadeAnimation,
@@ -386,7 +388,7 @@ www.rimapay.com
                     decoration: BoxDecoration(
                       border: Border(
                         bottom: BorderSide(
-                          color: AppColors.neutral100,
+                          color: context.border,
                           width: 1,
                         ),
                       ),
@@ -403,7 +405,7 @@ www.rimapay.com
                             width: 40,
                             height: 40,
                             decoration: BoxDecoration(
-                              color: AppColors.neutral100,
+                              color: context.bgCardElevated,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Material(
@@ -415,7 +417,7 @@ www.rimapay.com
                                 },
                                 child: Icon(
                                   Icons.arrow_back,
-                                  color: AppColors.neutral700,
+                                  color: context.textPrimary,
                                   size: 20,
                                 ),
                               ),
@@ -508,6 +510,7 @@ www.rimapay.com
                                       style: Theme.of(context).textTheme.titleSmall!.copyWith(
                                         fontWeight: FontWeight.bold,
                                         fontSize: isSmallScreen ? 16 : 20,
+                                        color: statusConfig['text'],
                                       ),
                                     ),
                                     const SizedBox(height: 8),
@@ -515,6 +518,7 @@ www.rimapay.com
                                       'Your ${widget.receiptData.type.toLowerCase()} transaction has been ${statusConfig['label'].toString().toLowerCase()}',
                                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                         fontSize: isSmallScreen ? 12 : 14,
+                                        color: statusConfig['text'],
                                       ),
                                       textAlign: TextAlign.center,
                                     ),
@@ -555,7 +559,7 @@ www.rimapay.com
                                       decoration: BoxDecoration(
                                         border: Border(
                                           bottom: BorderSide(
-                                            color: AppColors.neutral100,
+                                            color: context.border,
                                           ),
                                         ),
                                       ),
@@ -760,10 +764,10 @@ www.rimapay.com
                                       ),
                                       style: OutlinedButton.styleFrom(
                                         side: BorderSide(
-                                          color: Colors.green.shade200,
+                                          color: context.isDark ? const Color(0xFF1E4D33) : Colors.green.shade200,
                                           width: 2,
                                         ),
-                                        backgroundColor: Colors.green.shade50,
+                                        backgroundColor: context.bgBrandSubtle,
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(12),
                                         ),

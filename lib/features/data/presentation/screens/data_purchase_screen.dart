@@ -22,6 +22,7 @@ class DataPlan {
   final String validity;
   final String price;
   final PlanCategory category;
+  final String? description;
 
   DataPlan({
     required this.id,
@@ -30,7 +31,12 @@ class DataPlan {
     required this.validity,
     required this.price,
     required this.category,
+    this.description,
   });
+
+  /// Blurb shown on the plan card, generated when none is supplied.
+  String get info =>
+      description ?? 'Get $data for ₦$price. Valid for $validity';
 }
 
 class NetworkProvider {
@@ -372,19 +378,27 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
     );
   }
 
-  void _showPlanSheet() {
-    if (_selectedNetwork == null) return;
-    final allPlans = _dataPlans[_selectedNetwork!.id] ?? [];
+  /// Selects [plan] and jumps straight to PIN confirmation.
+  void _buyPlan(DataPlan plan) {
+    setState(() => _selectedPlan = plan);
+    if (_selectedNetwork == null || _phoneController.text.length != 10) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Enter a valid 10-digit phone number')),
+      );
+      return;
+    }
+    _showDataPinSheet();
+  }
+
+  void _showPlanInfoSheet(DataPlan plan) {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _PlanPickerSheet(
-        plans: allPlans,
-        selected: _selectedPlan,
-        onSelect: (plan) {
-          setState(() => _selectedPlan = plan);
+      builder: (_) => _PlanInfoSheet(
+        plan: plan,
+        onBuyNow: () {
           Navigator.pop(context);
+          _buyPlan(plan);
         },
       ),
     );
@@ -651,7 +665,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                   if (_selectedNetwork != null) ...[
                     const SizedBox(height: 24),
 
-                    // Plan dropdown
+                    // Plan duration tabs + plans
                     Text(
                       'Select Plan',
                       style: TextStyle(
@@ -661,88 +675,43 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                       ),
                     ),
                     const SizedBox(height: 10),
-                    GestureDetector(
-                      onTap: _showPlanSheet,
-                      child: Container(
-                        height: 56,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).cardColor,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: _selectedPlan != null
-                                ? AppColors.goldPrimary.withOpacity(0.5)
-                                : Theme.of(context).dividerColor,
+                    _PlanDurationTabs(
+                      selected: _selectedCategory,
+                      onChanged: (cat) => setState(() {
+                        _selectedCategory = cat;
+                        _selectedPlan = null;
+                      }),
+                    ),
+                    const SizedBox(height: 16),
+                    if (_getCurrentPlans().isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 28),
+                        child: Center(
+                          child: Text(
+                            'No plans available',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withOpacity(0.4),
+                            ),
                           ),
                         ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: _selectedPlan != null
-                                  ? Row(
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8, vertical: 4),
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
-                                            borderRadius:
-                                                BorderRadius.circular(6),
-                                          ),
-                                          child: Text(
-                                            _selectedPlan!.data,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w700,
-                                              color: Color(0xFF166C46),
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 10),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                _selectedPlan!.name,
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Theme.of(context).colorScheme.onSurface,
-                                                ),
-                                              ),
-                                              Text(
-                                                '${_selectedPlan!.validity} · ₦${_selectedPlan!.price}',
-                                                style: TextStyle(
-                                                  fontSize: 11,
-                                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    )
-                                  : Text(
-                                      'Tap to select a data plan',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
-                                      ),
-                                    ),
-                            ),
-                            Icon(
-                              Icons.keyboard_arrow_down_rounded,
-                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
-                              size: 22,
-                            ),
-                          ],
+                      )
+                    else
+                      ..._getCurrentPlans().map(
+                        (plan) => Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: _PlanCard(
+                            plan: plan,
+                            isSelected: _selectedPlan?.id == plan.id,
+                            onTap: () => setState(() => _selectedPlan = plan),
+                            onMoreInfo: () => _showPlanInfoSheet(plan),
+                            onBuyNow: () => _buyPlan(plan),
+                          ),
                         ),
                       ),
-                    ),
                   ],
 
                   const SizedBox(height: 20),
@@ -1453,56 +1422,241 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
   }
 }
 
-// ── Plan Picker Sheet ────────────────────────────────────────────────────────
+// -- Plan Duration Tabs ------------------------------------------------------
 
-class _PlanPickerSheet extends StatefulWidget {
-  final List<DataPlan> plans;
-  final DataPlan? selected;
-  final void Function(DataPlan) onSelect;
+class _PlanDurationTabs extends StatelessWidget {
+  final PlanCategory selected;
+  final ValueChanged<PlanCategory> onChanged;
 
-  const _PlanPickerSheet({
-    required this.plans,
-    required this.selected,
-    required this.onSelect,
-  });
+  const _PlanDurationTabs({required this.selected, required this.onChanged});
 
-  @override
-  State<_PlanPickerSheet> createState() => _PlanPickerSheetState();
-}
-
-class _PlanPickerSheetState extends State<_PlanPickerSheet> {
-  final _searchController = TextEditingController();
-  PlanCategory? _filterCategory;
-  String _query = '';
-
-  List<DataPlan> get _filtered {
-    return widget.plans.where((p) {
-      final matchCat =
-          _filterCategory == null || p.category == _filterCategory;
-      final matchQuery = _query.isEmpty ||
-          p.name.toLowerCase().contains(_query.toLowerCase()) ||
-          p.data.toLowerCase().contains(_query.toLowerCase()) ||
-          p.price.contains(_query);
-      return matchCat && matchQuery;
-    }).toList();
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
+  static const List<PlanCategory> _cats = [
+    PlanCategory.daily,
+    PlanCategory.weekly,
+    PlanCategory.monthly,
+  ];
+  static const List<String> _labels = ['Daily', 'Weekly', 'Monthly'];
 
   @override
   Widget build(BuildContext context) {
-    final plans = _filtered;
     return Container(
-      height: MediaQuery.of(context).size.height * 0.78,
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: Theme.of(context).dividerColor),
+        ),
+      ),
+      child: Row(
+        children: List.generate(_cats.length, (i) {
+          final isSelected = _cats[i] == selected;
+          return Expanded(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => onChanged(_cats[i]),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: isSelected
+                          ? AppColors.goldPrimary
+                          : Colors.transparent,
+                      width: 3,
+                    ),
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    _labels[i],
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.w400,
+                      color: isSelected
+                          ? AppColors.goldPrimary
+                          : Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.5),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+}
+
+// -- Plan Card ---------------------------------------------------------------
+
+class _PlanCard extends StatelessWidget {
+  final DataPlan plan;
+  final bool isSelected;
+  final VoidCallback onTap;
+  final VoidCallback onMoreInfo;
+  final VoidCallback onBuyNow;
+
+  const _PlanCard({
+    required this.plan,
+    required this.isSelected,
+    required this.onTap,
+    required this.onMoreInfo,
+    required this.onBuyNow,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected
+                ? AppColors.goldPrimary
+                : Theme.of(context).dividerColor,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    plan.name,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: onSurface,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  '₦${plan.price}',
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.goldPrimary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              plan.info,
+              style: TextStyle(
+                fontSize: 12,
+                height: 1.4,
+                color: onSurface.withOpacity(0.6),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Valid for ${plan.validity}',
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF166C46),
+              ),
+            ),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Expanded(
+                  flex: 4,
+                  child: GestureDetector(
+                    onTap: onMoreInfo,
+                    child: Container(
+                      height: 42,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(999),
+                        border:
+                            Border.all(color: Theme.of(context).dividerColor),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.info_outline,
+                            size: 15,
+                            color: AppColors.goldPrimary,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'More Info',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: onSurface.withOpacity(0.85),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 5,
+                  child: GestureDetector(
+                    onTap: onBuyNow,
+                    child: Container(
+                      height: 42,
+                      decoration: BoxDecoration(
+                        gradient: AppColors.goldGradient,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          'Buy Now',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// -- Plan Info Sheet ---------------------------------------------------------
+
+class _PlanInfoSheet extends StatelessWidget {
+  final DataPlan plan;
+  final VoidCallback onBuyNow;
+
+  const _PlanInfoSheet({required this.plan, required this.onBuyNow});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           // Handle
           Container(
@@ -1515,183 +1669,59 @@ class _PlanPickerSheetState extends State<_PlanPickerSheet> {
             ),
           ),
 
-          // Title
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Select Data Plan',
+                  plan.name,
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 14),
-
-          // Search field
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Container(
-              height: 46,
-              decoration: BoxDecoration(
-                color: Theme.of(context).scaffoldBackgroundColor,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Theme.of(context).dividerColor),
-              ),
-              child: TextField(
-                controller: _searchController,
-                onChanged: (v) => setState(() => _query = v),
-                style: TextStyle(fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: 'Search plans...',
-                  hintStyle: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), fontSize: 14),
-                  prefixIcon: Icon(Icons.search,
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), size: 18),
-                  border: InputBorder.none,
-                  enabledBorder: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  isDense: true,
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 12),
-                ),
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          // Category filter chips
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              children: [
-                _chip('All', null),
-                const SizedBox(width: 8),
-                _chip('Daily', PlanCategory.daily),
-                const SizedBox(width: 8),
-                _chip('Weekly', PlanCategory.weekly),
-                const SizedBox(width: 8),
-                _chip('Monthly', PlanCategory.monthly),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          // Plan list
-          Expanded(
-            child: plans.isEmpty
-                ? Center(
-                    child: Text(
-                      'No plans found',
-                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4)),
-                    ),
-                  )
-                : ListView.separated(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    itemCount: plans.length,
-                    separatorBuilder: (_, __) =>
-                        const SizedBox(height: 8),
-                    itemBuilder: (_, i) {
-                      final plan = plans[i];
-                      final isSelected =
-                          widget.selected?.id == plan.id;
-                      return GestureDetector(
-                        onTap: () => widget.onSelect(plan),
-                        child: Container(
-                          padding: const EdgeInsets.all(14),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? Theme.of(context).colorScheme.surface.withOpacity(0.5)
-                                : Theme.of(context).scaffoldBackgroundColor,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: isSelected
-                                  ? AppColors.goldPrimary
-                                  : Theme.of(context).dividerColor,
-                              width: isSelected ? 2 : 1,
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 44,
-                                height: 44,
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? AppColors.goldPrimary
-                                          .withOpacity(0.12)
-                                      : Theme.of(context).cardColor,
-                                  borderRadius:
-                                      BorderRadius.circular(10),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    plan.data,
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w700,
-                                      color: isSelected
-                                          ? AppColors.goldPrimary
-                                          : Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      plan.name,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: isSelected
-                                            ? AppColors.goldPrimary
-                                            : Theme.of(context).colorScheme.onSurface,
-                                      ),
-                                    ),
-                                    Text(
-                                      'Valid for ${plan.validity}',
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Text(
-                                '₦${plan.price}',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                  color: isSelected
-                                      ? AppColors.goldPrimary
-                                      : Theme.of(context).colorScheme.onSurface,
-                                ),
-                              ),
-                              if (isSelected) ...[
-                                const SizedBox(width: 8),
-                                const Icon(Icons.check_circle,
-                                    color: Color(0xFF166C46), size: 18),
-                              ],
-                            ],
-                          ),
-                        ),
-                      );
-                    },
+                const SizedBox(height: 6),
+                Text(
+                  plan.info,
+                  style: TextStyle(
+                    fontSize: 13,
+                    height: 1.4,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.6),
                   ),
+                ),
+                const SizedBox(height: 18),
+                _row(context, 'Data', plan.data),
+                _row(context, 'Validity', plan.validity),
+                _row(context, 'Price', '₦${plan.price}'),
+                const SizedBox(height: 20),
+                GestureDetector(
+                  onTap: onBuyNow,
+                  child: Container(
+                    width: double.infinity,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      gradient: AppColors.goldGradient,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'Buy Now',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
 
           SizedBox(height: MediaQuery.of(context).padding.bottom + 16),
@@ -1700,27 +1730,29 @@ class _PlanPickerSheetState extends State<_PlanPickerSheet> {
     );
   }
 
-  Widget _chip(String label, PlanCategory? cat) {
-    final isSelected = _filterCategory == cat;
-    return GestureDetector(
-      onTap: () => setState(() => _filterCategory = cat),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-        decoration: BoxDecoration(
-          color:
-              isSelected ? AppColors.goldPrimary : Theme.of(context).dividerColor,
-          borderRadius: BorderRadius.circular(999),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
+  Widget _row(BuildContext context, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              color:
+                  Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
+            ),
           ),
-        ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+        ],
       ),
     );
   }
