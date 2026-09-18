@@ -1001,7 +1001,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
 
   Widget _buildSecuritySection(BuildContext context) {
     final items = [
-      _SecurityItem(Icons.lock_outline, 'Change Password', 'Update your account password'),
+      _SecurityItem(
+        Icons.lock_outline,
+        'Change Password',
+        'Update your account password',
+        _showChangePasswordModal,
+      ),
+      _SecurityItem(
+        Icons.pin_outlined,
+        'Reset Transaction PIN',
+        'Forgot your PIN? Reset it with an OTP',
+        () => context.push('/security/reset-pin'),
+      ),
     ];
 
     return Container(
@@ -1031,7 +1042,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             final item = e.value;
             final isLast = i == items.length - 1;
             return GestureDetector(
-              onTap: () => _showChangePasswordModal(),
+              onTap: item.onTap,
               behavior: HitTestBehavior.opaque,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
@@ -1713,5 +1724,6 @@ class _SecurityItem {
   final IconData icon;
   final String title;
   final String subtitle;
-  const _SecurityItem(this.icon, this.title, this.subtitle);
+  final VoidCallback onTap;
+  const _SecurityItem(this.icon, this.title, this.subtitle, this.onTap);
 }

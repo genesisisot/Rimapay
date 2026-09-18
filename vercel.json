@@ -4,7 +4,7 @@
   "rewrites": [
     { "source": "/identity/(.*)", "destination": "https://api.rimabank.ng/identity/$1" },
     { "source": "/otp/(.*)", "destination": "https://api.rimabank.ng/otp/$1" },
-    { "source": "/profile/(.*)", "destination": "https://api.rimabank.ng/profile/$1" },
+    { "source": "/profile-transaction/(.*)", "destination": "https://api.rimabank.ng/profile-transaction/$1" },
     { "source": "/accounts/(.*)", "destination": "https://api.rimabank.ng/accounts/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],

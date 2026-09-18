@@ -1,18 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:rimapay/core/theme/app_colors.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
 import '../../../success/presentation/screens/success_screen.dart';
+import '../../../bills/data/bills_dtos.dart';
+import '../../../bills/presentation/providers/bills_providers.dart';
+import '../../../bills/presentation/widgets/bill_purchase_flow.dart';
 
 // ── Models ────────────────────────────────────────────────────────────────────
 
 class CableProvider {
   final String id;
+  final int billerId;
   final String name;
-  final String icon;
 
-  const CableProvider({required this.id, required this.name, required this.icon});
+  /// Bundled brand asset, when we have one for this provider.
+  final String? icon;
+  final String? logoUrl;
+
+  const CableProvider({
+    required this.id,
+    required this.billerId,
+    required this.name,
+    this.icon,
+    this.logoUrl,
+  });
+
+  factory CableProvider.fromBiller(BillerDto b) => CableProvider(
+        id: '${b.billerId}',
+        billerId: b.billerId,
+        name: b.displayName,
+        icon: billerAssetFor(b),
+        logoUrl: b.logoUrl,
+      );
 }
 
 class CablePackage {
@@ -22,27 +43,42 @@ class CablePackage {
   final String validity;
   final String price;
   final bool popular;
+  final double amount;
+  final bool isAmountFixed;
 
   const CablePackage({
     required this.id,
     required this.name,
-    required this.channels,
-    required this.validity,
+    this.channels = '',
+    this.validity = '',
     required this.price,
     this.popular = false,
+    this.amount = 0,
+    this.isAmountFixed = true,
   });
+
+  factory CablePackage.fromItem(BillerItemDto i) => CablePackage(
+        id: i.billerItemId,
+        name: i.name ?? 'Package',
+        price: formatBillAmount(i.amount),
+        amount: i.amount,
+        isAmountFixed: i.isAmountFixed,
+      );
+
+  String get subtitle =>
+      [channels, validity].where((p) => p.isNotEmpty).join(' · ');
 }
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 
-class CablePurchaseScreen extends StatefulWidget {
+class CablePurchaseScreen extends ConsumerStatefulWidget {
   const CablePurchaseScreen({super.key});
 
   @override
-  State<CablePurchaseScreen> createState() => _CablePurchaseScreenState();
+  ConsumerState<CablePurchaseScreen> createState() => _CablePurchaseScreenState();
 }
 
-class _CablePurchaseScreenState extends State<CablePurchaseScreen>
+class _CablePurchaseScreenState extends ConsumerState<CablePurchaseScreen>
     with SingleTickerProviderStateMixin {
   CableProvider? _selectedProvider;
   CablePackage? _selectedPackage;
@@ -51,46 +87,6 @@ class _CablePurchaseScreenState extends State<CablePurchaseScreen>
   final _cardFocus = FocusNode();
 
   late AnimationController _processingController;
-
-  final List<CableProvider> _providers = const [
-    CableProvider(id: 'dstv', name: 'DSTV', icon: 'assets/images/Dstv.jpeg'),
-    CableProvider(id: 'gotv', name: 'GOTV', icon: 'assets/images/Gotv.jpeg'),
-    CableProvider(id: 'startimes', name: 'StarTimes', icon: 'assets/images/Startimes.jpeg'),
-    CableProvider(id: 'showmax', name: 'Showmax', icon: 'assets/images/Showmax.png'),
-  ];
-
-  final Map<String, List<CablePackage>> _packages = const {
-    'dstv': [
-      CablePackage(id: 'dstv_access', name: 'DStv Access', channels: '95+ Channels', validity: '1 Month', price: '2,950'),
-      CablePackage(id: 'dstv_family', name: 'DStv Family', channels: '120+ Channels', validity: '1 Month', price: '4,615'),
-      CablePackage(id: 'dstv_compact', name: 'DStv Compact', channels: '180+ Channels', validity: '1 Month', price: '9,000', popular: true),
-      CablePackage(id: 'dstv_compact_plus', name: 'DStv Compact Plus', channels: '230+ Channels', validity: '1 Month', price: '14,250', popular: true),
-      CablePackage(id: 'dstv_premium', name: 'DStv Premium', channels: '280+ Channels', validity: '1 Month', price: '21,000'),
-      CablePackage(id: 'dstv_confam', name: 'DStv Confam', channels: '105+ Channels', validity: '1 Month', price: '5,500'),
-      CablePackage(id: 'dstv_yanga', name: 'DStv Yanga', channels: '85+ Channels', validity: '1 Month', price: '2,565'),
-    ],
-    'gotv': [
-      CablePackage(id: 'gotv_lite', name: 'GOtv Lite', channels: '35+ Channels', validity: '1 Month', price: '610'),
-      CablePackage(id: 'gotv_smallie', name: 'GOtv Smallie', channels: '25+ Channels', validity: '1 Month', price: '900'),
-      CablePackage(id: 'gotv_jinja', name: 'GOtv Jinja', channels: '45+ Channels', validity: '1 Month', price: '1,900'),
-      CablePackage(id: 'gotv_jolli', name: 'GOtv Jolli', channels: '65+ Channels', validity: '1 Month', price: '2,800', popular: true),
-      CablePackage(id: 'gotv_max', name: 'GOtv Max', channels: '75+ Channels', validity: '1 Month', price: '4,150', popular: true),
-      CablePackage(id: 'gotv_supa', name: 'GOtv Supa', channels: '85+ Channels', validity: '1 Month', price: '5,500'),
-    ],
-    'startimes': [
-      CablePackage(id: 'st_nova', name: 'Nova', channels: '35+ Channels', validity: '1 Month', price: '900'),
-      CablePackage(id: 'st_basic', name: 'Basic', channels: '50+ Channels', validity: '1 Month', price: '1,700', popular: true),
-      CablePackage(id: 'st_smart', name: 'Smart', channels: '65+ Channels', validity: '1 Month', price: '2,500'),
-      CablePackage(id: 'st_classic', name: 'Classic', channels: '80+ Channels', validity: '1 Month', price: '2,750', popular: true),
-      CablePackage(id: 'st_super', name: 'Super', channels: '95+ Channels', validity: '1 Month', price: '4,200'),
-    ],
-    'showmax': [
-      CablePackage(id: 'sm_mobile', name: 'Mobile', channels: 'Mobile Only', validity: '1 Month', price: '1,200'),
-      CablePackage(id: 'sm_standard', name: 'Standard', channels: '2 Devices', validity: '1 Month', price: '2,900', popular: true),
-      CablePackage(id: 'sm_pro', name: 'Pro', channels: '4 Devices + Sports', validity: '1 Month', price: '6,300'),
-      CablePackage(id: 'sm_sport', name: 'Sport Add-on', channels: 'Live Sports', validity: '1 Month', price: '3,200'),
-    ],
-  };
 
   @override
   void initState() {
@@ -115,35 +111,59 @@ class _CablePurchaseScreenState extends State<CablePurchaseScreen>
       _selectedProvider != null &&
       _selectedPackage != null;
 
+  List<CableProvider> get _providers {
+    final billers =
+        ref.read(billersByKindProvider(BillCategoryKind.cable)).valueOrNull?.billers ??
+            const <BillerDto>[];
+    return billers.map(CableProvider.fromBiller).toList();
+  }
+
   void _handleNext() {
-    if (!_isFormValid) return;
-    showPinConfirmSheet(
+    final provider = _selectedProvider;
+    final pkg = _selectedPackage;
+    if (!_isFormValid || provider == null || pkg == null) return;
+    final card = _cardController.text;
+    runBillPurchase(
       context: context,
       summary: [
         {'label': 'Service', 'value': 'Cable TV'},
-        if (_selectedProvider != null) {'label': 'Provider', 'value': _selectedProvider!.name},
-        if (_selectedPackage != null) {'label': 'Package', 'value': _selectedPackage!.name},
-        {'label': 'Card No.', 'value': _cardController.text},
-        if (_selectedPackage != null) {'label': 'Amount', 'value': '₦${_selectedPackage!.price}'},
+        {'label': 'Provider', 'value': provider.name},
+        {'label': 'Package', 'value': pkg.name},
+        {'label': 'Card No.', 'value': card},
+        {'label': 'Amount', 'value': '₦${pkg.price}'},
       ],
-      onConfirmed: (_) {
-        Navigator.pop(context);
-        context.pushReplacement('/success', extra: SuccessScreenProps(
-          transactionType: 'Cable TV',
-          amount: _selectedPackage?.price ?? '0',
-          recipient: '${_selectedProvider?.name} – ${_cardController.text}',
-        ));
-      },
+      submit: (pin, sourceAccount) =>
+          ref.read(billsApiServiceProvider).payBill(BillPaymentRequest(
+                sourceAccount: sourceAccount,
+                billerId: provider.billerId,
+                billerItemId: pkg.id,
+                customerId: card,
+                amount: pkg.isAmountFixed ? null : pkg.amount,
+                transactionPin: pin,
+              )),
+      successProps: (result) => SuccessScreenProps(
+        transactionType: 'Cable TV',
+        amount: pkg.price,
+        recipient: '${provider.name} – $card',
+        transactionId: result.transactionReference,
+      ),
     );
   }
 
   void _showProviderSheet() {
+    if (ref.read(billersByKindProvider(BillCategoryKind.cable)).isLoading) return;
+    final providers = _providers;
+    if (providers.isEmpty) {
+      refreshBillers(ref, BillCategoryKind.cable);
+      showBillError(context, 'No providers available right now. Retrying…');
+      return;
+    }
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => _CableProviderSheet(
-        providers: _providers,
+        providers: providers,
         selected: _selectedProvider,
         onSelect: (p) {
           setState(() {
@@ -158,7 +178,16 @@ class _CablePurchaseScreenState extends State<CablePurchaseScreen>
 
   void _showPackageSheet() {
     if (_selectedProvider == null) return;
-    final pkgs = _packages[_selectedProvider!.id] ?? [];
+    final itemsAsync = ref.read(billerItemsProvider(_selectedProvider!.billerId));
+    if (itemsAsync.isLoading) return;
+    final pkgs = (itemsAsync.valueOrNull ?? const <BillerItemDto>[])
+        .map(CablePackage.fromItem)
+        .toList();
+    if (pkgs.isEmpty) {
+      ref.invalidate(billerItemsProvider(_selectedProvider!.billerId));
+      showBillError(context, 'No packages available right now. Retrying…');
+      return;
+    }
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -177,6 +206,14 @@ class _CablePurchaseScreenState extends State<CablePurchaseScreen>
 
   @override
   Widget build(BuildContext context) {
+    final billersAsync = ref.watch(billersByKindProvider(BillCategoryKind.cable));
+    final categoryId = billersAsync.valueOrNull?.categoryId;
+    final limit = categoryId == null
+        ? null
+        : ref.watch(billLimitProvider(categoryId)).valueOrNull;
+    final itemsLoading = _selectedProvider != null &&
+        ref.watch(billerItemsProvider(_selectedProvider!.billerId)).isLoading;
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Column(
@@ -199,7 +236,9 @@ class _CablePurchaseScreenState extends State<CablePurchaseScreen>
 
                   // ── Provider dropdown ──
                   _CDropdownField(
-                    label: 'Choose Provider',
+                    label: billersAsync.isLoading
+                        ? 'Loading providers…'
+                        : 'Choose Provider',
                     value: _selectedProvider?.name,
                     leadingLogo: _selectedProvider?.icon,
                     onTap: _showProviderSheet,
@@ -215,7 +254,7 @@ class _CablePurchaseScreenState extends State<CablePurchaseScreen>
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     onChanged: (_) => setState(() {}),
-                    suffix: _selectedProvider != null
+                    suffix: _selectedProvider?.icon != null
                         ? Padding(
                             padding: const EdgeInsets.only(right: 4),
                             child: Container(
@@ -224,7 +263,7 @@ class _CablePurchaseScreenState extends State<CablePurchaseScreen>
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 image: DecorationImage(
-                                  image: AssetImage(_selectedProvider!.icon),
+                                  image: AssetImage(_selectedProvider!.icon!),
                                   fit: BoxFit.cover,
                                 ),
                               ),
@@ -236,17 +275,23 @@ class _CablePurchaseScreenState extends State<CablePurchaseScreen>
 
                   // ── Package dropdown ──
                   _CDropdownField(
-                    label: 'Choose Package',
+                    label: itemsLoading ? 'Loading packages…' : 'Choose Package',
                     value: _selectedPackage?.name,
                     sublabel: _selectedPackage != null
-                        ? '₦${_selectedPackage!.price} · ${_selectedPackage!.channels}'
+                        ? [
+                            '₦${_selectedPackage!.price}',
+                            _selectedPackage!.subtitle,
+                          ].where((p) => p.isNotEmpty).join(' · ')
                         : null,
                     enabled: _selectedProvider != null,
                     onTap: _showPackageSheet,
                   ),
 
                   const SizedBox(height: 24),
-                  const BillDailyLimitCard(),
+                  BillDailyLimitCard(
+                    dailyLimit: limit?.dailyLimit,
+                    remaining: limit?.remainingLimit,
+                  ),
                   const SizedBox(height: 100),
                 ],
               ),
@@ -329,15 +374,35 @@ class _CableProviderSheet extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                   child: Row(
                     children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                              image: AssetImage(p.icon), fit: BoxFit.cover),
-                        ),
-                      ),
+                      Builder(builder: (context) {
+                        final image = billerImage(asset: p.icon, url: p.logoUrl);
+                        return Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Theme.of(context).scaffoldBackgroundColor,
+                            image: image == null
+                                ? null
+                                : DecorationImage(
+                                    image: image,
+                                    fit: BoxFit.cover,
+                                    onError: (_, __) {},
+                                  ),
+                          ),
+                          child: image == null
+                              ? Center(
+                                  child: Text(
+                                    billerInitials(p.name),
+                                    style: const TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF166C46)),
+                                  ),
+                                )
+                              : null,
+                        );
+                      }),
                       const SizedBox(width: 14),
                       Expanded(
                         child: Text(p.name,
@@ -463,7 +528,7 @@ class _PackageSheet extends StatelessWidget {
                                 ],
                               ),
                               const SizedBox(height: 2),
-                              Text('${pkg.channels} · ${pkg.validity}',
+                              Text(pkg.subtitle,
                                   style: TextStyle(
                                       fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55))),
                             ],

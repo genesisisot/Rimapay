@@ -1,26 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:rimapay/core/theme/app_colors.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
 import '../../../success/presentation/screens/success_screen.dart';
+import '../../../bills/data/bills_dtos.dart';
+import '../../../bills/presentation/providers/bills_providers.dart';
+import '../../../bills/presentation/widgets/bill_purchase_flow.dart';
 
 // ── Models ────────────────────────────────────────────────────────────────────
 
 class _EduProvider {
   final String id;
+  final int billerId;
   final String name;
   final String description;
   final String icon;
-  final List<_EduExamType> examTypes;
 
   const _EduProvider({
     required this.id,
+    required this.billerId,
     required this.name,
     required this.description,
     required this.icon,
-    required this.examTypes,
   });
+
+  static const _icons = ['🎓', '📚', '📝', '🔧'];
+
+  factory _EduProvider.fromBiller(BillerDto b, int index) => _EduProvider(
+        id: '${b.billerId}',
+        billerId: b.billerId,
+        name: b.displayName,
+        description: b.name ?? b.narration ?? '',
+        icon: _icons[index % _icons.length],
+      );
 }
 
 class _EduExamType {
@@ -28,111 +41,112 @@ class _EduExamType {
   final String name;
   final String price;
   final String description;
+  final double amount;
+  final bool isAmountFixed;
 
   const _EduExamType({
     required this.id,
     required this.name,
     required this.price,
     required this.description,
+    this.amount = 0,
+    this.isAmountFixed = true,
   });
+
+  factory _EduExamType.fromItem(BillerItemDto i, String providerName) => _EduExamType(
+        id: i.billerItemId,
+        name: i.name ?? 'Payment',
+        price: formatBillAmount(i.amount),
+        description: providerName,
+        amount: i.amount,
+        isAmountFixed: i.isAmountFixed,
+      );
 }
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 
-class EducationBillsScreen extends StatefulWidget {
+class EducationBillsScreen extends ConsumerStatefulWidget {
   const EducationBillsScreen({super.key});
 
   @override
-  State<EducationBillsScreen> createState() => _EducationBillsScreenState();
+  ConsumerState<EducationBillsScreen> createState() => _EducationBillsScreenState();
 }
 
-class _EducationBillsScreenState extends State<EducationBillsScreen> {
+class _EducationBillsScreenState extends ConsumerState<EducationBillsScreen> {
   _EduProvider? _selectedProvider;
   _EduExamType? _selectedExam;
   final _candidateController = TextEditingController();
   final _candidateFocus = FocusNode();
 
-  final List<_EduProvider> _providers = const [
-    _EduProvider(
-      id: 'waec',
-      name: 'WAEC',
-      description: 'West African Examinations Council',
-      icon: '🎓',
-      examTypes: [
-        _EduExamType(id: 'wassce', name: 'WASSCE', price: '24500', description: 'West African Senior School Certificate'),
-        _EduExamType(id: 'gce', name: 'GCE (Private)', price: '21700', description: 'General Certificate of Education'),
-        _EduExamType(id: 'result', name: 'Result Checker', price: '1000', description: 'Check your WAEC results online'),
-      ],
-    ),
-    _EduProvider(
-      id: 'jamb',
-      name: 'JAMB',
-      description: 'Joint Admissions & Matriculation Board',
-      icon: '📚',
-      examTypes: [
-        _EduExamType(id: 'utme', name: 'UTME Registration', price: '7700', description: 'Unified Tertiary Matriculation Exam'),
-        _EduExamType(id: 'de', name: 'Direct Entry', price: '5000', description: 'For degree holders seeking admission'),
-        _EduExamType(id: 'mock', name: 'Mock Examination', price: '2000', description: 'JAMB mock examination fee'),
-        _EduExamType(id: 'change', name: 'Change of Course', price: '2500', description: 'Change institution or course'),
-      ],
-    ),
-    _EduProvider(
-      id: 'neco',
-      name: 'NECO',
-      description: 'National Examinations Council',
-      icon: '📝',
-      examTypes: [
-        _EduExamType(id: 'ssce', name: 'SSCE (Internal)', price: '17900', description: 'Senior Secondary Certificate Exam'),
-        _EduExamType(id: 'gce_neco', name: 'GCE (External)', price: '15000', description: 'General Certificate of Education'),
-        _EduExamType(id: 'result_neco', name: 'Result Checker', price: '700', description: 'Check NECO results online'),
-      ],
-    ),
-    _EduProvider(
-      id: 'nabteb',
-      name: 'NABTEB',
-      description: 'National Business & Technical Exams Board',
-      icon: '🔧',
-      examTypes: [
-        _EduExamType(id: 'nbc', name: 'NBC Examination', price: '14500', description: 'National Business Certificate'),
-        _EduExamType(id: 'ntc', name: 'NTC Examination', price: '14500', description: 'National Technical Certificate'),
-      ],
-    ),
-  ];
+  List<_EduProvider> get _providers {
+    final billers =
+        ref.read(billersByKindProvider(BillCategoryKind.education)).valueOrNull?.billers ??
+            const <BillerDto>[];
+    return [
+      for (var i = 0; i < billers.length; i++) _EduProvider.fromBiller(billers[i], i),
+    ];
+  }
+
+  List<_EduExamType> get _examTypes {
+    final provider = _selectedProvider;
+    if (provider == null) return const [];
+    final items = ref.read(billerItemsProvider(provider.billerId)).valueOrNull ??
+        const <BillerItemDto>[];
+    return items.map((i) => _EduExamType.fromItem(i, provider.name)).toList();
+  }
 
   bool get _isFormValid =>
       _selectedProvider != null &&
       _selectedExam != null &&
+      _selectedExam!.amount > 0 &&
       _candidateController.text.length >= 6;
 
   void _handleNext() {
-    if (!_isFormValid) return;
-    showPinConfirmSheet(
+    final provider = _selectedProvider;
+    final exam = _selectedExam;
+    if (!_isFormValid || provider == null || exam == null) return;
+    final candidate = _candidateController.text;
+    runBillPurchase(
       context: context,
       summary: [
         {'label': 'Service', 'value': 'Education'},
-        {'label': 'Provider', 'value': _selectedProvider!.name},
-        {'label': 'Exam Type', 'value': _selectedExam!.name},
-        {'label': 'Candidate No.', 'value': _candidateController.text},
-        {'label': 'Amount', 'value': '₦${_selectedExam!.price}'},
+        {'label': 'Provider', 'value': provider.name},
+        {'label': 'Exam Type', 'value': exam.name},
+        {'label': 'Candidate No.', 'value': candidate},
+        {'label': 'Amount', 'value': '₦${exam.price}'},
       ],
-      onConfirmed: (_) {
-        Navigator.pop(context);
-        context.pushReplacement('/success', extra: SuccessScreenProps(
-          transactionType: '${_selectedProvider!.name} — ${_selectedExam!.name}',
-          amount: _selectedExam!.price,
-          recipient: _candidateController.text,
-        ));
-      },
+      submit: (pin, sourceAccount) =>
+          ref.read(billsApiServiceProvider).payBill(BillPaymentRequest(
+                sourceAccount: sourceAccount,
+                billerId: provider.billerId,
+                billerItemId: exam.id,
+                customerId: candidate,
+                amount: exam.isAmountFixed ? null : exam.amount,
+                transactionPin: pin,
+              )),
+      successProps: (result) => SuccessScreenProps(
+        transactionType: '${provider.name} — ${exam.name}',
+        amount: exam.price,
+        recipient: candidate,
+        transactionId: result.transactionReference,
+      ),
     );
   }
 
   void _openProviderSheet() {
+    if (ref.read(billersByKindProvider(BillCategoryKind.education)).isLoading) return;
+    final providers = _providers;
+    if (providers.isEmpty) {
+      refreshBillers(ref, BillCategoryKind.education);
+      showBillError(context, 'No exam bodies available right now. Retrying…');
+      return;
+    }
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (_) => _ProviderSheet(
-        providers: _providers,
+        providers: providers,
         selected: _selectedProvider,
         onSelect: (p) {
           setState(() {
@@ -147,12 +161,19 @@ class _EducationBillsScreenState extends State<EducationBillsScreen> {
 
   void _openExamSheet() {
     if (_selectedProvider == null) return;
+    if (ref.read(billerItemsProvider(_selectedProvider!.billerId)).isLoading) return;
+    final examTypes = _examTypes;
+    if (examTypes.isEmpty) {
+      ref.invalidate(billerItemsProvider(_selectedProvider!.billerId));
+      showBillError(context, 'No payment options available right now. Retrying…');
+      return;
+    }
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (_) => _ExamSheet(
-        examTypes: _selectedProvider!.examTypes,
+        examTypes: examTypes,
         selected: _selectedExam,
         onSelect: (e) {
           setState(() => _selectedExam = e);
@@ -171,6 +192,10 @@ class _EducationBillsScreenState extends State<EducationBillsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final billersAsync = ref.watch(billersByKindProvider(BillCategoryKind.education));
+    final itemsLoading = _selectedProvider != null &&
+        ref.watch(billerItemsProvider(_selectedProvider!.billerId)).isLoading;
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Column(
@@ -193,7 +218,7 @@ class _EducationBillsScreenState extends State<EducationBillsScreen> {
                   _DropdownField(
                     label: 'Exam Body',
                     value: _selectedProvider?.name,
-                    hint: 'Select exam body',
+                    hint: billersAsync.isLoading ? 'Loading…' : 'Select exam body',
                     onTap: _openProviderSheet,
                   ),
                   const SizedBox(height: 16),
@@ -202,7 +227,11 @@ class _EducationBillsScreenState extends State<EducationBillsScreen> {
                   _DropdownField(
                     label: 'Exam Type',
                     value: _selectedExam?.name,
-                    hint: _selectedProvider == null ? 'Select exam body first' : 'Select exam type',
+                    hint: _selectedProvider == null
+                        ? 'Select exam body first'
+                        : itemsLoading
+                            ? 'Loading…'
+                            : 'Select exam type',
                     subLabel: _selectedExam != null ? '₦${_selectedExam!.price} · ${_selectedExam!.description}' : null,
                     enabled: _selectedProvider != null,
                     onTap: _openExamSheet,

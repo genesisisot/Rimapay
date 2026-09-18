@@ -2,21 +2,42 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/providers/transaction_provider.dart';
+import '../../../bills/data/bills_dtos.dart';
+import '../../../bills/presentation/providers/bills_providers.dart';
+import '../../../bills/presentation/widgets/bill_purchase_flow.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
 import '../../../success/presentation/screens/success_screen.dart';
 
 // ── Data Models ───────────────────────────────────────────────────────────────
 
-enum PlanCategory { daily, weekly, monthly }
+enum PlanCategory { daily, weekly, monthly, yearly }
+
+extension PlanCategoryApi on PlanCategory {
+  /// `validityType` query value for GET /api/v1/bills/data/plans.
+  String get apiValue {
+    switch (this) {
+      case PlanCategory.daily:
+        return 'Daily';
+      case PlanCategory.weekly:
+        return 'Weekly';
+      case PlanCategory.monthly:
+        return 'Monthly';
+      case PlanCategory.yearly:
+        return 'Yearly';
+    }
+  }
+}
 
 class DataPlan {
+  /// Data bundle id (uuid) sent as `dataBundleId` when purchasing.
   final String id;
   final String data;
   final String validity;
   final String price;
   final PlanCategory category;
+  final String? name;
+  final String? description;
 
   const DataPlan({
     required this.id,
@@ -24,10 +45,28 @@ class DataPlan {
     required this.validity,
     required this.price,
     required this.category,
+    this.name,
+    this.description,
   });
 
-  /// e.g. "1GB Daily Plan"
+  factory DataPlan.fromBundle(DataBundleDto b, PlanCategory category) {
+    final allowance = b.dataAllowance?.trim();
+    final validity = b.validityDescription?.trim();
+    return DataPlan(
+      id: b.id,
+      data: (allowance?.isNotEmpty ?? false) ? allowance! : (b.name ?? ''),
+      validity: (validity?.isNotEmpty ?? false)
+          ? validity!
+          : '${b.validityDays} Day${b.validityDays == 1 ? '' : 's'}',
+      price: formatBillAmount(b.amount),
+      category: category,
+      name: b.name,
+    );
+  }
+
+  /// API plan name when available, else e.g. "1GB Daily Plan".
   String get title {
+    if (name?.trim().isNotEmpty ?? false) return name!.trim();
     switch (category) {
       case PlanCategory.daily:
         return '$data Daily Plan';
@@ -35,10 +74,13 @@ class DataPlan {
         return '$data Weekly Plan';
       case PlanCategory.monthly:
         return '$data Monthly Plan';
+      case PlanCategory.yearly:
+        return '$data Yearly Plan';
     }
   }
 
-  String get info => 'Get $data for ₦$price. Valid for $validity';
+  String get info =>
+      description ?? 'Get $data for ₦$price. Valid for $validity';
 }
 
 class NetworkProvider {
@@ -116,52 +158,6 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
     _Contact('Sarah Williams', '08198765432', 'S'),
   ];
 
-  static const Map<String, List<DataPlan>> _dataPlans = {
-    'mtn': [
-      DataPlan(id: 'mtn_d1', data: '1GB', validity: '1 Day', price: '300', category: PlanCategory.daily),
-      DataPlan(id: 'mtn_d2', data: '2GB', validity: '1 Day', price: '500', category: PlanCategory.daily),
-      DataPlan(id: 'mtn_d3', data: '3GB', validity: '1 Day', price: '750', category: PlanCategory.daily),
-      DataPlan(id: 'mtn_w1', data: '1.5GB', validity: '7 Days', price: '1,200', category: PlanCategory.weekly),
-      DataPlan(id: 'mtn_w2', data: '3GB', validity: '7 Days', price: '2,000', category: PlanCategory.weekly),
-      DataPlan(id: 'mtn_w3', data: '7GB', validity: '7 Days', price: '3,500', category: PlanCategory.weekly),
-      DataPlan(id: 'mtn_m1', data: '2GB', validity: '30 Days', price: '1,500', category: PlanCategory.monthly),
-      DataPlan(id: 'mtn_m2', data: '5GB', validity: '30 Days', price: '2,500', category: PlanCategory.monthly),
-      DataPlan(id: 'mtn_m3', data: '10GB', validity: '30 Days', price: '4,000', category: PlanCategory.monthly),
-      DataPlan(id: 'mtn_m4', data: '20GB', validity: '30 Days', price: '8,000', category: PlanCategory.monthly),
-      DataPlan(id: 'mtn_m5', data: '40GB', validity: '30 Days', price: '15,000', category: PlanCategory.monthly),
-    ],
-    'airtel': [
-      DataPlan(id: 'a_d1', data: '1GB', validity: '1 Day', price: '300', category: PlanCategory.daily),
-      DataPlan(id: 'a_d2', data: '2GB', validity: '1 Day', price: '500', category: PlanCategory.daily),
-      DataPlan(id: 'a_w1', data: '1.5GB', validity: '7 Days', price: '1,200', category: PlanCategory.weekly),
-      DataPlan(id: 'a_w2', data: '4GB', validity: '7 Days', price: '2,000', category: PlanCategory.weekly),
-      DataPlan(id: 'a_m1', data: '2GB', validity: '30 Days', price: '1,500', category: PlanCategory.monthly),
-      DataPlan(id: 'a_m2', data: '6GB', validity: '30 Days', price: '2,500', category: PlanCategory.monthly),
-      DataPlan(id: 'a_m3', data: '12GB', validity: '30 Days', price: '4,000', category: PlanCategory.monthly),
-      DataPlan(id: 'a_m4', data: '20GB', validity: '30 Days', price: '8,000', category: PlanCategory.monthly),
-    ],
-    'glo': [
-      DataPlan(id: 'g_d1', data: '1GB', validity: '1 Day', price: '300', category: PlanCategory.daily),
-      DataPlan(id: 'g_d2', data: '2GB', validity: '1 Day', price: '500', category: PlanCategory.daily),
-      DataPlan(id: 'g_w1', data: '2GB', validity: '7 Days', price: '1,200', category: PlanCategory.weekly),
-      DataPlan(id: 'g_w2', data: '5GB', validity: '7 Days', price: '2,000', category: PlanCategory.weekly),
-      DataPlan(id: 'g_m1', data: '3GB', validity: '30 Days', price: '1,500', category: PlanCategory.monthly),
-      DataPlan(id: 'g_m2', data: '8GB', validity: '30 Days', price: '2,500', category: PlanCategory.monthly),
-      DataPlan(id: 'g_m3', data: '15GB', validity: '30 Days', price: '4,000', category: PlanCategory.monthly),
-      DataPlan(id: 'g_m4', data: '25GB', validity: '30 Days', price: '8,000', category: PlanCategory.monthly),
-    ],
-    '9mobile': [
-      DataPlan(id: 'n_d1', data: '1GB', validity: '1 Day', price: '300', category: PlanCategory.daily),
-      DataPlan(id: 'n_d2', data: '2GB', validity: '1 Day', price: '500', category: PlanCategory.daily),
-      DataPlan(id: 'n_w1', data: '1.5GB', validity: '7 Days', price: '1,200', category: PlanCategory.weekly),
-      DataPlan(id: 'n_w2', data: '3GB', validity: '7 Days', price: '2,000', category: PlanCategory.weekly),
-      DataPlan(id: 'n_m1', data: '2GB', validity: '30 Days', price: '1,500', category: PlanCategory.monthly),
-      DataPlan(id: 'n_m2', data: '5GB', validity: '30 Days', price: '2,500', category: PlanCategory.monthly),
-      DataPlan(id: 'n_m3', data: '11GB', validity: '30 Days', price: '4,000', category: PlanCategory.monthly),
-      DataPlan(id: 'n_m4', data: '15GB', validity: '30 Days', price: '8,000', category: PlanCategory.monthly),
-    ],
-  };
-
   // ── Lifecycle ──────────────────────────────────────────────────────────────
   @override
   void initState() {
@@ -207,17 +203,24 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
     if (found != _selectedNetwork) setState(() => _selectedNetwork = found);
   }
 
-  List<DataPlan> get _currentPlans {
-    if (_selectedNetwork == null) return [];
+  List<DataPlan> _filterPlans(List<DataPlan> plans) {
     final q = _planQuery.trim().toLowerCase();
-    return (_dataPlans[_selectedNetwork!.id] ?? [])
-        .where((p) => p.category == _planCategory)
+    if (q.isEmpty) return plans;
+    return plans
         .where((p) =>
-            q.isEmpty ||
+            p.title.toLowerCase().contains(q) ||
             p.data.toLowerCase().contains(q) ||
             p.validity.toLowerCase().contains(q) ||
             p.price.replaceAll(',', '').contains(q.replaceAll(',', '')))
         .toList();
+  }
+
+  /// On the Data tab, only networks the backend sells bundles for are tappable.
+  bool _isNetworkAvailable(NetworkProvider net) {
+    if (_selectedTab != 1) return true;
+    final available = ref.watch(dataNetworksProvider).valueOrNull;
+    if (available == null || available.isEmpty) return true;
+    return available.any((n) => n.toUpperCase() == net.name.toUpperCase());
   }
 
   bool get _airtimeValid =>
@@ -233,61 +236,61 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
   // ── Actions ───────────────────────────────────────────────────────────────
   void _buyAirtime() {
     if (!_airtimeValid) return;
-    showPinConfirmSheet(
+    final network = _selectedNetwork!;
+    final phone = _phoneController.text;
+    final amountText = _amountController.text;
+    runBillPurchase(
       context: context,
       summary: [
         {'label': 'Service', 'value': 'Airtime'},
-        {'label': 'Network', 'value': _selectedNetwork!.name},
-        {'label': 'Phone', 'value': _phoneController.text},
-        {'label': 'Amount', 'value': '₦${_amountController.text}'},
+        {'label': 'Network', 'value': network.name},
+        {'label': 'Phone', 'value': phone},
+        {'label': 'Amount', 'value': '₦$amountText'},
       ],
-      onConfirmed: (_) async {
-        Navigator.pop(context);
-        try {
-          await ref.read(transactionProviders.notifier).processTransaction(
-            type: TransactionType.airtime,
-            amount: double.parse(_amountController.text),
-            recipient: '${_selectedNetwork!.name} Airtime',
-            description: _phoneController.text,
-            network: _selectedNetwork!.name,
-          );
-        } catch (_) {}
-        if (mounted) {
-          context.pushReplacement('/success',
-              extra: SuccessScreenProps(
-                transactionType: 'Airtime Purchase',
-                amount: _amountController.text,
-                recipient:
-                    '${_selectedNetwork!.name} - ${_phoneController.text}',
-              ));
-        }
-      },
+      submit: (pin, sourceAccount) =>
+          ref.read(billsApiServiceProvider).airtimeTopUp(AirtimeTopUpRequest(
+                sourceAccount: sourceAccount,
+                serviceProvider: network.name,
+                mobileNo: localMobileNumber(phone),
+                amount: double.tryParse(amountText.replaceAll(',', '')) ?? 0,
+                transactionPin: pin,
+              )),
+      successProps: (result) => SuccessScreenProps(
+        transactionType: 'Airtime Purchase',
+        amount: amountText,
+        recipient: '${network.name} - $phone',
+        transactionId: result.transactionReference,
+      ),
     );
   }
 
   void _buyData() {
     if (!_dataValid) return;
-    showPinConfirmSheet(
+    final network = _selectedNetwork!;
+    final plan = _selectedPlan!;
+    final phone = _phoneController.text;
+    runBillPurchase(
       context: context,
       summary: [
         {'label': 'Service', 'value': 'Data Bundle'},
-        {'label': 'Network', 'value': _selectedNetwork!.name},
-        {'label': 'Phone', 'value': _phoneController.text},
-        {'label': 'Plan', 'value': '${_selectedPlan!.data} — ${_selectedPlan!.validity}'},
-        {'label': 'Amount', 'value': '₦${_selectedPlan!.price}'},
+        {'label': 'Network', 'value': network.name},
+        {'label': 'Phone', 'value': phone},
+        {'label': 'Plan', 'value': '${plan.data} — ${plan.validity}'},
+        {'label': 'Amount', 'value': '₦${plan.price}'},
       ],
-      onConfirmed: (_) {
-        Navigator.pop(context);
-        if (mounted) {
-          context.pushReplacement('/success',
-              extra: SuccessScreenProps(
-                transactionType: 'Data Purchase',
-                amount: _selectedPlan!.price,
-                recipient:
-                    '${_selectedNetwork!.name} - ${_phoneController.text}',
-              ));
-        }
-      },
+      submit: (pin, sourceAccount) =>
+          ref.read(billsApiServiceProvider).purchaseData(DataPurchaseRequest(
+                sourceAccount: sourceAccount,
+                dataBundleId: plan.id,
+                mobileNo: localMobileNumber(phone),
+                transactionPin: pin,
+              )),
+      successProps: (result) => SuccessScreenProps(
+        transactionType: 'Data Purchase',
+        amount: plan.price,
+        recipient: '${network.name} - $phone',
+        transactionId: result.transactionReference,
+      ),
     );
   }
 
@@ -592,12 +595,17 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
             final net = e.value;
             final isSelected = _selectedNetwork?.id == net.id;
             final isLast = e.key == _networks.length - 1;
+            final netEnabled = _isNetworkAvailable(net);
             return Expanded(
+              child: Opacity(
+              opacity: netEnabled ? 1 : 0.35,
               child: GestureDetector(
-                onTap: () => setState(() {
-                  _selectedNetwork = net;
-                  _selectedPlan = null;
-                }),
+                onTap: netEnabled
+                    ? () => setState(() {
+                          _selectedNetwork = net;
+                          _selectedPlan = null;
+                        })
+                    : null,
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
                   margin: EdgeInsets.only(right: isLast ? 0 : 8),
@@ -625,6 +633,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
                     ],
                   ),
                 ),
+              ),
               ),
             );
           }).toList(),
@@ -700,9 +709,14 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
         onChanged: (_) => setState(() {}),
       ),
       const SizedBox(height: 20),
-      const BillDailyLimitCard(),
+      _limitCard(ref.watch(airtimeLimitProvider).valueOrNull),
     ];
   }
+
+  Widget _limitCard(UtilityLimitDto? limit) => BillDailyLimitCard(
+        dailyLimit: limit?.dailyLimit,
+        remaining: limit?.remainingLimit,
+      );
 
   // ── Data form ──────────────────────────────────────────────────────────────
 
@@ -732,7 +746,15 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
       ];
     }
 
-    final plans = _currentPlans;
+    final plansAsync = ref.watch(
+        dataPlansProvider((_selectedNetwork!.name, _planCategory.apiValue)));
+    final bundles = plansAsync.valueOrNull ?? const <DataBundleDto>[];
+    final plans = _filterPlans(
+        bundles.map((b) => DataPlan.fromBundle(b, _planCategory)).toList());
+    final isLoading = plansAsync.isLoading && !plansAsync.hasValue;
+    final limit = bundles.isEmpty
+        ? null
+        : ref.watch(billLimitProvider(bundles.first.billerCategoryId)).valueOrNull;
 
     return [
       _PlanSearchField(
@@ -748,7 +770,20 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
         }),
       ),
       const SizedBox(height: 16),
-      if (plans.isEmpty)
+      if (isLoading)
+        ...List.generate(
+          3,
+          (_) => Container(
+            height: 150,
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Theme.of(context).dividerColor),
+            ),
+          ),
+        )
+      else if (plans.isEmpty)
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 28),
           child: Center(
@@ -778,7 +813,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
           ),
         ),
       const SizedBox(height: 8),
-      const BillDailyLimitCard(),
+      _limitCard(limit),
     ];
   }
 
@@ -1149,8 +1184,9 @@ class _PlanDurationTabs extends StatelessWidget {
     PlanCategory.daily,
     PlanCategory.weekly,
     PlanCategory.monthly,
+    PlanCategory.yearly,
   ];
-  static const List<String> _labels = ['Daily', 'Weekly', 'Monthly'];
+  static const List<String> _labels = ['Daily', 'Weekly', 'Monthly', 'Yearly'];
 
   @override
   Widget build(BuildContext context) {

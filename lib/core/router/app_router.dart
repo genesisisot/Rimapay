@@ -26,6 +26,7 @@ import 'package:rimapay/features/flights/presentation/screens/flights_screen.dar
 import 'package:rimapay/features/government/presentation/screens/government_screen.dart';
 import 'package:rimapay/features/pension/presentation/screens/pension_screen.dart';
 import 'package:rimapay/features/pin_verification/presentation/screens/pin_verification_screen.dart';
+import 'package:rimapay/features/security/presentation/screens/reset_pin_screen.dart';
 import 'package:rimapay/features/profile/presentation/screens/residential_address_screen.dart';
 import 'package:rimapay/features/profile/presentation/screens/pep_declaration_screen.dart';
 import 'package:rimapay/features/profile/presentation/screens/source_of_income_screen.dart';
@@ -302,6 +303,14 @@ class AppRouter {
         path: '/account-limits',
         pageBuilder: (context, state) =>
             _fadePage(state, const AccountLimitsScreen()),
+      ),
+
+      // Transaction PIN reset (Profile → Security)
+      GoRoute(
+        path: '/security/reset-pin',
+        name: 'reset-pin',
+        pageBuilder: (context, state) =>
+            _fadePage(state, const ResetPinScreen()),
       ),
 
       // PIN Verification

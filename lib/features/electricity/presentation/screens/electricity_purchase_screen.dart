@@ -2,26 +2,57 @@ import 'package:flutter/material.dart';
 import 'package:rimapay/core/theme/app_colors.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
 import '../../../success/presentation/screens/success_screen.dart';
+import '../../../bills/data/bills_dtos.dart';
+import '../../../bills/presentation/providers/bills_providers.dart';
+import '../../../bills/presentation/widgets/bill_purchase_flow.dart';
 
 class ElectricityProvider {
   final String id;
+  final int billerId;
   final String name;
   final String shortName;
-  final String logo;
+
+  /// Bundled brand asset, when we have one for this disco.
+  final String? logo;
+  final String? logoUrl;
   final Color color;
   final Color bgColor;
 
   ElectricityProvider({
     required this.id,
+    required this.billerId,
     required this.name,
     required this.shortName,
-    required this.logo,
+    this.logo,
+    this.logoUrl,
     required this.color,
     required this.bgColor,
   });
+
+  static const _palette = [
+    (Color(0xFF3B82F6), Color(0xFFEBF8FF)),
+    (Color(0xFFF97316), Color(0xFFFFF7ED)),
+    (Color(0xFFEAB308), Color(0xFFFEFCE8)),
+    (Color(0xFF166C46), Color(0xFFF2F7F3)),
+    (Color(0xFF8B5CF6), Color(0xFFF3E8FF)),
+    (Color(0xFFD33B31), Color(0xFFFEF2F2)),
+  ];
+
+  factory ElectricityProvider.fromBiller(BillerDto b, int index) {
+    final colors = _palette[index % _palette.length];
+    return ElectricityProvider(
+      id: '${b.billerId}',
+      billerId: b.billerId,
+      name: b.name ?? b.displayName,
+      shortName: b.displayName,
+      logo: billerAssetFor(b),
+      logoUrl: b.logoUrl,
+      color: colors.$1,
+      bgColor: colors.$2,
+    );
+  }
 }
 
 enum MeterType { prepaid, postpaid }
@@ -40,9 +71,7 @@ class _ElectricityPurchaseScreenState
   ElectricityProvider? _selectedProvider;
   String _amount = '';
   String _meterNumber = '';
-  String _customerName = '';
   MeterType _meterType = MeterType.prepaid;
-  bool _isValidating = false;
 
   final _meterController = TextEditingController();
   final _customAmountController = TextEditingController();
@@ -52,57 +81,6 @@ class _ElectricityPurchaseScreenState
   late AnimationController _processingController;
 
   final List<String> _quickAmounts = ['1000', '2000', '5000', '10000'];
-
-  final List<ElectricityProvider> _electricityProviders = [
-    ElectricityProvider(
-      id: 'aedc',
-      name: 'Abuja Electricity Distribution Company',
-      shortName: 'AEDC',
-      logo: 'assets/images/AEDC.png',
-      color: const Color(0xFF3B82F6),
-      bgColor: const Color(0xFFEBF8FF),
-    ),
-    ElectricityProvider(
-      id: 'ekedc',
-      name: 'Eko Electricity Distribution Company',
-      shortName: 'EKEDC',
-      logo: 'assets/images/EKEDC.jpg',
-      color: const Color(0xFFF97316),
-      bgColor: const Color(0xFFFFF7ED),
-    ),
-    ElectricityProvider(
-      id: 'ikedc',
-      name: 'Ikeja Electric Distribution Company',
-      shortName: 'IKEDC',
-      logo: 'assets/images/IKEDC.jpg',
-      color: const Color(0xFFEAB308),
-      bgColor: const Color(0xFFFEFCE8),
-    ),
-    ElectricityProvider(
-      id: 'phed',
-      name: 'Port Harcourt Electricity Distribution',
-      shortName: 'PHED',
-      logo: 'assets/images/PHED.png',
-      color: const Color(0xFF166C46),
-      bgColor: const Color(0xFFF2F7F3),
-    ),
-    ElectricityProvider(
-      id: 'kedco',
-      name: 'Kano Electricity Distribution Company',
-      shortName: 'KEDCO',
-      logo: 'assets/images/KEDCO.png',
-      color: const Color(0xFF8B5CF6),
-      bgColor: const Color(0xFFF3E8FF),
-    ),
-    ElectricityProvider(
-      id: 'jedc',
-      name: 'Jos Electricity Distribution Company',
-      shortName: 'JEDC',
-      logo: 'assets/images/JEDC.png',
-      color: const Color(0xFFD33B31),
-      bgColor: const Color(0xFFFEF2F2),
-    ),
-  ];
 
   @override
   void initState() {
@@ -125,50 +103,93 @@ class _ElectricityPurchaseScreenState
     super.dispose();
   }
 
-  Future<void> _validateMeter() async {
-    if (_meterNumber.length < 10) return;
-    setState(() => _isValidating = true);
-    await Future.delayed(const Duration(milliseconds: 1500));
-    setState(() {
-      _customerName = 'John Adebayo Okafor';
-      _isValidating = false;
-    });
+  List<ElectricityProvider> get _providers {
+    final billers = ref
+            .read(billersByKindProvider(BillCategoryKind.electricity))
+            .valueOrNull
+            ?.billers ??
+        const <BillerDto>[];
+    return [
+      for (var i = 0; i < billers.length; i++)
+        ElectricityProvider.fromBiller(billers[i], i),
+    ];
   }
 
+  List<BillerItemDto> get _items => _selectedProvider == null
+      ? const []
+      : ref.read(billerItemsProvider(_selectedProvider!.billerId)).valueOrNull ??
+          const [];
+
+  /// Payment item matching the Prepaid/Postpaid toggle (first item as fallback).
+  BillerItemDto? get _selectedItem {
+    final items = _items;
+    if (items.isEmpty) return null;
+    final key = _meterType == MeterType.prepaid ? 'prepaid' : 'postpaid';
+    for (final item in items) {
+      if ((item.name ?? '').toLowerCase().contains(key)) return item;
+    }
+    return items.first;
+  }
+
+  double get _amountValue => double.tryParse(_amount.replaceAll(',', '')) ?? 0;
+
   bool get _isFormValid =>
-      _meterNumber.length >= 10 &&
-      _amount.isNotEmpty &&
       _selectedProvider != null &&
-      _customerName.isNotEmpty;
+      _selectedItem != null &&
+      _meterNumber.length >= 10 &&
+      _amountValue > 0;
 
   void _handleNext() {
-    showPinConfirmSheet(
+    final provider = _selectedProvider;
+    final item = _selectedItem;
+    if (!_isFormValid || provider == null || item == null) return;
+    final meter = _meterNumber;
+    final amountText = _amount;
+    final amount = _amountValue;
+    runBillPurchase(
       context: context,
       summary: [
         {'label': 'Service', 'value': 'Electricity Bill'},
-        if (_selectedProvider != null) {'label': 'Provider', 'value': _selectedProvider!.shortName},
-        if (_meterNumber.isNotEmpty) {'label': 'Meter', 'value': _meterNumber},
-        if (_customerName.isNotEmpty) {'label': 'Customer', 'value': _customerName},
-        {'label': 'Amount', 'value': '₦$_amount'},
+        {'label': 'Provider', 'value': provider.shortName},
+        {'label': 'Meter', 'value': meter},
+        {
+          'label': 'Type',
+          'value': item.name ?? (_meterType == MeterType.prepaid ? 'Prepaid' : 'Postpaid'),
+        },
+        {'label': 'Amount', 'value': '₦$amountText'},
       ],
-      onConfirmed: (_) {
-        Navigator.pop(context);
-        context.pushReplacement('/success', extra: SuccessScreenProps(
-          transactionType: 'Electricity Bill',
-          amount: _amount,
-          recipient: '${_selectedProvider?.shortName} – $_meterNumber',
-        ));
-      },
+      submit: (pin, sourceAccount) =>
+          ref.read(billsApiServiceProvider).payBill(BillPaymentRequest(
+                sourceAccount: sourceAccount,
+                billerId: provider.billerId,
+                billerItemId: item.billerItemId,
+                customerId: meter,
+                amount: amount,
+                transactionPin: pin,
+              )),
+      successProps: (result) => SuccessScreenProps(
+        transactionType: 'Electricity Bill',
+        amount: amountText,
+        recipient: '${provider.shortName} – $meter',
+        transactionId: result.transactionReference,
+      ),
     );
   }
 
   void _showProviderSheet() {
+    if (ref.read(billersByKindProvider(BillCategoryKind.electricity)).isLoading) return;
+    final providers = _providers;
+    if (providers.isEmpty) {
+      refreshBillers(ref, BillCategoryKind.electricity);
+      showBillError(context, 'No providers available right now. Retrying…');
+      return;
+    }
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => _ProviderSheet(
-        providers: _electricityProviders,
+        providers: providers,
         selected: _selectedProvider,
         onSelect: (p) {
           setState(() => _selectedProvider = p);
@@ -180,6 +201,16 @@ class _ElectricityPurchaseScreenState
 
   @override
   Widget build(BuildContext context) {
+    final billersAsync =
+        ref.watch(billersByKindProvider(BillCategoryKind.electricity));
+    final categoryId = billersAsync.valueOrNull?.categoryId;
+    final limit = categoryId == null
+        ? null
+        : ref.watch(billLimitProvider(categoryId)).valueOrNull;
+    if (_selectedProvider != null) {
+      ref.watch(billerItemsProvider(_selectedProvider!.billerId));
+    }
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Column(
@@ -202,7 +233,9 @@ class _ElectricityPurchaseScreenState
 
                   // ── Provider dropdown ──
                   _DropdownField(
-                    label: 'Choose Provider',
+                    label: billersAsync.isLoading
+                        ? 'Loading providers…'
+                        : 'Choose Provider',
                     value: _selectedProvider?.name,
                     leadingLogo: _selectedProvider?.logo,
                     onTap: _showProviderSheet,
@@ -237,64 +270,8 @@ class _ElectricityPurchaseScreenState
                     hint: 'Enter 11-digit meter number',
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    onChanged: (v) {
-                      setState(() {
-                        _meterNumber = v;
-                        if (_customerName.isNotEmpty) _customerName = '';
-                      });
-                      if (v.length >= 10 && _customerName.isEmpty && !_isValidating) {
-                        _validateMeter();
-                      }
-                    },
-                    suffix: _isValidating
-                        ? const Padding(
-                            padding: EdgeInsets.only(right: 4),
-                            child: SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation(AppColors.goldPrimary),
-                              ),
-                            ),
-                          )
-                        : null,
+                    onChanged: (v) => setState(() => _meterNumber = v),
                   ),
-
-                  // ── Validated customer banner ──
-                  if (_customerName.isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: AppColors.goldPrimary.withOpacity(0.3)),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.check_circle_rounded,
-                              color: AppColors.goldPrimary, size: 16),
-                          const SizedBox(width: 8),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('Meter Verified',
-                                  style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                      color: Color(0xFF065F46))),
-                              Text(_customerName,
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: Color(0xFF0E5C37))),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
 
                   const SizedBox(height: 24),
 
@@ -373,7 +350,10 @@ class _ElectricityPurchaseScreenState
                   ),
 
                   const SizedBox(height: 20),
-                  const BillDailyLimitCard(),
+                  BillDailyLimitCard(
+                    dailyLimit: limit?.dailyLimit,
+                    remaining: limit?.remainingLimit,
+                  ),
                   const SizedBox(height: 100),
                 ],
               ),
@@ -457,18 +437,35 @@ class _ProviderSheet extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                   child: Row(
                     children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                            image: AssetImage(p.logo),
-                            fit: BoxFit.cover,
+                      Builder(builder: (context) {
+                        final image = billerImage(asset: p.logo, url: p.logoUrl);
+                        return Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: image == null
+                                ? null
+                                : DecorationImage(
+                                    image: image,
+                                    fit: BoxFit.cover,
+                                    onError: (_, __) {},
+                                  ),
+                            color: Theme.of(context).brightness == Brightness.dark ? p.color.withOpacity(0.15) : p.bgColor,
                           ),
-                          color: Theme.of(context).brightness == Brightness.dark ? p.color.withOpacity(0.15) : p.bgColor,
-                        ),
-                      ),
+                          child: image == null
+                              ? Center(
+                                  child: Text(
+                                    billerInitials(p.shortName),
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
+                                        color: p.color),
+                                  ),
+                                )
+                              : null,
+                        );
+                      }),
                       const SizedBox(width: 14),
                       Expanded(
                         child: Column(
@@ -685,7 +682,7 @@ class _EFloatingField extends StatefulWidget {
   final TextInputType keyboardType;
   final List<TextInputFormatter>? inputFormatters;
   final void Function(String)? onChanged;
-  final Widget? suffix;
+  final Widget? suffix = null;
 
   const _EFloatingField({
     required this.controller,
@@ -695,7 +692,6 @@ class _EFloatingField extends StatefulWidget {
     required this.keyboardType,
     this.inputFormatters,
     this.onChanged,
-    this.suffix,
   });
 
   @override

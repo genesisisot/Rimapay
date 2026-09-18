@@ -1,103 +1,117 @@
 import 'package:flutter/material.dart';
 import 'package:rimapay/core/theme/app_colors.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
 import '../../../success/presentation/screens/success_screen.dart';
+import '../../../bills/data/bills_dtos.dart';
+import '../../../bills/presentation/providers/bills_providers.dart';
+import '../../../bills/presentation/widgets/bill_purchase_flow.dart';
 
 class _GovService {
   final String id;
+  final int billerId;
   final String name;
   final String agency;
   final String description;
   final String refLabel;
   final String refHint;
-  final int? fixedAmount;
+
+  /// Always null in the picker; the real fixed fee comes from the biller's item.
+  final int? fixedAmount = null;
   final Color color;
   final IconData icon;
 
   const _GovService({
-    required this.id, required this.name, required this.agency,
+    required this.id, required this.billerId, required this.name, required this.agency,
     required this.description, required this.refLabel, required this.refHint,
-    this.fixedAmount, required this.color, required this.icon,
+    required this.color, required this.icon,
   });
+
+  static const _colors = [
+    Color(0xFF1D4ED8), Color(0xFF0E5C37), Color(0xFF7C3AED), Color(0xFFD97706),
+    Color(0xFF0891B2), Color(0xFFBE185D), Color(0xFF16A34A), Color(0xFF9333EA),
+  ];
+  static const _icons = [
+    Icons.account_balance_outlined, Icons.person_outline_rounded,
+    Icons.directions_car_outlined, Icons.badge_outlined, Icons.fingerprint_rounded,
+    Icons.business_outlined, Icons.health_and_safety_outlined, Icons.home_work_outlined,
+  ];
+
+  factory _GovService.fromBiller(BillerDto b, int index) {
+    final label = (b.customerField1?.trim().isNotEmpty ?? false)
+        ? b.customerField1!.trim()
+        : 'Reference Number';
+    return _GovService(
+      id: '${b.billerId}',
+      billerId: b.billerId,
+      name: b.name ?? b.displayName,
+      agency: b.displayName,
+      description: b.narration ?? b.categoryName ?? '',
+      refLabel: label,
+      refHint: 'Enter ${label.toLowerCase()}',
+      color: _colors[index % _colors.length],
+      icon: _icons[index % _icons.length],
+    );
+  }
 }
 
-class GovernmentScreen extends StatefulWidget {
+class GovernmentScreen extends ConsumerStatefulWidget {
   const GovernmentScreen({super.key});
 
   @override
-  State<GovernmentScreen> createState() => _GovernmentScreenState();
+  ConsumerState<GovernmentScreen> createState() => _GovernmentScreenState();
 }
 
-class _GovernmentScreenState extends State<GovernmentScreen> {
+class _GovernmentScreenState extends ConsumerState<GovernmentScreen> {
   _GovService? _selectedService;
   final _refController = TextEditingController();
   final _amountController = TextEditingController();
   final _refFocus = FocusNode();
   final _amountFocus = FocusNode();
 
-  final List<_GovService> _services = const [
-    _GovService(
-      id: 'firs_tax', name: 'Company Income Tax', agency: 'FIRS',
-      description: 'Federal Inland Revenue Service', refLabel: 'TIN / Tax Reference',
-      refHint: 'Enter your TIN number', color: Color(0xFF1D4ED8), icon: Icons.account_balance_outlined,
-    ),
-    _GovService(
-      id: 'lirs_tax', name: 'Personal Income Tax', agency: 'LIRS',
-      description: 'Lagos Internal Revenue Service', refLabel: 'LIRS Tax ID',
-      refHint: 'Enter your LIRS ID', color: Color(0xFF0E5C37), icon: Icons.person_outline_rounded,
-    ),
-    _GovService(
-      id: 'vehicle_reg', name: 'Vehicle Registration', agency: 'FRSC',
-      description: 'Federal Road Safety Corps', refLabel: 'Plate Number / Chassis No.',
-      refHint: 'e.g. ABC-123-EF or VIN', fixedAmount: 15000,
-      color: Color(0xFF7C3AED), icon: Icons.directions_car_outlined,
-    ),
-    _GovService(
-      id: 'drivers_license', name: "Driver's License Renewal", agency: 'FRSC',
-      description: 'Federal Road Safety Corps', refLabel: "Driver's License Number",
-      refHint: 'e.g. AAA00000000001', fixedAmount: 10000,
-      color: Color(0xFFD97706), icon: Icons.badge_outlined,
-    ),
-    _GovService(
-      id: 'nin_slip', name: 'NIN Slip Reprint', agency: 'NIMC',
-      description: 'National Identity Management Commission', refLabel: 'NIN Number',
-      refHint: 'Your 11-digit NIN', fixedAmount: 500,
-      color: Color(0xFF0891B2), icon: Icons.fingerprint_rounded,
-    ),
-    _GovService(
-      id: 'cac_search', name: 'CAC Name Search', agency: 'CAC',
-      description: 'Corporate Affairs Commission', refLabel: 'Company / Business Name',
-      refHint: 'Name to search', fixedAmount: 500,
-      color: Color(0xFFBE185D), icon: Icons.business_outlined,
-    ),
-    _GovService(
-      id: 'nhis', name: 'NHIS Contribution', agency: 'NHIS',
-      description: 'National Health Insurance Scheme', refLabel: 'NHIS Number',
-      refHint: 'Your NHIS ID', color: Color(0xFF16A34A), icon: Icons.health_and_safety_outlined,
-    ),
-    _GovService(
-      id: 'land_use', name: 'Land Use Charge', agency: 'LAGREV',
-      description: 'Lagos State Internal Revenue', refLabel: 'Property / Bill Reference',
-      refHint: 'LUC bill reference number', color: Color(0xFF9333EA), icon: Icons.home_work_outlined,
-    ),
-  ];
+  List<_GovService> get _services {
+    final billers =
+        ref.read(billersByKindProvider(BillCategoryKind.government)).valueOrNull?.billers ??
+            const <BillerDto>[];
+    return [
+      for (var i = 0; i < billers.length; i++) _GovService.fromBiller(billers[i], i),
+    ];
+  }
+
+  /// The biller's payment item (government billers expose a single item).
+  BillerItemDto? get _selectedItem {
+    final svc = _selectedService;
+    if (svc == null) return null;
+    final items = ref.read(billerItemsProvider(svc.billerId)).valueOrNull ?? const [];
+    return items.isEmpty ? null : items.first;
+  }
+
+  int? get _fixedAmount {
+    final item = _selectedItem;
+    return (item != null && item.isAmountFixed && item.amount > 0) ? item.amount.round() : null;
+  }
 
   bool get _isFormValid {
     final refOk = _refController.text.trim().length >= 4;
-    if (_selectedService?.fixedAmount != null) return _selectedService != null && refOk;
-    return _selectedService != null && refOk &&
-        _amountController.text.isNotEmpty &&
-        (double.tryParse(_amountController.text) ?? 0) >= 100;
+    if (_selectedService == null || _selectedItem == null || !refOk) return false;
+    if (_fixedAmount != null) return true;
+    return (double.tryParse(_amountController.text.replaceAll(',', '')) ?? 0) >= 100;
   }
 
   String get _displayAmount {
-    if (_selectedService?.fixedAmount != null) return _selectedService!.fixedAmount!.toString();
+    if (_fixedAmount != null) return _fixedAmount!.toString();
     return _amountController.text;
   }
 
   void _openServiceSheet() {
+    if (ref.read(billersByKindProvider(BillCategoryKind.government)).isLoading) return;
+    final services = _services;
+    if (services.isEmpty) {
+      refreshBillers(ref, BillCategoryKind.government);
+      showBillError(context, 'No government services available right now. Retrying…');
+      return;
+    }
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -125,9 +139,9 @@ class _GovernmentScreenState extends State<GovernmentScreen> {
                 child: ListView.builder(
                   controller: ctrl,
                   padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
-                  itemCount: _services.length,
+                  itemCount: services.length,
                   itemBuilder: (_, i) {
-                    final svc = _services[i];
+                    final svc = services[i];
                     final isSelected = _selectedService?.id == svc.id;
                     return GestureDetector(
                       onTap: () {
@@ -188,23 +202,37 @@ class _GovernmentScreenState extends State<GovernmentScreen> {
   }
 
   void _handleNext() {
-    if (!_isFormValid) return;
-    showPinConfirmSheet(
+    final svc = _selectedService;
+    final item = _selectedItem;
+    if (!_isFormValid || svc == null || item == null) return;
+    final reference = _refController.text.trim();
+    final fixed = _fixedAmount;
+    final amountText = _displayAmount;
+    runBillPurchase(
       context: context,
       summary: [
-        {'label': 'Service', 'value': _selectedService!.name},
-        {'label': 'Agency', 'value': '${_selectedService!.agency} – ${_selectedService!.description}'},
-        {'label': _selectedService!.refLabel, 'value': _refController.text},
-        {'label': 'Amount', 'value': '₦$_displayAmount'},
+        {'label': 'Service', 'value': svc.name},
+        {'label': 'Agency', 'value': svc.description.isEmpty ? svc.agency : '${svc.agency} – ${svc.description}'},
+        {'label': svc.refLabel, 'value': reference},
+        {'label': 'Amount', 'value': '₦$amountText'},
       ],
-      onConfirmed: (_) {
-        Navigator.pop(context);
-        context.pushReplacement('/success', extra: SuccessScreenProps(
-          transactionType: _selectedService!.name,
-          amount: _displayAmount,
-          recipient: '${_selectedService!.agency} – ${_refController.text}',
-        ));
-      },
+      submit: (pin, sourceAccount) =>
+          ref.read(billsApiServiceProvider).payBill(BillPaymentRequest(
+                sourceAccount: sourceAccount,
+                billerId: svc.billerId,
+                billerItemId: item.billerItemId,
+                customerId: reference,
+                amount: fixed != null
+                    ? null
+                    : double.tryParse(amountText.replaceAll(',', '')),
+                transactionPin: pin,
+              )),
+      successProps: (result) => SuccessScreenProps(
+        transactionType: svc.name,
+        amount: amountText,
+        recipient: '${svc.agency} – $reference',
+        transactionId: result.transactionReference,
+      ),
     );
   }
 
@@ -219,6 +247,10 @@ class _GovernmentScreenState extends State<GovernmentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final billersAsync = ref.watch(billersByKindProvider(BillCategoryKind.government));
+    final itemsLoading = _selectedService != null &&
+        ref.watch(billerItemsProvider(_selectedService!.billerId)).isLoading;
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Column(
@@ -260,7 +292,7 @@ class _GovernmentScreenState extends State<GovernmentScreen> {
                   _SelectorTile(
                     label: 'Government Service',
                     value: _selectedService == null ? null : '${_selectedService!.name} (${_selectedService!.agency})',
-                    hint: 'Select a service to pay',
+                    hint: billersAsync.isLoading ? 'Loading services…' : 'Select a service to pay',
                     icon: _selectedService?.icon ?? Icons.account_balance_outlined,
                     iconColor: _selectedService?.color ?? Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
                     onTap: _openServiceSheet,
@@ -285,7 +317,10 @@ class _GovernmentScreenState extends State<GovernmentScreen> {
                     const SizedBox(height: 16),
 
                     // Amount — fixed or user-entered
-                    if (_selectedService!.fixedAmount != null) ...[
+                    if (itemsLoading) ...[
+                      Text('Loading payment details…',
+                          style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5))),
+                    ] else if (_fixedAmount != null) ...[
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
@@ -301,7 +336,7 @@ class _GovernmentScreenState extends State<GovernmentScreen> {
                             Expanded(
                               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                                 Text('Payment Amount', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
-                                Text('₦${_selectedService!.fixedAmount}',
+                                Text('₦${_fixedAmount}',
                                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF166C46))),
                               ]),
                             ),

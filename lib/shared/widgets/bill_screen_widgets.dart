@@ -365,10 +365,27 @@ class BillPaginationDots extends StatelessWidget {
 class BillDailyLimitCard extends StatelessWidget {
   final double usagePercent;
 
-  const BillDailyLimitCard({super.key, this.usagePercent = 0.0});
+  /// Live limit from the bills API. When null the card keeps its default figures.
+  final double? dailyLimit;
+  final double? remaining;
+
+  const BillDailyLimitCard({
+    super.key,
+    this.usagePercent = 0.0,
+    this.dailyLimit,
+    this.remaining,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final money = NumberFormat('#,##0.00');
+    final hasLive = dailyLimit != null && remaining != null;
+    final percent = hasLive && dailyLimit! > 0
+        ? ((dailyLimit! - remaining!) / dailyLimit!).clamp(0.0, 1.0)
+        : usagePercent;
+    final totalText = hasLive ? '₦${money.format(dailyLimit)}' : '₦50,000.00';
+    final availableText = hasLive ? '₦${money.format(remaining)}' : '₦50,000.00';
+
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -390,7 +407,7 @@ class BillDailyLimitCard extends StatelessWidget {
                 ),
               ),
               Text(
-                '${(usagePercent * 100).toStringAsFixed(1)}%',
+                '${(percent * 100).toStringAsFixed(1)}%',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -403,7 +420,7 @@ class BillDailyLimitCard extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(999),
             child: LinearProgressIndicator(
-              value: usagePercent,
+              value: percent,
               minHeight: 4,
               backgroundColor: Theme.of(context).dividerColor,
               valueColor:
@@ -433,7 +450,7 @@ class BillDailyLimitCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '₦50,000.00',
+                        totalText,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
                           fontSize: 12,
@@ -465,7 +482,7 @@ class BillDailyLimitCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '₦50,000.00',
+                        availableText,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.primary,
                           fontSize: 12,
