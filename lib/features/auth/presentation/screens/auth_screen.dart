@@ -761,9 +761,11 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                       ),
                       const SizedBox(height: 28),
 
-                      // Account-linking shortcuts — big thumb-friendly tiles.
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      // Account-linking shortcuts — big thumb-friendly tiles,
+                      // always equal height even when one label wraps.
+                      IntrinsicHeight(
+                        child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Expanded(
                             child: _LoginShortcutTile(
@@ -783,6 +785,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                             ),
                           ),
                         ],
+                      ),
                       ),
                       const SizedBox(height: 24),
 
