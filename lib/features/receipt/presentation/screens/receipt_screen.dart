@@ -1,19 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'dart:io';
-import 'dart:typed_data';
-import 'package:path_provider/path_provider.dart';
 import 'package:rimapay/core/router/app_router.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
 import '../../../../core/providers/app_state_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/localization/app_localizations.dart';
 import '../../../../shared/widgets/rimapay_logo.dart';
+import '../../../../shared/receipt/receipt_pdf.dart';
 
 class ReceiptScreen extends StatefulWidget {
   final ReceiptData receiptData;
@@ -195,152 +191,38 @@ www.rimapay.com
     ''';
   }
 
-  Future<Uint8List> _generatePDFReceipt() async {
-    final pdf = pw.Document();
-    final statusConfig = _getStatusConfig(widget.receiptData.status);
-
-    pdf.addPage(
-      pw.Page(
-        pageFormat: const PdfPageFormat(80 * PdfPageFormat.mm, 120 * PdfPageFormat.mm),
-        build: (pw.Context context) {
-          return pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.center,
-            children: [
-              // Header
-              pw.Text(
-                'RIMAPAY',
-                style: pw.TextStyle(
-                  fontSize: 12,
-                  fontWeight: pw.FontWeight.bold,
-                ),
-              ),
-              pw.SizedBox(height: 4),
-              pw.Text(
-                'Transaction Receipt',
-                style: const pw.TextStyle(fontSize: 8),
-              ),
-              pw.SizedBox(height: 8),
-              pw.Divider(),
-              pw.SizedBox(height: 8),
-
-              // Transaction Details
-              pw.Align(
-                alignment: pw.Alignment.centerLeft,
-                child: pw.Text(
-                  'TRANSACTION DETAILS',
-                  style: pw.TextStyle(
-                    fontSize: 8,
-                    fontWeight: pw.FontWeight.bold,
-                  ),
-                ),
-              ),
-              pw.SizedBox(height: 8),
-
-              // Details rows
-              ...([
-                ['Type:', widget.receiptData.type],
-                ['Amount:', _formatAmount(widget.receiptData.amount)],
-                ['Recipient:', widget.receiptData.recipient],
-                ['Reference:', widget.receiptData.reference],
-                ['Date:', widget.receiptData.date],
-                ['Time:', widget.receiptData.time],
-                ['Status:', statusConfig['label']],
-                if (widget.receiptData.network != null) ['Network:', widget.receiptData.network!],
-                if (widget.receiptData.plan != null) ['Plan:', widget.receiptData.plan!],
-                if (widget.receiptData.customer != null) ['Customer:', widget.receiptData.customer!],
-                if (widget.receiptData.provider != null) ['Provider:', widget.receiptData.provider!],
-                if (widget.receiptData.accountNumber != null) ['Account:', widget.receiptData.accountNumber!],
-                if (widget.receiptData.bank != null) ['Bank:', widget.receiptData.bank!],
-                if (widget.receiptData.fee != null) ['Fee:', _formatAmount(widget.receiptData.fee!)],
-              ]
-                  .map((detail) => pw.Padding(
-                        padding: const pw.EdgeInsets.symmetric(vertical: 1),
-                        child: pw.Row(
-                          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                          children: [
-                            pw.Text(detail[0], style: const pw.TextStyle(fontSize: 8)),
-                            pw.Flexible(
-                              child: pw.Text(
-                                detail[1],
-                                style: const pw.TextStyle(fontSize: 8),
-                                textAlign: pw.TextAlign.right,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ))
-                  .toList()),
-
-              pw.SizedBox(height: 8),
-              pw.Divider(),
-              pw.SizedBox(height: 8),
-
-              // Footer
-              pw.Text(
-                'Thank you for using RimaPay',
-                style: const pw.TextStyle(fontSize: 7),
-              ),
-              pw.SizedBox(height: 2),
-              pw.Text(
-                'support@rimapay.com',
-                style: const pw.TextStyle(fontSize: 7),
-              ),
-              pw.SizedBox(height: 2),
-              pw.Text(
-                'www.rimapay.com',
-                style: const pw.TextStyle(fontSize: 7),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-
-    return pdf.save();
-  }
-
+  /// Styled PDF via the share sheet (Save to Files/Downloads, WhatsApp…);
+  /// downloads on web. Replaces the old save into the hidden app folder.
   Future<void> _downloadReceipt() async {
+    final d = widget.receiptData;
+    final status = _getStatusConfig(d.status)['label']?.toString() ?? 'Successful';
     try {
-      final pdfData = await _generatePDFReceipt();
-      final directory = await getApplicationDocumentsDirectory();
-      final file = File('${directory.path}/RimaPay-Receipt-${widget.receiptData.reference}.pdf');
-      await file.writeAsBytes(pdfData);
-
+      await shareReceiptPdf(ReceiptPdfData(
+        title: d.type,
+        amount: d.amount,
+        status: status,
+        reference: d.reference,
+        dateText: '${d.date}, ${d.time}',
+        details: [
+          MapEntry('Transaction', d.type),
+          MapEntry('Recipient', d.recipient),
+          if (d.network != null) MapEntry('Network', d.network!),
+          if (d.plan != null) MapEntry('Plan', d.plan!),
+          if (d.customer != null) MapEntry('Customer', d.customer!),
+          if (d.provider != null) MapEntry('Provider', d.provider!),
+          if (d.accountNumber != null) MapEntry('Account', d.accountNumber!),
+          if (d.bank != null) MapEntry('Bank', d.bank!),
+          if (d.fee != null) MapEntry('Fee', _formatAmount(d.fee!)),
+        ],
+      ));
+    } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Receipt saved to ${file.path}'),
+          const SnackBar(
+            content: Text("Couldn't create the receipt. Please try again."),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
         );
-      }
-    } catch (error) {
-      // Fallback to text file
-      try {
-        final receiptContent = _generateReceiptContent();
-        final directory = await getApplicationDocumentsDirectory();
-        final file = File('${directory.path}/RimaPay-Receipt-${widget.receiptData.reference}.txt');
-        await file.writeAsString(receiptContent);
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Receipt saved as text file to ${file.path}'),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Failed to save receipt'),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        }
       }
     }
   }

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../services/storage_service.dart';
 import '../services/biometric_service.dart';
+import '../network/dio_client.dart';
+import '../services/secure_store.dart';
 import '../../features/auth/data/auth_api_service.dart';
 import '../../features/auth/data/auth_dtos.dart';
 import '../network/api_response.dart';
@@ -290,6 +292,9 @@ class AuthProvider extends ChangeNotifier {
           bvnVerified: false,
         );
         await StorageService.saveUser(_user!);
+        if (await SecureStore.isBiometricLoginEnabled()) {
+          await SecureStore.saveBiometricUser(_user!.toJson());
+        }
         unawaited(fetchAccounts());
         return true;
       }
@@ -521,6 +526,39 @@ class AuthProvider extends ChangeNotifier {
     _pinCreated = true;
     await StorageService.clearUser();
     notifyListeners();
+  }
+
+  /// Biometric login: once the fingerprint check has passed, restores the
+  /// last signed-in user and refreshes the saved session — no password needed.
+  Future<bool> loginWithBiometrics() async {
+    _error = null;
+    final snapshot = await SecureStore.getBiometricUser();
+    final refresh = await StorageService.getRefreshToken();
+    if (snapshot == null || refresh == null || refresh.isEmpty) {
+      _error = 'Sign in with your password once to use biometric login.';
+      return false;
+    }
+
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final ok = await DioClient.instance.refreshSession();
+      if (!ok) {
+        _error = 'Your session has expired. Please sign in with your password.';
+        return false;
+      }
+      _user = User.fromJson(snapshot);
+      _pinCreated = true;
+      await StorageService.saveUser(_user!);
+      unawaited(fetchAccounts());
+      return true;
+    } catch (_) {
+      _error = 'Biometric login failed. Please sign in with your password.';
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   /// DELETE /api/auth/delete-account

@@ -6,6 +6,9 @@ import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'noise_painter.dart';
 import '../../core/providers/auth_provider.dart';
+import '../../core/services/biometric_service.dart';
+import '../../core/services/secure_store.dart';
+import '../../core/Utils/haptics.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme_colors.dart';
 
@@ -912,6 +915,8 @@ void showPinConfirmSheet({
   required BuildContext context,
   required List<Map<String, String>> summary,
   required void Function(String pin) onConfirmed,
+  String title = 'Confirm Transaction',
+  bool allowBiometric = true,
 }) {
   showModalBottomSheet(
     context: context,
@@ -920,6 +925,8 @@ void showPinConfirmSheet({
     builder: (_) => _PinConfirmSheet(
       summary: summary,
       onConfirmed: onConfirmed,
+      title: title,
+      allowBiometric: allowBiometric,
     ),
   );
 }
@@ -927,10 +934,16 @@ void showPinConfirmSheet({
 class _PinConfirmSheet extends StatefulWidget {
   final List<Map<String, String>> summary;
   final void Function(String pin) onConfirmed;
+  final String title;
+
+  /// Offer "Pay with Biometrics" (only shown if enabled in Profile › Security).
+  final bool allowBiometric;
 
   const _PinConfirmSheet({
     required this.summary,
     required this.onConfirmed,
+    this.title = 'Confirm Transaction',
+    this.allowBiometric = true,
   });
 
   @override
@@ -940,8 +953,42 @@ class _PinConfirmSheet extends StatefulWidget {
 class _PinConfirmSheetState extends State<_PinConfirmSheet> {
   String _pin = '';
   static const int _pinLength = 4;
+  bool _bioAvailable = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.allowBiometric) _checkBiometric();
+  }
+
+  Future<void> _checkBiometric() async {
+    final enabled = await SecureStore.isBiometricTxnEnabled();
+    final available = enabled && await BiometricService.isAvailable();
+    if (mounted && available) setState(() => _bioAvailable = true);
+  }
+
+  Future<void> _payWithBiometrics() async {
+    Haptics.press();
+    final result =
+        await BiometricService.authenticateWithResult('Confirm this transaction');
+    if (!mounted) return;
+    if (result != AuthResult.success) {
+      if (result != AuthResult.cancelled) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(BiometricService.getAuthResultMessage(result)),
+          behavior: SnackBarBehavior.floating,
+        ));
+      }
+      return;
+    }
+    final storedPin = await SecureStore.getTransactionPin();
+    if (storedPin == null || !mounted) return;
+    setState(() => _pin = '•' * _pinLength);
+    widget.onConfirmed(storedPin);
+  }
 
   void _onKey(String digit) {
+    Haptics.tap();
     if (_pin.length < _pinLength) {
       setState(() => _pin += digit);
       if (_pin.length == _pinLength) {
@@ -953,6 +1000,7 @@ class _PinConfirmSheetState extends State<_PinConfirmSheet> {
   }
 
   void _onDelete() {
+    Haptics.tap();
     if (_pin.isNotEmpty) setState(() => _pin = _pin.substring(0, _pin.length - 1));
   }
 
@@ -981,7 +1029,7 @@ class _PinConfirmSheetState extends State<_PinConfirmSheet> {
           ),
 
           Text(
-            'Confirm Transaction',
+            widget.title,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -1060,11 +1108,10 @@ class _PinConfirmSheetState extends State<_PinConfirmSheet> {
 
           const SizedBox(height: 20),
 
-          // Biometrics option
+          // Biometrics option (only when enabled in Profile › Security)
+          if (_bioAvailable)
           GestureDetector(
-            onTap: () {
-              // Biometrics placeholder
-            },
+            onTap: _payWithBiometrics,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

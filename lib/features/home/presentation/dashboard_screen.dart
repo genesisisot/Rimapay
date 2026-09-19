@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/transaction_provider.dart';
+import '../../../core/Utils/haptics.dart';
 import '../../../shared/widgets/rimapay_logo.dart';
 
 const Color brandGreen = Color(0xFF1A6B35);
@@ -494,7 +495,13 @@ class _BalanceCardState extends State<_BalanceCard> {
                     ],
                   ),
                 ),
-                Container(
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    Haptics.tap();
+                    context.push('/account-details');
+                  },
+                  child: Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                   decoration: BoxDecoration(
@@ -513,6 +520,7 @@ class _BalanceCardState extends State<_BalanceCard> {
                       Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5), size: 16),
                     ],
                   ),
+                ),
                 ),
               ],
             ),
@@ -540,7 +548,10 @@ class _ActionButtons extends StatelessWidget {
         children: [
           Expanded(
             child: GestureDetector(
-              onTap: () => context.push('/transfer'),
+              onTap: () {
+                Haptics.press();
+                context.push('/transfer');
+              },
               child: Container(
                 height: 70,
                 margin: const EdgeInsets.only(right: 8),
@@ -574,7 +585,10 @@ class _ActionButtons extends StatelessWidget {
           ),
           Expanded(
             child: GestureDetector(
-              onTap: () => context.push('/add-money'),
+              onTap: () {
+                Haptics.press();
+                context.push('/add-money');
+              },
               child: Container(
                 height: 70,
                 margin: const EdgeInsets.only(left: 8),
@@ -651,12 +665,12 @@ class _QuickServices extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           GridView.count(
-            crossAxisCount: 4,
+            crossAxisCount: 3,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
-            childAspectRatio: 0.85,
+            childAspectRatio: 1.1,
             children: [
               _QuickServiceTile(
                 icon: Icons.phone_android,
@@ -694,25 +708,12 @@ class _QuickServices extends StatelessWidget {
                 route: '/education-bills',
               ),
               _QuickServiceTile(
-                icon: Icons.phone_android,
-                label: 'Airtime Cash',
-                iconBgColor: const Color(0xFFE8F5ED),
-                iconColor: brandGreen,
-                route: '/airtime-to-cash',
-              ),
-              _QuickServiceTile(
-                icon: Icons.savings_outlined,
-                label: 'Fixed Dep.',
-                iconBgColor: const Color(0xFFFFF3E0),
-                iconColor: const Color(0xFFE65100),
-                route: '/fixed-deposit',
-              ),
-              _QuickServiceTile(
                 icon: Icons.credit_card_outlined,
                 label: 'My Card',
                 iconBgColor: const Color(0xFFE8EAF6),
                 iconColor: const Color(0xFF3949AB),
                 route: '/cards',
+                comingSoon: true,
               ),
             ],
           ),
@@ -729,12 +730,16 @@ class _QuickServiceTile extends StatelessWidget {
   final Color iconColor;
   final String route;
 
+  /// Shows a "coming soon" message instead of opening [route].
+  final bool comingSoon;
+
   const _QuickServiceTile({
     required this.icon,
     required this.label,
     required this.iconBgColor,
     required this.iconColor,
     required this.route,
+    this.comingSoon = false,
   });
 
   @override
@@ -745,7 +750,22 @@ class _QuickServiceTile extends StatelessWidget {
     final iconBg = isDark ? iconColor.withOpacity(0.15) : iconBgColor;
 
     return GestureDetector(
-      onTap: () => context.push(route),
+      onTap: () {
+        Haptics.tap();
+        if (comingSoon) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('$label is coming soon!'),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: const Color(0xFF1A3A6B),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+          );
+          return;
+        }
+        context.push(route);
+      },
       behavior: HitTestBehavior.opaque,
       child: Container(
         decoration: BoxDecoration(

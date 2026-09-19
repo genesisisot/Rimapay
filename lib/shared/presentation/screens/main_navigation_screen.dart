@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/Utils/haptics.dart';
 
 class MainNavigationScreen extends ConsumerStatefulWidget {
   final Widget child;
@@ -61,6 +62,7 @@ class _MainNavigationScreenState
 
   void _onTap(int index) {
     if (index == _currentIndex) return;
+    Haptics.tap();
     setState(() => _currentIndex = index);
     context.go(_items[index].route);
   }

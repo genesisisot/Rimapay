@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/providers/auth_provider.dart';
+import '../../../../core/Utils/haptics.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
 import '../../../success/presentation/screens/success_screen.dart';
 import '../../data/bills_dtos.dart';
@@ -99,9 +100,11 @@ void runBillPurchase({
       Navigator.of(context, rootNavigator: true).pop(); // dismiss loader
 
       if (!result.isSuccess) {
+        Haptics.error();
         showBillError(context, result.message);
         return;
       }
+      Haptics.success();
 
       try {
         await auth.fetchAccounts(silent: true);

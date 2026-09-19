@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/config/api_config.dart';
 import '../../data/pin_api_service.dart';
+import '../../../../core/services/secure_store.dart';
+import '../../../../core/Utils/haptics.dart';
 import '../../data/pin_dtos.dart';
 
 /// Two-step transaction-PIN reset backed by the RIMA Identity API:
@@ -94,6 +96,9 @@ class _ResetPinScreenState extends State<ResetPinScreen> {
     setState(() => _loading = false);
 
     if (res.isSuccess) {
+      await SecureStore.updateTransactionPinIfEnabled(_newPinCtrl.text.trim());
+      Haptics.success();
+      if (!mounted) return;
       setState(() => _step = 2);
     } else {
       _snack(res.errorMessage, error: true);

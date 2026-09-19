@@ -11,8 +11,11 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import 'dart:math' as math;
 import '../../../../shared/widgets/rimapay_logo.dart';
+import '../../../../shared/receipt/receipt_pdf.dart';
+import '../../../../core/Utils/haptics.dart';
 import 'dart:math' show Random;
 import 'package:share_plus/share_plus.dart';
+import 'package:intl/intl.dart';
 
 class SuccessScreenProps {
   final String transactionType;
@@ -176,19 +179,42 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
   }
 
   void _handleShare() {
-    final shareText = "${widget.props.transactionType} of ${widget.props.amount} successful. Transaction ID: ${widget.props.transactionId}";
+    final shareText = "${widget.props.transactionType} of ${formatNaira(widget.props.amount)} successful. Transaction ID: ${widget.props.transactionId}";
     Share.share(shareText, subject: 'RimaPay Transaction Receipt');
   }
 
-  void _handleDownload() {
-    // Implement download receipt functionality
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Receipt saved to downloads'),
-        backgroundColor: Colors.green,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+  bool _receiptBusy = false;
+
+  /// Builds a styled PDF receipt and opens the share sheet (Android/iOS) so it
+  /// can be saved to Files/Downloads or sent on; downloads the file on web.
+  Future<void> _handleDownload() async {
+    if (_receiptBusy) return;
+    Haptics.press();
+    setState(() => _receiptBusy = true);
+    try {
+      final p = widget.props;
+      await shareReceiptPdf(ReceiptPdfData(
+        title: p.transactionType,
+        amount: p.amount,
+        reference: p.transactionId,
+        dateText: DateFormat('d MMM yyyy, h:mm a').format(DateTime.now()),
+        details: [
+          MapEntry('Transaction', p.transactionType),
+          MapEntry('Recipient', p.recipient),
+        ],
+      ));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Couldn't create the receipt. Please try again."),
+          backgroundColor: Color(0xFFD33B31),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _receiptBusy = false);
+    }
   }
 
   void _onRepeatTransaction() {
@@ -450,7 +476,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                   Column(
                     children: [
                       Text(
-                        widget.props.amount,
+                        formatNaira(widget.props.amount),
                         style: TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.w900,

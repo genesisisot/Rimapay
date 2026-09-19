@@ -104,6 +104,10 @@ class DioClient {
     return dio;
   }
 
+  /// Exchanges the stored refresh token for a new access token.
+  /// Biometric login uses this to restore the last saved session.
+  Future<bool> refreshSession() => _refreshToken();
+
   Future<bool> _refreshToken() async {
     if (_isRefreshing) return false;
     _isRefreshing = true;

@@ -29,6 +29,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/theme/app_theme_colors.dart';
+import '../../../../core/Utils/haptics.dart';
+import '../../../../core/services/secure_store.dart';
 import '../../../../shared/widgets/noise_painter.dart';
 import '../../../../shared/widgets/rimapay_logo.dart';
 
@@ -379,9 +381,15 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
   }
 
   Future<void> _handleBiometricLogin() async {
+    Haptics.press();
     if (!_biometricSupported) {
       _showErrorMessage(
           'Biometric authentication is not supported on this device');
+      return;
+    }
+    if (!await SecureStore.isBiometricLoginEnabled()) {
+      _showErrorMessage(
+          'Sign in with your password, then turn on Biometric Login in Profile › Security.');
       return;
     }
 
@@ -397,17 +405,27 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
           stickyAuth: true,
         ),
       );
+      if (!isAuthenticated || !mounted) return;
 
-      if (isAuthenticated) {
-        await Future.delayed(const Duration(seconds: 1));
+      final auth = context.read<AuthProvider>();
+      final ok = await auth.loginWithBiometrics();
+      if (!mounted) return;
+      if (ok) {
+        Haptics.success();
+        AppNavigation.goToHome(context);
+      } else {
+        Haptics.error();
+        _showErrorMessage(auth.error ?? 'Biometric login failed. Please try again.');
       }
     } catch (e) {
       log(e.toString());
       _showErrorMessage('Biometric authentication failed. Please try again.');
     } finally {
-      setState(() {
-        _isBiometricLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isBiometricLoading = false;
+        });
+      }
     }
   }
 
@@ -620,15 +638,22 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                         Align(
                           alignment: Alignment.centerRight,
                           child: GestureDetector(
-                            onTap: () => context.push('/forgot-password'),
-                            child: const Text('Forgot Password?',
-                              style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF166C46))),
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {
+                              Haptics.tap();
+                              context.push('/forgot-password');
+                            },
+                            child: const Padding(
+                              padding: EdgeInsets.fromLTRB(24, 12, 0, 12),
+                              child: Text('Forgot Password?',
+                                style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF166C46))),
+                            ),
                         ),
                       ),
-                      const SizedBox(height: 28),
+                      const SizedBox(height: 8),
 
                       // Sign In button
                       GestureDetector(
@@ -734,80 +759,65 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 36),
+                      const SizedBox(height: 28),
 
-                      // Footer
+                      // Account-linking shortcuts — big thumb-friendly tiles.
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: _LoginShortcutTile(
+                              icon: Icons.account_balance_outlined,
+                              title: 'Already bank with Rima?',
+                              subtitle: 'Link existing account',
+                              onTap: () => _showLinkDeviceSheet(context),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _LoginShortcutTile(
+                              icon: Icons.phonelink_setup_outlined,
+                              title: 'New phone?',
+                              subtitle: 'Link this device',
+                              onTap: () => _showDeviceLinkSheet(context),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Create account
                       Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text("Don't have an account? ",
+                        child: Text('New to RimaPay?',
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                                fontSize: 13)),
+                      ),
+                      const SizedBox(height: 10),
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () {
+                          Haptics.press();
+                          context.pushNamed('auth',
+                              queryParameters: {'mode': 'signup'});
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          height: 54,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFF166C46), width: 1.4),
+                          ),
+                          child: const Center(
+                            child: Text('Create Account',
                                 style: TextStyle(
-                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), fontSize: 14)),
-                            GestureDetector(
-                              onTap: () => context.pushNamed('auth',
-                                  queryParameters: {'mode': 'signup'}),
-                              child: const Text('Create Account',
-                                  style: TextStyle(
-                                      color: Color(0xFF166C46),
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w700)),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-                      Center(
-                        child: GestureDetector(
-                          onTap: () => _showLinkDeviceSheet(context),
-                          child: RichText(
-                            text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: 'New device? ',
-                                  style: TextStyle(
-                                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), fontSize: 13),
-                                ),
-                                TextSpan(
-                                  text: 'Link existing account',
-                                  style: TextStyle(
                                     color: Color(0xFF166C46),
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w700,
-                                    decoration: TextDecoration.underline,
-                                  ),
-                                ),
-                              ],
-                            ),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700)),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Center(
-                        child: GestureDetector(
-                          onTap: () => _showDeviceLinkSheet(context),
-                          child: RichText(
-                            text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: 'New phone? ',
-                                  style: TextStyle(
-                                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), fontSize: 13),
-                                ),
-                                TextSpan(
-                                  text: 'Link your device',
-                                  style: TextStyle(
-                                    color: Color(0xFF166C46),
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w700,
-                                    decoration: TextDecoration.underline,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
+                      const SizedBox(height: 24),
                     ],
                   ),
                 ),
@@ -3667,6 +3677,81 @@ class _AuthFloatingFieldState extends State<_AuthFloatingField> {
               child: Center(child: widget.suffixIcon!),
           ),
         ],
+      ),
+    );
+  }
+}
+
+
+/// Large tap target used for the account-linking shortcuts on the login screen.
+class _LoginShortcutTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _LoginShortcutTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  static const _green = Color(0xFF166C46);
+
+  @override
+  Widget build(BuildContext context) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    return Material(
+      color: Theme.of(context).colorScheme.surface,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: () {
+          Haptics.tap();
+          onTap();
+        },
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 112),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: Theme.of(context).dividerColor),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: _green.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, size: 19, color: _green),
+              ),
+              const SizedBox(height: 12),
+              Text(title,
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: onSurface.withOpacity(0.6))),
+              const SizedBox(height: 2),
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(subtitle,
+                        style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: _green)),
+                  ),
+                  const SizedBox(width: 2),
+                  const Icon(Icons.chevron_right_rounded, size: 18, color: _green),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

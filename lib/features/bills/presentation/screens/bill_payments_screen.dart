@@ -114,15 +114,6 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
         route: '/education-bills',
       ),
       BillService(
-        id: 'airtime-to-cash',
-        title: 'Airtime→Cash',
-        description: 'Convert airtime',
-        icon: '💰',
-        color: const Color(0xFF166C46),
-        bgColor: const Color(0xFFF2F7F3),
-        route: '/airtime-to-cash',
-      ),
-      BillService(
         id: 'event-tickets',
         title: 'Events',
         description: 'Tickets & concerts',

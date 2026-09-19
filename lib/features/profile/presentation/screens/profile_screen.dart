@@ -12,6 +12,12 @@ import '../providers/profile_provider.dart';
 import '../../../../core/providers/auth_provider.dart';
 import '../../../auth/data/auth_api_service.dart';
 import '../../../auth/data/auth_dtos.dart';
+import '../../../security/data/pin_api_service.dart';
+import '../../../security/data/pin_dtos.dart' as pindto;
+import '../../../../core/services/biometric_service.dart';
+import '../../../../core/services/secure_store.dart';
+import '../../../../core/Utils/haptics.dart';
+import '../../../../shared/widgets/bill_screen_widgets.dart' show showPinConfirmSheet;
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -48,6 +54,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     'dateOfBirth': '',
   };
 
+  // Biometric settings (Profile › Security)
+  bool _bioLogin = false;
+  bool _bioTxn = false;
+  bool _bioBusy = false;
+
   // Tier info
   static const _tierName = 'Basic Tier';
   static const _tierLevel = 'basic';
@@ -66,7 +77,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
       ref.read(profileProvider.notifier).fetchCompletionStatus();
       _loadUserData();
       _fetchProfile();
+      _loadBiometricPrefs();
     });
+  }
+
+  Future<void> _loadBiometricPrefs() async {
+    final login = await SecureStore.isBiometricLoginEnabled();
+    final txn = await SecureStore.isBiometricTxnEnabled();
+    if (mounted) {
+      setState(() {
+        _bioLogin = login;
+        _bioTxn = txn;
+      });
+    }
   }
 
   void _loadUserData() {
@@ -1095,8 +1118,175 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               ),
             );
           }),
+          Divider(height: 1, color: Theme.of(context).dividerColor.withOpacity(0.5)),
+          _biometricRow(
+            context,
+            icon: Icons.fingerprint,
+            title: 'Biometric Login',
+            subtitle: 'Sign in with fingerprint or face',
+            value: _bioLogin,
+            onChanged: (v) => _toggleBiometric(forLogin: true, enable: v),
+          ),
+          Divider(
+              height: 1,
+              indent: 64,
+              color: Theme.of(context).dividerColor.withOpacity(0.5)),
+          _biometricRow(
+            context,
+            icon: Icons.verified_user_outlined,
+            title: 'Biometric for Transactions',
+            subtitle: 'Approve payments without typing your PIN',
+            value: _bioTxn,
+            onChanged: (v) => _toggleBiometric(forLogin: false, enable: v),
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _biometricRow(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 10, 10),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: const Color(0xFF166C46).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: const Color(0xFF166C46), size: 18),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontFamily: 'Effra',
+                    )),
+                Text(subtitle,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                      fontFamily: 'Effra',
+                    )),
+              ],
+            ),
+          ),
+          Switch.adaptive(
+            value: value,
+            activeColor: const Color(0xFF166C46),
+            onChanged: _bioBusy ? null : onChanged,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _bioSnack(String message, {bool error = false}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: error ? const Color(0xFFD33B31) : const Color(0xFF166C46),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    ));
+  }
+
+  /// Turning off is immediate. Turning on needs: biometrics set up on the
+  /// phone → transaction PIN verified by the API → a fingerprint check.
+  Future<void> _toggleBiometric({required bool forLogin, required bool enable}) async {
+    Haptics.tap();
+    if (_bioBusy) return;
+
+    if (!enable) {
+      if (forLogin) {
+        await SecureStore.setBiometricLogin(false);
+      } else {
+        await SecureStore.setBiometricTxn(false);
+      }
+      if (!mounted) return;
+      setState(() {
+        if (forLogin) {
+          _bioLogin = false;
+        } else {
+          _bioTxn = false;
+        }
+      });
+      return;
+    }
+
+    if (!await BiometricService.isAvailable() || !await BiometricService.isEnabled()) {
+      _bioSnack('Set up fingerprint or face unlock on this phone first.', error: true);
+      return;
+    }
+    if (!mounted) return;
+
+    showPinConfirmSheet(
+      context: context,
+      title: forLogin ? 'Enable Biometric Login' : 'Enable Biometric Payments',
+      allowBiometric: false,
+      summary: [
+        {
+          'label': 'Action',
+          'value': forLogin ? 'Log in with biometrics' : 'Approve payments with biometrics',
+        },
+      ],
+      onConfirmed: (enteredPin) async {
+        Navigator.pop(context); // close PIN sheet
+        setState(() => _bioBusy = true);
+
+        final res = await PinApiService()
+            .verifyPin(pindto.VerifyPinRequest(pin: enteredPin));
+        if (!mounted) return;
+        if (!res.isSuccess) {
+          setState(() => _bioBusy = false);
+          Haptics.error();
+          _bioSnack(res.message ?? 'Incorrect PIN. Please try again.', error: true);
+          return;
+        }
+
+        final bio = await BiometricService.authenticateWithResult(forLogin
+            ? 'Confirm to enable biometric login'
+            : 'Confirm to enable biometric payments');
+        if (!mounted) return;
+        if (bio != AuthResult.success) {
+          setState(() => _bioBusy = false);
+          _bioSnack(BiometricService.getAuthResultMessage(bio), error: true);
+          return;
+        }
+
+        if (forLogin) {
+          final user = context.read<AuthProvider>().user;
+          await SecureStore.setBiometricLogin(true, user: user?.toJson());
+        } else {
+          await SecureStore.setBiometricTxn(true, pin: enteredPin);
+        }
+        if (!mounted) return;
+        Haptics.success();
+        setState(() {
+          _bioBusy = false;
+          if (forLogin) {
+            _bioLogin = true;
+          } else {
+            _bioTxn = true;
+          }
+        });
+        _bioSnack(forLogin ? 'Biometric login enabled' : 'Biometric payments enabled');
+      },
     );
   }
 

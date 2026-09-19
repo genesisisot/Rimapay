@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/Utils/haptics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rimapay/core/theme/app_colors.dart';
 import 'package:flutter/services.dart';
@@ -285,6 +286,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
         Navigator.of(context, rootNavigator: true).pop(); // dismiss loader
 
         if (refNo.isNotEmpty) {
+          Haptics.success();
           await _saveBeneficiary(
             isRima: isRimaLocal,
             name: recipient,
@@ -301,6 +303,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                 transactionId: refNo,
               ));
         } else {
+          Haptics.error();
           final error = ref.read(transactionProviders).error ??
               'Transaction failed. Please try again.';
           ScaffoldMessenger.of(context).showSnackBar(
