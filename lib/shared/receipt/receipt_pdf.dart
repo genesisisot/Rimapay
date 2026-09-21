@@ -23,6 +23,9 @@ class ReceiptPdfData {
   final String reference;
   final String dateText;
 
+  /// True when money came IN (credit); false for money going out (debit).
+  final bool isCredit;
+
   /// Label/value rows shown in the details block, in order.
   final List<MapEntry<String, String>> details;
 
@@ -33,6 +36,7 @@ class ReceiptPdfData {
     required this.dateText,
     this.status = 'Successful',
     this.details = const [],
+    this.isCredit = false,
   });
 }
 
@@ -41,6 +45,7 @@ const _greenDark = PdfColor.fromInt(0xFF0B4F2F);
 const _grey = PdfColor.fromInt(0xFF6B7280);
 const _line = PdfColor.fromInt(0xFFE5E7EB);
 const _soft = PdfColor.fromInt(0xFFF6F8F7);
+const _debit = PdfColor.fromInt(0xFFB45309);
 
 PdfColor _statusColor(String status) {
   final s = status.toLowerCase();
@@ -146,8 +151,17 @@ Future<Uint8List> buildReceiptPdf(ReceiptPdfData r) async {
                     textAlign: pw.TextAlign.center,
                     style: pw.TextStyle(font: regular, fontSize: 9, color: _grey)),
                 pw.SizedBox(height: 4),
-                pw.Text(formatNaira(r.amount),
-                    style: pw.TextStyle(font: bold, fontSize: 22, color: PdfColors.black)),
+                pw.Text('${r.isCredit ? '+' : '-'}${formatNaira(r.amount)}',
+                    style: pw.TextStyle(
+                        font: bold,
+                        fontSize: 22,
+                        color: r.isCredit ? _green : _debit)),
+                pw.SizedBox(height: 6),
+                pw.Text(r.isCredit ? 'Money In' : 'Money Out',
+                    style: pw.TextStyle(
+                        font: bold,
+                        fontSize: 9,
+                        color: r.isCredit ? _green : _debit)),
                 pw.SizedBox(height: 8),
                 pw.Container(
                   padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 3),

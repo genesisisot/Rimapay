@@ -41,6 +41,8 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
   bool _validating = false;
 
   String _rimaRecipientName = '';
+  bool _rimaIsPhone = false;
+  bool _rimaLookupFailed = false;
   bool _validatingRima = false;
 
   // Seed list — doubles as fallback when the getbanks endpoint is unreachable
@@ -145,31 +147,82 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
     );
   }
 
-  Future<void> _validateRimaAccount() async {
-    final acct = _accountController.text;
-    if (acct.length != 10) {
-      if (_rimaRecipientName.isNotEmpty) {
-        setState(() => _rimaRecipientName = '');
+  /// Rima account numbers are 10 digits starting with 0; no Nigerian mobile
+  /// number is, so the two never collide.
+  _RimaTarget _targetFor(String digits) {
+    if (digits.length == 11 && digits.startsWith('0')) return _RimaTarget.phone;
+    if (digits.length == 13 && digits.startsWith('234')) return _RimaTarget.phone;
+    if (digits.length == 10) {
+      final first = digits[0];
+      if (first == '7' || first == '8' || first == '9') return _RimaTarget.phone;
+      if (first == '0') return _RimaTarget.account;
+    }
+    return _RimaTarget.incomplete;
+  }
+
+  /// Name-enquiry results come back lower-case; title-case them for display.
+  String _prettyName(String name) {
+    if (name != name.toLowerCase()) return name;
+    return name
+        .split(' ')
+        .map((w) => w.isEmpty ? w : '${w[0].toUpperCase()}${w.substring(1)}')
+        .join(' ');
+  }
+
+  String _digits(String raw) => raw.replaceAll(RegExp(r'\D'), '');
+
+  /// One-line hint under the field so the user can see what was detected.
+  String? get _rimaHint {
+    final digits = _digits(_accountController.text);
+    if (digits.isEmpty) return null;
+    final target = _targetFor(digits);
+    if (target == _RimaTarget.incomplete) return null;
+    final kind = target == _RimaTarget.phone ? 'Phone number' : 'Account number';
+    if (_validatingRima) return '$kind · looking up…';
+    if (_rimaLookupFailed) return "We couldn't find this RimaPay user.";
+    return kind;
+  }
+
+  Future<void> _validateRimaRecipient() async {
+    final digits = _digits(_accountController.text);
+    final target = _targetFor(digits);
+
+    if (target == _RimaTarget.incomplete) {
+      if (_rimaRecipientName.isNotEmpty || _rimaLookupFailed) {
+        setState(() {
+          _rimaRecipientName = '';
+          _rimaLookupFailed = false;
+        });
       }
       return;
     }
-    setState(() => _validatingRima = true);
+
+    setState(() {
+      _validatingRima = true;
+      _rimaIsPhone = target == _RimaTarget.phone;
+      _rimaLookupFailed = false;
+    });
+
     try {
       final api = ref.read(profileApiServiceProvider);
-      final details = await api.getAccountDetails(acct);
-      if (mounted) {
-        setState(() {
-          _validatingRima = false;
-          _rimaRecipientName = details?.accountTitle ?? '';
-        });
-      }
+      final name = target == _RimaTarget.phone
+          ? await api.nameEnquiryByPhone(digits)
+          : (await api.getAccountDetails(digits))?.accountTitle;
+      // Ignore a result the user has already typed past.
+      if (!mounted || digits != _digits(_accountController.text)) return;
+      final resolved = (name ?? '').trim();
+      setState(() {
+        _validatingRima = false;
+        _rimaRecipientName = resolved.isEmpty ? '' : _prettyName(resolved);
+        _rimaLookupFailed = resolved.isEmpty;
+      });
     } catch (_) {
-      if (mounted) {
-        setState(() {
-          _validatingRima = false;
-          _rimaRecipientName = '';
-        });
-      }
+      if (!mounted) return;
+      setState(() {
+        _validatingRima = false;
+        _rimaRecipientName = '';
+        _rimaLookupFailed = true;
+      });
     }
   }
 
@@ -243,8 +296,9 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
         : (_recipientName.isNotEmpty ? _recipientName : _bankAccountController.text);
     final bankName = isRimaLocal ? 'RimaPay' : _selectedBank;
     final bankCode = isRimaLocal ? '000' : _bankCodeFor(_selectedBank);
-    final recipientAccount =
-        isRimaLocal ? _accountController.text : _bankAccountController.text;
+    final recipientAccount = isRimaLocal
+        ? _digits(_accountController.text)
+        : _bankAccountController.text;
     final amount = _parseAmount(_amountController.text);
     final note = _noteController.text.trim();
 
@@ -280,6 +334,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
           narration: note.isEmpty ? null : note,
           pin: pin,
           isRimaPay: isRimaLocal,
+          isPhoneNumber: isRimaLocal && _rimaIsPhone,
         );
 
         if (!mounted) return;
@@ -516,7 +571,9 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
               final balance = context.watch<AuthProvider>().user?.balance ?? 0;
               final insufficient = amount > 0 && amount > balance;
               final baseFilled = isRima
-                  ? _accountController.text.isNotEmpty && _amountController.text.isNotEmpty
+                  ? _accountController.text.isNotEmpty &&
+                      _rimaRecipientName.isNotEmpty &&
+                      _amountController.text.isNotEmpty
                   : _bankAccountController.text.length == 10 &&
                       _selectedBank.isNotEmpty &&
                       _recipientName.isNotEmpty &&
@@ -713,7 +770,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
           hint: 'Account number or phone',
           keyboardType: TextInputType.number,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          onChanged: (_) => _validateRimaAccount(),
+          onChanged: (_) => _validateRimaRecipient(),
           suffix: _validatingRima
               ? const SizedBox(
                   width: 18,
@@ -722,6 +779,22 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                 )
               : null,
         ),
+        if (_rimaHint != null) ...[
+          const SizedBox(height: 6),
+          Padding(
+            padding: const EdgeInsets.only(left: 4),
+            child: Text(
+              _rimaHint!,
+              style: TextStyle(
+                fontSize: 12,
+                fontFamily: 'Effra',
+                color: _rimaLookupFailed
+                    ? const Color(0xFFD33B31)
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
+              ),
+            ),
+          ),
+        ],
         const SizedBox(height: 14),
 
         // Resolved name
@@ -1494,3 +1567,7 @@ class _BankSelectorSheetState extends State<_BankSelectorSheet> {
     );
   }
 }
+
+
+/// What the RimaPay recipient field currently holds.
+enum _RimaTarget { account, phone, incomplete }

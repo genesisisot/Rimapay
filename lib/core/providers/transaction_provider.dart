@@ -425,6 +425,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
     String? otpCode,
     String? otpReference,
     bool isRimaPay = true,
+    bool isPhoneNumber = false,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
 
@@ -441,9 +442,11 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
         pin: pin,
         otpCode: otpCode,
         otpReference: otpReference,
+        isPhoneNumber: isPhoneNumber,
       );
-      // Debug: log request payload
-      debugPrint('processTransfer request: ${req.toJson()}');
+      // Never log the payload: it carries the transaction PIN.
+      debugPrint('processTransfer ref=$refNo amount=$amount '
+          'to=$recipientAccountNumber isPhone=$isPhoneNumber rima=$isRimaPay');
       final res = isRimaPay ? await _api.transfer(req) : await _api.transferInter(req);
       debugPrint('processTransfer response — isSuccess: ${res.isSuccess}, errorMessage: ${res.errorMessage}, errorCode: ${res.errorCode}');
 

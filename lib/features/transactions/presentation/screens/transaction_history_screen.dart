@@ -108,6 +108,7 @@ class _TransactionHistoryScreenState
       'status': 'success',
       'reference': tx.reference ?? 'RMP${DateTime.now().millisecondsSinceEpoch}',
       'description': '${tx.typeDisplayName} payment',
+      'isCredit': tx.type == TransactionType.addMoney,
     });
     context.push('/receipt', extra: re);
   }

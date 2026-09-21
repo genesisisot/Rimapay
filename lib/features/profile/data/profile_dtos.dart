@@ -253,6 +253,9 @@ class TransferRequest {
   final String? otpCode;
   final String? otpReference;
 
+  /// True when [recipientAccountNumber] holds a phone number (intra-bank only).
+  final bool isPhoneNumber;
+
   const TransferRequest({
     required this.senderAccountNumber,
     required this.recipientAccountNumber,
@@ -264,11 +267,13 @@ class TransferRequest {
     required this.pin,
     this.otpCode,
     this.otpReference,
+    this.isPhoneNumber = false,
   });
 
   Map<String, dynamic> toJson() => {
         'senderAccountNumber': senderAccountNumber,
         'recipientAccountNumber': recipientAccountNumber,
+        'isPhoneNumber': isPhoneNumber,
         'recipientBankCode': recipientBankCode,
         'recipientBankName': recipientBankName,
         'amount': amount,

@@ -237,6 +237,28 @@ class ProfileApiService {
     }
   }
 
+  /// GET /api/v1/payment/name-enquiry/phone/{phoneNumber} — resolves a RimaPay
+  /// user's name from their phone number. Accepts 07062746869, 2347062746869
+  /// or 7062746869; the backend normalises. Returns null when not found.
+  Future<String?> nameEnquiryByPhone(String phoneNumber) async {
+    try {
+      final res = await _dio.get('/api/v1/payment/name-enquiry/phone/$phoneNumber');
+      final body = res.data;
+      if (body is Map<String, dynamic> && body['isSuccess'] == true) {
+        final inner = body['data'];
+        if (inner is Map<String, dynamic>) {
+          final name = (inner['accountName'] as String?)?.trim();
+          if (name != null && name.isNotEmpty) return name;
+        }
+      }
+      return null;
+    } on DioException catch (_) {
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
   /// GET /api/v1/payment/getbanks — supported destination banks (inter-bank)
   Future<List<BankDto>> getBanks() async {
     try {

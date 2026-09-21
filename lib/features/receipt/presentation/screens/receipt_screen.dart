@@ -81,6 +81,20 @@ class _ReceiptScreenState extends State<ReceiptScreen> with TickerProviderStateM
     super.dispose();
   }
 
+  /// "Money In" / "Money Out" — the thing a receipt must never leave ambiguous.
+  String get _directionLabel =>
+      widget.receiptData.isCredit ? 'Money In' : 'Money Out';
+
+  Color get _directionColor =>
+      widget.receiptData.isCredit ? const Color(0xFF166C46) : const Color(0xFFB45309);
+
+  /// Amount with a +/- sign so inflow and outflow can't be confused.
+  String get _signedAmount =>
+      '${widget.receiptData.isCredit ? '+' : '-'}${_formatAmount(widget.receiptData.amount)}';
+
+  /// Credits come FROM someone; debits go TO someone.
+  String get _partyLabel => widget.receiptData.isCredit ? 'From:' : 'To:';
+
   String _formatAmount(String amount) {
     // Remove currency symbol and format
     final cleanAmount = amount.replaceAll(RegExp(r'[^\d.,]'), '');
@@ -166,9 +180,9 @@ RIMAPAY TRANSACTION RECEIPT
 
 Transaction Details:
 ----------------------------
-Type: ${widget.receiptData.type}
-Amount: ${_formatAmount(widget.receiptData.amount)}
-Recipient: ${widget.receiptData.recipient}
+Type: ${widget.receiptData.type} ($_directionLabel)
+Amount: $_signedAmount
+${widget.receiptData.isCredit ? 'From' : 'To'}: ${widget.receiptData.recipient}
 Reference: ${widget.receiptData.reference}
 Date: ${widget.receiptData.date}
 Time: ${widget.receiptData.time}
@@ -200,12 +214,13 @@ www.rimapay.com
       await shareReceiptPdf(ReceiptPdfData(
         title: d.type,
         amount: d.amount,
+        isCredit: d.isCredit,
         status: status,
         reference: d.reference,
         dateText: '${d.date}, ${d.time}',
         details: [
           MapEntry('Transaction', d.type),
-          MapEntry('Recipient', d.recipient),
+          MapEntry(d.isCredit ? 'From' : 'To', d.recipient),
           if (d.network != null) MapEntry('Network', d.network!),
           if (d.plan != null) MapEntry('Plan', d.plan!),
           if (d.customer != null) MapEntry('Customer', d.customer!),
@@ -477,10 +492,43 @@ www.rimapay.com
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
-                                          _formatAmount(widget.receiptData.amount),
+                                          _signedAmount,
                                           style: Theme.of(context).textTheme.headlineSmall!.copyWith(
                                             fontWeight: FontWeight.w900,
                                             fontSize: isSmallScreen ? 24 : 32,
+                                            color: _directionColor,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10, vertical: 3),
+                                          decoration: BoxDecoration(
+                                            color: _directionColor.withOpacity(0.1),
+                                            borderRadius: BorderRadius.circular(20),
+                                            border: Border.all(
+                                                color: _directionColor.withOpacity(0.35)),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                widget.receiptData.isCredit
+                                                    ? Icons.arrow_downward_rounded
+                                                    : Icons.arrow_upward_rounded,
+                                                size: 13,
+                                                color: _directionColor,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                _directionLabel,
+                                                style: TextStyle(
+                                                  fontSize: isSmallScreen ? 11 : 12,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: _directionColor,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                         if (widget.receiptData.fee != null) ...[
@@ -501,7 +549,7 @@ www.rimapay.com
                                     Column(
                                       children: [
                                         _buildDetailRow('Type:', widget.receiptData.type, isSmallScreen),
-                                        _buildDetailRow('Recipient:', widget.receiptData.recipient, isSmallScreen),
+                                        _buildDetailRow(_partyLabel, widget.receiptData.recipient, isSmallScreen),
                                         if (widget.receiptData.network != null) _buildDetailRow('Network:', widget.receiptData.network!, isSmallScreen),
                                         if (widget.receiptData.plan != null) _buildDetailRow('Plan:', widget.receiptData.plan!, isSmallScreen),
                                         if (widget.receiptData.customer != null) _buildDetailRow('Customer:', widget.receiptData.customer!, isSmallScreen),
@@ -754,6 +802,9 @@ class ReceiptData {
   final String? description;
   final String? fee;
 
+  /// True when money came IN (credit); false for money going out (debit).
+  final bool isCredit;
+
   const ReceiptData({
     required this.id,
     required this.type,
@@ -771,6 +822,7 @@ class ReceiptData {
     this.bank,
     this.description,
     this.fee,
+    this.isCredit = false,
   });
 
   // Factory constructor for creating ReceiptData from JSON
@@ -792,6 +844,7 @@ class ReceiptData {
       bank: json['bank'] as String?,
       description: json['description'] as String?,
       fee: json['fee'] as String?,
+      isCredit: json['isCredit'] == true,
     );
   }
 
@@ -814,6 +867,7 @@ class ReceiptData {
       if (bank != null) 'bank': bank,
       if (description != null) 'description': description,
       if (fee != null) 'fee': fee,
+      'isCredit': isCredit,
     };
   }
 
