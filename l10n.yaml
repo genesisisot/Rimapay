@@ -1,0 +1,9 @@
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.g.dart
+output-class: AppL10n
+output-dir: lib/l10n/generated
+nullable-getter: false
+# Surface untranslated strings as a file rather than console noise, so the
+# gap between English and Hausa is always visible and reviewable.
+untranslated-messages-file: lib/l10n/untranslated.json

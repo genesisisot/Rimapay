@@ -5,6 +5,7 @@ import '../../core/providers/language_provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 
+import '../../core/localization/l10n.dart';
 class CarouselSlide {
   final String id;
   final String type;
@@ -77,8 +78,8 @@ class _PromotionalCarouselState extends ConsumerState<PromotionalCarousel> with 
   }
 
   List<CarouselSlide> _getSlides() {
-    final language = ref.read(languageTranslationsProvider);
-    final languageProvide = ref.read(languageProvider);
+    // context.l10n depends on the Localizations inherited widget, so these
+    // slides rebuild automatically when the locale changes.
     return [
       CarouselSlide(
         id: 'language',
@@ -86,11 +87,13 @@ class _PromotionalCarouselState extends ConsumerState<PromotionalCarousel> with 
         icon: Icons.language,
         iconColor: Colors.white,
         bgGradient: AppColors.primaryGradient,
-        title: language('switchToHausa'),
-        description: language('changeLanguageOneTap'),
-        actionText: languageProvide.languageCode == 'en' ? 'Switch to HA' : 'Canza zuwa EN',
+        title: context.l10n.switchLanguage,
+        description: context.l10n.changeLanguageOneTap,
+        actionText: context.l10n.switchLanguageAction,
         action: () {
-          ref.read(toggleLanguageProvider);
+          // The trailing () matters: reading the provider alone only returns
+          // the closure and never invokes it.
+          ref.read(toggleLanguageProvider)();
         },
       ),
       CarouselSlide(
@@ -101,9 +104,9 @@ class _PromotionalCarouselState extends ConsumerState<PromotionalCarousel> with 
         bgGradient: const LinearGradient(
           colors: [Color(0xFF8B5CF6), Color(0xFF7C3AED), Color(0xFF6D28D9)],
         ),
-        title: language('upgradeYourAccount'),
-        description: language('unlockMoreFeatures'),
-        actionText: language('upgradeAccountNow'),
+        title: context.l10n.upgradeYourAccount,
+        description: context.l10n.unlockMoreFeatures,
+        actionText: context.l10n.upgradeAccountNow,
         action: () {},
       ),
       CarouselSlide(
@@ -114,9 +117,9 @@ class _PromotionalCarouselState extends ConsumerState<PromotionalCarousel> with 
         bgGradient: const LinearGradient(
           colors: [Color(0xFFD33B31), Color(0xFFDC2626), Color(0xFFB91C1C)],
         ),
-        title: language('getLoansToday'),
-        description: language('quickApprovalProcess'),
-        actionText: language('applyForLoan'),
+        title: context.l10n.getLoansToday,
+        description: context.l10n.quickApprovalProcess,
+        actionText: context.l10n.applyForLoan,
         action: () {},
       ),
       CarouselSlide(
@@ -127,9 +130,9 @@ class _PromotionalCarouselState extends ConsumerState<PromotionalCarousel> with 
         bgGradient: const LinearGradient(
           colors: [Color(0xFF06B6D4), Color(0xFF0891B2), Color(0xFF0E7490)],
         ),
-        title: language('sendMoneyFaster'),
-        description: language('instantTransfersToAnyBank'),
-        actionText: language('startSending'),
+        title: context.l10n.sendMoneyFaster,
+        description: context.l10n.instantTransfersToAnyBank,
+        actionText: context.l10n.startSending,
         action: () {},
       ),
     ];
@@ -293,7 +296,14 @@ class _PromotionalCarouselState extends ConsumerState<PromotionalCarousel> with 
                               ),
                               child: Center(
                                   child: Text(
-                                    ref.read(languageProvider).countryCode?.toUpperCase() ?? "en",
+                                    // countryCode is '' here, not null, so the
+                                    // old `?? "en"` never fired and the badge
+                                    // rendered blank. languageCode is the
+                                    // value actually wanted.
+                                    ref
+                                        .watch(languageProvider)
+                                        .languageCode
+                                        .toUpperCase(),
                                     style: Theme.of(context).textTheme.bodySmall!.copyWith(
                                       color: AppColors.primary500,
                                       fontWeight: FontWeight.w700,

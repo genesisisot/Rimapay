@@ -1,19 +1,21 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../../core/providers/language_provider.dart';
 import '../../../../../shared/widgets/noise_painter.dart';
 import '../../../../../shared/widgets/rimapay_logo.dart';
 
-class WelcomeScreen extends StatefulWidget {
+import '../../../../core/localization/l10n.dart';
+class WelcomeScreen extends ConsumerStatefulWidget {
   const WelcomeScreen({super.key});
 
   @override
-  State<WelcomeScreen> createState() => _WelcomeScreenState();
+  ConsumerState<WelcomeScreen> createState() => _WelcomeScreenState();
 }
 
-class _WelcomeScreenState extends State<WelcomeScreen>
+class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
     with TickerProviderStateMixin {
-  String _lang = 'en';
   bool _signUpPressed = false;
   bool _loginPressed = false;
 
@@ -43,6 +45,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    // Drives the whole app, and persists — not a local field as before.
+    final lang = ref.watch(languageProvider).languageCode;
 
     return Scaffold(
       backgroundColor: const Color(0xFF041810),
@@ -112,8 +116,10 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: _LangToggle(
-                          lang: _lang,
-                          onToggle: (l) => setState(() => _lang = l),
+                          lang: lang,
+                          onToggle: (l) => ref
+                              .read(languageProvider.notifier)
+                              .setLanguage(l),
                         ),
                       ),
                     ],
@@ -130,9 +136,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     children: [
                       // Big lime-green headline
                       Text(
-                        _lang == 'ha'
-                            ? "Anyi Mana,\nMuka Yi"
-                            : "made for us\nby us",
+                        context.l10n.welcomeHeadline,
                         style: const TextStyle(
                           color: Color(0xFFC6F135),
                           fontSize: 38,
@@ -156,9 +160,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                       SizedBox(
                         width: size.width * 0.58,
                         child: Text(
-                          _lang == 'ha'
-                              ? "Sabis na kudi mai aminci, da sauri kuma abin dogaro don ku."
-                              : "Safe, fast and reliable\nfinancial services\nbuilt for you.",
+                          context.l10n.welcomeSubtitle,
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.70),
                             fontSize: 15.5,
@@ -230,9 +232,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                           MainAxisAlignment.center,
                                       children: [
                                         Text(
-                                          _lang == 'ha'
-                                              ? 'Yi Rajista'
-                                              : 'Sign up',
+                                          context.l10n.welcomeSignUp,
                                           style: const TextStyle(
                                             color: Colors.white,
                                             fontSize: 16,
@@ -240,9 +240,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                           ),
                                         ),
                                         Text(
-                                          _lang == 'ha'
-                                              ? 'Ƙirƙiri asusun ku'
-                                              : 'Create your account',
+                                          context.l10n.welcomeCreateAccount,
                                           style: TextStyle(
                                             color:
                                                 Colors.white.withOpacity(0.80),
@@ -302,7 +300,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                           MainAxisAlignment.center,
                                       children: [
                                         Text(
-                                          _lang == 'ha' ? 'Shiga' : 'Log in',
+                                          context.l10n.welcomeLogIn,
                                           style: const TextStyle(
                                             color: Colors.white,
                                             fontSize: 16,
@@ -310,9 +308,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                           ),
                                         ),
                                         Text(
-                                          _lang == 'ha'
-                                              ? 'Barka da komowa'
-                                              : 'Welcome back',
+                                          context.l10n.welcomeWelcomeBack,
                                           style: TextStyle(
                                             color:
                                                 Colors.white.withOpacity(0.55),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' hide ChangeNotifierProvider;
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:rimapay/Utils/MyFlavorsConfig.dart';
 
@@ -13,7 +13,7 @@ import 'core/providers/theme_provider.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/services/storage_service.dart';
-import 'core/localization/app_localizations.dart';
+import 'core/localization/l10n.dart';
 
 //flutter run -t lib/mainStaging.dart --flavor staging --debug
 //flutter run -t lib/mainProduction.dart --flavor production --debug
@@ -41,7 +41,30 @@ void main() async {
     statusBarIconBrightness: Brightness.dark,
   ));
 
-  runApp(const ProviderScope(child: RimaPayApp()));
+  runApp(ProviderScope(
+    overrides: await buildStartupOverrides(),
+    child: const RimaPayApp(),
+  ));
+}
+
+/// Startup work that must complete before the first frame.
+///
+/// Reads the saved language and seeds [languageProvider] with it — loading it
+/// asynchronously after `runApp` makes the app flash English on startup for a
+/// Hausa user. Also initialises date symbols, without which `DateFormat`
+/// throws `LocaleDataException` for Hausa.
+///
+/// Every entry point must use this: `mainProd.dart` and `mainStaging.dart`
+/// each build their own `ProviderScope`, so the one here is unused in flavor
+/// builds.
+Future<List<Override>> buildStartupOverrides() async {
+  await initializeDateFormatting();
+  final savedLanguage = await LanguageNotifier.readSavedLanguageCode();
+  return [
+    languageProvider.overrideWith(
+      (ref) => LanguageNotifier(Locale(savedLanguage)),
+    ),
+  ];
 }
 
 class RimaPayApp extends ConsumerStatefulWidget {
@@ -63,7 +86,7 @@ class _RimaPayAppState extends ConsumerState<RimaPayApp> {
   @override
   Widget build(BuildContext context) {
     final theme = ref.watch(themeProvider);
-    const currentLocale = Locale('en', '');
+    final currentLocale = ref.watch(languageProvider);
 
     return GestureDetector(
       onTap: () {
@@ -83,25 +106,12 @@ class _RimaPayAppState extends ConsumerState<RimaPayApp> {
           // Routing
           routerConfig: AppRouter.router,
 
-          // Localization - Use English for Material components
+          // Localization — driven by languageProvider. Changing the locale
+          // here rebuilds every route, because MaterialApp.router sits above
+          // the Navigator, so the switch takes effect app-wide with no restart.
           locale: currentLocale,
-          localizationsDelegates: const [
-            // Only include English Material localizations to avoid conflicts
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-            // Your custom app localizations if you have them
-            // AppLocalizations.delegate,
-          ],
-
-          // Supported locales - keep it simple
-          supportedLocales: AppLocalizationsExtension.supportedLocales,
-
-          // Fallback locale
-          localeResolutionCallback: (locale, supportedLocales) {
-            // Always return English as fallback
-            return const Locale('en', '');
-          },
+          localizationsDelegates: L10n.delegates,
+          supportedLocales: L10n.supportedLocales,
         ),
       ),
     );

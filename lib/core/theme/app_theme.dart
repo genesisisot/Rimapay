@@ -9,6 +9,9 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       fontFamily: AppTextStyles.fontFamily,
+      // Carries the Hausa glyph fallback down to every inline TextStyle that
+      // does not set its own font — see AppTextStyles.fontFamilyFallback.
+      fontFamilyFallback: AppTextStyles.fontFamilyFallback,
 
       // Explicit divider color so Theme.of(context).dividerColor is always correct
       dividerColor: AppColors.neutral200,
@@ -105,11 +108,13 @@ class AppTheme {
         contentPadding: const EdgeInsets.all(AppSpacing.lg),
         hintStyle: const TextStyle(
           fontFamily: 'Effra',
+          fontFamilyFallback: AppTextStyles.fontFamilyFallback,
           fontSize: 14,
           color: AppColors.neutral400,
         ),
         labelStyle: const TextStyle(
           fontFamily: 'Effra',
+          fontFamilyFallback: AppTextStyles.fontFamilyFallback,
           fontSize: 12,
           fontWeight: FontWeight.w600,
           color: AppColors.neutral600,
@@ -265,6 +270,7 @@ class AppTheme {
           fontSize: 18,
           fontWeight: FontWeight.w600,
           fontFamily: AppTextStyles.fontFamily,
+          fontFamilyFallback: AppTextStyles.fontFamilyFallback,
         ),
       ),
 
@@ -301,11 +307,13 @@ class AppTheme {
         contentPadding: const EdgeInsets.all(AppSpacing.lg),
         hintStyle: const TextStyle(
           fontFamily: 'Effra',
+          fontFamilyFallback: AppTextStyles.fontFamilyFallback,
           fontSize: 14,
           color: _darkSubtext,
         ),
         labelStyle: const TextStyle(
           fontFamily: 'Effra',
+          fontFamilyFallback: AppTextStyles.fontFamilyFallback,
           fontSize: 12,
           fontWeight: FontWeight.w600,
           color: _darkSubtext,
@@ -337,11 +345,13 @@ class AppTheme {
           fontSize: 18,
           fontWeight: FontWeight.w700,
           fontFamily: 'Effra',
+          fontFamilyFallback: AppTextStyles.fontFamilyFallback,
         ),
         contentTextStyle: TextStyle(
           color: _darkSubtext,
           fontSize: 14,
           fontFamily: 'Effra',
+          fontFamilyFallback: AppTextStyles.fontFamilyFallback,
         ),
       ),
 

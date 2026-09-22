@@ -18,6 +18,7 @@ void main() async {
   MyAppConfig.setInstance(appConfig);
   runApp(
     ProviderScope(
+      overrides: await buildStartupOverrides(),
       child: appConfig,
     ),
   );

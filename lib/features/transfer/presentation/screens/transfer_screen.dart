@@ -12,6 +12,7 @@ import 'package:rimapay/features/profile/presentation/providers/profile_provider
 import 'package:rimapay/features/success/presentation/screens/success_screen.dart';
 import 'package:rimapay/shared/widgets/bill_screen_widgets.dart';
 
+import '../../../../core/localization/l10n.dart';
 class TransferScreen extends ConsumerStatefulWidget {
   const TransferScreen({super.key});
 
@@ -521,7 +522,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                     ),
                     const SizedBox(width: 14),
                     Text(
-                      'Send Money',
+                      context.l10n.sendMoney,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -543,8 +544,8 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      _toggleTab('To RimaPay', 'rimapay'),
-                      _toggleTab('To Other Banks', 'bank'),
+                      _toggleTab(context.l10n.toRimaPay, 'rimapay'),
+                      _toggleTab(context.l10n.toOtherBanks, 'bank'),
                     ],
                   ),
                 ),
@@ -598,7 +599,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              'Insufficient balance. Your wallet balance is ₦${balance.toStringAsFixed(2)}.',
+                              context.l10n.insufficientBalanceIs('₦${balance.toStringAsFixed(2)}'),
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: Color(0xFFD33B31),
@@ -690,7 +691,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
         // Recent beneficiaries
         if (_rimaRecent.isNotEmpty) ...[
           Text(
-            'Recent',
+            context.l10n.recent,
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -766,7 +767,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
         BillFloatingField(
           controller: _accountController,
           focusNode: _accountFocus,
-          label: 'RimaPay Account / Phone',
+          label: context.l10n.rimapayAccountOrPhone,
           hint: 'Account number or phone',
           keyboardType: TextInputType.number,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -864,7 +865,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
         BillFloatingField(
           controller: _noteController,
           focusNode: _noteFocus,
-          label: 'Note (optional)',
+          label: context.l10n.noteOptional,
           hint: 'What is this for?',
           keyboardType: TextInputType.text,
         ),
@@ -886,7 +887,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
         // Recent beneficiaries
         if (_bankRecent.isNotEmpty) ...[
           Text(
-            'Recent',
+            context.l10n.recent,
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -963,7 +964,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
         BillFloatingField(
           controller: _bankAccountController,
           focusNode: _bankAccountFocus,
-          label: 'Account Number',
+          label: context.l10n.accountNumber,
           hint: 'Enter 10-digit account number',
           keyboardType: TextInputType.phone,
           inputFormatters: [
@@ -1004,7 +1005,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                     Icon(Icons.account_balance_outlined, size: 18, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4)),
                     const SizedBox(width: 10),
                     Text(
-                      'Select Bank',
+                      context.l10n.selectBank,
                       style: TextStyle(
                         fontSize: 15,
                         color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
@@ -1019,9 +1020,9 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          'Bank',
-                          style: TextStyle(
+                        Text(
+                          context.l10n.bank,
+                          style: const TextStyle(
                             fontSize: 11,
                             color: Color(0xFF166C46),
                             fontFamily: 'Effra',
@@ -1147,7 +1148,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
         BillFloatingField(
           controller: _noteController,
           focusNode: _noteFocus,
-          label: 'Note (optional)',
+          label: context.l10n.noteOptional,
           hint: 'What is this for?',
           keyboardType: TextInputType.text,
         ),
@@ -1186,7 +1187,7 @@ class _TransferTypeSheet extends StatelessWidget {
             ),
           ),
           Text(
-            'Send Money',
+            context.l10n.sendMoney,
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w800,
@@ -1196,7 +1197,7 @@ class _TransferTypeSheet extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            'Where would you like to send money?',
+            context.l10n.whereToSendMoney,
             style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), fontFamily: 'Effra'),
           ),
           const SizedBox(height: 28),
@@ -1204,8 +1205,8 @@ class _TransferTypeSheet extends StatelessWidget {
             icon: Icons.account_balance_wallet_outlined,
             iconBg: const Color(0xFFF2F7F3),
             iconColor: const Color(0xFF166C46),
-            title: 'To RimaPay',
-            subtitle: 'Send to any RimaPay account instantly',
+            title: context.l10n.toRimaPay,
+            subtitle: context.l10n.toRimaPayDesc,
             onTap: () => onSelect('rimapay'),
           ),
           const SizedBox(height: 12),
@@ -1213,8 +1214,8 @@ class _TransferTypeSheet extends StatelessWidget {
             icon: Icons.account_balance_outlined,
             iconBg: const Color(0xFFeff6ff),
             iconColor: const Color(0xFF3B82F6),
-            title: 'To Other Banks',
-            subtitle: 'Send to any Nigerian bank account',
+            title: context.l10n.toOtherBanks,
+            subtitle: context.l10n.toOtherBanksDesc,
             onTap: () => onSelect('bank'),
           ),
           const SizedBox(height: 8),
@@ -1459,7 +1460,7 @@ class _BankSelectorSheetState extends State<_BankSelectorSheet> {
             child: Row(
               children: [
                 Text(
-                  'Select Bank',
+                  context.l10n.selectBank,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
@@ -1496,7 +1497,7 @@ class _BankSelectorSheetState extends State<_BankSelectorSheet> {
                         fontFamily: 'Effra',
                       ),
                       decoration: InputDecoration(
-                        hintText: 'Search banks…',
+                        hintText: context.l10n.searchBanks,
                         hintStyle: TextStyle(
                           fontSize: 14,
                           color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),

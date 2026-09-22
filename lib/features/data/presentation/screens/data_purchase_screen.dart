@@ -11,6 +11,7 @@ import '../../../../shared/widgets/bill_screen_widgets.dart';
 import '../../../success/presentation/screens/success_screen.dart';
 import '../../../../shared/widgets/rimapay_logo.dart';
 
+import '../../../../core/localization/l10n.dart';
 enum PurchaseStep { form, processing }
 
 enum PlanCategory { daily, weekly, monthly }
@@ -940,7 +941,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    language('contacts'),
+                    context.l10n.contacts,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,

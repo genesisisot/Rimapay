@@ -11,6 +11,7 @@ import '../../../core/providers/transaction_provider.dart';
 import '../../../core/Utils/haptics.dart';
 import '../../../shared/widgets/rimapay_logo.dart';
 
+import '../../../core/localization/l10n.dart';
 const Color brandGreen = Color(0xFF1A6B35);
 const Color darkGreen = Color(0xFF155C2C);
 const Color goldAccent = Color(0xFFC9A84C);
@@ -134,7 +135,7 @@ void _showCustomerCare(BuildContext context) {
                   children: [
                     Center(
                       child: Text(
-                        'Customer Care',
+                        context.l10n.customerCare,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
@@ -145,7 +146,7 @@ void _showCustomerCare(BuildContext context) {
                     const SizedBox(height: 4),
                     Center(
                       child: Text(
-                        "We're here to help you",
+                        context.l10n.wereHereToHelp,
                         style: TextStyle(
                           fontSize: 13,
                           color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
@@ -153,13 +154,13 @@ void _showCustomerCare(BuildContext context) {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    _careRow(context, Icons.phone_outlined, 'Call Us',
+                    _careRow(context, Icons.phone_outlined, context.l10n.callUs,
                         '0800-RIMAPAY (0800-7462729)', const Color(0xFF1A6B35)),
                     const SizedBox(height: 10),
-                    _careRow(context, Icons.chat_bubble_outline, 'WhatsApp',
+                    _careRow(context, Icons.chat_bubble_outline, context.l10n.whatsapp,
                         '+234 800 746 2729', const Color(0xFF25D366)),
                     const SizedBox(height: 10),
-                    _careRow(context, Icons.mail_outline, 'Email',
+                    _careRow(context, Icons.mail_outline, context.l10n.email,
                         'support@rimamfb.ng', const Color(0xFF3B82F6)),
                     const SizedBox(height: 10),
                     Container(
@@ -177,7 +178,7 @@ void _showCustomerCare(BuildContext context) {
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              'Mon – Fri: 8am – 8pm\nSat: 9am – 5pm',
+                              context.l10n.supportHours,
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
@@ -246,7 +247,11 @@ class _HeaderSection extends StatelessWidget {
     final textGray = Theme.of(context).colorScheme.onSurface.withOpacity(0.55);
     final iconBg = Theme.of(context).colorScheme.onSurface.withOpacity(0.07);
     final hour = DateTime.now().hour;
-    final greeting = hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening';
+    final greeting = hour < 12
+        ? context.l10n.greetingMorning
+        : hour < 17
+            ? context.l10n.greetingAfternoon
+            : context.l10n.greetingEvening;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
@@ -265,6 +270,7 @@ class _HeaderSection extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
+                    // greeting is already localized above.
                     '$greeting 👋',
                     style: GoogleFonts.dmSans(fontSize: 13, color: textGray),
                   ),
@@ -404,8 +410,8 @@ class _BalanceCardState extends State<_BalanceCard> {
               children: [
                 Row(
                   children: [
-                    const Text('Available Balance',
-                        style: TextStyle(
+                    Text(context.l10n.availableBalance,
+                        style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w400,
                             color: Color(0xFFAAAAAA))),
@@ -441,7 +447,7 @@ class _BalanceCardState extends State<_BalanceCard> {
                       Clipboard.setData(ClipboardData(text: accountNumber));
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: const Text('Account number copied'),
+                          content: Text(context.l10n.accountNumberCopied),
                           behavior: SnackBarBehavior.floating,
                           duration: const Duration(seconds: 2),
                           backgroundColor: const Color(0xFF155C2C),
@@ -459,7 +465,8 @@ class _BalanceCardState extends State<_BalanceCard> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text('Account No. $displayAccount',
+                          Text(
+                              context.l10n.accountNoPrefix(displayAccount),
                               style: const TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w600,
@@ -510,7 +517,7 @@ class _BalanceCardState extends State<_BalanceCard> {
                   ),
                   child: Row(
                     children: [
-                      Text('Account Details',
+                      Text(context.l10n.accountDetails,
                           style: TextStyle(
                               fontFamily: 'Effra',
                               fontSize: 13,
@@ -572,8 +579,8 @@ class _ActionButtons extends StatelessWidget {
                       child: const Icon(Icons.send, color: Colors.white, size: 20),
                     ),
                     const SizedBox(width: 10),
-                    const Text('Transfer',
-                        style: TextStyle(
+                    Text(context.l10n.transfer,
+                        style: const TextStyle(
                             fontFamily: 'Effra',
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
@@ -610,7 +617,7 @@ class _ActionButtons extends StatelessWidget {
                       child: const Icon(Icons.add, color: brandGreen, size: 22),
                     ),
                     const SizedBox(width: 10),
-                    Text('Add Money',
+                    Text(context.l10n.addMoney,
                         style: TextStyle(
                             fontFamily: 'Effra',
                             fontSize: 15,
@@ -643,7 +650,7 @@ class _QuickServices extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Quick Services',
+              Text(context.l10n.quickServices,
                   style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -652,7 +659,7 @@ class _QuickServices extends StatelessWidget {
                 onTap: () => context.go('/bills'),
                 child: Row(
                   children: [
-                    Text('See All',
+                    Text(context.l10n.seeAll,
                         style: TextStyle(
                             fontFamily: 'Effra',
                             fontSize: 13,
@@ -674,42 +681,42 @@ class _QuickServices extends StatelessWidget {
             children: [
               _QuickServiceTile(
                 icon: Icons.phone_android,
-                label: 'Airtime',
+                label: context.l10n.airtime,
                 iconBgColor: const Color(0xFFE8F5ED),
                 iconColor: brandGreen,
                 route: '/bills/airtime',
               ),
               _QuickServiceTile(
                 icon: Icons.wifi,
-                label: 'Data',
+                label: context.l10n.data,
                 iconBgColor: const Color(0xFFE3F2FD),
                 iconColor: const Color(0xFF1976D2),
                 route: '/bills/data',
               ),
               _QuickServiceTile(
                 icon: Icons.bolt,
-                label: 'Electricity',
+                label: context.l10n.electricity,
                 iconBgColor: const Color(0xFFFFFDE7),
                 iconColor: const Color(0xFFF9A825),
                 route: '/bills/electricity',
               ),
               _QuickServiceTile(
                 icon: Icons.tv,
-                label: 'Cable TV',
+                label: context.l10n.cableTV,
                 iconBgColor: const Color(0xFFF3E5F5),
                 iconColor: const Color(0xFF7B1FA2),
                 route: '/bills/cable',
               ),
               _QuickServiceTile(
                 icon: Icons.school,
-                label: 'Education',
+                label: context.l10n.education,
                 iconBgColor: const Color(0xFFE3F2FD),
                 iconColor: const Color(0xFF1565C0),
                 route: '/education-bills',
               ),
               _QuickServiceTile(
                 icon: Icons.credit_card_outlined,
-                label: 'My Card',
+                label: context.l10n.myCard,
                 iconBgColor: const Color(0xFFE8EAF6),
                 iconColor: const Color(0xFF3949AB),
                 route: '/cards',
@@ -755,7 +762,8 @@ class _QuickServiceTile extends StatelessWidget {
         if (comingSoon) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('$label is coming soon!'),
+              content:
+                  Text(context.l10n.comingSoonFeature(label)),
               behavior: SnackBarBehavior.floating,
               backgroundColor: const Color(0xFF1A3A6B),
               shape: RoundedRectangleBorder(
@@ -895,9 +903,9 @@ class _BannerCarouselState extends State<_BannerCarousel> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
-                  'Upgrade to Tier 2',
-                  style: TextStyle(
+                Text(
+                  context.l10n.upgradeToTier2,
+                  style: const TextStyle(
                     fontFamily: 'Effra',
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -906,7 +914,7 @@ class _BannerCarouselState extends State<_BannerCarousel> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Unlock higher limits, lower fees and more amazing features.',
+                  context.l10n.unlockHigherLimitsLong,
                   style: TextStyle(
                     fontFamily: 'Effra',
                     fontSize: 13,
@@ -923,17 +931,18 @@ class _BannerCarouselState extends State<_BannerCarousel> {
                       color: brandGreen,
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text('Upgrade Now',
-                            style: TextStyle(
+                        Text(context.l10n.upgradeAccountNow,
+                            style: const TextStyle(
                                 fontFamily: 'Effra',
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
                                 color: Colors.white)),
                         SizedBox(width: 4),
-                        Icon(Icons.chevron_right, color: Colors.white, size: 16),
+                        const Icon(Icons.chevron_right,
+                            color: Colors.white, size: 16),
                       ],
                     ),
                   ),
@@ -976,9 +985,9 @@ class _BannerCarouselState extends State<_BannerCarousel> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
-                  'Need a Loan?',
-                  style: TextStyle(
+                Text(
+                  context.l10n.needALoan,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
@@ -986,7 +995,7 @@ class _BannerCarouselState extends State<_BannerCarousel> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Get up to ₦500,000 at low interest. Quick approval.',
+                  context.l10n.loanPitch('₦500,000'),
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.75),
                     fontSize: 12,
@@ -997,7 +1006,7 @@ class _BannerCarouselState extends State<_BannerCarousel> {
                 GestureDetector(
                   onTap: () => ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: const Text('Loan application coming soon!'),
+                      content: Text(context.l10n.loanComingSoon),
                       behavior: SnackBarBehavior.floating,
                       backgroundColor: const Color(0xFF1A3A6B),
                       shape: RoundedRectangleBorder(
@@ -1010,9 +1019,9 @@ class _BannerCarouselState extends State<_BannerCarousel> {
                       color: const Color(0xFFD4AF37),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Text(
-                      'Apply Now',
-                      style: TextStyle(
+                    child: Text(
+                      context.l10n.applyNow,
+                      style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
                           fontWeight: FontWeight.w700),
@@ -1084,7 +1093,7 @@ class _RecentTransactionsState extends ConsumerState<_RecentTransactions> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Recent Transactions',
+              Text(context.l10n.recentTransactions,
                   style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -1093,7 +1102,7 @@ class _RecentTransactionsState extends ConsumerState<_RecentTransactions> {
                 onTap: () => context.push('/transactions'),
                 child: Row(
                   children: [
-                    Text('See All',
+                    Text(context.l10n.seeAll,
                         style: TextStyle(
                             fontFamily: 'Effra',
                             fontSize: 13,
@@ -1121,7 +1130,7 @@ class _RecentTransactionsState extends ConsumerState<_RecentTransactions> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 28),
               child: Text(
-                'No transactions yet',
+                context.l10n.noTransactionsYet,
                 style: TextStyle(
                     fontFamily: 'Effra', fontSize: 13, color: textGray),
               ),

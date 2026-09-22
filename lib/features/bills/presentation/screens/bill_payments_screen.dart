@@ -7,6 +7,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../shared/widgets/noise_painter.dart';
 
+import '../../../../core/localization/l10n.dart';
 class BillService {
   final String id;
   final String title;
@@ -70,8 +71,8 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
     return [
       BillService(
         id: 'airtime',
-        title: 'Airtime',
-        description: 'All networks',
+        title: context.l10n.airtime,
+        description: context.l10n.allNetworks,
         icon: '📱',
         color: const Color(0xFF8B5CF6),
         bgColor: const Color(0xFFf5f3ff),
@@ -79,8 +80,8 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
       ),
       BillService(
         id: 'data',
-        title: 'Data',
-        description: 'Data bundles',
+        title: context.l10n.data,
+        description: context.l10n.dataBundles,
         icon: '📶',
         color: const Color(0xFFF97316),
         bgColor: const Color(0xFFfff7ed),
@@ -88,8 +89,8 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
       ),
       BillService(
         id: 'electricity',
-        title: 'Electricity',
-        description: 'DISCO payments',
+        title: context.l10n.electricity,
+        description: context.l10n.discoPayments,
         icon: '⚡',
         color: const Color(0xFFEAB308),
         bgColor: const Color(0xFFfefce8),
@@ -97,8 +98,8 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
       ),
       BillService(
         id: 'cable',
-        title: 'Cable TV',
-        description: 'DSTV, GOtv, etc.',
+        title: context.l10n.cableTV,
+        description: context.l10n.cableProviders,
         icon: '📺',
         color: const Color(0xFFEC4899),
         bgColor: const Color(0xFFfdf2f8),
@@ -106,8 +107,8 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
       ),
       BillService(
         id: 'education',
-        title: 'Education',
-        description: 'WAEC, JAMB, NECO',
+        title: context.l10n.education,
+        description: context.l10n.examBodies,
         icon: '🎓',
         color: const Color(0xFF3B82F6),
         bgColor: const Color(0xFFeff6ff),
@@ -115,8 +116,8 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
       ),
       BillService(
         id: 'event-tickets',
-        title: 'Events',
-        description: 'Tickets & concerts',
+        title: context.l10n.events,
+        description: context.l10n.ticketsAndConcerts,
         icon: '🎫',
         color: const Color(0xFFEC4899),
         bgColor: const Color(0xFFfdf2f8),
@@ -124,8 +125,8 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
       ),
       BillService(
         id: 'pension',
-        title: 'Pension',
-        description: 'First Bank Custodian',
+        title: context.l10n.pension,
+        description: context.l10n.firstBankCustodian,
         icon: '🏦',
         color: const Color(0xFF3B82F6),
         bgColor: const Color(0xFFeff6ff),
@@ -133,8 +134,8 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
       ),
       BillService(
         id: 'road-transport',
-        title: 'Transport',
-        description: 'Bus tickets',
+        title: context.l10n.transport,
+        description: context.l10n.busTickets,
         icon: '🚌',
         color: const Color(0xFF8B5CF6),
         bgColor: const Color(0xFFf5f3ff),
@@ -142,8 +143,8 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
       ),
       BillService(
         id: 'air-transport',
-        title: 'Flights',
-        description: 'Book flights',
+        title: context.l10n.flights,
+        description: context.l10n.bookFlights,
         icon: '✈️',
         color: const Color(0xFF3B82F6),
         bgColor: const Color(0xFFeff6ff),
@@ -151,8 +152,8 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
       ),
       BillService(
         id: 'government',
-        title: 'Gov. Payments',
-        description: 'Taxes & fees',
+        title: context.l10n.govPayments,
+        description: context.l10n.taxesAndFees,
         icon: '🏛️',
         color: const Color(0xFF166C46),
         bgColor: const Color(0xFFF2F7F3),
@@ -160,8 +161,8 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
       ),
       BillService(
         id: 'internet',
-        title: 'Internet',
-        description: 'Spectranet, Smile',
+        title: context.l10n.internet,
+        description: context.l10n.internetProviders,
         icon: '🌐',
         color: const Color(0xFF0EA5E9),
         bgColor: const Color(0xFFE0F7FA),
@@ -169,8 +170,8 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
       ),
       BillService(
         id: 'remita',
-        title: 'Remita',
-        description: 'Govt. payments',
+        title: context.l10n.remita,
+        description: context.l10n.govtPayments,
         icon: '🏛️',
         color: const Color(0xFF0369A1),
         bgColor: const Color(0xFFE0F2FE),
@@ -178,8 +179,8 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
       ),
       BillService(
         id: 'grants',
-        title: 'Grants',
-        description: 'Aid & donations',
+        title: context.l10n.grants,
+        description: context.l10n.aidAndDonations,
         icon: '🤝',
         color: const Color(0xFF10B981),
         bgColor: const Color(0xFFD1FAE5),
@@ -187,8 +188,8 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
       ),
       BillService(
         id: 'zakat',
-        title: 'Zakat',
-        description: 'Religious payment',
+        title: context.l10n.zakat,
+        description: context.l10n.religiousPayment,
         icon: '🕌',
         color: const Color(0xFF6D28D9),
         bgColor: const Color(0xFFEDE9FE),
@@ -244,7 +245,7 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
             Text(service.icon, style: TextStyle(fontSize: 40)),
             const SizedBox(height: 12),
             Text(
-              'Upgrade to unlock ${service.title}',
+              context.l10n.upgradeToUnlockService(service.title),
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
@@ -254,7 +255,7 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
             ),
             const SizedBox(height: 8),
             Text(
-              'This service requires ${service.requiredTier.name.toUpperCase()} tier or higher.',
+              context.l10n.serviceRequiresTier(service.requiredTier.name.toUpperCase()),
               style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
               textAlign: TextAlign.center,
             ),
@@ -271,9 +272,9 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
                   color: const Color(0xFFff6b35),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Center(
+                child: Center(
                   child: Text(
-                    'Upgrade Account',
+                    context.l10n.upgradeAccount,
                     style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -356,7 +357,7 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
                               ),
                             ),
                             Text(
-                              'Services',
+                              context.l10n.services,
                               style: TextStyle(
                                 color: Theme.of(context).cardColor,
                                 fontSize: 22,
@@ -365,7 +366,7 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Pay bills & manage services',
+                              context.l10n.payBillsManageServices,
                               style: TextStyle(
                                 color: Colors.white.withOpacity(0.65),
                                 fontSize: 13,
@@ -388,7 +389,7 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
                                 style: TextStyle(
                                     color: Theme.of(context).cardColor, fontSize: 14),
                                 decoration: InputDecoration(
-                                  hintText: 'Search services...',
+                                  hintText: context.l10n.searchServices,
                                   hintStyle: TextStyle(
                                     color: Colors.white.withOpacity(0.5),
                                     fontSize: 14,

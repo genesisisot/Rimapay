@@ -3,10 +3,17 @@ import 'app_colors.dart';
 
 class AppTextStyles {
   static const String fontFamily = 'Effra';
-  
+
+  /// Hausa uses hooked letters (ƙ Ƙ ɗ Ɗ ɓ Ɓ ɣ) that neither Effra nor
+  /// PlusJakartaSans contains — without a fallback they render as tofu boxes.
+  /// Inter covers the full Latin Extended-B range, so it is listed as a
+  /// per-glyph fallback. English text never reaches it and is unchanged.
+  static const List<String> fontFamilyFallback = ['Inter'];
+
   // Display Text Styles
   static const TextStyle display1 = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: fontFamilyFallback,
     fontSize: 32,
     fontWeight: FontWeight.w800,
     letterSpacing: -0.8,
@@ -16,6 +23,7 @@ class AppTextStyles {
 
   static const TextStyle display2 = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: fontFamilyFallback,
     fontSize: 28,
     fontWeight: FontWeight.w700,
     letterSpacing: -0.7,
@@ -26,6 +34,7 @@ class AppTextStyles {
   // Heading Text Styles
   static const TextStyle heading1 = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: fontFamilyFallback,
     fontSize: 24,
     fontWeight: FontWeight.w700,
     letterSpacing: -0.6,
@@ -35,6 +44,7 @@ class AppTextStyles {
   
   static const TextStyle heading2 = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: fontFamilyFallback,
     fontSize: 20,
     fontWeight: FontWeight.w600,
     letterSpacing: -0.5,
@@ -44,6 +54,7 @@ class AppTextStyles {
   
   static const TextStyle heading3 = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: fontFamilyFallback,
     fontSize: 18,
     fontWeight: FontWeight.w600,
     letterSpacing: -0.4,
@@ -53,6 +64,7 @@ class AppTextStyles {
   
   static const TextStyle heading4 = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: fontFamilyFallback,
     fontSize: 16,
     fontWeight: FontWeight.w600,
     color: AppColors.neutral950,
@@ -62,6 +74,7 @@ class AppTextStyles {
   // H5 and H6 styles
   static const TextStyle h5 = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: fontFamilyFallback,
     fontSize: 14,
     fontWeight: FontWeight.w600,
     color: AppColors.neutral950,
@@ -70,6 +83,7 @@ class AppTextStyles {
 
   static const TextStyle h6 = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: fontFamilyFallback,
     fontSize: 12,
     fontWeight: FontWeight.w600,
     color: AppColors.neutral950,
@@ -79,6 +93,7 @@ class AppTextStyles {
   // Title Text Styles (Material Design naming - used in SettingsScreen)
   static const TextStyle titleLarge = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: fontFamilyFallback,
     fontSize: 22,
     fontWeight: FontWeight.w600,
     letterSpacing: -0.5,
@@ -88,6 +103,7 @@ class AppTextStyles {
 
   static const TextStyle titleMedium = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: fontFamilyFallback,
     fontSize: 16,
     fontWeight: FontWeight.w600,
     color: AppColors.neutral950,
@@ -96,6 +112,7 @@ class AppTextStyles {
 
   static const TextStyle titleSmall = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: fontFamilyFallback,
     fontSize: 14,
     fontWeight: FontWeight.w600,
     color: AppColors.neutral950,
@@ -105,6 +122,7 @@ class AppTextStyles {
   // Body Text Styles
   static const TextStyle bodyLarge = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: fontFamilyFallback,
     fontSize: 16,
     fontWeight: FontWeight.w400,
     color: AppColors.neutral700,
@@ -113,6 +131,7 @@ class AppTextStyles {
   
   static const TextStyle bodyMedium = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: fontFamilyFallback,
     fontSize: 14,
     fontWeight: FontWeight.w400,
     color: AppColors.neutral700,
@@ -121,6 +140,7 @@ class AppTextStyles {
   
   static const TextStyle bodySmall = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: fontFamilyFallback,
     fontSize: 12,
     fontWeight: FontWeight.w400,
     color: AppColors.neutral600,
@@ -130,6 +150,7 @@ class AppTextStyles {
   // Body1 and Body2 (Material-style aliases)
   static const TextStyle body1 = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: fontFamilyFallback,
     fontSize: 16,
     fontWeight: FontWeight.w400,
     color: AppColors.neutral700,
@@ -138,6 +159,7 @@ class AppTextStyles {
 
   static const TextStyle body2 = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: fontFamilyFallback,
     fontSize: 14,
     fontWeight: FontWeight.w400,
     color: AppColors.neutral700,
@@ -147,6 +169,7 @@ class AppTextStyles {
   // Label Text Styles
   static const TextStyle labelLarge = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: fontFamilyFallback,
     fontSize: 14,
     fontWeight: FontWeight.w600,
     color: AppColors.neutral800,
@@ -155,6 +178,7 @@ class AppTextStyles {
   
   static const TextStyle labelMedium = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: fontFamilyFallback,
     fontSize: 12,
     fontWeight: FontWeight.w600,
     color: AppColors.neutral800,
@@ -163,6 +187,7 @@ class AppTextStyles {
   
   static const TextStyle labelSmall = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: fontFamilyFallback,
     fontSize: 10,
     fontWeight: FontWeight.w500,
     color: AppColors.neutral600,
@@ -172,6 +197,7 @@ class AppTextStyles {
   // Button Text Styles
   static const TextStyle buttonLarge = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: fontFamilyFallback,
     fontSize: 16,
     fontWeight: FontWeight.w600,
     height: 1.25,
@@ -179,6 +205,7 @@ class AppTextStyles {
   
   static const TextStyle buttonMedium = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: fontFamilyFallback,
     fontSize: 14,
     fontWeight: FontWeight.w600,
     height: 1.25,
@@ -186,6 +213,7 @@ class AppTextStyles {
   
   static const TextStyle buttonSmall = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: fontFamilyFallback,
     fontSize: 12,
     fontWeight: FontWeight.w600,
     height: 1.25,
@@ -194,6 +222,7 @@ class AppTextStyles {
   // Caption and Helper Text
   static const TextStyle caption = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: fontFamilyFallback,
     fontSize: 10,
     fontWeight: FontWeight.w400,
     color: AppColors.neutral500,
@@ -202,6 +231,7 @@ class AppTextStyles {
   
   static const TextStyle overline = TextStyle(
     fontFamily: fontFamily,
+    fontFamilyFallback: fontFamilyFallback,
     fontSize: 10,
     fontWeight: FontWeight.w600,
     color: AppColors.neutral600,
@@ -212,6 +242,7 @@ class AppTextStyles {
   // Special Text Styles
   static const TextStyle monospace = TextStyle(
     fontFamily: 'JetBrains Mono',
+    fontFamilyFallback: fontFamilyFallback,
     fontSize: 14,
     fontWeight: FontWeight.w500,
     color: AppColors.neutral800,

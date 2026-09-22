@@ -17,6 +17,7 @@ import '../../../auth/data/auth_api_service.dart';
 import '../../../auth/data/auth_dtos.dart';
 
 
+import '../../../../core/localization/l10n.dart';
 enum SettingsModal {
   changePassword,
   changePin,
@@ -180,64 +181,64 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
   }
 
   List<Widget> _buildSettingsSections() {
-  final language = ref.watch(languageTranslationsProvider);
+  final currentLanguage = ref.watch(languageProvider).languageCode;
   _darkMode = ref.watch(themeProvider).isDarkMode;
-   
-    
+
+
     final settingsSections = [
       // Security Settings
       _SettingsSection(
-        title: language('securitySettings'),
+        title: context.l10n.securitySettings,
         items: [
           _SettingsItem(
             id: 'change-password',
             icon: Icons.lock_outline,
-            title: language('changePassword'),
-            subtitle: 'Update your account password',
+            title: context.l10n.changePassword,
+            subtitle: context.l10n.updateAccountPassword,
             onTap: () => _setActiveModal(SettingsModal.changePassword),
           ),
           _SettingsItem(
             id: 'change-pin',
             icon: Icons.vpn_key_outlined,
-            title: 'Change Login PIN',
-            subtitle: 'Update your login PIN',
+            title: context.l10n.changeLoginPin,
+            subtitle: context.l10n.updateLoginPin,
             onTap: () => _setActiveModal(SettingsModal.changePin),
           ),
           _SettingsItem(
             id: 'change-txn-pin',
             icon: Icons.lock_reset,
-            title: 'Change Transaction PIN',
-            subtitle: 'Update your transaction PIN',
+            title: context.l10n.changeTransactionPin,
+            subtitle: context.l10n.updateTransactionPin,
             onTap: () => _setActiveModal(SettingsModal.changePin),
           ),
           _SettingsItem(
             id: 'reset-txn-pin',
             icon: Icons.refresh,
-            title: 'Reset Transaction PIN',
-            subtitle: 'Forgot your PIN? Reset it here',
+            title: context.l10n.resetTransactionPin,
+            subtitle: context.l10n.forgotPinResetHere,
             onTap: () => _showResetPinModal(),
           ),
           _SettingsItem(
             id: 'biometrics',
             icon: Icons.fingerprint,
-            title: language('biometrics'),
-            subtitle: 'Use fingerprint or Face ID',
+            title: context.l10n.biometrics,
+            subtitle: context.l10n.useFingerprintOrFaceId,
             isToggle: true,
             toggleValue: _biometrics,
             onToggleChanged: (value) => setState(() => _biometrics = value),
           ),
         ],
       ),
-      
+
       // Preferences
       _SettingsSection(
-        title: language('preferences'),
+        title: context.l10n.preferences,
         items: [
           _SettingsItem(
             id: 'dark-mode',
             icon: Icons.dark_mode,
-            title: 'Dark Mode',
-            subtitle: 'Switch to dark theme',
+            title: context.l10n.darkMode,
+            subtitle: context.l10n.switchToDarkTheme,
             isToggle: true,
             toggleValue: _darkMode,
             onToggleChanged: (value) {
@@ -250,8 +251,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
           _SettingsItem(
             id: 'notifications',
             icon: Icons.notifications_outlined,
-            title: language('notifications'),
-            subtitle: 'Get alerts for transactions',
+            title: context.l10n.notifications,
+            subtitle: context.l10n.getAlertsForTransactions,
             isToggle: true,
             toggleValue: _notifications,
             onToggleChanged: (value) => setState(() => _notifications = value),
@@ -259,36 +260,37 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
           _SettingsItem(
             id: 'language',
             icon: Icons.language,
-            title: language('language'),
-            subtitle: 'English (US)',
-            onTap: () => debugPrint('Language settings'),
+            title: context.l10n.language,
+            subtitle: L10n.languageNames[currentLanguage] ??
+                currentLanguage,
+            onTap: _showLanguageSheet,
           ),
         ],
       ),
-      
+
       // Support
       _SettingsSection(
-        title: 'Support',
+        title: context.l10n.support,
         items: [
           _SettingsItem(
             id: 'account-limits',
             icon: Icons.bar_chart,
-            title: 'Account Limits',
-            subtitle: 'View your transaction limits',
+            title: context.l10n.accountLimits,
+            subtitle: context.l10n.viewTransactionLimits,
             onTap: () => context.push('/account-limits'),
           ),
           _SettingsItem(
             id: 'help',
             icon: Icons.help_outline,
-            title: language('helpSupport'),
-            subtitle: 'FAQs and customer support',
+            title: context.l10n.helpSupport,
+            subtitle: context.l10n.faqsAndSupport,
             onTap: () => _showCustomerCareSheet(),
           ),
           _SettingsItem(
             id: 'contact',
             icon: Icons.headset_mic_outlined,
-            title: 'Customer Care',
-            subtitle: 'Call or chat with us',
+            title: context.l10n.customerCare,
+            subtitle: context.l10n.callOrChatWithUs,
             onTap: () => _showCustomerCareSheet(),
           ),
         ],
@@ -296,13 +298,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
 
       // Account
       _SettingsSection(
-        title: language('account'),
+        title: context.l10n.account,
         items: [
           _SettingsItem(
             id: 'logout',
             icon: Icons.logout,
-            title: language('logout'),
-            subtitle: 'Sign out of your account',
+            title: context.l10n.logout,
+            subtitle: context.l10n.signOutOfAccount,
             isDanger: true,
             onTap: () => _setActiveModal(SettingsModal.logoutConfirm),
           ),
@@ -1155,6 +1157,145 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
         context.go('/welcome');
       }
     });
+  }
+
+  void _showLanguageSheet() {
+    HapticFeedback.lightImpact();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        // Read once: choosing a language closes the sheet immediately, so it
+        // never needs to rebuild in place.
+        final selected = ref.read(languageProvider).languageCode;
+
+        return Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 20),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).dividerColor,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                  Text(
+                    context.l10n.selectLanguage,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    context.l10n.changeLanguageOneTap,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.6),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  for (final locale in L10n.supportedLocales) ...[
+                    _languageOption(
+                      code: locale.languageCode,
+                      isSelected: locale.languageCode == selected,
+                      onTap: () async {
+                        HapticFeedback.selectionClick();
+                        await ref
+                            .read(languageProvider.notifier)
+                            .setLanguage(locale.languageCode);
+                        if (sheetContext.mounted) Navigator.pop(sheetContext);
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                ],
+              ),
+            ),
+          );
+      },
+    );
+  }
+
+  Widget _languageOption({
+    required String code,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    final accent = const Color(0xFF1A6B35);
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? accent.withOpacity(0.08)
+              : Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? accent : Theme.of(context).dividerColor,
+            width: isSelected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: accent.withOpacity(isSelected ? 0.16 : 0.08),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                code.toUpperCase(),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: accent,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                L10n.languageNames[code] ?? code,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+            ),
+            if (isSelected)
+              Icon(Icons.check_circle, color: accent, size: 22)
+            else
+              Icon(
+                Icons.radio_button_unchecked,
+                color:
+                    Theme.of(context).colorScheme.onSurface.withOpacity(0.25),
+                size: 22,
+              ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _showCustomerCareSheet() {

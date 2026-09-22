@@ -34,6 +34,7 @@ import '../../../../core/services/secure_store.dart';
 import '../../../../shared/widgets/noise_painter.dart';
 import '../../../../shared/widgets/rimapay_logo.dart';
 
+import '../../../../core/localization/l10n.dart';
 enum AuthMode { signup, login }
 
 enum Flow { start, personal, underbanking, business, login, success }
@@ -277,7 +278,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                 ),
               ),
               Text(
-                'Create Transaction PIN',
+                context.l10n.createTransactionPin,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
@@ -287,7 +288,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
               ),
               const SizedBox(height: 8),
               Text(
-                'You need to create a transaction PIN before you can send money.',
+                context.l10n.needTransactionPinToSend,
                 style: TextStyle(
                   fontSize: 14,
                   color: Theme.of(ctx).colorScheme.onSurface.withOpacity(0.6),
@@ -300,9 +301,9 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                 obscureText: true,
                 maxLength: 8,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'PIN (4-8 digits)',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: context.l10n.pinFourToEightDigits,
+                  border: const OutlineInputBorder(),
                 ),
                 validator: (v) {
                   if (v == null || v.length < 4) return 'PIN must be 4-8 digits';
@@ -315,9 +316,9 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                 obscureText: true,
                 maxLength: 8,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Confirm PIN',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: context.l10n.confirmPin,
+                  border: const OutlineInputBorder(),
                 ),
                 validator: (v) {
                   if (v != pinController.text) return 'PINs do not match';
@@ -359,9 +360,9 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                       );
                     }
                   },
-                  child: const Text(
-                    'Create PIN',
-                    style: TextStyle(
+                  child: Text(
+                    context.l10n.createPin,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -438,9 +439,9 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
     );
     if (result != null && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Device linked successfully. Please log in.'),
-          backgroundColor: Color(0xFF166C46),
+        SnackBar(
+          content: Text(context.l10n.deviceLinkedPleaseLogIn),
+          backgroundColor: const Color(0xFF166C46),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -572,7 +573,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Sign in to your RimaPay account',
+                        context.l10n.signInToYourAccount,
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                             fontSize: 15,
@@ -582,7 +583,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
 
                       // Phone field
                       _AuthFloatingField(
-                        label: 'Phone Number',
+                        label: context.l10n.phoneNumber,
                         hint: '8012 345 678',
                         controller: _phoneController,
                         keyboardType: TextInputType.phone,
@@ -615,7 +616,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
 
                       // Password field
                       _AuthFloatingField(
-                        label: 'Password',
+                        label: context.l10n.password,
                         hint: '••••••••',
                         controller: _passwordController,
                         obscureText: !_showPassword,
@@ -643,10 +644,10 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                               Haptics.tap();
                               context.push('/forgot-password');
                             },
-                            child: const Padding(
-                              padding: EdgeInsets.fromLTRB(24, 12, 0, 12),
-                              child: Text('Forgot Password?',
-                                style: TextStyle(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(24, 12, 0, 12),
+                              child: Text(context.l10n.forgotPassword,
+                                style: const TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
                                     color: Color(0xFF166C46))),
@@ -685,7 +686,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                                         valueColor:
                                             AlwaysStoppedAnimation<Color>(
                                                 Colors.white)))
-                                : Text('Sign In',
+                                : Text(context.l10n.signIn,
                                     style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w700,
@@ -703,7 +704,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                             child: Divider(color: Theme.of(context).dividerColor)),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Text('or',
+                          child: Text(context.l10n.or,
                               style: TextStyle(
                                   fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5))),
                         ),
@@ -736,7 +737,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                                             AlwaysStoppedAnimation<Color>(
                                                 Color(0xFF166C46)))),
                                 const SizedBox(width: 12),
-                                Text('Authenticating...',
+                                Text(context.l10n.authenticating,
                                     style: TextStyle(
                                         color: Theme.of(context).colorScheme.onSurface,
                                         fontSize: 15,
@@ -770,8 +771,8 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                           Expanded(
                             child: _LoginShortcutTile(
                               icon: Icons.account_balance_outlined,
-                              title: 'Already bank with Rima?',
-                              subtitle: 'Link existing account',
+                              title: context.l10n.alreadyBankWithRima,
+                              subtitle: context.l10n.linkExistingAccount,
                               onTap: () => _showLinkDeviceSheet(context),
                             ),
                           ),
@@ -779,8 +780,8 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                           Expanded(
                             child: _LoginShortcutTile(
                               icon: Icons.phonelink_setup_outlined,
-                              title: 'New phone?',
-                              subtitle: 'Link this device',
+                              title: context.l10n.newPhone,
+                              subtitle: context.l10n.linkThisDevice,
                               onTap: () => _showDeviceLinkSheet(context),
                             ),
                           ),
@@ -791,7 +792,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
 
                       // Create account
                       Center(
-                        child: Text('New to RimaPay?',
+                        child: Text(context.l10n.newToRimaPay,
                             style: TextStyle(
                                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                                 fontSize: 13)),
@@ -811,9 +812,9 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: const Color(0xFF166C46), width: 1.4),
                           ),
-                          child: const Center(
-                            child: Text('Create Account',
-                                style: TextStyle(
+                          child: Center(
+                            child: Text(context.l10n.createAccount,
+                                style: const TextStyle(
                                     color: Color(0xFF166C46),
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700)),
@@ -891,7 +892,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                       FadeTransition(
                         opacity: _fadeAnimation,
                         child: Text(
-                          'Welcome to RimaPay! 🎉',
+                          context.l10n.welcomeToRimaPayCelebrate,
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -904,7 +905,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                       FadeTransition(
                         opacity: _fadeAnimation,
                         child: Text(
-                          'Your account has been successfully created and verified',
+                          context.l10n.accountCreatedAndVerified,
                           style: TextStyle(
                             fontSize: 16,
                             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
@@ -1019,7 +1020,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                           onPressed: () =>
                               setState(() => _currentFlow = Flow.login),
                           child: Text(
-                            'Sign In',
+                            context.l10n.signIn,
                             style: TextStyle(
                               color: Colors.white.withOpacity(0.85),
                               fontWeight: FontWeight.w600,
@@ -1064,7 +1065,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'Choose the account type that fits your needs',
+                          context.l10n.chooseAccountType,
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.65),
                             fontSize: 15,
@@ -1083,9 +1084,9 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                     child: Column(
                       children: [
                         _buildAccountTypeCard(
-                          title: 'Personal Account',
+                          title: context.l10n.personalAccount,
                           subtitle:
-                              'For individuals — send, receive & pay bills',
+                              context.l10n.personalAccountDesc,
                           icon: Icons.person_outline,
                           onTap: () {
                             setState(() => _currentFlow = Flow.personal);
@@ -1094,8 +1095,8 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                         ),
                         const SizedBox(height: 14),
                         _buildAccountTypeCard(
-                          title: 'Corporate Account',
-                          subtitle: 'For businesses and organizations',
+                          title: context.l10n.corporateAccount,
+                          subtitle: context.l10n.corporateAccountDesc,
                           icon: Icons.business_outlined,
                           onTap: () {
                             setState(() => _currentFlow = Flow.business);
@@ -1104,8 +1105,8 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                         ),
                         const SizedBox(height: 14),
                         _buildAccountTypeCard(
-                          title: 'Underbanked',
-                          subtitle: 'Financial inclusion — micro-loans & savings groups',
+                          title: context.l10n.underbanked,
+                          subtitle: context.l10n.underbankedDesc,
                           icon: Icons.people_outline,
                           onTap: () {
                             setState(() => _currentFlow = Flow.underbanking);
@@ -1122,7 +1123,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Text(
-                      'By continuing, you agree to our Terms of Service and Privacy Policy',
+                      context.l10n.agreeToTerms,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.45),
@@ -1142,14 +1143,14 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                       text: TextSpan(
                         children: [
                           TextSpan(
-                            text: 'Already have an account? ',
+                            text: context.l10n.alreadyHaveAccount + ' ',
                             style: TextStyle(
                                 color: Colors.white.withOpacity(0.5),
                                 fontSize: 13),
                           ),
-                          const TextSpan(
-                            text: 'Link existing account',
-                            style: TextStyle(
+                          TextSpan(
+                            text: context.l10n.linkExistingAccount,
+                            style: const TextStyle(
                               color: Color(0xFFD4AF37),
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
@@ -1333,13 +1334,13 @@ class _DeviceLinkingSheetState extends ConsumerState<_DeviceLinkingSheet> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Link Your Device',
+                Text(context.l10n.linkYourDevice,
                     style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
                         color: Theme.of(context).colorScheme.onSurface)),
                 const SizedBox(height: 2),
-                Text('Register this device to your account',
+                Text(context.l10n.registerDeviceToAccount,
                     style: TextStyle(
                         fontSize: 12,
                         color: Theme.of(context)
@@ -1359,13 +1360,13 @@ class _DeviceLinkingSheetState extends ConsumerState<_DeviceLinkingSheet> {
             border:
                 Border.all(color: const Color(0xFFFB923C).withOpacity(0.4)),
           ),
-          child: const Row(
+          child: Row(
             children: [
               Icon(Icons.info_outline, color: Color(0xFFF97316), size: 16),
               SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Enter the phone number linked to your RimaPay account.',
+                  context.l10n.enterLinkedPhone,
                   style: TextStyle(
                       fontSize: 12, color: Color(0xFF78350F), height: 1.4),
                 ),
@@ -1374,7 +1375,7 @@ class _DeviceLinkingSheetState extends ConsumerState<_DeviceLinkingSheet> {
           ),
         ),
         const SizedBox(height: 20),
-        Text('Phone Number',
+        Text(context.l10n.phoneNumber,
             style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -1444,7 +1445,7 @@ class _DeviceLinkingSheetState extends ConsumerState<_DeviceLinkingSheet> {
                           strokeWidth: 2,
                           valueColor:
                               AlwaysStoppedAnimation<Color>(Colors.white)))
-                  : const Text('Continue →',
+                  : Text(context.l10n.continueArrow,
                       style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -1477,13 +1478,13 @@ class _DeviceLinkingSheetState extends ConsumerState<_DeviceLinkingSheet> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Enter OTP',
+                Text(context.l10n.enterOtp,
                     style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
                         color: Theme.of(context).colorScheme.onSurface)),
                 const SizedBox(height: 2),
-                Text('We sent a code to your phone',
+                Text(context.l10n.sentCodeToPhone,
                     style: TextStyle(
                         fontSize: 12,
                         color: Theme.of(context)
@@ -1607,7 +1608,7 @@ class _DeviceLinkingSheetState extends ConsumerState<_DeviceLinkingSheet> {
                           strokeWidth: 2,
                           valueColor:
                               AlwaysStoppedAnimation<Color>(Colors.white)))
-                  : const Text('Verify →',
+                  : Text(context.l10n.verifyArrow,
                       style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -1619,7 +1620,7 @@ class _DeviceLinkingSheetState extends ConsumerState<_DeviceLinkingSheet> {
         if (_resendCountdown > 0)
           Center(
             child: Text(
-              'Resend code in $_resendCountdown s',
+              context.l10n.resendCodeIn('$_resendCountdown'),
               style: TextStyle(
                 fontSize: 12,
                 color: Theme.of(context)
@@ -1640,7 +1641,7 @@ class _DeviceLinkingSheetState extends ConsumerState<_DeviceLinkingSheet> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : Text(
-                      'Resend OTP',
+                      context.l10n.resendOtp,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -1666,13 +1667,13 @@ class _DeviceLinkingSheetState extends ConsumerState<_DeviceLinkingSheet> {
           const Icon(Icons.check_circle_outline,
               color: Color(0xFF166C46), size: 64),
           const SizedBox(height: 16),
-          Text('Device Linked Successfully',
+          Text(context.l10n.deviceLinkedSuccessfully,
               style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
                   color: Theme.of(context).colorScheme.onSurface)),
           const SizedBox(height: 8),
-          Text('You can now use this device to access your account.',
+          Text(context.l10n.canNowUseDevice,
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
           const SizedBox(height: 24),
@@ -1685,8 +1686,8 @@ class _DeviceLinkingSheetState extends ConsumerState<_DeviceLinkingSheet> {
                 color: const Color(0xFF166C46),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Center(
-                child: Text('Done',
+              child: Center(
+                child: Text(context.l10n.done,
                     style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
@@ -1957,8 +1958,8 @@ class _DeviceFaceCapturePageState
                                     size: 18),
                               ),
                               const SizedBox(width: 12),
-                              const Expanded(
-                                child: Text('Face Verification',
+                              Expanded(
+                                child: Text(context.l10n.faceVerification,
                                     style: TextStyle(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w700,
@@ -2046,7 +2047,7 @@ class _DeviceFaceCapturePageState
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
           ),
-          child: const Column(
+          child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(
@@ -2058,13 +2059,13 @@ class _DeviceFaceCapturePageState
                         AlwaysStoppedAnimation<Color>(Color(0xFF166C46))),
               ),
               SizedBox(height: 16),
-              Text('Verifying your face…',
+              Text(context.l10n.verifyingYourFace,
                   style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF1F2937))),
               SizedBox(height: 4),
-              Text('Please hold still',
+              Text(context.l10n.pleaseHoldStill,
                   style: TextStyle(
                       fontSize: 13, color: Color(0xFF6B7280))),
             ],
@@ -2231,13 +2232,13 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Link Existing Account',
+                      Text(context.l10n.linkExistingAccountTitle,
                           style: TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.w800,
                               color: Theme.of(context).colorScheme.onSurface)),
                       const SizedBox(height: 2),
-                      Text('Verify your existing account to continue',
+                      Text(context.l10n.verifyExistingAccount,
                           style: TextStyle(
                               fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
                     ],
@@ -2265,13 +2266,13 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
             borderRadius: BorderRadius.circular(10),
             border: Border.all(color: const Color(0xFFFB923C).withOpacity(0.4)),
           ),
-          child: const Row(
+          child: Row(
             children: [
               Icon(Icons.info_outline, color: Color(0xFFF97316), size: 16),
               SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Use your account number to link your existing RimaPay account.',
+                  context.l10n.useAccountNumberToLink,
                   style: TextStyle(
                       fontSize: 12, color: Color(0xFF78350F), height: 1.4),
                 ),
@@ -2280,7 +2281,7 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
           ),
         ),
         const SizedBox(height: 20),
-        Text('Account Number',
+        Text(context.l10n.accountNumber,
             style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -2335,7 +2336,7 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
                           strokeWidth: 2,
                           valueColor:
                               AlwaysStoppedAnimation<Color>(Colors.white)))
-                  : const Text('Send Verification Code',
+                  : Text(context.l10n.sendVerificationCode,
                       style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -2578,7 +2579,7 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
                           strokeWidth: 2,
                           valueColor:
                               AlwaysStoppedAnimation<Color>(Colors.white)))
-                  : Text('Link Account',
+                  : Text(context.l10n.linkAccount,
                       style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -2853,8 +2854,8 @@ class _ContinueLinkingPageState
                                 size: 18),
                           ),
                           const SizedBox(width: 12),
-                          const Expanded(
-                            child: Text('Face Verification',
+                          Expanded(
+                            child: Text(context.l10n.faceVerification,
                                 style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w700,
@@ -2939,7 +2940,7 @@ class _ContinueLinkingPageState
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
           ),
-          child: const Column(
+          child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(
@@ -2952,13 +2953,13 @@ class _ContinueLinkingPageState
                 ),
               ),
               SizedBox(height: 22),
-              Text('Verifying your face',
+              Text(context.l10n.verifyingYourFacePlain,
                   style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF111827))),
               SizedBox(height: 8),
-              Text('Hold on a moment ...',
+              Text(context.l10n.holdOnAMoment,
                   style: TextStyle(
                       fontSize: 14, color: Color(0xFF6B7280))),
             ],
@@ -3067,14 +3068,14 @@ class _ContinueLinkingPageState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 20),
-            Text('Create Password',
+            Text(context.l10n.createPassword,
                 style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w900,
                     color: Theme.of(context).colorScheme.onSurface)),
             const SizedBox(height: 8),
             Text(
-              'Create a password to secure your account',
+              context.l10n.createPasswordToSecure,
               style: TextStyle(
                   fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), height: 1.5),
             ),
@@ -3084,9 +3085,9 @@ class _ContinueLinkingPageState
               obscureText: !_showPassword,
               style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSurface),
               decoration: InputDecoration(
-                labelText: 'Password',
+                labelText: context.l10n.password,
                 labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
-                hintText: 'Min 8 characters',
+                hintText: context.l10n.minEightCharacters,
                 hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
                 suffixIcon: GestureDetector(
                   onTap: () =>
@@ -3111,10 +3112,10 @@ class _ContinueLinkingPageState
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 4),
-            const Align(
+            Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'Min 8 chars with uppercase, lowercase & number',
+                context.l10n.passwordRequirements,
                 style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF)),
               ),
             ),
@@ -3124,9 +3125,9 @@ class _ContinueLinkingPageState
               obscureText: !_showConfirmPassword,
               style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSurface),
               decoration: InputDecoration(
-                labelText: 'Confirm Password',
+                labelText: context.l10n.confirmPassword,
                 labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
-                hintText: 'Re-enter your password',
+                hintText: context.l10n.reEnterPassword,
                 hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
                 suffixIcon: GestureDetector(
                   onTap: () => setState(
@@ -3197,7 +3198,7 @@ class _ContinueLinkingPageState
                                   valueColor:
                                       AlwaysStoppedAnimation<Color>(
                                           Colors.white))))
-                      : const Text('Continue →',
+                      : Text(context.l10n.continueArrow,
                           style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
@@ -3270,14 +3271,14 @@ class _ContinueLinkingPageState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 20),
-            Text('Create PIN',
+            Text(context.l10n.createPin,
                 style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w900,
                     color: Theme.of(context).colorScheme.onSurface)),
             const SizedBox(height: 8),
             Text(
-              'Secure your account with a 4-digit PIN',
+              context.l10n.secureWithFourDigitPin,
               style: TextStyle(
                   fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), height: 1.5),
             ),
@@ -3365,7 +3366,7 @@ class _ContinueLinkingPageState
                           child: CircularProgressIndicator(
                               strokeWidth: 2,
                               valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
-                      : const Text('Proceed →',
+                      : Text(context.l10n.proceedArrow,
                           style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
@@ -3450,7 +3451,7 @@ class _ContinueLinkingPageState
             const Icon(Icons.check_circle,
                 color: Color(0xFF16A34A), size: 72),
             const SizedBox(height: 24),
-            const Text('Account Linked!',
+            Text(context.l10n.accountLinked,
                 style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w900,
@@ -3478,8 +3479,8 @@ class _ContinueLinkingPageState
                   color: const Color(0xFF166C46),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Center(
-                  child: Text('Continue to Account',
+                child: Center(
+                  child: Text(context.l10n.continueToAccount,
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,

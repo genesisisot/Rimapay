@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/providers/language_provider.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/localization/app_localizations.dart';
+import '../../core/localization/l10n.dart';
 
 class UnderbankingBanner extends StatelessWidget {
   final VoidCallback onUpgrade;
@@ -14,8 +14,8 @@ class UnderbankingBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
-  
+    final localizations = context.l10n;
+
     
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -53,7 +53,7 @@ class UnderbankingBanner extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  localizations.dailyLimit,
+                  localizations.dailyLimit('₦50,000'),
                   style: Theme.of(context).textTheme.bodySmall!.copyWith(
                     color: Colors.white.withOpacity(0.8),
                   ),
