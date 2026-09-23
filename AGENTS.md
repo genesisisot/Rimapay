@@ -32,6 +32,11 @@ flutter build web --release
 
 **Important**: `--no-tree-shake-icons` is required for release builds (preserves icon font).
 
+**Credentials**: production builds must inject the OAuth client, which is never committed
+(public repo) — add `--dart-define=CLIENT_ID=... --dart-define=CLIENT_SECRET=...` to any
+release/web build. CI reads them from the `RIMAPAY_CLIENT_ID` / `RIMAPAY_CLIENT_SECRET`
+repo secrets; without them the app falls back to the placeholder test client and login 500s.
+
 ## Test & Lint
 
 ```bash

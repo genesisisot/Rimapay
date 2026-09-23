@@ -33,7 +33,7 @@ jobs:
         run: flutter pub get
 
       - name: Build APK
-        run: flutter build apk --release --flavor production -t lib/mainProd.dart --no-tree-shake-icons
+        run: flutter build apk --release --flavor production -t lib/mainProd.dart --no-tree-shake-icons --dart-define=CLIENT_ID=${{ secrets.RIMAPAY_CLIENT_ID }} --dart-define=CLIENT_SECRET=${{ secrets.RIMAPAY_CLIENT_SECRET }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

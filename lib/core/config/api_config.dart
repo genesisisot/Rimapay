@@ -56,11 +56,19 @@ class ApiConfig {
 
   // ── Client credentials & defaults ─────────────────────────────────────────
 
-  /// OAuth client id for this mobile app (LoginRequestDto.clientId).
-  static const String clientId = 'swagger-client';
+  /// OAuth client id for this app (LoginRequestDto.clientId).
+  ///
+  /// Production credentials are injected at build time and never committed —
+  /// this repo is public. Build with:
+  ///   --dart-define=CLIENT_ID=... --dart-define=CLIENT_SECRET=...
+  /// CI reads them from the RIMAPAY_CLIENT_ID / RIMAPAY_CLIENT_SECRET repo
+  /// secrets. The defaults below are the old placeholder test client.
+  static const String clientId =
+      String.fromEnvironment('CLIENT_ID', defaultValue: 'swagger-client');
 
-  /// OAuth client secret for this mobile app (LoginRequestDto.clientSecret).
-  static const String clientSecret = 'swagger-client-secret';
+  /// OAuth client secret for this app (LoginRequestDto.clientSecret).
+  static const String clientSecret =
+      String.fromEnvironment('CLIENT_SECRET', defaultValue: 'swagger-client-secret');
 
   /// Grant type used by end-user password login (GrantType enum: Confidential | Password).
   static const String grantType = 'Password';

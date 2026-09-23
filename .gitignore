@@ -49,3 +49,6 @@ app.*.map.json
 
 # Claude Code local settings (may contain tokens/secrets — never commit)
 .claude/settings.local.json
+
+# gen-l10n diagnostic output; regenerated on every build.
+lib/l10n/untranslated.json

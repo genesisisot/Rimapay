@@ -1,7 +1,27 @@
 {
   "@@locale": "en",
+  "aFeeOfFeeWillBe": "A fee of {fee} will be deducted from your account.",
+  "@aFeeOfFeeWillBe": {
+    "placeholders": {
+      "fee": {
+        "type": "Object"
+      }
+    }
+  },
+  "aPepPoliticallyExposedPersonIs": "A PEP (Politically Exposed Person) is someone who currently holds or has held an important public position, which gives them influence over public funds or decisions. This includes family members and close associates of such persons.",
+  "aPepPoliticallyExposedPersonIs2": "A PEP (Politically Exposed Person) is someone who currently holds or has held an important public position, which gives them influence over public funds or decisions.",
   "aboutApp": "About App",
+  "aboutRemitaPayments": "About Remita Payments",
   "account": "Account",
+  "accountAccountnumber": "Account: {accountNumber}",
+  "@accountAccountnumber": {
+    "placeholders": {
+      "accountNumber": {
+        "type": "Object"
+      }
+    }
+  },
+  "accountCreated": "Account Created!",
   "accountCreatedAndVerified": "Your account has been successfully created and verified",
   "accountDetails": "Account Details",
   "accountDetailsCopied": "Account details copied",
@@ -12,7 +32,7 @@
   "@accountNoPrefix": {
     "placeholders": {
       "number": {
-        "type": "String"
+        "type": "Object"
       }
     }
   },
@@ -20,9 +40,35 @@
   "accountNumberCopied": "Account number copied",
   "accountNumberRequired": "Account number is required",
   "accountTiers": "Account Tiers",
+  "accountUnderReview": "Account Under Review",
+  "accountnumberBank": "{accountNumber} • {bank}",
+  "@accountnumberBank": {
+    "placeholders": {
+      "accountNumber": {
+        "type": "Object"
+      },
+      "bank": {
+        "type": "Object"
+      }
+    }
+  },
+  "active": "Active",
   "addMoney": "Add Money",
   "addMoneyDesc": "Top up wallet",
   "addMoneyToWallet": "Add Money to Wallet",
+  "address": "Address",
+  "affordableIntercityTrips": "Affordable intercity trips",
+  "agencyDescription": "{agency} · {description}",
+  "@agencyDescription": {
+    "placeholders": {
+      "agency": {
+        "type": "Object"
+      },
+      "description": {
+        "type": "Object"
+      }
+    }
+  },
   "agreeToTerms": "By continuing, you agree to our Terms of Service and Privacy Policy",
   "aidAndDonations": "Aid & donations",
   "airtime": "Airtime",
@@ -31,17 +77,53 @@
   "airtimePurchase": "Airtime Purchase",
   "airtimeToCash": "Airtime to Cash",
   "airtimeToCashDesc": "Convert airtime",
+  "allDone": "All Done!",
   "allNetworks": "All networks",
+  "allRequirementsCompleted": "All requirements completed",
   "alreadyBankWithRima": "Already bank with Rima?",
   "alreadyHaveAccount": "Already have an account?",
   "amount": "Amount",
+  "amount2": "₦{amount}",
+  "@amount2": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
   "amountRequired": "Amount is required",
+  "amountcontrollerAirtime": "₦{_amountController} airtime",
+  "@amountcontrollerAirtime": {
+    "placeholders": {
+      "_amountController": {
+        "type": "Object"
+      }
+    }
+  },
+  "anOtpWillBeSentTo": "An OTP will be sent to your registered phone number to reset your transaction PIN.",
   "applyForLoan": "Apply for Loan",
   "applyNow": "Apply Now",
+  "approvePaymentsWithoutTypingYourPin": "Approve payments without typing your PIN",
+  "approxValueOf85gOfGold": " (approx. value of 85g of gold). Zakat rate: 2.5%.",
+  "areYouAPoliticallyExposedPerson": "Are you a Politically Exposed Person?",
+  "areYouAPoliticallyExposedPerson2": "Are you a Politically Exposed Person or a family member/close associate of a PEP?",
+  "areYouSureYouWantTo": "Are you sure you want to log out of your RimaPay account?",
+  "areYouSureYouWantTo2": "Are you sure you want to logout from your RimaPay account?",
   "authenticating": "Authenticating...",
+  "authorizedAndNregulatedBy": "AUTHORIZED AND\nREGULATED BY",
+  "autoRollover": "Auto-Rollover",
+  "automaticallyRenewAtMaturity": "Automatically renew at maturity",
+  "available": "Available",
   "availableBalance": "Available Balance",
+  "availableEvents": "Available Events",
+  "axaGroupSubsidiaryInNigeria": "AXA Group subsidiary in Nigeria",
   "back": "Back",
   "backToHome": "Back to Home",
+  "backToSignIn": "Back to Sign In",
+  "balance20000Per50000": "₦50,000 balance • ₦20,000 per txn",
+  "balanceCap": "Balance Cap",
+  "balanceCap300000": "Balance cap: ₦300,000",
+  "balanceCap5000000After": "Balance cap: ₦5,000,000 (after approval)",
   "bank": "Bank",
   "bankAccount": "Bank Account",
   "bankDeposit": "Bank Deposit",
@@ -53,60 +135,174 @@
   "bettingDesc": "Sports & lottery",
   "billPaidSuccessfully": "Bill Paid Successfully",
   "biometricAuth": "Biometric Authentication",
+  "biometricForTransactions": "Biometric for Transactions",
+  "biometricLogin": "Biometric Login",
   "biometrics": "Biometrics",
+  "blockRequestNew": "Block & Request New",
   "bookFlights": "Book flights",
+  "bookFlights2": "Book Flights",
+  "bookInterCityTravel": "Book inter-city travel",
+  "builtWithInNigeria": "Built with ❤️ in Nigeria",
+  "bulkTransfer": "Bulk Transfer",
   "busTickets": "Bus tickets",
+  "busTickets2": "Bus Tickets",
+  "businessAccount": "Business Account",
+  "businessAnalytics": "Business Analytics",
+  "businessBalance": "Business Balance",
+  "businessPremisesPhoto": "Business Premises Photo",
+  "businessServices": "Business Services",
+  "buyAirtimeAndDataBundles": "Buy airtime and data bundles",
   "buyNow": "Buy Now",
+  "bvn": "BVN",
+  "bvnGetbvnlabel": "BVN {_getBvnLabel}",
+  "@bvnGetbvnlabel": {
+    "placeholders": {
+      "_getBvnLabel": {
+        "type": "Object"
+      }
+    }
+  },
   "bvnVerification": "BVN Verification",
+  "ca": "CA",
   "cableProviders": "DSTV, GOtv, etc.",
   "cableTV": "Cable TV",
   "cableTVDesc": "Subscriptions",
+  "calculateAndPayYourZakat": "Calculate and pay your Zakat",
   "callOrChatWithUs": "Call or chat with us",
   "callUs": "Call Us",
+  "cameraPreviewWillAppearHere": "Camera preview will appear here",
   "canNowUseDevice": "You can now use this device to access your account.",
   "cancel": "Cancel",
+  "candidateRegistrationNumber": "Candidate / Registration Number",
+  "captureSelfie": "Capture Selfie",
+  "cardFeeOfFeeWillBe": "Card fee of {fee} will be deducted from your account. Delivery in {deliveryDays} working days.",
+  "@cardFeeOfFeeWillBe": {
+    "placeholders": {
+      "fee": {
+        "type": "Object"
+      },
+      "deliveryDays": {
+        "type": "Object"
+      }
+    }
+  },
   "cardPayment": "Card payment",
+  "cardRequestSubmittedSuccessfully": "Card request submitted successfully!",
   "cardSchemes": "Visa, Mastercard, Verve",
   "cards": "Cards",
   "cardsComingSoon": "Cards coming soon",
+  "cashbackEarned": "Cashback Earned",
   "cbnLicensed": "CBN licensed and regulated",
+  "cbnLicensedPensionFundAdministrator": "CBN licensed pension fund administrator",
+  "cbnRegulatedTransactionLimits": "CBN-regulated transaction limits",
   "changeBiometric": "Change Biometric",
   "changeLanguage": "Change Language",
   "changeLanguageOneTap": "Change your app language with one tap",
   "changeLoginPin": "Change Login PIN",
   "changePassword": "Change Password",
+  "changePhoto": "Change Photo",
   "changePin": "Change PIN",
   "changeTransactionPin": "Change Transaction PIN",
+  "chooseANew4DigitPin": "Choose a new 4-digit PIN",
   "chooseAccountType": "Choose the account type that fits your needs",
+  "chooseDataPlan": "Choose Data Plan",
   "chooseNetwork": "Choose Network",
   "choosePaymentMethod": "Choose Payment Method",
+  "chooseProvider": "Choose Provider",
+  "chooseTransportOperator": "Choose Transport Operator",
+  "city": "City",
   "close": "Close",
+  "codeSentToYourRegisteredPhone": "Code sent to your registered phone number",
+  "comfortClassOnWheels": "Comfort & class on wheels",
+  "comingSoon": "Coming Soon",
+  "comingSoon2": "Coming soon",
   "comingSoonFeature": "{label} is coming soon!",
   "@comingSoonFeature": {
     "placeholders": {
       "label": {
-        "type": "String"
+        "type": "Object"
       }
     }
   },
+  "completeLowerTiersFirst": "Complete lower tiers first",
+  "completeProfile": "Complete Profile",
+  "completeRequiredDocumentsToActivateYour": "Complete required documents to activate your account",
+  "completeYourProfile": "Complete Your Profile",
+  "concertsShowsExperiences": "Concerts, shows & experiences",
   "confirm": "Confirm",
+  "confirmAndPay": "Confirm & Pay {amount}",
+  "@confirmAndPay": {
+    "placeholders": {
+      "amount": {
+        "type": "Object"
+      }
+    }
+  },
   "confirmPassword": "Confirm Password",
   "confirmPin": "Confirm PIN",
+  "confirmRequest": "Confirm Request",
   "confirmTransaction": "Confirm Transaction",
+  "confirmYourEmail": "Confirm your email",
+  "confirmYourIdentity": "Confirm Your Identity",
+  "confirmYourPin": "Confirm your PIN",
+  "congratulations": "Congratulations!",
   "contacts": "Contacts",
-  "continueLabel": "Continue",
   "continueArrow": "Continue →",
+  "continueLabel": "Continue",
   "continueToAccount": "Continue to Account",
+  "contributionType": "Contribution Type",
+  "conversionRate500Airtime40080": "80% conversion rate · ₦500 airtime = ₦400 cash",
+  "convertAirtimeToWalletBalance": "Convert airtime to wallet balance",
+  "convertedamount": "₦{_convertedAmount}",
+  "@convertedamount": {
+    "placeholders": {
+      "_convertedAmount": {
+        "type": "Object"
+      }
+    }
+  },
+  "convertsTo": "converts to",
   "cooperativeName": "Nigerian Unity Cooperative",
+  "copyAll": "Copy All",
   "copyAllDetails": "Copy All Details",
   "corporateAccount": "Corporate Account",
   "corporateAccountDesc": "For businesses and organizations",
+  "couldnTCreateTheReceiptPlease": "Couldn't create the receipt. Please try again.",
+  "couldnTLoadTransactions": "Couldn't load transactions",
+  "createAPin": "Create a PIN",
   "createAccount": "Create Account",
+  "createInvoice": "Create Invoice",
   "createPassword": "Create Password",
   "createPasswordToSecure": "Create a password to secure your account",
   "createPin": "Create PIN",
   "createTransactionPin": "Create Transaction PIN",
+  "createYourAccount": "Create Your Account",
+  "currentAccount": "Current Account",
+  "currentPlan": "Current Plan",
   "currentTier": "Current Tier",
+  "currentTier2": "CURRENT TIER",
+  "currentidxLength": "{currentIdx}/{length}",
+  "@currentidxLength": {
+    "placeholders": {
+      "currentIdx": {
+        "type": "Object"
+      },
+      "length": {
+        "type": "Object"
+      }
+    }
+  },
+  "currentidxTotalsteps": "{currentIdx}/{_totalSteps}",
+  "@currentidxTotalsteps": {
+    "placeholders": {
+      "currentIdx": {
+        "type": "Object"
+      },
+      "_totalSteps": {
+        "type": "Object"
+      }
+    }
+  },
   "customerCare": "Customer Care",
   "customerNumber": "Customer Number",
   "daily": "Daily",
@@ -114,11 +310,14 @@
   "@dailyLimit": {
     "placeholders": {
       "amount": {
-        "type": "String"
+        "type": "Object"
       }
     }
   },
+  "dailyLimitUsage": "Daily Limit Usage",
   "dailyTransactionLimit": "Daily Transaction Limit",
+  "dailyTransfers100000": "Daily transfers: ₦100,000",
+  "dailyTransfers1000000": "Daily transfers: ₦1,000,000",
   "darkMode": "Dark Mode",
   "data": "Data",
   "dataBundle": "Data Bundle",
@@ -127,10 +326,39 @@
   "dataPurchase": "Data Purchase",
   "date": "Date",
   "dateAndTime": "Date & Time",
+  "dateOfBirth": "Date of Birth",
+  "dateOfBirth2": "DATE OF BIRTH",
+  "dayMonthYear": "{day}/{month}/{year}",
+  "@dayMonthYear": {
+    "placeholders": {
+      "day": {
+        "type": "Object"
+      },
+      "month": {
+        "type": "Object"
+      },
+      "year": {
+        "type": "Object"
+      }
+    }
+  },
+  "days30": "30 Days",
+  "days60": "60 Days",
+  "days90": "90 Days",
   "debitCard": "Debit Card",
   "debitCreditCard": "Debit / Credit Card",
+  "dedicatedAccountManager": "Dedicated account manager",
   "delete": "Delete",
   "deleteAccount": "Delete Account",
+  "deleteAccount2": "Delete Account?",
+  "deliveryDeliverydaysDays": "Delivery: {deliveryDays} days",
+  "@deliveryDeliverydaysDays": {
+    "placeholders": {
+      "deliveryDays": {
+        "type": "Object"
+      }
+    }
+  },
   "departure": "Departure",
   "depositCashAtBranch": "Deposit cash at any bank branch",
   "description": "Description",
@@ -138,67 +366,205 @@
   "deviceLinkedPleaseLogIn": "Device linked successfully. Please log in.",
   "deviceLinkedSuccessfully": "Device Linked Successfully",
   "dialCodeFromPhone": "Dial a code from your phone",
+  "didnTReceiveCode": "Didn't receive code? ",
+  "didnTReceiveIt": "Didn't receive it? ",
+  "directorsIdCards": "Directors ID Cards",
   "discoPayments": "DISCO payments",
+  "displaynameDisplayacct": "{displayName} · {displayAcct}",
+  "@displaynameDisplayacct": {
+    "placeholders": {
+      "displayName": {
+        "type": "Object"
+      },
+      "displayAcct": {
+        "type": "Object"
+      }
+    }
+  },
   "dispute": "Dispute",
   "disputeSubmitted": "Dispute submitted. Our team will review it shortly.",
+  "documentType": "Document Type",
+  "documentsSubmitted": "Documents Submitted!",
+  "domesticFlightsAtBestPrices": "Domestic flights at best prices",
+  "donateApply": "Donate / Apply",
   "done": "Done",
   "dontHaveAccount": "Don't have an account?",
+  "downloadPdfReceipt": "Download PDF Receipt",
   "downloadReceipt": "Download Receipt",
+  "driverSLicense": "Driver's License",
+  "earnUpTo13PerAnnum": "Earn up to 13% per annum",
   "edit": "Edit",
+  "editProfile": "Edit Profile",
   "education": "Education",
   "educationDesc": "School fees & more",
   "electricity": "Electricity",
   "electricityDesc": "Pay bills",
   "email": "Email",
+  "emailAddress": "EMAIL ADDRESS",
   "emailNotifications": "Email Notifications",
+  "emailOrPhone": "Email or Phone",
+  "emailVerified": "Email verified!",
+  "ensureGoodLighting": "Ensure good lighting",
   "enterAmount": "Enter Amount",
   "enterDescription": "Enter description (optional)",
   "enterEmail": "Enter Email",
   "enterLinkedPhone": "Enter the phone number linked to your RimaPay account.",
   "enterNickname": "Enter nickname",
   "enterOtp": "Enter OTP",
+  "enterOtpCode": "Enter OTP code",
+  "enterOtpSentToYourPhone": "Enter OTP sent to your phone",
   "enterPassword": "Enter Password",
   "enterPin": "Enter PIN",
+  "enterResetNcode": "Enter reset\ncode",
+  "enterRrn": "Enter RRN",
+  "enterTheCodeSentToYour": "Enter the code sent to your registered phone number.",
+  "enterTheEmailOrPhoneNumber": "Enter the email or phone number on your account and we'll send a reset code.",
+  "enterTheOtp": "Enter the OTP",
+  "enterTheVerificationTokenSentTo": "Enter the verification token sent to your email address to activate your account.",
+  "enterTransactionPin": "Enter Transaction PIN",
   "enterValidTenDigitPhone": "Enter a valid 10-digit phone number",
+  "enterVerificationCode": "Enter verification code",
+  "enterVerificationCode2": "Enter Verification Code",
+  "enterYour4DigitPin": "Enter your 4-digit PIN",
+  "enterYour4DigitPinTo": "Enter your 4-digit PIN to authorize this transaction",
+  "enterYourBusinessEmailAddress": "Enter your business email address",
+  "enterYourDetailsToGetStarted": "Enter your details to get started",
+  "enterYourRrnForS": "Enter your RRN for {s}",
+  "@enterYourRrnForS": {
+    "placeholders": {
+      "s": {
+        "type": "Object"
+      }
+    }
+  },
   "errorOccurred": "An error occurred",
+  "errorPickingFileE": "Error picking file: {e}",
+  "@errorPickingFileE": {
+    "placeholders": {
+      "e": {
+        "type": "Object"
+      }
+    }
+  },
+  "errorPickingImageE": "Error picking image: {e}",
+  "@errorPickingImageE": {
+    "placeholders": {
+      "e": {
+        "type": "Object"
+      }
+    }
+  },
   "eventTickets": "Event Tickets",
   "eventTicketsDesc": "Movies & concerts",
   "events": "Events",
   "examBodies": "WAEC, JAMB, NECO",
+  "examBody": "Exam Body",
+  "examType": "Exam Type",
+  "expiresAtOtpexpiresat": "Expires at {otpExpiresAt}",
+  "@expiresAtOtpexpiresat": {
+    "placeholders": {
+      "otpExpiresAt": {
+        "type": "Object"
+      }
+    }
+  },
   "faceVerification": "Face Verification",
+  "faceVerifiedSuccessfully": "Face verified successfully!",
   "failed": "Failed",
   "faqsAndSupport": "FAQs and customer support",
   "fee": "Fee",
   "feeApplies": "Fee applies",
+  "feeFee": "Fee: {fee}",
+  "@feeFee": {
+    "placeholders": {
+      "fee": {
+        "type": "Object"
+      }
+    }
+  },
+  "filterTransactions": "Filter Transactions",
+  "finish": "Finish",
   "firstBankCustodian": "First Bank Custodian",
+  "firstName": "First Name",
+  "fixedDeposit": "Fixed Deposit",
+  "fixedFee": "Fixed Fee",
+  "fixedamount": "₦{fixedAmount}",
+  "@fixedamount": {
+    "placeholders": {
+      "fixedAmount": {
+        "type": "Object"
+      }
+    }
+  },
+  "fixedamount2": "₦{_fixedAmount}",
+  "@fixedamount2": {
+    "placeholders": {
+      "_fixedAmount": {
+        "type": "Object"
+      }
+    }
+  },
   "flights": "Flights",
+  "forgotIdtype": "Forgot {_idType}?",
+  "@forgotIdtype": {
+    "placeholders": {
+      "_idType": {
+        "type": "Object"
+      }
+    }
+  },
   "forgotPassword": "Forgot Password?",
   "forgotPinResetHere": "Forgot your PIN? Reset it here",
   "freeInstant": "Free · Instant",
   "freeNoInternet": "Free · No internet",
   "freeOneToThreeHours": "Free · 1–3 hours",
   "frequentBeneficiaries": "Frequent Beneficiaries",
+  "from": "From",
+  "fullAddress": "Full Address",
   "fullName": "Full Name",
   "fundWallet": "Fund Wallet",
+  "fundYourAccount": "Fund your account",
   "fundYourWallet": "Fund your RimaPay wallet",
+  "fundsReflectInstantlyAfterTransfer": "Funds reflect instantly after transfer",
+  "gender": "Gender",
+  "gender2": "GENDER",
+  "generatePaymentLinks": "Generate payment links",
+  "generateProfessionalInvoices": "Generate professional invoices",
   "getAlertsForTransactions": "Get alerts for transactions",
   "getLoansToday": "Get Loans Today",
   "getStarted": "Get Started",
   "go": "Go",
+  "goHome": "Go Home",
+  "goToDashboard": "Go to Dashboard",
+  "goToHome": "Go to Home",
   "goodAfternoon": "Good afternoon ✨",
   "goodEvening": "Good evening ✨",
   "goodMorning": "Good morning ✨",
+  "goodMorning2": "Good morning",
+  "gotIt": "Got it",
   "govPayments": "Gov. Payments",
   "government": "Government",
   "governmentDesc": "Tax & permits",
+  "governmentId": "Government ID",
+  "governmentIdDocument": "Government ID Document",
+  "governmentInstitutionalPayments": "Government & institutional payments",
+  "governmentIssuedId": "Government-Issued ID",
+  "governmentService": "Government Service",
+  "governmentServices": "Government Services",
   "govtPayments": "Govt. payments",
   "grants": "Grants",
+  "grantsDonations": "Grants & Donations",
+  "great": "Great!",
   "greetingAfternoon": "Good Afternoon",
   "greetingEvening": "Good Evening",
   "greetingMorning": "Good Morning",
   "helpSupport": "Help & Support",
+  "hideLabel": "Hide",
   "holdOnAMoment": "Hold on a moment ...",
+  "holdOnAMomentThisCan": "Hold on a moment — this can take a few seconds.\nPlease don't close or refresh the page.",
+  "holdOnAMomentU2014This": "Hold on a moment — this can take a few seconds.\nPlease don't close or refresh the page.",
   "home": "Home",
+  "iVeSentTheMoney": "I've Sent the Money",
   "idVerification": "ID Verification",
   "instantTransfersToAnyBank": "Instant transfers to any bank",
   "institution": "Institution",
@@ -206,194 +572,547 @@
   "@insufficientBalanceIs": {
     "placeholders": {
       "balance": {
-        "type": "String"
+        "type": "Object"
       }
     }
   },
   "insufficientFunds": "Insufficient funds",
+  "insuredByNdic": "Insured by NDIC",
+  "internationalPassport": "International Passport",
   "internet": "Internet",
   "internetProviders": "Spectranet, Smile",
+  "internetServices": "Internet Services",
   "invalidAccountNumber": "Invalid account number",
   "invalidAmount": "Invalid amount",
   "invalidPhoneNumber": "Invalid phone number",
   "invalidPin": "Invalid PIN. Please try again.",
+  "invoiceInv2024001": "Invoice #INV-2024-001",
+  "itemfeeFee": "+₦{itemFee} fee",
+  "@itemfeeFee": {
+    "placeholders": {
+      "itemFee": {
+        "type": "Object"
+      }
+    }
+  },
   "kycVerification": "KYC Verification",
   "labelCopied": "{label} copied",
   "@labelCopied": {
     "placeholders": {
       "label": {
-        "type": "String"
+        "type": "Object"
       }
     }
   },
   "language": "Language",
   "languageChanged": "Language updated",
+  "largestPfaInNigeriaByAum": "Largest PFA in Nigeria by AUM",
+  "lastName": "Last Name",
   "lastUsed": "Last used",
+  "leadwayGroupPensionArm": "Leadway Group pension arm",
+  "length": "{length}",
+  "@length": {
+    "placeholders": {
+      "length": {
+        "type": "Object"
+      }
+    }
+  },
+  "lengthFlightsFoundCodeCode2": "{length} flights found · {code} → {code2}",
+  "@lengthFlightsFoundCodeCode2": {
+    "placeholders": {
+      "length": {
+        "type": "Object"
+      },
+      "code": {
+        "type": "Object"
+      },
+      "code2": {
+        "type": "Object"
+      }
+    }
+  },
+  "lengthLength2": "{length}/{length2}",
+  "@lengthLength2": {
+    "placeholders": {
+      "length": {
+        "type": "Object"
+      },
+      "length2": {
+        "type": "Object"
+      }
+    }
+  },
+  "lga": "LGA",
+  "licensedByCbn": "Licensed by CBN",
+  "licensedByPencom": "Licensed by PenCom",
+  "licensedByTheCbn": "Licensed by the CBN",
+  "limitsAreSetInAccordanceWith": "Limits are set in accordance with CBN regulations for microfinance banks. Upgrade your account tier to increase your limits.",
   "linkAccount": "Link Account",
   "linkExistingAccount": "Link existing account",
   "linkExistingAccountTitle": "Link Existing Account",
   "linkThisDevice": "Link this device",
   "linkYourDevice": "Link Your Device",
   "linkedToCooperative": "Linked to: Nigerian Unity Cooperative",
+  "loadingPaymentDetails": "Loading payment details…",
+  "loadingPlans": "Loading plans…",
+  "loadingProviders": "Loading providers…",
   "loanComingSoon": "Loan application coming soon!",
   "loanPitch": "Get up to {amount} at low interest. Quick approval.",
   "@loanPitch": {
     "placeholders": {
       "amount": {
-        "type": "String"
+        "type": "Object"
       }
     }
   },
+  "loanServicesAreNowAvailableIn": "Loan services are now available in your RimaPay app. Apply for instant loans up to ₦500,000",
   "loans": "Loans",
   "loansDesc": "Quick approval",
+  "logOut": "Log Out",
+  "logOut2": "Log Out?",
   "logout": "Logout",
+  "logoutConfirmation": "Logout Confirmation",
+  "markAllRead": "Mark all read",
   "markAsFavorite": "Mark as Favorite",
+  "markRead": "Mark read",
+  "max10TicketsPerOrder": "Max 10 tickets per order",
+  "max4PerBooking": "Max 4 per booking",
   "meterNumber": "Meter Number",
   "methodComingSoon": "{method} coming soon",
   "@methodComingSoon": {
     "placeholders": {
       "method": {
-        "type": "String"
+        "type": "Object"
       }
     }
   },
+  "min50Max50000": "Min: ₦50, Max: ₦50,000",
   "minEightCharacters": "Min 8 characters",
   "minMaxAmount": "Min: {min}, Max: {max}",
   "@minMaxAmount": {
     "placeholders": {
       "min": {
-        "type": "String"
+        "type": "Object"
       },
       "max": {
-        "type": "String"
+        "type": "Object"
       }
     }
   },
+  "minimum10000": "Minimum: ₦10,000",
   "minimumAmount": "Minimum amount is {amount}",
   "@minimumAmount": {
     "placeholders": {
       "amount": {
-        "type": "String"
+        "type": "Object"
       }
     }
   },
+  "minimumTransfer100": "Minimum transfer: ₦100",
   "mobileTopUp": "Mobile Top-Up",
+  "modernFleetNationwide": "Modern fleet nationwide",
+  "monFri8am8pmNsat9am": "Mon – Fri: 8am – 8pm\nSat: 9am – 5pm",
+  "moneyReceived": "Money Received",
   "monthly": "Monthly",
+  "monthlySubscription": "Monthly subscription",
   "monthlyTransactionLimit": "Monthly Transaction Limit",
+  "months6": "6 Months",
   "more": "More",
   "moreInfo": "More Info",
   "moreServices": "More Services",
   "moreServicesDesc": "All bill services",
+  "multipleTransfersAtOnce": "Multiple transfers at once",
+  "mustBeAtLeast8Characters": "Must be at least 8 characters with upper, lower, number & special char",
   "myCard": "My Card",
   "myNumber": "My Number",
+  "myToDos": "My To-dos",
   "needALoan": "Need a Loan?",
   "needTransactionPinToSend": "You need to create a transaction PIN before you can send money.",
   "network": "Network",
   "networkError": "Network error. Please try again.",
+  "newDeviceLoginDetectedFromLagos": "New device login detected from Lagos, Nigeria. If this wasn't you, please secure your account.",
+  "newFeatureAvailable": "New Feature Available",
+  "newLabel": "NEW",
+  "newPassword": "New Password",
   "newPhone": "New phone?",
   "newToRimaPay": "New to RimaPay?",
   "next": "Next",
   "nicknameOptional": "Nickname (Optional)",
+  "nin": "NIN",
+  "ninGetninlabel": "NIN {_getNinLabel}",
+  "@ninGetninlabel": {
+    "placeholders": {
+      "_getNinLabel": {
+        "type": "Object"
+      }
+    }
+  },
+  "ninSlip": "NIN Slip",
+  "nisabThreshold": "Nisab threshold: ",
+  "noPlansAvailable": "No plans available",
+  "noPlansAvailableRetry": "No plans available. Tap to retry.",
+  "noProvidersAvailable": "No providers available right now. Tap to retry.",
   "noTransactionsYet": "No transactions yet",
   "noteOptional": "Note (optional)",
   "notifications": "Notifications",
+  "number": "{number}...",
+  "@number": {
+    "placeholders": {
+      "number": {
+        "type": "Object"
+      }
+    }
+  },
+  "numberOfPassengers": "Number of Passengers",
+  "numberOfTickets": "Number of Tickets",
+  "openAnNaccount": "Open an\nAccount",
+  "openUnderbankedAccount": "Open Underbanked Account?",
   "optional": "Optional",
   "or": "or",
+  "otpSentToYourRegisteredNumber": "OTP sent to your registered number",
+  "pageNotFound": "Page Not Found",
+  "partOfFidelityBankGroup": "Part of Fidelity Bank Group",
   "passengers": "Passengers",
+  "passengers2": "{_passengers}",
+  "@passengers2": {
+    "placeholders": {
+      "_passengers": {
+        "type": "Object"
+      }
+    }
+  },
   "password": "Password",
+  "passwordChanged": "Password Changed!",
+  "passwordChangedSuccessfully": "Password Changed Successfully",
   "passwordRequirements": "Min 8 chars with uppercase, lowercase & number",
+  "passwordReset": "Password reset!",
+  "payBills": "Pay Bills",
   "payBillsManageServices": "Pay bills & manage services",
+  "payCableTvSubscriptions": "Pay cable TV subscriptions",
+  "payElectricityBills": "Pay electricity bills",
+  "payNow": "Pay Now",
+  "payWithBiometrics": "Pay with Biometrics",
+  "payZakatZakatdue": "Pay Zakat ({_zakatDue})",
+  "@payZakatZakatdue": {
+    "placeholders": {
+      "_zakatDue": {
+        "type": "Object"
+      }
+    }
+  },
+  "paymentAmount": "Payment Amount",
   "paymentCompleted": "Payment Completed",
+  "paymentSuccessful": "Payment Successful",
   "paymentSuccessfulCelebrate": "Payment Successful! 🎉",
+  "paymentsAreForwardedDirectlyToThe": "Payments are forwarded directly to the relevant government agency",
+  "payroll": "Payroll",
+  "pencomRegulatedContributions": "PenCom regulated contributions",
   "pending": "Pending",
   "pension": "Pension",
   "pensionDesc": "Voluntary contributions",
+  "pensionFundAdministrator": "Pension Fund Administrator",
+  "pepDeclaration": "PEP Declaration",
+  "perDay": "Per Day",
+  "perPerson": "/person",
+  "perTicket": "/ticket",
+  "percent": "{percent}%",
+  "@percent": {
+    "placeholders": {
+      "percent": {
+        "type": "Object"
+      }
+    }
+  },
   "personalAccount": "Personal Account",
   "personalAccountDesc": "For individuals — send, receive & pay bills",
   "phone": "Phone",
   "phoneNumber": "Phone Number",
+  "phoneNumber2": "PHONE NUMBER",
   "phoneTransfer": "Phone Transfer",
+  "pinChanged": "PIN changed!",
+  "pinChangedSuccessfully": "PIN Changed Successfully",
   "pinFourToEightDigits": "PIN (4-8 digits)",
+  "pinReset": "PIN reset!",
+  "placeFixedDeposit": "Place Fixed Deposit",
   "plan": "Plan",
   "planBlurb": "Get {data} for {price}. Valid for {validity}",
   "@planBlurb": {
     "placeholders": {
       "data": {
-        "type": "String"
+        "type": "Object"
       },
       "price": {
-        "type": "String"
+        "type": "Object"
       },
       "validity": {
-        "type": "String"
+        "type": "Object"
       }
     }
   },
+  "planDuration": "Plan Duration",
+  "pleaseEnterAComplete10Digit": "Please enter a complete 10-digit phone number",
+  "pleaseEnterYourAddress": "Please enter your address",
+  "pleaseEnterYourLga": "Please enter your LGA",
   "pleaseHoldStill": "Please hold still",
+  "pleaseProvideYourOwnBvnNin": "Please provide your own BVN/NIN to verify your account opening application",
+  "pleaseReEnterYourDetailsTo": "Please re-enter your details to confirm",
+  "pleaseSelectAnOption": "Please select an option",
+  "pleaseSelectOccupationAndIncome": "Please select occupation and income",
+  "pleaseSelectYourState": "Please select your state",
+  "pleaseWaitWhileWeProcessYour": "Please wait while we process your data purchase...",
+  "popular": "Popular",
+  "positionYourFaceInTheOval": "Position your face in the oval",
+  "postpaid": "Postpaid",
   "preferences": "Preferences",
+  "premiumInterstateTravel": "Premium interstate travel",
+  "prepaid": "Prepaid",
+  "price": "₦{price}",
+  "@price": {
+    "placeholders": {
+      "price": {
+        "type": "Object"
+      }
+    }
+  },
+  "priceperseatSeat": "₦{pricePerSeat}/seat",
+  "@priceperseatSeat": {
+    "placeholders": {
+      "pricePerSeat": {
+        "type": "Object"
+      }
+    }
+  },
+  "priorityCustomerSupport": "Priority customer support",
+  "priorityPriority2": "{priority}{priority2}",
+  "@priorityPriority2": {
+    "placeholders": {
+      "priority": {
+        "type": "Object"
+      },
+      "priority2": {
+        "type": "Object"
+      }
+    }
+  },
   "privacy": "Privacy",
+  "proceed": "Proceed",
   "proceedArrow": "Proceed →",
   "processedSecurelyBy": "Transaction processed securely by RimaPay",
+  "processing": "Processing...",
+  "processingPayment": "Processing Payment",
   "profile": "Profile",
+  "profileCompleted": "Profile Completed!",
+  "profileUpdated": "Profile updated",
+  "proofOfAddress": "Proof of Address",
+  "protected": "PROTECTED",
+  "provideDetailsOfYourSourceOf": "Provide details of your source of income",
+  "provideEitherBvnOrNinOnly": "• Provide either BVN OR NIN (only one required)\n• Complete OTP verification",
+  "provideYourBvnOrNinIf": "Provide your BVN or NIN if you have one. This step is optional for underbanked accounts.",
+  "providernamePackages": "{providerName} Packages",
+  "@providernamePackages": {
+    "placeholders": {
+      "providerName": {
+        "type": "Object"
+      }
+    }
+  },
   "pushNotifications": "Push Notifications",
+  "qualityPensionManagement": "Quality pension management",
+  "quantity": "{_quantity}",
+  "@quantity": {
+    "placeholders": {
+      "_quantity": {
+        "type": "Object"
+      }
+    }
+  },
+  "questionsContactSupportRimapayCom": "Questions? Contact support@rimapay.com",
   "quickAccessFutureTransfers": "Quick access for future transfers",
   "quickActions": "Quick Actions",
   "quickApprovalProcess": "Quick approval process",
   "quickSelectAmount": "Quick Select Amount",
   "quickServices": "Quick Services",
+  "rate": "{rate}%",
+  "@rate": {
+    "placeholders": {
+      "rate": {
+        "type": "Object"
+      }
+    }
+  },
+  "ratePA": "{rate}% p.a.",
+  "@ratePA": {
+    "placeholders": {
+      "rate": {
+        "type": "Object"
+      }
+    }
+  },
   "reEnterPassword": "Re-enter your password",
+  "reEnterYour4DigitPin": "Re-enter your 4-digit PIN to confirm",
   "receipt": "Receipt",
+  "receiptCopiedToClipboard": "Receipt copied to clipboard",
   "receiptDownloaded": "Receipt downloaded successfully",
+  "receiptGeneratedNote": "This receipt was generated by the RimaPay app. Keep the Transaction ID for any enquiry.",
   "receiptShared": "Receipt shared successfully",
   "recent": "Recent",
   "recentActivity": "Recent Activity",
+  "recentPurchases": "Recent Purchases",
   "recentRecipients": "Recent Recipients",
   "recentTransactions": "Recent Transactions",
   "recipient": "Recipient",
   "reference": "Reference",
+  "referenceCopiedToClipboard": "Reference copied to clipboard",
   "registerDeviceToAccount": "Register this device to your account",
+  "registeredNumberCanTBeChanged": "Registered number — can't be changed. Others find you by this.",
+  "regulatedByPencomContributionsAreTax": "Regulated by PenCom · Contributions are tax deductible",
   "religiousPayment": "Religious payment",
   "remita": "Remita",
   "repeat": "Repeat",
   "repeatTransaction": "Repeat Transaction",
+  "replaceCard": "Replace card",
+  "requestAPhysicalDebitCard": "Request a physical debit card",
+  "requestCard": "Request Card",
+  "requestFailedStatuscode": "Request failed ({statusCode}).",
+  "@requestFailedStatuscode": {
+    "placeholders": {
+      "statusCode": {
+        "type": "Object"
+      }
+    }
+  },
+  "requestPayment": "Request Payment",
+  "requestSelectedcard": "Request {_selectedCard}?",
+  "@requestSelectedcard": {
+    "placeholders": {
+      "_selectedCard": {
+        "type": "Object"
+      }
+    }
+  },
+  "resendCode": "Resend Code",
+  "resendCode2": "Resend code",
   "resendCodeIn": "Resend code in {seconds} s",
   "@resendCodeIn": {
     "placeholders": {
       "seconds": {
-        "type": "String"
+        "type": "Object"
       }
     }
   },
   "resendOtp": "Resend OTP",
+  "resetCode": "Reset Code",
+  "resetPassword": "Reset Password",
   "resetTransactionPin": "Reset Transaction PIN",
+  "resetYourNpassword": "Reset your\npassword",
+  "residentialAddress": "Residential Address",
+  "retrieveYourPaymentDetailsUsingThe": "Retrieve your payment details using the Remita Retrieval Reference",
+  "retry": "Retry",
   "returnDate": "Return Date",
+  "returnLabel": "Return",
+  "reviewSubmit": "Review & Submit",
+  "reviewTheDocumentsYouUploadedBefore": "Review the documents you uploaded before submitting for verification.",
+  "rimaMfb": "RIMA MFB",
   "rimapayAccountOrPhone": "RimaPay Account / Phone",
+  "rimapayAccountcontroller": "RimaPay · {_accountController}",
+  "@rimapayAccountcontroller": {
+    "placeholders": {
+      "_accountController": {
+        "type": "Object"
+      }
+    }
+  },
+  "rimapayReceiptReference": "RimaPay Receipt {reference}",
+  "@rimapayReceiptReference": {
+    "placeholders": {
+      "reference": {
+        "type": "Object"
+      }
+    }
+  },
+  "rimapayV210": "RimaPay v2.1.0",
   "route": "Route",
+  "rsaPin": "RSA PIN",
+  "safeReliableJourneys": "Safe & reliable journeys",
   "save": "Save",
   "saveBeneficiary": "Save Beneficiary",
+  "saveChanges": "Save Changes",
   "savedBeneficiaries": "Saved Beneficiaries",
   "scanQRCode": "Scan QR Code",
   "scanToTransfer": "Scan QR code to transfer",
+  "scheduledMaintenanceOnSunday2am4am": "Scheduled maintenance on Sunday 2AM - 4AM. Some services may be temporarily unavailable.",
+  "searchAddress": "Search Address",
   "searchBanks": "Search banks…",
+  "searchByNameType": "Search by name, type...",
+  "searchFlights": "Search Flights",
   "searchPlans": "Search plans...",
   "searchServices": "Search services...",
+  "seatCount": "{count, plural, =1{1 seat} other{{count} seats}}",
+  "@seatCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "seatNumber": "Seat Number",
   "secureTransaction": "Secure & encrypted transaction",
+  "secureTransaction2": "Secure Transaction",
   "secureWithFourDigitPin": "Secure your account with a 4-digit PIN",
   "security": "Security",
+  "security2": "SECURITY",
+  "securityAlert": "Security Alert",
   "securitySettings": "Security Settings",
   "seeAll": "See All",
   "selectAccount": "Select Account",
+  "selectAllSourcesOfRevenueFor": "Select all sources of revenue for your business",
   "selectBank": "Select Bank",
   "selectBankFirst": "Please select a bank first",
+  "selectExamBody": "Select Exam Body",
+  "selectExamType": "Select Exam Type",
+  "selectIdType": "Select ID type",
   "selectLanguage": "Select Language",
+  "selectNetwork": "Select Network",
   "selectNetworkFirst": "Select a network first",
+  "selectPensionFundAdministrator": "Select Pension Fund Administrator",
   "selectPlan": "Select Plan",
   "selectProvider": "Select Provider",
+  "selectProviderFirst": "Select a provider first",
+  "selectService": "Select Service",
+  "selectState": "Select State",
   "selectTransferMethod": "Please select a transfer method",
+  "selectWhatBestDescribesYou": "Select what best describes you",
+  "selectedPassengersPriceTotalprice": "Selected · {_passengers} × ₦{price} = ₦{_totalPrice}",
+  "@selectedPassengersPriceTotalprice": {
+    "placeholders": {
+      "_passengers": {
+        "type": "Object"
+      },
+      "price": {
+        "type": "Object"
+      },
+      "_totalPrice": {
+        "type": "Object"
+      }
+    }
+  },
+  "selectedbankBankaccountcontroller": "{_selectedBank} · {_bankAccountController}",
+  "@selectedbankBankaccountcontroller": {
+    "placeholders": {
+      "_selectedBank": {
+        "type": "Object"
+      },
+      "_bankAccountController": {
+        "type": "Object"
+      }
+    }
+  },
   "sendMoney": "Send Money",
   "sendMoneyDesc": "To friends & family",
   "sendMoneyFaster": "Send Money Faster",
+  "sendOtp": "Send OTP",
+  "sendResetCode": "Send Reset Code",
   "sendVerificationCode": "Send Verification Code",
   "sentCodeToPhone": "We sent a code to your phone",
   "service": "Service",
@@ -401,17 +1120,24 @@
   "@serviceRequiresTier": {
     "placeholders": {
       "tier": {
-        "type": "String"
+        "type": "Object"
       }
     }
   },
   "serviceUnavailable": "Service temporarily unavailable",
   "services": "Services",
+  "setA4DigitPinFor": "Set a 4-digit PIN for transactions",
+  "setANew4DigitPin": "Set a new 4-digit PIN",
+  "setPin": "Set PIN",
+  "setUpA4DigitTransaction": "Set up a 4-digit transaction PIN",
   "settings": "Settings",
+  "share": "Share",
   "shareCode": "Share Code",
   "shareReceipt": "Share Receipt",
+  "shareTheseDetailsToReceiveMoney": "Share these details to receive money",
   "signIn": "Sign In",
   "signInToYourAccount": "Sign in to your RimaPay account",
+  "signInWithFingerprintOrFace": "Sign in with fingerprint or face",
   "signOutOfAccount": "Sign out of your account",
   "signUp": "Sign Up",
   "slide1Description": "Built by Nigerians, for Nigerians. Experience financial freedom rooted in our rich culture and unwavering spirit of excellence.",
@@ -423,45 +1149,129 @@
   "slide3Description": "Tap, pay, done. Experience the future of payments with instant, secure, and intuitive transactions.",
   "slide3Subtitle": "Effortless Experience",
   "slide3Title": "Payments Made\nSeamless",
+  "smartCardIucNumber": "Smart Card / IUC Number",
   "smartCardNumber": "Smart Card Number",
   "smsNotifications": "SMS Notifications",
+  "sourceOfIncome": "Source of Income",
+  "spectranetSmileMore": "Spectranet, Smile & more",
+  "staffSalaryPayments": "Staff salary payments",
   "startSending": "Start Sending",
+  "state": "State",
+  "stationeryPurchase": "Stationery purchase",
   "status": "Status",
+  "submitForVerification": "Submit for Verification",
   "success": "Success",
   "successful": "Successful",
   "support": "Support",
+  "supportACauseToday": "Support a cause today",
   "supportHours": "Mon – Fri: 8am – 8pm\nSat: 9am – 5pm",
   "switchLanguage": "Switch to Hausa Language",
   "switchLanguageAction": "Switch to HA",
   "switchToDarkTheme": "Switch to dark theme",
+  "systemMaintenance": "System Maintenance",
+  "takeAClearSelfieForIdentity": "Take a clear selfie for identity verification.",
+  "takeAClearSelfieNoGlasses": "Take a clear selfie — no glasses, good lighting, face centered.",
+  "takeAPhotoOfYourBusiness": "Take a photo of your business location",
+  "takeASelfieToVerifyYour": "Take a selfie to verify your identity",
+  "takePhoto": "Take Photo",
   "taxesAndFees": "Taxes & fees",
+  "taxesLeviesOfficialPayments": "Taxes, levies & official payments",
+  "tellUsAboutYourBusiness": "Tell us about your business",
+  "tellUsAboutYourself": "Tell us about yourself",
+  "thankYouForBankingWithRima": "Thank you for banking with Rima MFB",
+  "thankYouForUsingRimapay": "Thank you for using RimaPay",
+  "thePageYouAreLookingFor": "The page you are looking for does not exist.",
+  "thisFeatureIsUnderDevelopmentNcheck": "This feature is under development.\nCheck back soon!",
+  "thisWillPermanentlyDeleteYourAccount": "This will permanently delete your account and all data. This action cannot be undone.",
+  "ticketCount": "{count, plural, =1{1 ticket} other{{count} tickets}}",
+  "@ticketCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "ticketsAndConcerts": "Tickets & concerts",
+  "tier1Requirements": "Tier 1 Requirements",
+  "tier2IdentityVerification": "Tier 2 · Identity Verification",
+  "tier2Requirements": "Tier 2 Requirements",
+  "tier3Requirements": "Tier 3 Requirements",
   "tierBenefits": "Tier Benefits",
+  "tierIndex": "Tier {index}",
+  "@tierIndex": {
+    "placeholders": {
+      "index": {
+        "type": "Object"
+      }
+    }
+  },
   "tierUpgrade": "Tier Upgrade",
   "time": "Time",
+  "to": "To",
   "toOtherBanks": "To Other Banks",
   "toOtherBanksDesc": "Send to any Nigerian bank account",
   "toRimaPay": "To RimaPay",
   "toRimaPayDesc": "Send to any RimaPay account instantly",
   "today": "Today",
+  "todaySIncome": "Today's Income",
+  "todaySSpending": "Today's Spending",
   "topupSuccessful": "Top-up Successful",
   "total": "Total",
+  "totalLimit": "Total Limit",
+  "totalSpent": "₦{total} spent",
+  "@totalSpent": {
+    "placeholders": {
+      "total": {
+        "type": "Object"
+      }
+    }
+  },
+  "totalWealth": "Total Wealth",
+  "totalprice": "₦{_totalPrice}",
+  "@totalprice": {
+    "placeholders": {
+      "_totalPrice": {
+        "type": "Object"
+      }
+    }
+  },
   "transaction": "Transaction",
   "transactionAmount": "Transaction Amount",
   "transactionDetails": "Transaction Details",
   "transactionFailed": "Transaction failed",
   "transactionHistory": "Transaction History",
   "transactionId": "Transaction ID",
+  "transactionLimits": "Transaction Limits",
   "transactionPin": "Transaction PIN",
   "transactionProcessedOk": "Your {type} has been processed successfully",
   "@transactionProcessedOk": {
     "placeholders": {
       "type": {
-        "type": "String"
+        "type": "Object"
       }
     }
   },
   "transactionReceipt": "Transaction Receipt",
+  "transactionReference": "Transaction Reference",
+  "transactionStatusBody": "Your {type} transaction has been {status}",
+  "@transactionStatusBody": {
+    "placeholders": {
+      "type": {
+        "type": "Object"
+      },
+      "status": {
+        "type": "Object"
+      }
+    }
+  },
+  "transactionStatusTitle": "Transaction {status}",
+  "@transactionStatusTitle": {
+    "placeholders": {
+      "status": {
+        "type": "Object"
+      }
+    }
+  },
   "transactionSuccessful": "Transaction Successful",
   "transactions": "History",
   "transfer": "Transfer",
@@ -470,73 +1280,231 @@
   "transferMoney": "Transfer Money",
   "transferSuccessful": "Transfer Successful",
   "transferSuccessfulCelebrate": "Transfer Successful! 🎉",
+  "transferToBanksWallets": "Transfer to banks & wallets",
   "transferToContacts": "Transfer to your contacts",
   "transferToFundWallet": "Transfer to fund your wallet",
   "transferUsingPhone": "Transfer using phone number",
+  "transfersAreAvailable247Including": "Transfers are available 24/7 including weekends",
   "transport": "Transport",
   "transportDesc": "Bus & flight tickets",
+  "transportOperator": "Transport Operator",
+  "travelDate": "Travel Date",
+  "trustedPensionManagerSince2004": "Trusted pension manager since 2004",
   "twoFactorAuth": "Two-Factor Authentication",
   "type": "Type",
+  "underReview": "Under Review",
   "underbanked": "Underbanked",
+  "underbankedAccount": "Underbanked Account",
   "underbankedDesc": "Financial inclusion — micro-loans & savings groups",
   "underbankingAccount": "Underbanking Account",
   "unlockHigherLimitsLong": "Unlock higher limits, lower fees and more amazing features.",
   "unlockHigherLimitsShort": "Unlock higher limits & features",
   "unlockMoreFeatures": "Unlock more features and higher limits",
+  "unreadcountUnread": "{unreadCount} unread",
+  "@unreadcountUnread": {
+    "placeholders": {
+      "unreadCount": {
+        "type": "Object"
+      }
+    }
+  },
   "updateAccountPassword": "Update your account password",
   "updateLoginPin": "Update your login PIN",
+  "updatePin": "Update PIN",
   "updateTransactionPin": "Update your transaction PIN",
+  "upgrade": "Upgrade",
   "upgradeAccount": "Upgrade Account",
   "upgradeAccountNow": "Upgrade Now",
+  "upgradeSuccessful": "Upgrade Successful!",
   "upgradeTier": "Upgrade Tier",
+  "upgradeToInfo": "Upgrade to {info}",
+  "@upgradeToInfo": {
+    "placeholders": {
+      "info": {
+        "type": "Object"
+      }
+    }
+  },
+  "upgradeToPremium": "Upgrade to Premium",
+  "upgradeToStandard": "Upgrade to Standard",
   "upgradeToTier2": "Upgrade to Tier 2",
   "upgradeToUnlock": "Upgrade to Unlock",
+  "upgradeToUnlockHigherLimits": "Upgrade to unlock higher limits",
   "upgradeToUnlockService": "Upgrade to unlock {service}",
   "@upgradeToUnlockService": {
     "placeholders": {
       "service": {
-        "type": "String"
+        "type": "Object"
       }
     }
   },
   "upgradeYourAccount": "Upgrade Your Account",
+  "uploadAClearPhotoOfYour": "• Upload a clear photo of your government-issued ID\n• Provide address verification document",
+  "uploadAClearPhotoOrScan": "Upload a clear photo or scan of your government-issued ID.",
+  "uploadADocumentShowingYourCurrent": "Upload a document showing your current address, dated within the last 3 months.",
+  "uploadAddressProof": "Upload address proof",
+  "uploadCacCertificate": "Upload CAC Certificate",
+  "uploadDocument": "Upload Document",
+  "uploadGovernmentIdPhoto": "Upload government ID photo",
+  "uploadRecentUtilityBillForAddress": "Upload recent utility bill for address verification",
+  "uploadValidIdCardsForAll": "Upload valid ID cards for all directors",
+  "uploadYourCertificateOfIncorporation": "Upload your Certificate of Incorporation",
   "useAccountNumberToLink": "Use your account number to link your existing RimaPay account.",
+  "useCurrentLocation": "Use current location",
   "useFaceId": "Use Face ID",
   "useFingerprint": "Use Fingerprint",
   "useFingerprintOrFaceId": "Use fingerprint or Face ID",
+  "useYourRegisteredNameWhenTransferring": "Use your registered name when transferring",
+  "userExampleCom": "user@example.com",
   "ussd": "USSD",
+  "utilitiesServices": "Utilities & services",
+  "utilityBill": "Utility Bill",
+  "utilityBillBankStatementEtc": "Utility bill, bank statement, etc.",
   "validForPeriod": "Valid for {period}",
   "@validForPeriod": {
     "placeholders": {
       "period": {
-        "type": "String"
+        "type": "Object"
+      }
+    }
+  },
+  "validForValidity": "Valid for {validity}",
+  "@validForValidity": {
+    "placeholders": {
+      "validity": {
+        "type": "Object"
       }
     }
   },
   "validateAccountFirst": "Please validate account number first",
+  "verificationTypicallyTakes12Business": "Verification typically takes 1–2 business days. You will be notified once complete.",
+  "verified": "Verified",
+  "verify": "Verify",
   "verifyArrow": "Verify →",
+  "verifyEmail": "Verify Email",
   "verifyExistingAccount": "Verify your existing account to continue",
   "verifyTransaction": "Verify Transaction",
+  "verifyYourIdentityWithYourNin": "Verify your identity with your NIN or BVN",
+  "verifyYourPhone": "Verify Your Phone",
+  "verifying": "Verifying...",
   "verifyingYourFace": "Verifying your face…",
   "verifyingYourFacePlain": "Verifying your face",
   "viewAll": "View all →",
+  "viewAll2": "View All",
+  "viewAllRecentPurchases": "View All Recent Purchases",
+  "viewBusinessInsights": "View business insights",
   "viewTransactionLimits": "View your transaction limits",
+  "voluntaryPension": "Voluntary Pension",
+  "voterSCard": "Voter's Card",
+  "waecJambNecoMore": "WAEC, JAMB, NECO & more",
   "walletBalance": "Wallet Balance",
   "walletTransfer": "Wallet Transfer",
+  "weLlNotifyYouWhenFunds": "We'll notify you when funds arrive",
+  "weLlSendAOneTime": "We'll send a one-time code to confirm this change.",
+  "weLlSendAOneTime2": "We'll send a one-time code to your registered number to confirm the reset.",
+  "weSentA6DigitCode": "We sent a 6-digit code to verify your {needsNin}. Check your registered phone number.",
+  "@weSentA6DigitCode": {
+    "placeholders": {
+      "needsNin": {
+        "type": "Object"
+      }
+    }
+  },
+  "weSentACodeTo234": "We sent a code to +234 {_phoneDigits}",
+  "@weSentACodeTo234": {
+    "placeholders": {
+      "_phoneDigits": {
+        "type": "Object"
+      }
+    }
+  },
   "weekly": "Weekly",
   "welcomeBack": "Welcome Back",
   "welcomeCreateAccount": "Create your account",
   "welcomeHeadline": "made for us\nby us",
   "welcomeLogIn": "Log in",
+  "welcomeNback": "Welcome\nBack 👋",
   "welcomeSignUp": "Sign up",
   "welcomeSubtitle": "Safe, fast and reliable\nfinancial services\nbuilt for you.",
   "welcomeToRimaPay": "Welcome to RimaPay",
   "welcomeToRimaPayCelebrate": "Welcome to RimaPay! 🎉",
+  "welcomeValidatedfirstname": "Welcome, {validatedFirstName}!",
+  "@welcomeValidatedfirstname": {
+    "placeholders": {
+      "validatedFirstName": {
+        "type": "Object"
+      }
+    }
+  },
   "welcomeWelcomeBack": "Welcome back",
   "wereHereToHelp": "We're here to help you",
+  "whatCopied": "{what} copied",
+  "@whatCopied": {
+    "placeholders": {
+      "what": {
+        "type": "Object"
+      }
+    }
+  },
+  "whatIsYourPhoneNumber": "What is your phone number?",
   "whatsapp": "WhatsApp",
+  "whereDoYouLive": "Where do you live?",
+  "whereIsYourBusinessLocated": "Where is your business located?",
   "whereToSendMoney": "Where would you like to send money?",
+  "withoutBvnOrNinYourAccount": "Without BVN or NIN, your account will have limited features:\n• ₦10,000 daily transaction limit\n• No international transfers\n• You can upgrade anytime by adding your BVN/NIN later",
+  "year1": "1 Year",
   "yearly": "Yearly",
+  "yesContinue": "Yes, Continue",
+  "youAreNowOnTheStandard": "You are now on the Standard Tier.\nYour new limits are active immediately.",
+  "youCanReceiveTransfersUsingYour": "You can receive transfers using your phone number or this account number",
+  "youEarned50CashbackFromYour": "You earned ₦50 cashback from your electricity bill payment. Total cashback this month: ₦350",
+  "youHaveBeenVerified": "You Have Been Verified!",
+  "youReAboutToOpenA": "You're about to open a financial inclusion (underbanked) account. This account is designed for those without formal ID documents.",
+  "youReceived25000FromAdebayo": "You received ₦25,000 from Adebayo Okafor with reference: Split dinner bill",
+  "yourAccountHasBeenCreatedSuccessfully": "Your account has been created successfully.",
+  "yourAccountHasBeenSetUp": "Your account has been set up successfully",
+  "yourAccountNumber": "Your Account Number",
+  "yourAccountPasswordHasBeenUpdated": "Your account password has been updated",
+  "yourAddressHasBeenSavedSuccessfully": "Your address has been saved successfully.",
+  "yourAirtimePurchaseOf1000": "Your airtime purchase of ₦1,000 to 08012345678 was successful",
+  "yourBusinessAccountHasBeenCreated": "Your business account has been created successfully.",
+  "yourBusinessAccountIsNowActive": "Your business account is now active",
+  "yourCurrentTierBasic": "Your Current Tier: Basic",
+  "yourDeclarationHasBeenSavedSuccessfully": "Your declaration has been saved successfully.",
   "yourDedicatedAccount": "Your Dedicated Account",
-  "zakat": "Zakat"
+  "yourDepositsAre": "YOUR DEPOSITS ARE ",
+  "yourDocumentsAreUnderReviewNwe": "Your documents are under review.\nWe'll notify you within 1–2 business days.",
+  "yourEmailHasBeenConfirmed": "Your email has been confirmed.",
+  "yourFundsAreInsuredByNdic": "Your funds are insured by NDIC. Earn up to 13% per annum.",
+  "yourIdentityHasBeenConfirmedNwelcome": "Your identity has been confirmed.\nWelcome to RimaPay!",
+  "yourIncomeDetailsHaveBeenSaved": "Your income details have been saved successfully.",
+  "yourNeedsninIsUsedSolelyFor": "Your {needsNin} is used solely for identity verification and is encrypted.",
+  "@yourNeedsninIsUsedSolelyFor": {
+    "placeholders": {
+      "needsNin": {
+        "type": "Object"
+      }
+    }
+  },
+  "yourPasswordHasBeenUpdated": "Your password has been updated",
+  "yourPasswordHasBeenUpdatedNsign": "Your password has been updated.\nSign in with your new password.",
+  "yourPinIsEncryptedAndNever": "Your PIN is encrypted and never stored for security.",
+  "yourProfileIsNowCompleteNwelcome": "Your profile is now complete.\nWelcome to RimaPay!",
+  "yourProfileIsNowFullyComplete": "Your profile is now fully complete.",
+  "yourRimapayAccountIsNowLinked": "Your RimaPay account is now linked\nto this device.",
+  "yourTransactionPinHasBeenReset": "Your transaction PIN has been reset.",
+  "yourTransactionPinHasBeenUpdated": "Your transaction PIN has been updated.",
+  "yourTransactionPinHasBeenUpdated2": "Your transaction PIN has been updated",
+  "yourTransactiontypeHasBeenProcessedSuccessfully": "Your {transactionType} has been processed successfully",
+  "@yourTransactiontypeHasBeenProcessedSuccessfully": {
+    "placeholders": {
+      "transactionType": {
+        "type": "Object"
+      }
+    }
+  },
+  "yourWealthIsBelowTheNisab": "Your wealth is below the Nisab threshold — Zakat is not yet due.",
+  "zakat": "Zakat",
+  "zakatDue25": "Zakat Due (2.5%)",
+  "zakatReligious": "Zakat / Religious"
 }
