@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../data/onboarding_dtos.dart';
 import '../providers/onboarding_provider.dart';
 
+import '../../../../core/localization/l10n.dart';
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -109,8 +110,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 ref.read(onboardingProvider.notifier).reset();
                 context.pop();
               },
-              child: const Text(
-                'Close',
+              child: Text(context.l10n.close,
                 style: TextStyle(
                   color: Color(0xFF667085),
                   fontSize: 14,
@@ -155,8 +155,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 24),
-        const Text(
-          'Create Your Account',
+        Text(context.l10n.createYourAccount,
           style: TextStyle(
             color: Color(0xFF101828),
             fontSize: 28,
@@ -164,8 +163,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
         ),
         const SizedBox(height: 8),
-        const Text(
-          'Enter your details to get started',
+        Text(context.l10n.enterYourDetailsToGetStarted,
           style: TextStyle(
             color: Color(0xFF667085),
             fontSize: 15,
@@ -190,7 +188,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         _buildEmailField(),
         const SizedBox(height: 36),
         _buildPrimaryButton(
-          label: 'Continue',
+          label: context.l10n.continueLabel,
           loading: state.isLoading,
           enabled: canSubmit,
           onTap: () => notifier.initiate(
@@ -215,8 +213,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 24),
-        const Text(
-          'Verify Your Phone',
+        Text(context.l10n.verifyYourPhone,
           style: TextStyle(
             color: Color(0xFF101828),
             fontSize: 28,
@@ -239,8 +236,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         _buildOtpField(),
         const SizedBox(height: 12),
         if (state.otpExpiresAt != null)
-          Text(
-            'Expires at ${_formatTime(state.otpExpiresAt!)}',
+          Text(context.l10n.expiresAtOtpexpiresat(_formatTime(state.otpExpiresAt!)),
             style: const TextStyle(
               color: Color(0xFF9CA3AF),
               fontSize: 13,
@@ -248,7 +244,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
         const SizedBox(height: 36),
         _buildPrimaryButton(
-          label: 'Verify',
+          label: context.l10n.verify,
           loading: state.isLoading,
           enabled: canSubmit,
           onTap: () => notifier.verifyOtp(_otpController.text),
@@ -258,8 +254,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           child: TextButton(
             onPressed:
                 state.isLoading ? null : () => notifier.resendOtp(),
-            child: const Text(
-              'Resend Code',
+            child: Text(context.l10n.resendCode,
               style: TextStyle(
                 color: Color(0xFF166C46),
                 fontWeight: FontWeight.w600,
@@ -282,8 +277,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       children: [
         const SizedBox(height: 24),
         if (state.validatedFirstName != null)
-          Text(
-            'Welcome, ${state.validatedFirstName}!',
+          Text(context.l10n.welcomeValidatedfirstname(state.validatedFirstName ?? ''),
             style: const TextStyle(
               color: Color(0xFF101828),
               fontSize: 28,
@@ -291,8 +285,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             ),
           )
         else
-          const Text(
-            'Confirm Your Identity',
+          Text(context.l10n.confirmYourIdentity,
             style: TextStyle(
               color: Color(0xFF101828),
               fontSize: 28,
@@ -300,8 +293,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             ),
           ),
         const SizedBox(height: 8),
-        const Text(
-          'Please re-enter your details to confirm',
+        Text(context.l10n.pleaseReEnterYourDetailsTo,
           style: TextStyle(
             color: Color(0xFF667085),
             fontSize: 15,
@@ -318,7 +310,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         _buildIdentityField(),
         const SizedBox(height: 36),
         _buildPrimaryButton(
-          label: 'Confirm',
+          label: context.l10n.confirm,
           loading: state.isLoading,
           enabled: canSubmit,
           onTap: () => notifier.submitIdentity(
@@ -338,8 +330,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 24),
-        const Text(
-          'Face Verification',
+        Text(context.l10n.faceVerification,
           style: TextStyle(
             color: Color(0xFF101828),
             fontSize: 28,
@@ -347,8 +338,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
         ),
         const SizedBox(height: 8),
-        const Text(
-          'Take a selfie to verify your identity',
+        Text(context.l10n.takeASelfieToVerifyYour,
           style: TextStyle(
             color: Color(0xFF667085),
             fontSize: 15,
@@ -376,7 +366,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         ),
         const SizedBox(height: 48),
         _buildPrimaryButton(
-          label: 'Capture Selfie',
+          label: context.l10n.captureSelfie,
           loading: state.isLoading,
           enabled: !state.isLoading,
           onTap: () {
@@ -391,9 +381,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         if (state.facialMatch)
           Padding(
             padding: const EdgeInsets.only(top: 16),
-            child: const Center(
-              child: Text(
-                'Face verified successfully!',
+            child: Center(
+              child: Text(context.l10n.faceVerifiedSuccessfully,
                 style: TextStyle(
                   color: Color(0xFF166C46),
                   fontWeight: FontWeight.w600,
@@ -419,8 +408,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 24),
-        const Text(
-          'Create Password',
+        Text(context.l10n.createPassword,
           style: TextStyle(
             color: Color(0xFF101828),
             fontSize: 28,
@@ -428,8 +416,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
         ),
         const SizedBox(height: 8),
-        const Text(
-          'Must be at least 8 characters with upper, lower, number & special char',
+        Text(context.l10n.mustBeAtLeast8Characters,
           style: TextStyle(
             color: Color(0xFF667085),
             fontSize: 15,
@@ -437,14 +424,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         ),
         const SizedBox(height: 32),
         _buildPasswordField(
-          label: 'Password',
+          label: context.l10n.password,
           controller: _passwordController,
           obscure: !_showPassword,
           onToggle: () => setState(() => _showPassword = !_showPassword),
         ),
         const SizedBox(height: 20),
         _buildPasswordField(
-          label: 'Confirm Password',
+          label: context.l10n.confirmPassword,
           controller: _confirmPasswordController,
           obscure: !_showConfirmPassword,
           onToggle: () =>
@@ -452,7 +439,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         ),
         const SizedBox(height: 36),
         _buildPrimaryButton(
-          label: 'Continue',
+          label: context.l10n.continueLabel,
           loading: state.isLoading,
           enabled: canSubmit,
           onTap: () => notifier.createPassword(
@@ -477,8 +464,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 24),
-        const Text(
-          'Create Transaction PIN',
+        Text(context.l10n.createTransactionPin,
           style: TextStyle(
             color: Color(0xFF101828),
             fontSize: 28,
@@ -486,8 +472,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
         ),
         const SizedBox(height: 8),
-        const Text(
-          'Set a 4-digit PIN for transactions',
+        Text(context.l10n.setA4DigitPinFor,
           style: TextStyle(
             color: Color(0xFF667085),
             fontSize: 15,
@@ -502,7 +487,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         ),
         const SizedBox(height: 20),
         _buildPinField(
-          label: 'Confirm PIN',
+          label: context.l10n.confirmPin,
           controller: _confirmPinController,
           obscure: !_showConfirmPin,
           onToggle: () =>
@@ -510,7 +495,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         ),
         const SizedBox(height: 36),
         _buildPrimaryButton(
-          label: 'Finish',
+          label: context.l10n.finish,
           loading: state.isLoading,
           enabled: canSubmit,
           onTap: () => notifier.createPin(
@@ -535,8 +520,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           color: Color(0xFF166C46),
         ),
         const SizedBox(height: 24),
-        const Text(
-          'Account Created!',
+        Text(context.l10n.accountCreated,
           style: TextStyle(
             color: Color(0xFF101828),
             fontSize: 28,
@@ -544,8 +528,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
         ),
         const SizedBox(height: 8),
-        const Text(
-          'Your account has been set up successfully',
+        Text(context.l10n.yourAccountHasBeenSetUp,
           style: TextStyle(
             color: Color(0xFF667085),
             fontSize: 15,
@@ -561,8 +544,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             ),
             child: Column(
               children: [
-                const Text(
-                  'Account Number',
+                Text(context.l10n.accountNumber,
                   style: TextStyle(
                     color: Color(0xFF667085),
                     fontSize: 13,
@@ -584,7 +566,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         ],
         const SizedBox(height: 48),
         _buildPrimaryButton(
-          label: 'Go to Home',
+          label: context.l10n.goToHome,
           loading: false,
           enabled: true,
           onTap: () => context.goNamed('home'),
@@ -673,14 +655,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     color: Color(0xFF9CA3AF)),
                 style: const TextStyle(
                     fontSize: 14, color: Color(0xFF101828)),
-                items: const [
+                items: [
                   DropdownMenuItem(
                     value: IdentityDocumentType.bvn,
-                    child: Text('BVN'),
+                    child: Text(context.l10n.bvn),
                   ),
                   DropdownMenuItem(
                     value: IdentityDocumentType.nin,
-                    child: Text('NIN'),
+                    child: Text(context.l10n.nin),
                   ),
                 ],
                 onChanged: (v) {
@@ -744,8 +726,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       child: TextField(
         controller: _emailController,
         keyboardType: TextInputType.emailAddress,
-        decoration: const InputDecoration(
-          hintText: 'user@example.com',
+        decoration: InputDecoration(
+          hintText: context.l10n.userExampleCom,
           hintStyle: TextStyle(color: Color(0xFF9CA3AF), fontSize: 14),
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(horizontal: 14),
@@ -770,8 +752,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           FilteringTextInputFormatter.digitsOnly,
           LengthLimitingTextInputFormatter(6),
         ],
-        decoration: const InputDecoration(
-          hintText: 'Enter OTP code',
+        decoration: InputDecoration(
+          hintText: context.l10n.enterOtpCode,
           hintStyle: TextStyle(color: Color(0xFF9CA3AF), fontSize: 14),
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(horizontal: 14),

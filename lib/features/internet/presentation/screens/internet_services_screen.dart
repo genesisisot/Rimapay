@@ -7,6 +7,7 @@ import '../../../bills/data/bills_dtos.dart';
 import '../../../bills/presentation/providers/bills_providers.dart';
 import '../../../bills/presentation/widgets/bill_purchase_flow.dart';
 
+import '../../../../core/localization/l10n.dart';
 class InternetServicesScreen extends ConsumerStatefulWidget {
   const InternetServicesScreen({super.key});
 
@@ -112,11 +113,11 @@ class _InternetServicesScreenState extends ConsumerState<InternetServicesScreen>
                   _sectionLabel('Select Provider'),
                   const SizedBox(height: 10),
                   if (billersAsync.isLoading && !billersAsync.hasValue)
-                    _statusText('Loading providers…')
+                    _statusText(context.l10n.loadingProviders)
                   else if (billers.isEmpty)
                     GestureDetector(
                       onTap: () => refreshBillers(ref, BillCategoryKind.internet),
-                      child: _statusText('No providers available right now. Tap to retry.'),
+                      child: _statusText(context.l10n.noProvidersAvailable),
                     )
                   else
                     SizedBox(
@@ -182,13 +183,13 @@ class _InternetServicesScreenState extends ConsumerState<InternetServicesScreen>
                   _sectionLabel('Select Plan'),
                   const SizedBox(height: 10),
                   if (_provider == null)
-                    _statusText('Select a provider first')
+                    _statusText(context.l10n.selectProviderFirst)
                   else if (itemsAsync != null && itemsAsync.isLoading && !itemsAsync.hasValue)
-                    _statusText('Loading plans…')
+                    _statusText(context.l10n.loadingPlans)
                   else if (plans.isEmpty)
                     GestureDetector(
                       onTap: () => ref.invalidate(billerItemsProvider(_provider!.billerId)),
-                      child: _statusText('No plans available. Tap to retry.'),
+                      child: _statusText(context.l10n.noPlansAvailableRetry),
                     )
                   else
                   GridView.builder(
@@ -238,7 +239,7 @@ class _InternetServicesScreenState extends ConsumerState<InternetServicesScreen>
                                     color: Theme.of(context).colorScheme.onSurface,
                                   )),
                               if (plan.itemFee > 0)
-                                Text('+₦${formatBillAmount(plan.itemFee)} fee',
+                                Text(context.l10n.itemfeeFee(formatBillAmount(plan.itemFee)),
                                     style: TextStyle(
                                       fontSize: 11,
                                       color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
@@ -273,7 +274,7 @@ class _InternetServicesScreenState extends ConsumerState<InternetServicesScreen>
                         disabledBackgroundColor: Theme.of(context).dividerColor,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
-                      child: Text('Proceed',
+                      child: Text(context.l10n.proceed,
                           style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
                     ),
                   ),
@@ -321,9 +322,9 @@ class _InternetServicesScreenState extends ConsumerState<InternetServicesScreen>
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Internet Services',
+              Text(context.l10n.internetServices,
                   style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w800)),
-              Text('Spectranet, Smile & more',
+              Text(context.l10n.spectranetSmileMore,
                   style: TextStyle(color: Colors.white60, fontSize: 12)),
             ],
           ),

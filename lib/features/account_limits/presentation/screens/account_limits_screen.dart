@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/localization/l10n.dart';
 class AccountLimitsScreen extends StatelessWidget {
   const AccountLimitsScreen({super.key});
 
@@ -46,13 +47,13 @@ class AccountLimitsScreen extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Your Current Tier: Basic',
+                              Text(context.l10n.yourCurrentTierBasic,
                                   style: TextStyle(
                                       color: Theme.of(context).cardColor,
                                       fontSize: 15,
                                       fontWeight: FontWeight.w800)),
                               SizedBox(height: 2),
-                              Text('Upgrade to unlock higher limits',
+                              Text(context.l10n.upgradeToUnlockHigherLimits,
                                   style: TextStyle(
                                       color: Colors.white60, fontSize: 12)),
                             ],
@@ -67,7 +68,7 @@ class AccountLimitsScreen extends StatelessWidget {
                               color: const Color(0xFFD4AF37),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Text('Upgrade',
+                            child: Text(context.l10n.upgrade,
                                 style: TextStyle(
                                     color: Theme.of(context).cardColor,
                                     fontWeight: FontWeight.w700,
@@ -79,7 +80,7 @@ class AccountLimitsScreen extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 24),
-                  Text('Transaction Limits',
+                  Text(context.l10n.transactionLimits,
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
@@ -126,8 +127,7 @@ class AccountLimitsScreen extends StatelessWidget {
                             color: Color(0xFF1A6B35), size: 18),
                         const SizedBox(width: 8),
                         Expanded(
-                          child: Text(
-                            'Limits are set in accordance with CBN regulations for microfinance banks. Upgrade your account tier to increase your limits.',
+                          child: Text(context.l10n.limitsAreSetInAccordanceWith,
                             style: TextStyle(
                               color: const Color(0xFF1A6B35).withOpacity(0.85),
                               fontSize: 12,
@@ -280,9 +280,9 @@ class AccountLimitsScreen extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Account Limits',
+              Text(context.l10n.accountLimits,
                   style: TextStyle(color: Theme.of(context).cardColor, fontSize: 17, fontWeight: FontWeight.w800)),
-              Text('CBN-regulated transaction limits',
+              Text(context.l10n.cbnRegulatedTransactionLimits,
                   style: TextStyle(color: Colors.white60, fontSize: 12)),
             ],
           ),

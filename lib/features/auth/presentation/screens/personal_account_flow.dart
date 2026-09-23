@@ -29,6 +29,7 @@ import 'package:rimapay/shared/widgets/noise_painter.dart';
 import 'package:rimapay/shared/widgets/rimapay_logo.dart';
 import 'package:rimapay/core/theme/app_colors.dart';
 
+import '../../../../core/localization/l10n.dart';
 /// Temporary build marker so we can confirm which deployment is actually
 /// running in the browser (shown tiny under the phone-step button).
 const String kBuildTag = 'build #12 · 2026-06-20';
@@ -415,8 +416,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                     ),
                     const SizedBox(width: 14),
                     // Step counter
-                    Text(
-                      '${currentIdx + 1}/${steps.length}',
+                    Text(context.l10n.currentidxLength(currentIdx + 1, steps.length),
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.7),
                         fontSize: 12,
@@ -532,8 +532,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Select what best describes you',
+                Text(context.l10n.selectWhatBestDescribesYou,
                   style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
                 ),
                 const SizedBox(height: 20),
@@ -670,7 +669,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
             ),
           ),
         ),
-        _buildCTA(label: 'Continue →', onTap: _onAccountTypeContinue),
+        _buildCTA(label: context.l10n.continueArrow, onTap: _onAccountTypeContinue),
       ],
     );
   }
@@ -698,8 +697,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'What is your phone number?',
+                Text(context.l10n.whatIsYourPhoneNumber,
                   style: TextStyle(
                       fontSize: 14, color: Color(0xFF6B7280), height: 1.5),
                 ),
@@ -724,7 +722,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           ),
         ),
         _buildCTA(
-          label: 'Continue →',
+          label: context.l10n.continueArrow,
           loading: _isLoading,
           onTap: _onPhoneContinue,
           footerContent: Text(
@@ -1042,8 +1040,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   color: const Color(0xFF166C46),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Center(
-                  child: Text('Got it',
+                child: Center(
+                  child: Text(context.l10n.gotIt,
                       style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
@@ -1117,14 +1115,13 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   color: Color(0xFFF97316), size: 26),
             ),
             const SizedBox(height: 16),
-            Text('Open Underbanked Account?',
+            Text(context.l10n.openUnderbankedAccount,
                 style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
                     color: Theme.of(context).colorScheme.onSurface)),
             const SizedBox(height: 10),
-            Text(
-              'You\'re about to open a financial inclusion (underbanked) account. This account is designed for those without formal ID documents.',
+            Text(context.l10n.youReAboutToOpenA,
               style: TextStyle(
                   fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), height: 1.5),
             ),
@@ -1146,7 +1143,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Center(
-                        child: Text('Cancel',
+                        child: Text(context.l10n.cancel,
                             style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -1172,8 +1169,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                         color: const Color(0xFFF97316),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Center(
-                        child: Text('Yes, Continue',
+                      child: Center(
+                        child: Text(context.l10n.yesContinue,
                             style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
@@ -1252,16 +1249,14 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                       color: Color(0xFF16A34A), size: 34),
                 ),
                 const SizedBox(height: 12),
-                const Text(
-                  'Enter verification code',
+                Text(context.l10n.enterVerificationCode,
                   style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
                       color: Color(0xFF111827)),
                 ),
                 const SizedBox(height: 6),
-                Text(
-                  'We sent a code to +234 $_phoneDigits',
+                Text(context.l10n.weSentACodeTo234(_phoneDigits),
                   style:
                       const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
                 ),
@@ -1306,7 +1301,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Didn't receive code? ",
+                    Text(context.l10n.didnTReceiveCode,
                         style:
                             TextStyle(fontSize: 14, color: Color(0xFF6B7280))),
                     GestureDetector(
@@ -1353,7 +1348,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           ),
         ),
         _buildCTA(
-          label: 'Continue →',
+          label: context.l10n.continueArrow,
           loading: _isLoading,
           onTap: _handleOtpSubmit,
         ),
@@ -1375,8 +1370,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Create a password to secure your account',
+                Text(context.l10n.createPasswordToSecure,
                   style: TextStyle(
                       fontSize: 14, color: Color(0xFF6B7280), height: 1.5),
                 ),
@@ -1384,7 +1378,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                 _OFloatingField(
                   controller: _passwordController,
                   focusNode: _passwordFocus,
-                  label: 'Password',
+                  label: context.l10n.password,
                   hint: 'Min 8 characters',
                   obscureText: !_showPassword,
                   suffix: GestureDetector(
@@ -1403,7 +1397,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                 _OFloatingField(
                   controller: _confirmPasswordController,
                   focusNode: _confirmPasswordFocus,
-                  label: 'Confirm Password',
+                  label: context.l10n.confirmPassword,
                   hint: 'Re-enter your password',
                   obscureText: !_showConfirmPassword,
                   suffix: GestureDetector(
@@ -1425,7 +1419,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           ),
         ),
         _buildCTA(
-          label: 'Continue →',
+          label: context.l10n.continueArrow,
           loading: _isLoading,
           onTap: _onPasswordContinue,
         ),
@@ -1492,16 +1486,14 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                       color: Color(0xFF16A34A), size: 34),
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  'Create a PIN',
+                Text(context.l10n.createAPin,
                   style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
                       color: Color(0xFF111827)),
                 ),
                 const SizedBox(height: 6),
-                const Text(
-                  'Secure your account with a 4-digit PIN',
+                Text(context.l10n.secureWithFourDigitPin,
                   style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
                 ),
                 const SizedBox(height: 36),
@@ -1547,7 +1539,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           ),
         ),
         _buildCTA(
-          label: 'Continue →',
+          label: context.l10n.continueArrow,
           onTap: _nextStep,
         ),
       ],
@@ -1579,16 +1571,14 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                       color: Color(0xFF16A34A), size: 34),
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  'Confirm your PIN',
+                Text(context.l10n.confirmYourPin,
                   style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
                       color: Color(0xFF111827)),
                 ),
                 const SizedBox(height: 6),
-                const Text(
-                  'Re-enter your 4-digit PIN to confirm',
+                Text(context.l10n.reEnterYour4DigitPin,
                   style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
                 ),
                 const SizedBox(height: 36),
@@ -1634,7 +1624,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           ),
         ),
         _buildCTA(
-          label: 'Set PIN',
+          label: context.l10n.setPin,
           loading: _creatingPin,
           onTap: _onConfirmPin,
         ),
@@ -1711,8 +1701,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                     color: Colors.white, size: 54),
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Congratulations!',
+              Text(context.l10n.congratulations,
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w900,
@@ -1723,8 +1712,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
               const SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: Text(
-                  'Your account has been created successfully.',
+                child: Text(context.l10n.yourAccountHasBeenCreatedSuccessfully,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       fontSize: 15,
@@ -1765,8 +1753,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                                 size: 20),
                           ),
                           const SizedBox(width: 12),
-                          const Text(
-                            'Your Account Number',
+                          Text(context.l10n.yourAccountNumber,
                             style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
@@ -1808,9 +1795,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                                 offset: const Offset(0, 4)),
                           ],
                         ),
-                        child: const Center(
-                          child: Text(
-                            'Go to Dashboard',
+                        child: Center(
+                          child: Text(context.l10n.goToDashboard,
                             style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
@@ -1830,9 +1816,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: Colors.white, width: 1.5),
                         ),
-                        child: const Center(
-                          child: Text(
-                            'Complete Profile',
+                        child: Center(
+                          child: Text(context.l10n.completeProfile,
                             style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -1906,8 +1891,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                     color: Colors.white, size: 54),
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Profile Completed!',
+              Text(context.l10n.profileCompleted,
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w900,
@@ -1918,8 +1902,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
               const SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: Text(
-                  'Your profile is now complete.\nWelcome to RimaPay!',
+                child: Text(context.l10n.yourProfileIsNowCompleteNwelcome,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       fontSize: 15,
@@ -1945,9 +1928,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                           offset: const Offset(0, 4)),
                     ],
                   ),
-                  child: const Center(
-                    child: Text(
-                      'Go to Dashboard',
+                  child: Center(
+                    child: Text(context.l10n.goToDashboard,
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -1977,15 +1959,14 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Tell us about yourself',
+                Text(context.l10n.tellUsAboutYourself,
                   style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
                 ),
                 const SizedBox(height: 20),
                 _OFloatingField(
                   controller: _firstNameController,
                   focusNode: _firstNameFocus,
-                  label: 'First Name',
+                  label: context.l10n.firstName,
                   hint: 'e.g. Amina',
                   keyboardType: TextInputType.name,
                   textCapitalization: TextCapitalization.words,
@@ -1995,7 +1976,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                 _OFloatingField(
                   controller: _lastNameController,
                   focusNode: _lastNameFocus,
-                  label: 'Last Name',
+                  label: context.l10n.lastName,
                   hint: 'e.g. Ibrahim',
                   keyboardType: TextInputType.name,
                   textCapitalization: TextCapitalization.words,
@@ -2007,7 +1988,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   child: _OFloatingField(
                     controller: _birthdayController,
                     focusNode: _birthdayFocus,
-                    label: 'Date of Birth',
+                    label: context.l10n.dateOfBirth,
                     hint: 'DD-MM-YYYY',
                     readOnly: true,
                     suffix: const Icon(Icons.calendar_today_outlined,
@@ -2022,7 +2003,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                     setState(() => _personalInfo.gender = v);
                   }),
                   child: _OFloatingFieldStatic(
-                    label: 'Gender',
+                    label: context.l10n.gender,
                     value: _personalInfo.gender.isEmpty
                         ? null
                         : _personalInfo.gender,
@@ -2035,7 +2016,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                 GestureDetector(
                   onTap: _showAddressPicker,
                   child: _OFloatingFieldStatic(
-                    label: 'Address',
+                    label: context.l10n.address,
                     value: _personalInfo.residentialAddress.isEmpty
                         ? null
                         : _personalInfo.residentialAddress,
@@ -2061,7 +2042,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   GestureDetector(
                     onTap: _showStatePicker,
                     child: _OFloatingFieldStatic(
-                      label: 'State',
+                      label: context.l10n.state,
                       value: _personalInfo.state.isEmpty
                           ? null
                           : _personalInfo.state,
@@ -2090,7 +2071,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
             ),
           ),
         ),
-        _buildCTA(label: 'Continue →', onTap: _onPersonalDetailsContinue),
+        _buildCTA(label: context.l10n.continueArrow, onTap: _onPersonalDetailsContinue),
       ],
     );
   }
@@ -2119,14 +2100,12 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (!isUnderbanked) ...[
-                  const Text(
-                    'Please provide your own BVN/NIN to verify your account opening application',
+                  Text(context.l10n.pleaseProvideYourOwnBvnNin,
                     style: TextStyle(
                         fontSize: 13, color: Color(0xFF6B7280), height: 1.5),
                   ),
                 ] else ...[
-                  const Text(
-                    'Provide your BVN or NIN if you have one. This step is optional for underbanked accounts.',
+                  Text(context.l10n.provideYourBvnOrNinIf,
                     style: TextStyle(
                         fontSize: 13, color: Color(0xFF6B7280), height: 1.5),
                   ),
@@ -2192,12 +2171,12 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Row(
+                        Row(
                           children: [
                             Icon(Icons.warning_amber_rounded,
                                 color: Color(0xFFF97316), size: 18),
                             SizedBox(width: 8),
-                            Text('Underbanked Account',
+                            Text(context.l10n.underbankedAccount,
                                 style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w700,
@@ -2205,8 +2184,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                           ],
                         ),
                         const SizedBox(height: 8),
-                        const Text(
-                          'Without BVN or NIN, your account will have limited features:\n• ₦10,000 daily transaction limit\n• No international transfers\n• You can upgrade anytime by adding your BVN/NIN later',
+                        Text(context.l10n.withoutBvnOrNinYourAccount,
                           style: TextStyle(
                               fontSize: 12,
                               color: Color(0xFF78350F),
@@ -2232,8 +2210,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                       ),
                       GestureDetector(
                         onTap: _showForgotIdSheet,
-                        child: Text(
-                          'Forgot ${_idType.toUpperCase()}?',
+                        child: Text(context.l10n.forgotIdtype(_idType.toUpperCase()),
                           style: const TextStyle(
                               fontSize: 11,
                               color: Color(0xFF16A34A),
@@ -2378,7 +2355,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Where do you live?',
+                Text(context.l10n.whereDoYouLive,
                     style: TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
                 const SizedBox(height: 20),
                 _sectionLabel('Address'),
@@ -2539,7 +2516,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
             ),
           ),
         ),
-        _buildCTA(label: 'Continue →', onTap: _nextStep),
+        _buildCTA(label: context.l10n.continueArrow, onTap: _nextStep),
       ],
     );
   }
@@ -2566,10 +2543,9 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                       color: Color(0xFF16A34A), size: 60),
                 ),
                 const SizedBox(height: 28),
-                const Padding(
+                Padding(
                   padding: EdgeInsets.symmetric(horizontal: 28),
-                  child: Text(
-                    'Are you a Politically Exposed Person or a family member/close associate of a PEP?',
+                  child: Text(context.l10n.areYouAPoliticallyExposedPerson2,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: 18,
@@ -2579,10 +2555,9 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Padding(
+                Padding(
                   padding: EdgeInsets.symmetric(horizontal: 28),
-                  child: Text(
-                    'A PEP (Politically Exposed Person) is someone who currently holds or has held an important public position, which gives them influence over public funds or decisions.',
+                  child: Text(context.l10n.aPepPoliticallyExposedPersonIs2,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: 13, color: Color(0xFF6B7280), height: 1.5),
@@ -2637,7 +2612,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           ),
         ),
         const _CbnFooter(),
-        _buildCTA(label: 'Continue →', onTap: _nextStep),
+        _buildCTA(label: context.l10n.continueArrow, onTap: _nextStep),
       ],
     );
   }
@@ -2672,7 +2647,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Provide details of your source of income',
+                Text(context.l10n.provideDetailsOfYourSourceOf,
                     style: TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
                 const SizedBox(height: 24),
                 _sectionLabel('Occupation'),
@@ -2704,7 +2679,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           ),
         ),
         _buildCTA(
-          label: 'Continue →',
+          label: context.l10n.continueArrow,
           loading: _isLoading,
           onTap: _onCompleteProfile,
         ),
@@ -2797,14 +2772,13 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                       border: Border.all(
                           color: const Color(0xFF166C46).withOpacity(0.2)),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
                         Icon(Icons.camera_alt_outlined,
                             color: Color(0xFF166C46), size: 20),
                         SizedBox(width: 10),
                         Expanded(
-                          child: Text(
-                            'Take a clear selfie — no glasses, good lighting, face centered.',
+                          child: Text(context.l10n.takeAClearSelfieNoGlasses,
                             style: TextStyle(
                                 fontSize: 13,
                                 color: Color(0xFF166C46),
@@ -2840,7 +2814,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                                       color: Colors.white54, size: 44),
                                 ),
                                 const SizedBox(height: 14),
-                                const Text('Camera preview will appear here',
+                                Text(context.l10n.cameraPreviewWillAppearHere,
                                     style: TextStyle(
                                         color: Colors.white54, fontSize: 13)),
                               ],
@@ -2939,8 +2913,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                           children: [
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: const [
-                                Text('Face Verification',
+                              children: [
+                                Text(context.l10n.faceVerification,
                                     style: TextStyle(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w700,
@@ -2988,15 +2962,14 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   ),
                   child: Column(
                     children: [
-                      const Text(
-                        'Position your face in the oval',
+                      Text(context.l10n.positionYourFaceInTheOval,
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
                             color: Color(0xFF111827)),
                       ),
                       const SizedBox(height: 4),
-                      Text('Ensure good lighting',
+                      Text(context.l10n.ensureGoodLighting,
                           style: TextStyle(
                               fontSize: 13, color: Colors.grey.shade500)),
                       const SizedBox(height: 16),
@@ -3063,21 +3036,19 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
           ),
-          child: const Column(
+          child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               _FaceScanLoader(),
               SizedBox(height: 22),
-              Text(
-                'Verifying your face',
+              Text(context.l10n.verifyingYourFacePlain,
                 style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
                     color: Color(0xFF111827)),
               ),
               SizedBox(height: 8),
-              Text(
-                'Hold on a moment — this can take a few seconds.\nPlease don\'t close or refresh the page.',
+              Text(context.l10n.holdOnAMomentThisCan,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     fontSize: 13, color: Color(0xFF6B7280), height: 1.5),
@@ -3164,8 +3135,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                     color: Colors.white, size: 54),
               ),
               const SizedBox(height: 24),
-              const Text(
-                'You Have Been Verified!',
+              Text(context.l10n.youHaveBeenVerified,
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w900,
@@ -3176,8 +3146,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
               const SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: Text(
-                  'Your identity has been confirmed.\nWelcome to RimaPay!',
+                child: Text(context.l10n.yourIdentityHasBeenConfirmedNwelcome,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       fontSize: 15,
@@ -3219,8 +3188,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                                 size: 20),
                           ),
                           const SizedBox(width: 12),
-                          const Text(
-                            'Your Account Number',
+                          Text(context.l10n.yourAccountNumber,
                             style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
@@ -3242,13 +3210,12 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                       const Divider(height: 1),
                       const SizedBox(height: 14),
                       Row(
-                        children: const [
+                        children: [
                           Icon(Icons.info_outline,
                               size: 14, color: Color(0xFF6B7280)),
                           SizedBox(width: 6),
                           Expanded(
-                            child: Text(
-                              'You can receive transfers using your phone number or this account number',
+                            child: Text(context.l10n.youCanReceiveTransfersUsingYour,
                               style: TextStyle(
                                   fontSize: 11,
                                   color: Color(0xFF6B7280),
@@ -3280,9 +3247,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                           offset: const Offset(0, 4)),
                     ],
                   ),
-                  child: const Center(
-                    child: Text(
-                      'Go to Dashboard',
+                  child: Center(
+                    child: Text(context.l10n.goToDashboard,
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -3688,8 +3654,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
               ),
             ),
             const SizedBox(height: 12),
-            const Text(
-              'Search Address',
+            Text(context.l10n.searchAddress,
               style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 12),
@@ -3760,8 +3725,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                       Navigator.pop(context);
                       await _onLocateMePressed();
                     },
-                    child: const Text(
-                      'Use current location',
+                    child: Text(context.l10n.useCurrentLocation,
                       style: TextStyle(
                         color: Color(0xFF16A34A),
                         fontWeight: FontWeight.w600,
@@ -4518,10 +4482,10 @@ class _CbnFooter extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
+        children: [
           Icon(Icons.verified, color: Color(0xFF16A34A), size: 14),
           SizedBox(width: 5),
-          Text('Licensed by the CBN',
+          Text(context.l10n.licensedByTheCbn,
               style: TextStyle(
                   fontSize: 12,
                   color: Color(0xFF6B7280),

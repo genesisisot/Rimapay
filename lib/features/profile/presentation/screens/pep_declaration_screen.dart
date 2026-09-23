@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../data/profile_dtos.dart';
 import '../providers/profile_provider.dart';
 
+import '../../../../core/localization/l10n.dart';
 class PepDeclarationScreen extends ConsumerStatefulWidget {
   const PepDeclarationScreen({super.key});
 
@@ -20,8 +21,8 @@ class _PepDeclarationScreenState extends ConsumerState<PepDeclarationScreen> {
   Future<void> _saveAndShowSuccess() async {
     if (_isPep == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select an option'),
+        SnackBar(
+          content: Text(context.l10n.pleaseSelectAnOption),
           backgroundColor: Colors.red,
         ),
       );
@@ -44,8 +45,8 @@ class _PepDeclarationScreenState extends ConsumerState<PepDeclarationScreen> {
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) =>
               _CompletionSuccessScreen(
-            title: 'PEP Declaration',
-            message: 'Your declaration has been saved successfully.',
+            title: context.l10n.pepDeclaration,
+            message: context.l10n.yourDeclarationHasBeenSavedSuccessfully,
             onComplete: () {
               context.pop(true);
             },
@@ -94,8 +95,7 @@ class _PepDeclarationScreenState extends ConsumerState<PepDeclarationScreen> {
                     ),
                   ),
                   const Spacer(),
-                      Text(
-                        'PEP Declaration',
+                      Text(context.l10n.pepDeclaration,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -130,8 +130,7 @@ class _PepDeclarationScreenState extends ConsumerState<PepDeclarationScreen> {
                     const SizedBox(height: 28),
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 28),
-                        child: Text(
-                          'Are you a Politically Exposed Person or a family member/close associate of a PEP?',
+                        child: Text(context.l10n.areYouAPoliticallyExposedPerson2,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                               fontSize: 18,
@@ -143,8 +142,7 @@ class _PepDeclarationScreenState extends ConsumerState<PepDeclarationScreen> {
                     const SizedBox(height: 16),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 28),
-                      child: Text(
-                        'A PEP (Politically Exposed Person) is someone who currently holds or has held an important public position, which gives them influence over public funds or decisions.',
+                      child: Text(context.l10n.aPepPoliticallyExposedPersonIs2,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 13,
@@ -234,8 +232,7 @@ class _PepDeclarationScreenState extends ConsumerState<PepDeclarationScreen> {
                             AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     )
-                  : Text(
-                      'Continue →',
+                  : Text(context.l10n.continueArrow,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,

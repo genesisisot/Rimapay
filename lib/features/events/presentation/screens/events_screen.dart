@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
 import '../../../success/presentation/screens/success_screen.dart';
 
+import '../../../../core/localization/l10n.dart';
 class _Event {
   final String id;
   final String name;
@@ -67,7 +68,7 @@ class _EventsScreenState extends State<EventsScreen> {
         {'label': 'Event', 'value': _selectedEvent!.name},
         {'label': 'Venue', 'value': _selectedEvent!.venue},
         {'label': 'Date', 'value': _selectedEvent!.date},
-        {'label': 'Tickets', 'value': '$_quantity ticket${_quantity > 1 ? 's' : ''}'},
+        {'label': context.l10n.numberOfTickets, 'value': context.l10n.ticketCount(_quantity)},
         {'label': 'Amount', 'value': '₦$_totalPrice'},
       ],
       onConfirmed: (_) {
@@ -88,8 +89,8 @@ class _EventsScreenState extends State<EventsScreen> {
       body: Column(
         children: [
           BillGreenHeader(
-            title: 'Event Tickets',
-            subtitle: 'Concerts, shows & experiences',
+            title: context.l10n.eventTickets,
+            subtitle: context.l10n.concertsShowsExperiences,
             showAccountCard: false,
           ),
           Expanded(
@@ -133,7 +134,7 @@ class _EventsScreenState extends State<EventsScreen> {
                   const SizedBox(height: 16),
 
                   // Events list
-                  Text('Available Events', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85))),
+                  Text(context.l10n.availableEvents, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85))),
                   const SizedBox(height: 10),
 
                   ..._filteredEvents.map((event) {
@@ -187,7 +188,7 @@ class _EventsScreenState extends State<EventsScreen> {
                               children: [
                                 Text('₦${event.price.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]},')}',
                                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: event.color)),
-                                Text('/ticket', style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4))),
+                                Text(context.l10n.perTicket, style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4))),
                                 if (isSelected)
                                   const Icon(Icons.check_circle, color: Color(0xFF166C46), size: 18),
                               ],
@@ -214,8 +215,8 @@ class _EventsScreenState extends State<EventsScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Number of Tickets', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)),
-                                Text('Max 10 tickets per order', style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4))),
+                                Text(context.l10n.numberOfTickets, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)),
+                                Text(context.l10n.max10TicketsPerOrder, style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4))),
                               ],
                             ),
                           ),
@@ -232,7 +233,7 @@ class _EventsScreenState extends State<EventsScreen> {
                                   child: Icon(Icons.remove, size: 16, color: _quantity > 1 ? AppColors.goldPrimary : Theme.of(context).dividerColor),
                                 ),
                               ),
-                              SizedBox(width: 16, child: Center(child: Text('$_quantity', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)))),
+                              SizedBox(width: 16, child: Center(child: Text(context.l10n.quantity(_quantity), style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)))),
                               GestureDetector(
                                 onTap: () { if (_quantity < 10) setState(() => _quantity++); },
                                 child: Container(
@@ -257,9 +258,9 @@ class _EventsScreenState extends State<EventsScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('$_quantity ticket${_quantity > 1 ? 's' : ''} × ₦${_selectedEvent!.price}',
+                          Text('${context.l10n.ticketCount(_quantity)} × ₦${_selectedEvent!.price}',
                               style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
-                          Text('₦$_totalPrice', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF166C46))),
+                          Text(context.l10n.totalprice(_totalPrice), style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF166C46))),
                         ],
                       ),
                     ),

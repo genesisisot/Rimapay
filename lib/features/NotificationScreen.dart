@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../core/theme/app_colors.dart';
 
+import '../core/localization/l10n.dart';
 // Notification model
 class NotificationModel {
   final String id;
@@ -39,11 +40,15 @@ class NotificationScreen extends StatefulWidget {
 }
 
 class _NotificationScreenState extends State<NotificationScreen> {
-  List<NotificationModel> notifications = [
+  // Built lazily on first read: the copy is localized, so it needs `context`,
+  // which a field initializer cannot use. Cached because the list is mutated
+  // in place (read flags, dismissal).
+  List<NotificationModel>? _notifications;
+  List<NotificationModel> get notifications => _notifications ??= [
     NotificationModel(
       id: '1',
-      title: 'Payment Successful',
-      message: 'Your airtime purchase of ₦1,000 to 08012345678 was successful',
+      title: context.l10n.paymentSuccessful,
+      message: context.l10n.yourAirtimePurchaseOf1000,
       time: '2 minutes ago',
       type: NotificationType.transaction,
       isRead: false,
@@ -51,9 +56,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
     ),
     NotificationModel(
       id: '2',
-      title: 'New Feature Available',
-      message:
-          'Loan services are now available in your RimaPay app. Apply for instant loans up to ₦500,000',
+      title: context.l10n.newFeatureAvailable,
+      message: context.l10n.loanServicesAreNowAvailableIn,
       time: '1 hour ago',
       type: NotificationType.promotion,
       isRead: false,
@@ -61,9 +65,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
     ),
     NotificationModel(
       id: '3',
-      title: 'Money Received',
-      message:
-          'You received ₦25,000 from Adebayo Okafor with reference: Split dinner bill',
+      title: context.l10n.moneyReceived,
+      message: context.l10n.youReceived25000FromAdebayo,
       time: '3 hours ago',
       type: NotificationType.transaction,
       isRead: true,
@@ -71,9 +74,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
     ),
     NotificationModel(
       id: '4',
-      title: 'Security Alert',
-      message:
-          'New device login detected from Lagos, Nigeria. If this wasn\'t you, please secure your account.',
+      title: context.l10n.securityAlert,
+      message: context.l10n.newDeviceLoginDetectedFromLagos,
       time: '1 day ago',
       type: NotificationType.security,
       isRead: true,
@@ -81,9 +83,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
     ),
     NotificationModel(
       id: '5',
-      title: 'System Maintenance',
-      message:
-          'Scheduled maintenance on Sunday 2AM - 4AM. Some services may be temporarily unavailable.',
+      title: context.l10n.systemMaintenance,
+      message: context.l10n.scheduledMaintenanceOnSunday2am4am,
       time: '2 days ago',
       type: NotificationType.system,
       isRead: true,
@@ -91,9 +92,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
     ),
     NotificationModel(
       id: '6',
-      title: 'Cashback Earned',
-      message:
-          'You earned ₦50 cashback from your electricity bill payment. Total cashback this month: ₦350',
+      title: context.l10n.cashbackEarned,
+      message: context.l10n.youEarned50CashbackFromYour,
       time: '3 days ago',
       type: NotificationType.promotion,
       isRead: true,
@@ -195,8 +195,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Notifications',
+                Text(context.l10n.notifications,
                   style: TextStyle(
                     color: Theme.of(context).cardColor,
                     fontSize: 20,
@@ -205,8 +204,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   ),
                 ),
                 if (unreadCount > 0)
-                  Text(
-                    '$unreadCount unread',
+                  Text(context.l10n.unreadcountUnread(unreadCount),
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.65),
                       fontSize: 12,
@@ -227,8 +225,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   border:
                       Border.all(color: Colors.white.withOpacity(0.22)),
                 ),
-                child: Text(
-                  'Mark all read',
+                child: Text(context.l10n.markAllRead,
                   style: TextStyle(
                     color: Theme.of(context).cardColor,
                     fontSize: 12,
@@ -425,8 +422,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                   const Color(0xFF166C46).withOpacity(0.08),
                               borderRadius: BorderRadius.circular(6),
                             ),
-                            child: const Text(
-                              'Mark read',
+                            child: Text(context.l10n.markRead,
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,

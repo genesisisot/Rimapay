@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/providers/auth_provider.dart';
 
+import '../../../../core/localization/l10n.dart';
 /// Email verification via the RIMA Identity API
 /// (GET /api/auth/verify-email?token=&email=). The user pastes the token from
 /// the verification email they received after registering.
@@ -71,7 +72,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
       appBar: AppBar(
         elevation: 0,
         foregroundColor: Theme.of(context).colorScheme.onSurface,
-        title: Text('Verify Email',
+        title: Text(context.l10n.verifyEmail,
             style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
@@ -92,14 +93,13 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
       children: [
         const Icon(Icons.mark_email_unread_outlined, color: _green, size: 56),
         const SizedBox(height: 16),
-        Text('Confirm your email',
+        Text(context.l10n.confirmYourEmail,
             style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
                 color: Theme.of(context).colorScheme.onSurface)),
         const SizedBox(height: 8),
-        Text(
-          'Enter the verification token sent to your email address to activate your account.',
+        Text(context.l10n.enterTheVerificationTokenSentTo,
           style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), height: 1.5),
         ),
         const SizedBox(height: 28),
@@ -118,13 +118,13 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
         const SizedBox(height: 40),
         const Icon(Icons.verified, color: _green, size: 72),
         const SizedBox(height: 20),
-        Text('Email verified!',
+        Text(context.l10n.emailVerified,
             style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
                 color: Theme.of(context).colorScheme.onSurface)),
         const SizedBox(height: 8),
-        Text('Your email has been confirmed.',
+        Text(context.l10n.yourEmailHasBeenConfirmed,
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
         const SizedBox(height: 28),

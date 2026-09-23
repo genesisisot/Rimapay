@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../data/profile_dtos.dart';
 import '../providers/profile_provider.dart';
 
+import '../../../../core/localization/l10n.dart';
 class SourceOfIncomeScreen extends ConsumerStatefulWidget {
   const SourceOfIncomeScreen({super.key});
 
@@ -81,8 +82,8 @@ class _SourceOfIncomeScreenState extends ConsumerState<SourceOfIncomeScreen> {
   Future<void> _saveAndShowSuccess() async {
     if (_occupation == null || _annualIncome == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select occupation and income'),
+        SnackBar(
+          content: Text(context.l10n.pleaseSelectOccupationAndIncome),
           backgroundColor: Colors.red,
         ),
       );
@@ -108,8 +109,8 @@ class _SourceOfIncomeScreenState extends ConsumerState<SourceOfIncomeScreen> {
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) =>
               _CompletionSuccessScreen(
-            title: 'Source of Income',
-            message: 'Your income details have been saved successfully.',
+            title: context.l10n.sourceOfIncome,
+            message: context.l10n.yourIncomeDetailsHaveBeenSaved,
             onComplete: () {
               context.pop(true);
             },
@@ -216,8 +217,7 @@ class _SourceOfIncomeScreenState extends ConsumerState<SourceOfIncomeScreen> {
                     ),
                   ),
                   const Spacer(),
-                  const Text(
-                    'Source of Income',
+                  Text(context.l10n.sourceOfIncome,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -242,7 +242,7 @@ class _SourceOfIncomeScreenState extends ConsumerState<SourceOfIncomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Provide details of your source of income',
+                    Text(context.l10n.provideDetailsOfYourSourceOf,
                         style:
                             TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55))),
                     const SizedBox(height: 24),
@@ -301,8 +301,7 @@ class _SourceOfIncomeScreenState extends ConsumerState<SourceOfIncomeScreen> {
                           AlwaysStoppedAnimation<Color>(Colors.white),
                     ),
                   )
-                : Text(
-                    'Continue →',
+                : Text(context.l10n.continueArrow,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,

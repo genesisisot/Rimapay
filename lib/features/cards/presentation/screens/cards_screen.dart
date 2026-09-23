@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/localization/l10n.dart';
 class CardsScreen extends StatefulWidget {
   const CardsScreen({super.key});
 
@@ -99,7 +100,7 @@ class _CardsScreenState extends State<CardsScreen> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text('RIMA MFB',
+                                        Text(context.l10n.rimaMfb,
                                             style: TextStyle(
                                                 color:
                                                     Colors.white.withOpacity(0.9),
@@ -122,10 +123,10 @@ class _CardsScreenState extends State<CardsScreen> {
                                         fontWeight: FontWeight.w800,
                                         fontSize: 13,
                                         color: Theme.of(context).colorScheme.onSurface)),
-                                Text('Fee: ${ct.fee}',
+                                Text(context.l10n.feeFee(ct.fee),
                                     style: TextStyle(
                                         fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
-                                Text('Delivery: ${ct.deliveryDays} days',
+                                Text(context.l10n.deliveryDeliverydaysDays(ct.deliveryDays),
                                     style: TextStyle(
                                         fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
                               ],
@@ -168,8 +169,7 @@ class _CardsScreenState extends State<CardsScreen> {
                             color: Color(0xFFFF6B35), size: 20),
                         const SizedBox(width: 10),
                         Expanded(
-                          child: Text(
-                            'Card fee of ${_cardTypes[_selectedCard].fee} will be deducted from your account. Delivery in ${_cardTypes[_selectedCard].deliveryDays} working days.',
+                          child: Text(context.l10n.cardFeeOfFeeWillBe(_cardTypes[_selectedCard].fee, _cardTypes[_selectedCard].deliveryDays),
                             style: TextStyle(
                                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), fontSize: 12, height: 1.4),
                           ),
@@ -192,7 +192,7 @@ class _CardsScreenState extends State<CardsScreen> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14)),
                       ),
-                      child: Text('Request Card',
+                      child: Text(context.l10n.requestCard,
                           style: TextStyle(
                               color: Theme.of(context).cardColor,
                               fontSize: 16,
@@ -232,14 +232,12 @@ class _CardsScreenState extends State<CardsScreen> {
             ),
             const Icon(Icons.credit_card, size: 48, color: Color(0xFF1A6B35)),
             const SizedBox(height: 12),
-            Text(
-              'Request ${_cardTypes[_selectedCard].name}?',
+            Text(context.l10n.requestSelectedcard(_cardTypes[_selectedCard].name),
               style: TextStyle(
                   fontSize: 18, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface),
             ),
             const SizedBox(height: 8),
-            Text(
-              'A fee of ${_cardTypes[_selectedCard].fee} will be deducted from your account.',
+            Text(context.l10n.aFeeOfFeeWillBe(_cardTypes[_selectedCard].fee),
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
             ),
@@ -252,7 +250,7 @@ class _CardsScreenState extends State<CardsScreen> {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: const Text('Card request submitted successfully!'),
+                      content: Text(context.l10n.cardRequestSubmittedSuccessfully),
                       behavior: SnackBarBehavior.floating,
                       backgroundColor: const Color(0xFF1A6B35),
                       shape: RoundedRectangleBorder(
@@ -265,7 +263,7 @@ class _CardsScreenState extends State<CardsScreen> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                 ),
-                child: Text('Confirm Request',
+                child: Text(context.l10n.confirmRequest,
                     style: TextStyle(color: Theme.of(context).cardColor, fontWeight: FontWeight.w700)),
               ),
             ),
@@ -309,10 +307,10 @@ class _CardsScreenState extends State<CardsScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('My Card',
+              Text(context.l10n.myCard,
                   style: TextStyle(
                       color: Theme.of(context).cardColor, fontSize: 17, fontWeight: FontWeight.w800)),
-              Text('Request a physical debit card',
+              Text(context.l10n.requestAPhysicalDebitCard,
                   style: TextStyle(color: Colors.white60, fontSize: 12)),
             ],
           ),

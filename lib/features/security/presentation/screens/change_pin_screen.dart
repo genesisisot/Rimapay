@@ -8,6 +8,7 @@ import '../../../../core/services/secure_store.dart';
 import '../../../../core/Utils/haptics.dart';
 import '../../data/pin_dtos.dart';
 
+import '../../../../core/localization/l10n.dart';
 /// Two-step transaction-PIN change backed by the RIMA Identity API:
 ///  step 0 → choose new PIN, POST /api/security/pin/change/initiate (sends OTP)
 ///  step 1 → enter OTP, POST /api/security/pin/change/validate
@@ -109,7 +110,7 @@ class _ChangePinScreenState extends State<ChangePinScreen> {
       appBar: AppBar(
         elevation: 0,
         foregroundColor: Theme.of(context).colorScheme.onSurface,
-        title: Text('Change Transaction PIN',
+        title: Text(context.l10n.changeTransactionPin,
             style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
@@ -130,14 +131,13 @@ class _ChangePinScreenState extends State<ChangePinScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Choose a new 4-digit PIN',
+        Text(context.l10n.chooseANew4DigitPin,
             style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
                 color: Theme.of(context).colorScheme.onSurface)),
         const SizedBox(height: 8),
-        Text(
-          "We'll send a one-time code to confirm this change.",
+        Text(context.l10n.weLlSendAOneTime,
           style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), height: 1.5),
         ),
         const SizedBox(height: 28),
@@ -154,13 +154,13 @@ class _ChangePinScreenState extends State<ChangePinScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Enter the OTP',
+        Text(context.l10n.enterTheOtp,
             style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
                 color: Theme.of(context).colorScheme.onSurface)),
         const SizedBox(height: 8),
-        Text('Enter the code sent to your registered phone number.',
+        Text(context.l10n.enterTheCodeSentToYour,
             style:
                 TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), height: 1.5)),
         const SizedBox(height: 28),
@@ -168,7 +168,7 @@ class _ChangePinScreenState extends State<ChangePinScreen> {
         const SizedBox(height: 12),
         GestureDetector(
           onTap: _loading ? null : _initiate,
-          child: const Text('Resend code',
+          child: Text(context.l10n.resendCode2,
               style: TextStyle(
                   fontSize: 13, fontWeight: FontWeight.w700, color: _green)),
         ),
@@ -184,13 +184,13 @@ class _ChangePinScreenState extends State<ChangePinScreen> {
         const SizedBox(height: 40),
         const Icon(Icons.check_circle, color: _green, size: 72),
         const SizedBox(height: 20),
-        Text('PIN changed!',
+        Text(context.l10n.pinChanged,
             style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
                 color: Theme.of(context).colorScheme.onSurface)),
         const SizedBox(height: 8),
-        Text('Your transaction PIN has been updated.',
+        Text(context.l10n.yourTransactionPinHasBeenUpdated,
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
         const SizedBox(height: 28),

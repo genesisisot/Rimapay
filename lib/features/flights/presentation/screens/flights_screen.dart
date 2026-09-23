@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
 import '../../../success/presentation/screens/success_screen.dart';
 
+import '../../../../core/localization/l10n.dart';
 class _Airport {
   final String code;
   final String city;
@@ -243,8 +244,8 @@ class _FlightsScreenState extends State<FlightsScreen> {
       body: Column(
         children: [
           BillGreenHeader(
-            title: 'Book Flights',
-            subtitle: 'Domestic flights at best prices',
+            title: context.l10n.bookFlights2,
+            subtitle: context.l10n.domesticFlightsAtBestPrices,
             showAccountCard: false,
           ),
           Expanded(
@@ -298,7 +299,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
                     child: Column(
                       children: [
                         _AirportTile(
-                          label: 'From',
+                          label: context.l10n.from,
                           airport: _origin,
                           hint: 'Select origin city',
                           icon: Icons.flight_takeoff,
@@ -306,7 +307,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
                         ),
                         Container(height: 1, color: Theme.of(context).scaffoldBackgroundColor, margin: EdgeInsets.symmetric(horizontal: 16)),
                         _AirportTile(
-                          label: 'To',
+                          label: context.l10n.to,
                           airport: _destination,
                           hint: 'Select destination city',
                           icon: Icons.flight_land,
@@ -322,7 +323,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
                     children: [
                       Expanded(
                         child: _DateTile(
-                          label: 'Departure',
+                          label: context.l10n.departure,
                           date: _departureDate != null ? _formatDate(_departureDate!) : null,
                           hint: 'Select date',
                           onTap: () => _pickDate(isReturn: false),
@@ -332,7 +333,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: _DateTile(
-                            label: 'Return',
+                            label: context.l10n.returnLabel,
                             date: _returnDate != null ? _formatDate(_returnDate!) : null,
                             hint: 'Select date',
                             onTap: () => _pickDate(isReturn: true),
@@ -358,7 +359,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Passengers', style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), fontWeight: FontWeight.w500)),
+                              Text(context.l10n.passengers, style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), fontWeight: FontWeight.w500)),
                               const SizedBox(height: 8),
                               Row(
                                 children: [
@@ -368,7 +369,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
                                         decoration: BoxDecoration(color: _passengers > 1 ? Color(0xFFF2F7F3) : Theme.of(context).dividerColor, borderRadius: BorderRadius.circular(8)),
                                         child: Icon(Icons.remove, size: 14, color: _passengers > 1 ? AppColors.goldPrimary : Theme.of(context).dividerColor)),
                                   ),
-                                  Expanded(child: Center(child: Text('$_passengers', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)))),
+                                  Expanded(child: Center(child: Text(context.l10n.passengers2(_passengers), style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)))),
                                   GestureDetector(
                                     onTap: () { if (_passengers < 9) setState(() => _passengers++); },
                                     child: Container(width: 28, height: 28,
@@ -432,7 +433,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
                         children: [
                           Icon(Icons.search_rounded, size: 18, color: _canSearch ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.4)),
                           const SizedBox(width: 8),
-                          Text('Search Flights', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600,
+                          Text(context.l10n.searchFlights, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600,
                               color: _canSearch ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.4))),
                         ],
                       ),
@@ -442,7 +443,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
                   // Results
                   if (_searched) ...[
                     const SizedBox(height: 20),
-                    Text('${_mockFlights.length} flights found · ${_origin!.code} → ${_destination!.code}',
+                    Text(context.l10n.lengthFlightsFoundCodeCode2(_mockFlights.length, _origin!.code, _destination!.code),
                         style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85))),
                     const SizedBox(height: 10),
                     ..._mockFlights.map((flight) {
@@ -480,9 +481,9 @@ class _FlightsScreenState extends State<FlightsScreen> {
                                     ]),
                                   ),
                                   Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                                    Text('₦${_formatPrice(flight.price)}',
+                                    Text(context.l10n.price(_formatPrice(flight.price)),
                                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF166C46))),
-                                    Text('/person', style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4))),
+                                    Text(context.l10n.perPerson, style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4))),
                                   ]),
                                 ],
                               ),
@@ -509,7 +510,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
                                   child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                                     const Icon(Icons.check_circle, color: Color(0xFF166C46), size: 14),
                                     const SizedBox(width: 6),
-                                    Text('Selected · $_passengers × ₦${_formatPrice(flight.price)} = ₦${_formatPrice(_totalPrice)}',
+                                    Text(context.l10n.selectedPassengersPriceTotalprice(_passengers, _formatPrice(flight.price), _formatPrice(_totalPrice)),
                                         style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF166C46))),
                                   ]),
                                 ),

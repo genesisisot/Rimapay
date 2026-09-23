@@ -10,6 +10,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../shared/widgets/rimapay_logo.dart';
 import '../../../../shared/receipt/receipt_pdf.dart';
 
+import '../../../../core/localization/l10n.dart';
 class ReceiptScreen extends StatefulWidget {
   final ReceiptData receiptData;
 
@@ -162,7 +163,7 @@ class _ReceiptScreenState extends State<ReceiptScreen> with TickerProviderStateM
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Reference copied to clipboard'),
+          content: Text(context.l10n.referenceCopiedToClipboard),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
@@ -210,7 +211,8 @@ www.rimapay.com
     final d = widget.receiptData;
     final status = _getStatusConfig(d.status)['label']?.toString() ?? 'Successful';
     try {
-      await shareReceiptPdf(ReceiptPdfData(
+      final l10n = context.l10n;
+      await shareReceiptPdf(l10n: l10n, ReceiptPdfData(
         title: d.type,
         amount: d.amount,
         isCredit: d.isCredit,
@@ -232,8 +234,8 @@ www.rimapay.com
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Couldn't create the receipt. Please try again."),
+          SnackBar(
+            content: Text(context.l10n.couldnTCreateTheReceiptPlease),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -253,8 +255,8 @@ www.rimapay.com
       await Clipboard.setData(ClipboardData(text: receiptContent));
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Receipt copied to clipboard'),
+          SnackBar(
+            content: Text(context.l10n.receiptCopiedToClipboard),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -332,8 +334,7 @@ www.rimapay.com
                                 //   height: 24,
                                 // ),
                                 // const SizedBox(width: 8),
-                                Text(
-                                  "Receipt",
+                                Text(context.l10n.receipt,
                                   style: Theme.of(context).textTheme.titleSmall!.copyWith(
                                     fontWeight: FontWeight.bold,
                                     fontSize: isSmallScreen ? 16 : 18,
@@ -402,7 +403,8 @@ www.rimapay.com
                                     ),
                                     const SizedBox(height: 12),
                                     Text(
-                                      'Transaction ${statusConfig['label']}',
+                                      context.l10n.transactionStatusTitle(
+                                          statusConfig['label'].toString()),
                                       style: Theme.of(context).textTheme.titleSmall!.copyWith(
                                         fontWeight: FontWeight.bold,
                                         fontSize: isSmallScreen ? 16 : 20,
@@ -411,7 +413,11 @@ www.rimapay.com
                                     ),
                                     const SizedBox(height: 8),
                                     Text(
-                                      'Your ${widget.receiptData.type.toLowerCase()} transaction has been ${statusConfig['label'].toString().toLowerCase()}',
+                                      context.l10n.transactionStatusBody(
+                                          widget.receiptData.type.toLowerCase(),
+                                          statusConfig['label']
+                                              .toString()
+                                              .toLowerCase()),
                                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                         fontSize: isSmallScreen ? 12 : 14,
                                         color: statusConfig['text'],
@@ -483,8 +489,7 @@ www.rimapay.com
                                     // Amount
                                     Column(
                                       children: [
-                                        Text(
-                                          'Amount',
+                                        Text(context.l10n.amount,
                                           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                             fontSize: isSmallScreen ? 12 : 14,
                                           ),
@@ -532,8 +537,7 @@ www.rimapay.com
                                         ),
                                         if (widget.receiptData.fee != null) ...[
                                           const SizedBox(height: 4),
-                                          Text(
-                                            'Fee: ${_formatAmount(widget.receiptData.fee!)}',
+                                          Text(context.l10n.feeFee(_formatAmount(widget.receiptData.fee!)),
                                             style: Theme.of(context).textTheme.bodySmall!.copyWith(
                                               fontSize: isSmallScreen ? 10 : 12,
                                             ),
@@ -595,8 +599,7 @@ www.rimapay.com
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            'Transaction Reference',
+                                          Text(context.l10n.transactionReference,
                                             style: Theme.of(context).textTheme.bodySmall!.copyWith(
                                               fontSize: isSmallScreen ? 10 : 12,
                                             ),
@@ -657,8 +660,7 @@ www.rimapay.com
                                     child: ElevatedButton.icon(
                                       onPressed: _downloadReceipt,
                                       icon: const Icon(Icons.download, size: 16),
-                                      label: Text(
-                                        'Download PDF Receipt',
+                                      label: Text(context.l10n.downloadPdfReceipt,
                                         style: Theme.of(context).textTheme.labelLarge!.copyWith(
                                           fontSize: isSmallScreen ? 14 : 16,
                                         ),
@@ -683,8 +685,7 @@ www.rimapay.com
                                     child: OutlinedButton.icon(
                                       onPressed: _shareReceipt,
                                       icon: const Icon(Icons.share, size: 16),
-                                      label: Text(
-                                        'Share Receipt',
+                                      label: Text(context.l10n.shareReceipt,
                                         style: TextStyle(
                                           fontWeight: FontWeight.w600,
                                           color: AppColors.primary600,
@@ -719,15 +720,13 @@ www.rimapay.com
                               opacity: _fadeAnimation.value,
                               child: Column(
                                 children: [
-                                  Text(
-                                    'Thank you for using RimaPay',
+                                  Text(context.l10n.thankYouForUsingRimapay,
                                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                       fontSize: isSmallScreen ? 11 : 12,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
-                                  Text(
-                                    'Questions? Contact support@rimapay.com',
+                                  Text(context.l10n.questionsContactSupportRimapayCom,
                                     style: Theme.of(context).textTheme.bodySmall!.copyWith(
                                       fontSize: isSmallScreen ? 10 : 11,
                                     ),

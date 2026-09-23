@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
 import '../../../success/presentation/screens/success_screen.dart';
 
+import '../../../../core/localization/l10n.dart';
 class _Network {
   final String id;
   final String name;
@@ -86,8 +87,8 @@ class _AirtimeCashScreenState extends State<AirtimeCashScreen> {
       body: Column(
         children: [
           BillGreenHeader(
-            title: 'Airtime to Cash',
-            subtitle: 'Convert airtime to wallet balance',
+            title: context.l10n.airtimeToCash,
+            subtitle: context.l10n.convertAirtimeToWalletBalance,
             showAccountCard: false,
           ),
           Expanded(
@@ -111,9 +112,8 @@ class _AirtimeCashScreenState extends State<AirtimeCashScreen> {
                       children: [
                         const Icon(Icons.info_outline_rounded, size: 16, color: Color(0xFFF59E0B)),
                         const SizedBox(width: 8),
-                        const Expanded(
-                          child: Text(
-                            '80% conversion rate · ₦500 airtime = ₦400 cash',
+                        Expanded(
+                          child: Text(context.l10n.conversionRate500Airtime40080,
                             style: TextStyle(fontSize: 12, color: Color(0xFF92400E), fontWeight: FontWeight.w500),
                           ),
                         ),
@@ -123,7 +123,7 @@ class _AirtimeCashScreenState extends State<AirtimeCashScreen> {
                   const SizedBox(height: 16),
 
                   // Network selector
-                  Text('Select Network', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85))),
+                  Text(context.l10n.selectNetwork, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85))),
                   const SizedBox(height: 10),
                   Row(
                     children: _networks.asMap().entries.map((e) {
@@ -161,7 +161,7 @@ class _AirtimeCashScreenState extends State<AirtimeCashScreen> {
                   BillFloatingField(
                     controller: _phoneController,
                     focusNode: _phoneFocus,
-                    label: 'Phone Number',
+                    label: context.l10n.phoneNumber,
                     hint: '801 234 5678',
                     keyboardType: TextInputType.phone,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(10)],
@@ -216,13 +216,13 @@ class _AirtimeCashScreenState extends State<AirtimeCashScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('₦${_amountController.text} airtime',
+                                Text(context.l10n.amountcontrollerAirtime(_amountController.text),
                                     style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
-                                Text('converts to', style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4))),
+                                Text(context.l10n.convertsTo, style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4))),
                               ],
                             ),
                           ),
-                          Text('₦${_convertedAmount.toStringAsFixed(0)}',
+                          Text(context.l10n.convertedamount(_convertedAmount.toStringAsFixed(0)),
                               style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF166C46))),
                         ],
                       ),

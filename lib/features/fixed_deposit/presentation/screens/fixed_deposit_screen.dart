@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
 
+import '../../../../core/localization/l10n.dart';
 class FixedDepositScreen extends StatefulWidget {
   const FixedDepositScreen({super.key});
 
@@ -15,12 +16,13 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
   int _selectedTenor = 1; // index into _tenors
   bool _autoRollover = false;
 
-  static const _tenors = [
-    _Tenor(days: 30, label: '30 Days', rate: 8.5),
-    _Tenor(days: 60, label: '60 Days', rate: 9.0),
-    _Tenor(days: 90, label: '90 Days', rate: 10.0),
-    _Tenor(days: 180, label: '6 Months', rate: 11.5),
-    _Tenor(days: 365, label: '1 Year', rate: 13.0),
+  // Getter rather than a static field — the labels need `context` for l10n.
+  List<_Tenor> get _tenors => [
+    _Tenor(days: 30, label: context.l10n.days30, rate: 8.5),
+    _Tenor(days: 60, label: context.l10n.days60, rate: 9.0),
+    _Tenor(days: 90, label: context.l10n.days90, rate: 10.0),
+    _Tenor(days: 180, label: context.l10n.months6, rate: 11.5),
+    _Tenor(days: 365, label: context.l10n.year1, rate: 13.0),
   ];
 
   double get _interestRate => _tenors[_selectedTenor].rate;
@@ -68,8 +70,7 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
                         const Icon(Icons.info_outline, color: Color(0xFF1A6B35), size: 20),
                         const SizedBox(width: 10),
                         Expanded(
-                          child: Text(
-                            'Your funds are insured by NDIC. Earn up to 13% per annum.',
+                          child: Text(context.l10n.yourFundsAreInsuredByNdic,
                             style: TextStyle(
                               color: const Color(0xFF1A6B35).withOpacity(0.85),
                               fontSize: 12.5,
@@ -113,7 +114,7 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
                     ),
                   ),
                   const SizedBox(height: 6),
-                  Text('Minimum: ₦10,000',
+                  Text(context.l10n.minimum10000,
                       style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
 
                   const SizedBox(height: 20),
@@ -145,7 +146,7 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
                                     fontSize: 13,
                                     color: active ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
                                   )),
-                              Text('${t.rate}% p.a.',
+                              Text(context.l10n.ratePA(t.rate),
                                   style: TextStyle(
                                     fontSize: 11,
                                     color: active
@@ -197,13 +198,13 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Auto-Rollover',
+                              Text(context.l10n.autoRollover,
                                   style: TextStyle(
                                       fontWeight: FontWeight.w700,
                                       fontSize: 14,
                                       color: Theme.of(context).colorScheme.onSurface)),
                               SizedBox(height: 2),
-                              Text('Automatically renew at maturity',
+                              Text(context.l10n.automaticallyRenewAtMaturity,
                                   style:
                                       TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
                             ],
@@ -235,7 +236,7 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
                         disabledBackgroundColor: Theme.of(context).dividerColor,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
-                      child: Text('Place Fixed Deposit',
+                      child: Text(context.l10n.placeFixedDeposit,
                           style: TextStyle(
                               color: Theme.of(context).cardColor, fontSize: 16, fontWeight: FontWeight.w700)),
                     ),
@@ -302,10 +303,10 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Fixed Deposit',
+              Text(context.l10n.fixedDeposit,
                   style: TextStyle(
                       color: Theme.of(context).cardColor, fontSize: 17, fontWeight: FontWeight.w800)),
-              Text('Earn up to 13% per annum',
+              Text(context.l10n.earnUpTo13PerAnnum,
                   style: TextStyle(color: Colors.white60, fontSize: 12)),
             ],
           ),

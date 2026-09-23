@@ -151,8 +151,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
           const RimapayLogo(height: 30, width: 30),
             const SizedBox(width: 12),
             
-            Text(
-             "Settings",
+            Text(context.l10n.settings,
               style: AppTextStyles.titleLarge.copyWith(
                 color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 18,
@@ -469,16 +468,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
   Widget _buildAppVersion() {
     return Column(
       children: [
-        Text(
-          'RimaPay v2.1.0',
+        Text(context.l10n.rimapayV210,
           style: AppTextStyles.bodySmall.copyWith(
             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
             fontSize: 12,
           ),
         ),
         const SizedBox(height: 4),
-        Text(
-          'Built with ❤️ in Nigeria',
+        Text(context.l10n.builtWithInNigeria,
           style: AppTextStyles.bodySmall.copyWith(
             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
             fontSize: 11,
@@ -548,8 +545,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
             padding: const EdgeInsets.all(24),
             child: Row(
               children: [
-                Text(
-                  'Change Password',
+                Text(context.l10n.changePassword,
                   style: AppTextStyles.titleLarge.copyWith(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 20,
@@ -613,8 +609,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
             ),
           ),
           const SizedBox(height: 16),
-          Text(
-            'Password Changed Successfully',
+          Text(context.l10n.passwordChangedSuccessfully,
             style: AppTextStyles.titleMedium.copyWith(
               color: Theme.of(context).colorScheme.onSurface,
               fontSize: 18,
@@ -622,8 +617,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            'Your account password has been updated',
+          Text(context.l10n.yourAccountPasswordHasBeenUpdated,
             style: AppTextStyles.bodyMedium.copyWith(
               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
               fontSize: 14,
@@ -681,8 +675,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                       height: 20,
                       child: CircularProgressIndicator(
                           strokeWidth: 2, color: Colors.white))
-                  : const Text(
-                      'Change Password',
+                  : Text(context.l10n.changePassword,
                       style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                     ),
             ),
@@ -770,8 +763,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
             padding: const EdgeInsets.all(24),
             child: Row(
               children: [
-                Text(
-                  'Change PIN',
+                Text(context.l10n.changePin,
                   style: AppTextStyles.titleLarge.copyWith(
                     color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 20,
@@ -835,8 +827,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
             ),
           ),
           const SizedBox(height: 16),
-          Text(
-            'PIN Changed Successfully',
+          Text(context.l10n.pinChangedSuccessfully,
             style: AppTextStyles.titleMedium.copyWith(
               color: Theme.of(context).colorScheme.onSurface,
               fontSize: 18,
@@ -844,8 +835,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            'Your transaction PIN has been updated',
+          Text(context.l10n.yourTransactionPinHasBeenUpdated2,
             style: AppTextStyles.bodyMedium.copyWith(
               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
               fontSize: 14,
@@ -881,8 +871,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child: const Text(
-                'Change PIN',
+              child: Text(context.l10n.changePin,
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
             ),
@@ -979,8 +968,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
             ),
           ),
           const SizedBox(height: 16),
-          Text(
-            'Logout Confirmation',
+          Text(context.l10n.logoutConfirmation,
             style: AppTextStyles.titleMedium.copyWith(
               color: Theme.of(context).colorScheme.onSurface,
               fontSize: 18,
@@ -988,8 +976,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            'Are you sure you want to logout from your RimaPay account?',
+          Text(context.l10n.areYouSureYouWantTo2,
             textAlign: TextAlign.center,
             style: AppTextStyles.bodyMedium.copyWith(
               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
@@ -1014,8 +1001,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                       color: Theme.of(context).dividerColor.withOpacity(0.2),
                     ),
                   ),
-                  child: Text(
-                    'Cancel',
+                  child: Text(context.l10n.cancel,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                       fontSize: 14,
@@ -1036,8 +1022,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: const Text(
-                    'Logout',
+                  child: Text(context.l10n.logout,
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -1321,13 +1306,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                   color: Theme.of(context).dividerColor,
                   borderRadius: BorderRadius.circular(999)),
             ),
-            Text('Customer Care',
+            Text(context.l10n.customerCare,
                 style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
                     color: Theme.of(context).colorScheme.onSurface)),
             const SizedBox(height: 6),
-            Text('We\'re here to help you',
+            Text(context.l10n.wereHereToHelp,
                 style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
             const SizedBox(height: 24),
             _careOption(Icons.phone_outlined, 'Call Us',
@@ -1352,8 +1337,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                       color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), size: 18),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: Text(
-                      'Mon – Fri: 8am – 8pm\nSat: 9am – 5pm',
+                    child: Text(context.l10n.monFri8am8pmNsat9am,
                       style: TextStyle(
                           fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8), height: 1.4),
                     ),
@@ -1416,14 +1400,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Reset Transaction PIN',
+              Text(context.l10n.resetTransactionPin,
                   style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
                       color: Theme.of(context).colorScheme.onSurface)),
               const SizedBox(height: 8),
-              Text(
-                'An OTP will be sent to your registered phone number to reset your transaction PIN.',
+              Text(context.l10n.anOtpWillBeSentTo,
                 style: TextStyle(
                     fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), height: 1.5),
               ),
@@ -1436,7 +1419,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: const Text('OTP sent to your registered number'),
+                        content: Text(context.l10n.otpSentToYourRegisteredNumber),
                         behavior: SnackBarBehavior.floating,
                         backgroundColor: const Color(0xFF1A6B35),
                         shape: RoundedRectangleBorder(
@@ -1449,7 +1432,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: Text('Send OTP',
+                  child: Text(context.l10n.sendOtp,
                       style: TextStyle(
                           color: Theme.of(context).cardColor, fontWeight: FontWeight.w700)),
                 ),

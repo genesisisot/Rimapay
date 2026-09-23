@@ -833,8 +833,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                         fontFamily: 'Effra',
                       ),
                     ),
-                    Text(
-                      'RimaPay · ${_accountController.text}',
+                    Text(context.l10n.rimapayAccountcontroller(_accountController.text),
                       style: TextStyle(
                         fontSize: 12,
                         color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
@@ -1085,8 +1084,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                         fontFamily: 'Effra',
                       ),
                     ),
-                    Text(
-                      '$_selectedBank · ${_bankAccountController.text}',
+                    Text(context.l10n.selectedbankBankaccountcontroller(_selectedBank, _bankAccountController.text),
                       style: TextStyle(
                         fontSize: 12,
                         color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
@@ -1393,8 +1391,7 @@ class _SuccessRateBadge extends StatelessWidget {
         color: bg,
         borderRadius: BorderRadius.circular(6),
       ),
-      child: Text(
-        '$rate%',
+      child: Text(context.l10n.rate(rate),
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w700,

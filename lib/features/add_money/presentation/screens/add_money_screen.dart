@@ -6,6 +6,7 @@ import 'package:rimapay/core/providers/auth_provider.dart';
 import 'package:rimapay/core/theme/app_colors.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../core/localization/l10n.dart';
 enum _AddMoneyStep { methodList, bankTransfer }
 
 class AddMoneyScreen extends StatefulWidget {
@@ -21,7 +22,7 @@ class _AddMoneyScreenState extends State<AddMoneyScreen> {
   void _showComingSoon(String method) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('$method coming soon'),
+        content: Text(context.l10n.methodComingSoon(method)),
         backgroundColor: Theme.of(context).colorScheme.onSurface,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -69,7 +70,7 @@ class _MethodListView extends StatelessWidget {
 
     return Column(
       children: [
-        _AddMoneyHeader(title: 'Add Money', subtitle: 'Fund your RimaPay wallet'),
+        _AddMoneyHeader(title: context.l10n.addMoney, subtitle: context.l10n.fundYourWallet),
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
@@ -89,7 +90,7 @@ class _MethodListView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Wallet Balance', style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), fontWeight: FontWeight.w500)),
+                      Text(context.l10n.walletBalance, style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), fontWeight: FontWeight.w500)),
                       const SizedBox(height: 6),
                       if (auth.isFetchingBalance)
                         Shimmer.fromColors(
@@ -115,7 +116,7 @@ class _MethodListView extends StatelessWidget {
                           children: [
                             const Icon(Icons.account_circle_outlined, size: 14, color: Color(0xFF166C46)),
                             const SizedBox(width: 6),
-                            Text('$displayName · $displayAcct', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF166C46))),
+                            Text(context.l10n.displaynameDisplayacct(displayName, displayAcct), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF166C46))),
                           ],
                         ),
                       ),
@@ -124,15 +125,15 @@ class _MethodListView extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
 
-                Text('Choose Payment Method', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85))),
+                Text(context.l10n.choosePaymentMethod, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85))),
                 const SizedBox(height: 12),
 
                 _MethodCard(
                   icon: Icons.account_balance_outlined,
                   iconBg: const Color(0xFFF2F7F3),
                   iconColor: const Color(0xFF166C46),
-                  title: 'Bank Transfer',
-                  subtitle: 'Transfer from any bank account',
+                  title: context.l10n.bankTransfer,
+                  subtitle: context.l10n.transferFromAnyBank,
                   badge: 'Free · Instant',
                   badgeColor: const Color(0xFF166C46),
                   badgeBg: const Color(0xFFF2F7F3),
@@ -143,8 +144,8 @@ class _MethodListView extends StatelessWidget {
                   icon: Icons.credit_card_outlined,
                   iconBg: const Color(0xFFEFF6FF),
                   iconColor: const Color(0xFF3B82F6),
-                  title: 'Debit / Credit Card',
-                  subtitle: 'Visa, Mastercard, Verve',
+                  title: context.l10n.debitCreditCard,
+                  subtitle: context.l10n.cardSchemes,
                   badge: 'Fee applies',
                   badgeColor: const Color(0xFF92400E),
                   badgeBg: const Color(0xFFFFFBEB),
@@ -156,7 +157,7 @@ class _MethodListView extends StatelessWidget {
                   iconBg: const Color(0xFFF5F3FF),
                   iconColor: const Color(0xFF8B5CF6),
                   title: 'USSD',
-                  subtitle: 'Dial a code from your phone',
+                  subtitle: context.l10n.dialCodeFromPhone,
                   badge: 'Free · No internet',
                   badgeColor: const Color(0xFF7C3AED),
                   badgeBg: const Color(0xFFF5F3FF),
@@ -167,8 +168,8 @@ class _MethodListView extends StatelessWidget {
                   icon: Icons.store_outlined,
                   iconBg: const Color(0xFFFFF7ED),
                   iconColor: const Color(0xFFF97316),
-                  title: 'Bank Deposit',
-                  subtitle: 'Deposit cash at any bank branch',
+                  title: context.l10n.bankDeposit,
+                  subtitle: context.l10n.depositCashAtBranch,
                   badge: 'Free · 1–3 hours',
                   badgeColor: const Color(0xFFC2410C),
                   badgeBg: const Color(0xFFFFF7ED),
@@ -260,7 +261,7 @@ class _BankTransferView extends StatelessWidget {
     Clipboard.setData(ClipboardData(text: value));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('$label copied'),
+        content: Text(context.l10n.labelCopied(label)),
         backgroundColor: Theme.of(context).colorScheme.onSurface,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -275,7 +276,7 @@ class _BankTransferView extends StatelessWidget {
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Account details copied'),
+        content: Text(context.l10n.accountDetailsCopied),
         backgroundColor: Theme.of(context).colorScheme.onSurface,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -291,7 +292,7 @@ class _BankTransferView extends StatelessWidget {
         content: Row(children: [
           Icon(Icons.check_circle_outline, color: Theme.of(context).cardColor, size: 18),
           SizedBox(width: 8),
-          Text("We'll notify you when funds arrive"),
+          Text(context.l10n.weLlNotifyYouWhenFunds),
         ]),
         backgroundColor: const Color(0xFF166C46),
         behavior: SnackBarBehavior.floating,
@@ -311,7 +312,7 @@ class _BankTransferView extends StatelessWidget {
 
     return Column(
       children: [
-        _AddMoneyHeader(title: 'Bank Transfer', subtitle: 'Transfer to fund your wallet', onBack: onBack),
+        _AddMoneyHeader(title: context.l10n.bankTransfer, subtitle: context.l10n.transferToFundWallet, onBack: onBack),
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
@@ -340,7 +341,7 @@ class _BankTransferView extends StatelessWidget {
                           children: [
                             Icon(Icons.account_balance_outlined, color: Theme.of(context).cardColor, size: 18),
                             SizedBox(width: 8),
-                            Text('Your Dedicated Account', style: TextStyle(color: Theme.of(context).cardColor, fontSize: 13, fontWeight: FontWeight.w600)),
+                            Text(context.l10n.yourDedicatedAccount, style: TextStyle(color: Theme.of(context).cardColor, fontSize: 13, fontWeight: FontWeight.w600)),
                           ],
                         ),
                       ),
@@ -348,15 +349,15 @@ class _BankTransferView extends StatelessWidget {
                         padding: const EdgeInsets.all(16),
                         child: Column(
                           children: [
-                            _AccountRow(label: 'Bank Name', value: 'RimaPay MFB', onCopy: null),
+                            _AccountRow(label: context.l10n.bankName, value: 'RimaPay MFB', onCopy: null),
                             Divider(height: 20, color: Theme.of(context).scaffoldBackgroundColor),
                             _AccountRow(
-                              label: 'Account Number', value: hasAccount ? acct : '—',
+                              label: context.l10n.accountNumber, value: hasAccount ? acct : '—',
                               onCopy: hasAccount ? () => _copy(context, acct, 'Account number') : null,
                             ),
                             Divider(height: 20, color: Theme.of(context).scaffoldBackgroundColor),
                             _AccountRow(
-                              label: 'Account Name', value: name.isNotEmpty ? name : '—',
+                              label: context.l10n.accountName, value: name.isNotEmpty ? name : '—',
                               onCopy: name.isNotEmpty ? () => _copy(context, name, 'Account name') : null,
                             ),
                           ],
@@ -372,12 +373,12 @@ class _BankTransferView extends StatelessWidget {
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(color: const Color(0xFF166C46), width: 1.5),
                             ),
-                            child: const Row(
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(Icons.copy_rounded, size: 16, color: Color(0xFF166C46)),
                                 SizedBox(width: 8),
-                                Text('Copy All Details', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF166C46))),
+                                Text(context.l10n.copyAllDetails, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF166C46))),
                               ],
                             ),
                           ),
@@ -398,13 +399,13 @@ class _BankTransferView extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      _InfoRow(icon: Icons.bolt_rounded, iconColor: Color(0xFF166C46), text: 'Funds reflect instantly after transfer'),
+                      _InfoRow(icon: Icons.bolt_rounded, iconColor: Color(0xFF166C46), text: context.l10n.fundsReflectInstantlyAfterTransfer),
                       SizedBox(height: 10),
-                      _InfoRow(icon: Icons.person_outline_rounded, iconColor: Color(0xFFF59E0B), text: 'Use your registered name when transferring'),
+                      _InfoRow(icon: Icons.person_outline_rounded, iconColor: Color(0xFFF59E0B), text: context.l10n.useYourRegisteredNameWhenTransferring),
                       SizedBox(height: 10),
-                      _InfoRow(icon: Icons.info_outline_rounded, iconColor: Color(0xFF3B82F6), text: 'Minimum transfer: ₦100'),
+                      _InfoRow(icon: Icons.info_outline_rounded, iconColor: Color(0xFF3B82F6), text: context.l10n.minimumTransfer100),
                       SizedBox(height: 10),
-                      _InfoRow(icon: Icons.schedule_rounded, iconColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), text: 'Transfers are available 24/7 including weekends'),
+                      _InfoRow(icon: Icons.schedule_rounded, iconColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), text: context.l10n.transfersAreAvailable247Including),
                     ],
                   ),
                 ),
@@ -431,7 +432,7 @@ class _BankTransferView extends StatelessWidget {
                 children: [
                   Icon(Icons.check_circle_outline, color: Theme.of(context).cardColor, size: 18),
                   SizedBox(width: 8),
-                  Text("I've Sent the Money", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)),
+                  Text(context.l10n.iVeSentTheMoney, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)),
                 ],
               ),
             ),

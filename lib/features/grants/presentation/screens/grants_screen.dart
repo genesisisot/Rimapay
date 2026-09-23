@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
 
+import '../../../../core/localization/l10n.dart';
 class GrantsScreen extends StatefulWidget {
   const GrantsScreen({super.key});
 
@@ -164,7 +165,7 @@ class _GrantsScreenState extends State<GrantsScreen> {
                         disabledBackgroundColor: Theme.of(context).dividerColor,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
-                      child: Text('Donate / Apply',
+                      child: Text(context.l10n.donateApply,
                           style: TextStyle(
                               color: Theme.of(context).cardColor, fontSize: 16, fontWeight: FontWeight.w700)),
                     ),
@@ -226,9 +227,9 @@ class _GrantsScreenState extends State<GrantsScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Grants & Donations',
+              Text(context.l10n.grantsDonations,
                   style: TextStyle(color: Theme.of(context).cardColor, fontSize: 17, fontWeight: FontWeight.w800)),
-              Text('Support a cause today',
+              Text(context.l10n.supportACauseToday,
                   style: TextStyle(color: Colors.white60, fontSize: 12)),
             ],
           ),

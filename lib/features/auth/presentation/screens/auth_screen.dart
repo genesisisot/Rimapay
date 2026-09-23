@@ -563,8 +563,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                       const SizedBox(height: 32),
 
                       // Headline
-                      Text(
-                        'Welcome\nBack 👋',
+                      Text(context.l10n.welcomeNback,
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface,
                             fontSize: 34,
@@ -1054,8 +1053,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Open an\nAccount',
+                        Text(context.l10n.openAnNaccount,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 36,
@@ -2447,7 +2445,7 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
           text: TextSpan(
             style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
             children: [
-              const TextSpan(text: 'Code sent to your registered phone number'),
+              TextSpan(text: context.l10n.codeSentToYourRegisteredPhone),
             ],
           ),
         ),
@@ -2492,7 +2490,7 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text("Didn't receive code? ",
+            Text(context.l10n.didnTReceiveCode,
                 style: TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
             GestureDetector(
               onTap: (_resendCountdown > 0 || _isResending)
@@ -3457,8 +3455,7 @@ class _ContinueLinkingPageState
                     fontWeight: FontWeight.w900,
                     color: Colors.white)),
             const SizedBox(height: 12),
-            const Text(
-              'Your RimaPay account is now linked\nto this device.',
+            Text(context.l10n.yourRimapayAccountIsNowLinked,
               textAlign: TextAlign.center,
               style: TextStyle(
                   fontSize: 15,

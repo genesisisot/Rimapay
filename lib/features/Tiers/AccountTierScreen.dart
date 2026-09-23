@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rimapay/shared/widgets/bill_screen_widgets.dart';
 
+import '../../core/localization/l10n.dart';
 // ─────────────────────────────────────────────────────────────────────────────
 // Models
 // ─────────────────────────────────────────────────────────────────────────────
@@ -156,8 +157,7 @@ class _AccountTiersScreenState extends State<AccountTiersScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Account Tiers',
+                        Text(context.l10n.accountTiers,
                           style: TextStyle(
                             color: Theme.of(context).cardColor,
                             fontSize: 18,
@@ -165,8 +165,7 @@ class _AccountTiersScreenState extends State<AccountTiersScreen> {
                             fontFamily: 'Effra',
                           ),
                         ),
-                        Text(
-                          'Upgrade to unlock higher limits',
+                        Text(context.l10n.upgradeToUnlockHigherLimits,
                           style: TextStyle(
                             color: Color(0x99FFFFFF),
                             fontSize: 12,
@@ -370,8 +369,7 @@ class _TierCard extends StatelessWidget {
                               fontFamily: 'Effra',
                             ),
                           ),
-                          Text(
-                            'Tier ${info.level.index + 1}',
+                          Text(context.l10n.tierIndex(info.level.index + 1),
                             style: TextStyle(
                               fontSize: 12,
                               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
@@ -389,8 +387,7 @@ class _TierCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(999),
                           border: Border.all(color: color.withOpacity(0.3)),
                         ),
-                        child: Text(
-                          'Active',
+                        child: Text(context.l10n.active,
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
@@ -406,9 +403,9 @@ class _TierCard extends StatelessWidget {
                 // Limits
                 Row(
                   children: [
-                    _LimitBox(label: 'Balance Cap', value: info.balanceLimit, color: color),
+                    _LimitBox(label: context.l10n.balanceCap, value: info.balanceLimit, color: color),
                     const SizedBox(width: 10),
-                    _LimitBox(label: 'Per Day', value: info.transactionLimit, color: color),
+                    _LimitBox(label: context.l10n.perDay, value: info.transactionLimit, color: color),
                   ],
                 ),
                 const SizedBox(height: 14),
@@ -455,8 +452,7 @@ class _TierCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Center(
-                      child: Text(
-                        'Current Plan',
+                      child: Text(context.l10n.currentPlan,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -489,8 +485,7 @@ class _TierCard extends StatelessWidget {
                         ],
                       ),
                       child: Center(
-                        child: Text(
-                          'Upgrade to ${info.name}',
+                        child: Text(context.l10n.upgradeToInfo(info.name),
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
@@ -511,8 +506,7 @@ class _TierCard extends StatelessWidget {
                       border: Border.all(color: Theme.of(context).dividerColor),
                     ),
                     child: Center(
-                      child: Text(
-                        'Complete lower tiers first',
+                      child: Text(context.l10n.completeLowerTiersFirst,
                         style: TextStyle(
                           fontSize: 13,
                           color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
@@ -664,8 +658,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Upgrade to Standard',
+                    Text(context.l10n.upgradeToStandard,
                       style: TextStyle(
                         color: Theme.of(context).cardColor,
                         fontSize: 18,
@@ -673,8 +666,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
                         fontFamily: 'Effra',
                       ),
                     ),
-                    Text(
-                      'Tier 2 · Identity Verification',
+                    Text(context.l10n.tier2IdentityVerification,
                       style: TextStyle(
                         color: Color(0x99FFFFFF),
                         fontSize: 12,
@@ -787,8 +779,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
           ],
         ),
         const SizedBox(height: 8),
-        Text(
-          'Your ${widget.needsNin ? "NIN" : "BVN"} is used solely for identity verification and is encrypted.',
+        Text(context.l10n.yourNeedsninIsUsedSolelyFor(widget.needsNin ? "NIN" : "BVN"),
           style: TextStyle(
             fontSize: 12,
             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
@@ -823,8 +814,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
                       height: 22,
                       child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
                     )
-                  : Text(
-                      'Continue',
+                  : Text(context.l10n.continueLabel,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -843,8 +833,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Enter Verification Code',
+        Text(context.l10n.enterVerificationCode2,
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w800,
@@ -853,8 +842,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
           ),
         ),
         const SizedBox(height: 8),
-        Text(
-          'We sent a 6-digit code to verify your ${widget.needsNin ? "NIN" : "BVN"}. Check your registered phone number.',
+        Text(context.l10n.weSentA6DigitCode(widget.needsNin ? "NIN" : "BVN"),
           style: TextStyle(
             fontSize: 14,
             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
@@ -884,14 +872,12 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
         const SizedBox(height: 16),
         Row(
           children: [
-            Text(
-              "Didn't receive it? ",
+            Text(context.l10n.didnTReceiveIt,
               style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), fontFamily: 'Effra'),
             ),
             GestureDetector(
               onTap: () {},
-              child: const Text(
-                'Resend Code',
+              child: Text(context.l10n.resendCode,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -929,8 +915,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
                       height: 22,
                       child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
                     )
-                  : Text(
-                      'Verify',
+                  : Text(context.l10n.verify,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -959,8 +944,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
           child: const Icon(Icons.verified_rounded, size: 48, color: Color(0xFF3B82F6)),
         ),
         const SizedBox(height: 24),
-        Text(
-          'Upgrade Successful!',
+        Text(context.l10n.upgradeSuccessful,
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w800,
@@ -969,8 +953,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        Text(
-          'You are now on the Standard Tier.\nYour new limits are active immediately.',
+        Text(context.l10n.youAreNowOnTheStandard,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 14,
@@ -980,9 +963,9 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        _SuccessBenefitRow(icon: Icons.account_balance_wallet_rounded, text: 'Balance cap: ₦300,000'),
-        _SuccessBenefitRow(icon: Icons.swap_horiz_rounded, text: 'Daily transfers: ₦100,000'),
-        _SuccessBenefitRow(icon: Icons.support_agent_rounded, text: 'Priority customer support'),
+        _SuccessBenefitRow(icon: Icons.account_balance_wallet_rounded, text: context.l10n.balanceCap300000),
+        _SuccessBenefitRow(icon: Icons.swap_horiz_rounded, text: context.l10n.dailyTransfers100000),
+        _SuccessBenefitRow(icon: Icons.support_agent_rounded, text: context.l10n.priorityCustomerSupport),
         const SizedBox(height: 40),
         GestureDetector(
           onTap: () => Navigator.of(context).popUntil((r) => r.isFirst),
@@ -996,8 +979,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
               borderRadius: BorderRadius.circular(14),
             ),
             child: Center(
-              child: Text(
-                'Back to Home',
+              child: Text(context.l10n.backToHome,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -1121,8 +1103,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Upgrade to Premium',
+                    Text(context.l10n.upgradeToPremium,
                       style: TextStyle(
                         color: Theme.of(context).cardColor,
                         fontSize: 18,
@@ -1182,8 +1163,8 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
               padding: const EdgeInsets.all(24),
               child: _step == 0
                   ? _buildDocStep(
-                      title: 'Government-Issued ID',
-                      subtitle: 'Upload a clear photo or scan of your government-issued ID.',
+                      title: context.l10n.governmentIssuedId,
+                      subtitle: context.l10n.uploadAClearPhotoOrScan,
                       docTypes: govDocTypes,
                       selectedType: _govDocType,
                       selectedFile: _govDocName,
@@ -1192,8 +1173,8 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
                     )
                   : _step == 1
                       ? _buildDocStep(
-                          title: 'Proof of Address',
-                          subtitle: 'Upload a document showing your current address, dated within the last 3 months.',
+                          title: context.l10n.proofOfAddress,
+                          subtitle: context.l10n.uploadADocumentShowingYourCurrent,
                           docTypes: addressDocTypes,
                           selectedType: _addressDocType,
                           selectedFile: _addressDocName,
@@ -1246,8 +1227,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
         const SizedBox(height: 24),
 
         // Document type selector
-        Text(
-          'Document Type',
+        Text(context.l10n.documentType,
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w700,
@@ -1293,8 +1273,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
         const SizedBox(height: 24),
 
         // Upload area
-        Text(
-          'Upload Document',
+        Text(context.l10n.uploadDocument,
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w700,
@@ -1399,8 +1378,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
                   : null,
             ),
             child: Center(
-              child: Text(
-                'Continue',
+              child: Text(context.l10n.continueLabel,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -1421,8 +1399,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Review & Submit',
+        Text(context.l10n.reviewSubmit,
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w800,
@@ -1431,8 +1408,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
           ),
         ),
         const SizedBox(height: 6),
-        Text(
-          'Review the documents you uploaded before submitting for verification.',
+        Text(context.l10n.reviewTheDocumentsYouUploadedBefore,
           style: TextStyle(
             fontSize: 13,
             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
@@ -1444,7 +1420,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
 
         _ReviewItem(
           icon: Icons.badge_rounded,
-          label: 'Government ID',
+          label: context.l10n.governmentId,
           docType: _govDocType ?? '',
           fileName: _govDocName ?? '',
           color: const Color(0xFF8B5CF6),
@@ -1453,7 +1429,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
         const SizedBox(height: 12),
         _ReviewItem(
           icon: Icons.home_work_rounded,
-          label: 'Proof of Address',
+          label: context.l10n.proofOfAddress,
           docType: _addressDocType ?? '',
           fileName: _addressDocName ?? '',
           color: const Color(0xFF8B5CF6),
@@ -1474,8 +1450,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
               const Icon(Icons.schedule_rounded, size: 18, color: Color(0xFFea580c)),
               const SizedBox(width: 10),
               Expanded(
-                child: Text(
-                  'Verification typically takes 1–2 business days. You will be notified once complete.',
+                child: Text(context.l10n.verificationTypicallyTakes12Business,
                   style: TextStyle(
                     fontSize: 13,
                     color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
@@ -1514,8 +1489,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
                       height: 22,
                       child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
                     )
-                  : Text(
-                      'Submit for Verification',
+                  : Text(context.l10n.submitForVerification,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -1544,8 +1518,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
           child: const Icon(Icons.workspace_premium_rounded, size: 48, color: Color(0xFF8B5CF6)),
         ),
         const SizedBox(height: 24),
-        Text(
-          'Documents Submitted!',
+        Text(context.l10n.documentsSubmitted,
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w800,
@@ -1554,8 +1527,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        Text(
-          'Your documents are under review.\nWe\'ll notify you within 1–2 business days.',
+        Text(context.l10n.yourDocumentsAreUnderReviewNwe,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 14,
@@ -1565,9 +1537,9 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        _SuccessBenefitRow(icon: Icons.account_balance_wallet_rounded, text: 'Balance cap: ₦5,000,000 (after approval)'),
-        _SuccessBenefitRow(icon: Icons.swap_horiz_rounded, text: 'Daily transfers: ₦1,000,000'),
-        _SuccessBenefitRow(icon: Icons.star_rounded, text: 'Dedicated account manager'),
+        _SuccessBenefitRow(icon: Icons.account_balance_wallet_rounded, text: context.l10n.balanceCap5000000After),
+        _SuccessBenefitRow(icon: Icons.swap_horiz_rounded, text: context.l10n.dailyTransfers1000000),
+        _SuccessBenefitRow(icon: Icons.star_rounded, text: context.l10n.dedicatedAccountManager),
         const SizedBox(height: 40),
         GestureDetector(
           onTap: () => Navigator.of(context).popUntil((r) => r.isFirst),
@@ -1581,8 +1553,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
               borderRadius: BorderRadius.circular(14),
             ),
             child: Center(
-              child: Text(
-                'Back to Home',
+              child: Text(context.l10n.backToHome,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -1723,8 +1694,7 @@ class _ReviewItem extends StatelessWidget {
           ),
           GestureDetector(
             onTap: onEdit,
-            child: const Text(
-              'Edit',
+            child: Text(context.l10n.edit,
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,

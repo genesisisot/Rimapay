@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
 import '../../../success/presentation/screens/success_screen.dart';
 
+import '../../../../core/localization/l10n.dart';
 class _Operator {
   final String id;
   final String name;
@@ -51,12 +52,13 @@ class _TransportScreenState extends State<TransportScreen> {
     _City(id: 'ilo', name: 'Ilorin', state: 'Kwara State'),
   ];
 
-  final List<_Operator> _operators = const [
-    _Operator(id: 'guo', name: 'GUO Transport', description: 'Premium interstate travel', color: Color(0xFF003087), pricePerSeat: 7500),
-    _Operator(id: 'abc', name: 'ABC Transport', description: 'Safe & reliable journeys', color: Color(0xFFD4042A), pricePerSeat: 6000),
-    _Operator(id: 'chisco', name: 'Chisco Transport', description: 'Comfort & class on wheels', color: Color(0xFF006400), pricePerSeat: 8000),
-    _Operator(id: 'gigm', name: 'GIGM (God is Good)', description: 'Modern fleet nationwide', color: Color(0xFF8B0000), pricePerSeat: 7000),
-    _Operator(id: 'ctu', name: 'Cross Country', description: 'Affordable intercity trips', color: Color(0xFF4B0082), pricePerSeat: 5500),
+  // Getter rather than field — the descriptions need `context` for l10n.
+  List<_Operator> get _operators => [
+    _Operator(id: 'guo', name: 'GUO Transport', description: context.l10n.premiumInterstateTravel, color: Color(0xFF003087), pricePerSeat: 7500),
+    _Operator(id: 'abc', name: 'ABC Transport', description: context.l10n.safeReliableJourneys, color: Color(0xFFD4042A), pricePerSeat: 6000),
+    _Operator(id: 'chisco', name: 'Chisco Transport', description: context.l10n.comfortClassOnWheels, color: Color(0xFF006400), pricePerSeat: 8000),
+    _Operator(id: 'gigm', name: 'GIGM (God is Good)', description: context.l10n.modernFleetNationwide, color: Color(0xFF8B0000), pricePerSeat: 7000),
+    _Operator(id: 'ctu', name: 'Cross Country', description: context.l10n.affordableIntercityTrips, color: Color(0xFF4B0082), pricePerSeat: 5500),
   ];
 
   int get _totalPrice => (_selectedOperator?.pricePerSeat ?? 0) * _passengers;
@@ -144,7 +146,7 @@ class _TransportScreenState extends State<TransportScreen> {
           children: [
             Container(width: 40, height: 4, margin: const EdgeInsets.only(bottom: 20),
                 decoration: BoxDecoration(color: Theme.of(context).dividerColor, borderRadius: BorderRadius.circular(999))),
-            Align(alignment: Alignment.centerLeft, child: Text('Choose Transport Operator',
+            Align(alignment: Alignment.centerLeft, child: Text(context.l10n.chooseTransportOperator,
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface))),
             const SizedBox(height: 16),
             ..._operators.map((op) => GestureDetector(
@@ -166,7 +168,7 @@ class _TransportScreenState extends State<TransportScreen> {
                       Text(op.name, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurface)),
                       Text(op.description, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
                     ])),
-                    Text('₦${op.pricePerSeat}/seat', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF166C46))),
+                    Text(context.l10n.priceperseatSeat(op.pricePerSeat), style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF166C46))),
                   ],
                 ),
               ),
@@ -200,7 +202,7 @@ class _TransportScreenState extends State<TransportScreen> {
         {'label': 'Route', 'value': '${_origin!.name} → ${_destination!.name}'},
         {'label': 'Operator', 'value': _selectedOperator!.name},
         {'label': 'Date', 'value': '${_travelDate.day}/${_travelDate.month}/${_travelDate.year}'},
-        {'label': 'Passengers', 'value': '$_passengers seat${_passengers > 1 ? 's' : ''}'},
+        {'label': context.l10n.numberOfPassengers, 'value': context.l10n.seatCount(_passengers)},
         {'label': 'Amount', 'value': '₦$_totalPrice'},
       ],
       onConfirmed: (_) {
@@ -220,7 +222,7 @@ class _TransportScreenState extends State<TransportScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Column(
         children: [
-          BillGreenHeader(title: 'Bus Tickets', subtitle: 'Book inter-city travel', showAccountCard: false),
+          BillGreenHeader(title: context.l10n.busTickets2, subtitle: context.l10n.bookInterCityTravel, showAccountCard: false),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
@@ -237,7 +239,7 @@ class _TransportScreenState extends State<TransportScreen> {
                         border: Border.all(color: Theme.of(context).dividerColor)),
                     child: Column(
                       children: [
-                        _RouteSelector(label: 'From', icon: Icons.trip_origin_rounded, iconColor: const Color(0xFF166C46),
+                        _RouteSelector(label: context.l10n.from, icon: Icons.trip_origin_rounded, iconColor: const Color(0xFF166C46),
                             value: _origin != null ? '${_origin!.name}, ${_origin!.state}' : null,
                             hint: 'Select departure city', onTap: () => _openCitySheet(true)),
                         Padding(
@@ -253,7 +255,7 @@ class _TransportScreenState extends State<TransportScreen> {
                             Expanded(child: Divider(color: Theme.of(context).dividerColor)),
                           ]),
                         ),
-                        _RouteSelector(label: 'To', icon: Icons.location_on_rounded, iconColor: const Color(0xFFD33B31),
+                        _RouteSelector(label: context.l10n.to, icon: Icons.location_on_rounded, iconColor: const Color(0xFFD33B31),
                             value: _destination != null ? '${_destination!.name}, ${_destination!.state}' : null,
                             hint: 'Select arrival city', onTap: () => _openCitySheet(false)),
                       ],
@@ -274,8 +276,8 @@ class _TransportScreenState extends State<TransportScreen> {
                           const Icon(Icons.calendar_today_outlined, color: Color(0xFF166C46), size: 20),
                           const SizedBox(width: 12),
                           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
-                            const Text('Travel Date', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF166C46))),
-                            Text('${_travelDate.day}/${_travelDate.month}/${_travelDate.year}',
+                            Text(context.l10n.travelDate, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: Color(0xFF166C46))),
+                            Text(context.l10n.dayMonthYear(_travelDate.day, _travelDate.month, _travelDate.year),
                                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)),
                           ])),
                           Icon(Icons.keyboard_arrow_down_rounded, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4)),
@@ -286,7 +288,7 @@ class _TransportScreenState extends State<TransportScreen> {
                   const SizedBox(height: 16),
 
                   // Operator
-                  _SelectorTile(label: 'Transport Operator', value: _selectedOperator?.name,
+                  _SelectorTile(label: context.l10n.transportOperator, value: _selectedOperator?.name,
                       hint: 'Choose your preferred operator', onTap: _openOperatorSheet),
                   const SizedBox(height: 16),
 
@@ -297,8 +299,8 @@ class _TransportScreenState extends State<TransportScreen> {
                     child: Row(
                       children: [
                         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text('Number of Passengers', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)),
-                          Text('Max 4 per booking', style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4))),
+                          Text(context.l10n.numberOfPassengers, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)),
+                          Text(context.l10n.max4PerBooking, style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4))),
                         ])),
                         Row(children: [
                           GestureDetector(
@@ -307,7 +309,7 @@ class _TransportScreenState extends State<TransportScreen> {
                                 decoration: BoxDecoration(color: _passengers > 1 ? Color(0xFFF2F7F3) : Theme.of(context).dividerColor, borderRadius: BorderRadius.circular(8)),
                                 child: Icon(Icons.remove, size: 16, color: _passengers > 1 ? AppColors.goldPrimary : Theme.of(context).dividerColor)),
                           ),
-                          SizedBox(width: 20, child: Center(child: Text('$_passengers', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)))),
+                          SizedBox(width: 20, child: Center(child: Text(context.l10n.passengers2(_passengers), style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)))),
                           GestureDetector(
                             onTap: () { if (_passengers < 4) setState(() => _passengers++); },
                             child: Container(width: 32, height: 32,
@@ -329,9 +331,9 @@ class _TransportScreenState extends State<TransportScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('$_passengers seat${_passengers > 1 ? 's' : ''} × ₦${_selectedOperator!.pricePerSeat}',
+                          Text('${context.l10n.seatCount(_passengers)} × ₦${_selectedOperator!.pricePerSeat}',
                               style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
-                          Text('₦$_totalPrice', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF166C46))),
+                          Text(context.l10n.totalprice(_totalPrice), style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF166C46))),
                         ],
                       ),
                     ),

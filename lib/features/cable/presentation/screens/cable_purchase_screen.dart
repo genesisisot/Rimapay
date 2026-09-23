@@ -8,6 +8,7 @@ import '../../../bills/data/bills_dtos.dart';
 import '../../../bills/presentation/providers/bills_providers.dart';
 import '../../../bills/presentation/widgets/bill_purchase_flow.dart';
 
+import '../../../../core/localization/l10n.dart';
 // ── Models ────────────────────────────────────────────────────────────────────
 
 class CableProvider {
@@ -218,9 +219,9 @@ class _CablePurchaseScreenState extends ConsumerState<CablePurchaseScreen>
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Column(
         children: [
-          const BillGreenHeader(
-            title: 'Cable TV',
-            subtitle: 'Pay cable TV subscriptions',
+          BillGreenHeader(
+            title: context.l10n.cableTV,
+            subtitle: context.l10n.payCableTvSubscriptions,
             showAccountCard: false,
           ),
           Expanded(
@@ -249,7 +250,7 @@ class _CablePurchaseScreenState extends ConsumerState<CablePurchaseScreen>
                   _CFloatingField(
                     controller: _cardController,
                     focusNode: _cardFocus,
-                    label: 'Smart Card / IUC Number',
+                    label: context.l10n.smartCardIucNumber,
                     hint: 'Enter customer number',
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -348,7 +349,7 @@ class _CableProviderSheet extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(20, 16, 20, 4),
             child: Row(
               children: [
-                Text('Choose Provider',
+                Text(context.l10n.chooseProvider,
                     style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
@@ -467,7 +468,7 @@ class _PackageSheet extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),
             child: Row(
               children: [
-                Text('$providerName Packages',
+                Text(context.l10n.providernamePackages(providerName),
                     style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
@@ -518,7 +519,7 @@ class _PackageSheet extends StatelessWidget {
                                         color: const Color(0xFFF59E0B),
                                         borderRadius: BorderRadius.circular(4),
                                       ),
-                                      child: Text('Popular',
+                                      child: Text(context.l10n.popular,
                                           style: TextStyle(
                                               fontSize: 9,
                                               color: Theme.of(context).cardColor,
@@ -538,7 +539,7 @@ class _PackageSheet extends StatelessWidget {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text('₦${pkg.price}',
+                            Text(context.l10n.price(pkg.price),
                                 style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w800,

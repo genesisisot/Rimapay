@@ -11,6 +11,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/providers/auth_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 
+import '../../../../core/localization/l10n.dart';
 /// Forgot / reset password flow backed by the RIMA Identity API:
 ///  step 0 → POST /api/auth/forgot-password (email/phone)
 ///  step 1 → POST /api/auth/verify-face-reset (face verification)
@@ -308,8 +309,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Reset your\npassword',
+          Text(context.l10n.resetYourNpassword,
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface,
               fontSize: 32,
@@ -318,8 +318,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            "Enter the email or phone number on your account and we'll send a reset code.",
+          Text(context.l10n.enterTheEmailOrPhoneNumber,
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
               fontSize: 15,
@@ -328,14 +327,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           ),
           const SizedBox(height: 32),
           _field(
-            label: 'Email or Phone',
+            label: context.l10n.emailOrPhone,
             controller: _emailCtrl,
             hint: 'you@example.com or 08012345678',
             keyboardType: TextInputType.text,
           ),
           const SizedBox(height: 28),
           _primaryButton(
-            label: 'Send Reset Code',
+            label: context.l10n.sendResetCode,
             loading: isLoading,
             onTap: _sendIdentifier,
           ),
@@ -387,8 +386,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             child: const Icon(Icons.remove_red_eye_outlined, color: Color(0xFF16A34A), size: 18),
                           ),
                           const SizedBox(width: 12),
-                          const Expanded(
-                            child: Text('Face Verification',
+                          Expanded(
+                            child: Text(context.l10n.faceVerification,
                                 style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF111827))),
                           ),
                         ],
@@ -408,12 +407,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       ),
                       child: Column(
                         children: [
-                          const Text(
-                            'Position your face in the oval',
+                          Text(context.l10n.positionYourFaceInTheOval,
                             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF111827)),
                           ),
                           const SizedBox(height: 4),
-                          Text('Ensure good lighting',
+                          Text(context.l10n.ensureGoodLighting,
                               style: TextStyle(fontSize: 13, color: Colors.grey.shade500)),
                           const SizedBox(height: 16),
                           GestureDetector(
@@ -473,18 +471,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
           ),
-          child: const Column(
+          child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               _FaceScanLoader(),
               SizedBox(height: 22),
-              Text(
-                'Verifying your face',
+              Text(context.l10n.verifyingYourFacePlain,
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFF111827)),
               ),
               SizedBox(height: 8),
-              Text(
-                'Hold on a moment \u2014 this can take a few seconds.\nPlease don\'t close or refresh the page.',
+              Text(context.l10n.holdOnAMomentU2014This,
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 13, color: Color(0xFF6B7280), height: 1.5),
               ),
@@ -503,8 +499,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Enter reset\ncode',
+          Text(context.l10n.enterResetNcode,
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface,
               fontSize: 32,
@@ -525,7 +520,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           ),
           const SizedBox(height: 32),
           _field(
-            label: 'Reset Code',
+            label: context.l10n.resetCode,
             controller: _tokenCtrl,
             hint: _isPhoneIdentifier ? 'Paste the code sent to your phone' : 'Paste the code from your email',
           ),
@@ -533,7 +528,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text("Didn't receive code? ",
+              Text(context.l10n.didnTReceiveCode,
                   style: TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
               GestureDetector(
                 onTap: (_resendCountdown > 0 || _isResending)
@@ -564,7 +559,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           ),
           const SizedBox(height: 16),
           _field(
-            label: 'New Password',
+            label: context.l10n.newPassword,
             controller: _passwordCtrl,
             hint: 'Min 6 characters',
             obscure: !_showPassword,
@@ -579,14 +574,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           ),
           const SizedBox(height: 16),
           _field(
-            label: 'Confirm Password',
+            label: context.l10n.confirmPassword,
             controller: _confirmCtrl,
             hint: 'Re-enter password',
             obscure: !_showPassword,
           ),
           const SizedBox(height: 28),
           _primaryButton(
-            label: 'Reset Password',
+            label: context.l10n.resetPassword,
             loading: isLoading,
             onTap: _resetPassword,
           ),
@@ -605,19 +600,17 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           const SizedBox(height: 40),
           const Icon(Icons.check_circle, color: _green, size: 72),
           const SizedBox(height: 20),
-          Text(
-            'Password reset!',
+          Text(context.l10n.passwordReset,
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface),
           ),
           const SizedBox(height: 8),
-          Text(
-            'Your password has been updated.\nSign in with your new password.',
+          Text(context.l10n.yourPasswordHasBeenUpdatedNsign,
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), height: 1.5),
           ),
           const SizedBox(height: 28),
           _primaryButton(
-            label: 'Back to Sign In',
+            label: context.l10n.backToSignIn,
             loading: false,
             onTap: () => context.pop(),
           ),

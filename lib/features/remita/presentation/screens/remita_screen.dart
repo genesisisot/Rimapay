@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
 
+import '../../../../core/localization/l10n.dart';
 class RemitaScreen extends StatefulWidget {
   const RemitaScreen({super.key});
 
@@ -64,9 +65,9 @@ class _RemitaScreenState extends State<RemitaScreen> {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Column(
         children: [
-          const BillGreenHeader(
-            title: 'Remita',
-            subtitle: 'Government & institutional payments',
+          BillGreenHeader(
+            title: context.l10n.remita,
+            subtitle: context.l10n.governmentInstitutionalPayments,
           ),
           Expanded(
             child: SingleChildScrollView(
@@ -149,7 +150,7 @@ class _RemitaScreenState extends State<RemitaScreen> {
                           setState(() => _verified = false);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('Enter your RRN for ${s.name}'),
+                              content: Text(context.l10n.enterYourRrnForS(s.name)),
                               behavior: SnackBarBehavior.floating,
                               backgroundColor: const Color(0xFF1A6B35),
                               shape: RoundedRectangleBorder(
@@ -213,7 +214,7 @@ class _RemitaScreenState extends State<RemitaScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Enter RRN',
+                        Text(context.l10n.enterRrn,
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
@@ -221,7 +222,7 @@ class _RemitaScreenState extends State<RemitaScreen> {
                               color: Theme.of(context).colorScheme.onSurface,
                             )),
                         const SizedBox(height: 4),
-                        Text('Retrieve your payment details using the Remita Retrieval Reference',
+                        Text(context.l10n.retrieveYourPaymentDetailsUsingThe,
                             style: TextStyle(
                               fontSize: 12,
                               fontFamily: 'Effra',
@@ -292,7 +293,7 @@ class _RemitaScreenState extends State<RemitaScreen> {
                                         height: 18,
                                         child: CircularProgressIndicator(
                                             color: Colors.white, strokeWidth: 2))
-                                    : const Text('Verify',
+                                    : Text(context.l10n.verify,
                                         style: TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.w700,
@@ -333,7 +334,7 @@ class _RemitaScreenState extends State<RemitaScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Verified',
+                                Text(context.l10n.verified,
                                     style: TextStyle(
                                       fontSize: 10,
                                       fontWeight: FontWeight.w600,
@@ -385,7 +386,7 @@ class _RemitaScreenState extends State<RemitaScreen> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14)),
                         ),
-                        child: const Text('Pay Now',
+                        child: Text(context.l10n.payNow,
                             style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
@@ -418,7 +419,7 @@ class _RemitaScreenState extends State<RemitaScreen> {
                               Icon(Icons.info_outline,
                                   color: const Color(0xFF1A6B35), size: 18),
                               const SizedBox(width: 8),
-                              Text('About Remita Payments',
+                              Text(context.l10n.aboutRemitaPayments,
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w700,

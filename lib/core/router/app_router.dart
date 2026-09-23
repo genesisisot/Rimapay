@@ -47,6 +47,7 @@ import '../../features/home/presentation/dashboard_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
 import '../../shared/presentation/screens/main_navigation_screen.dart';
 
+import '../../core/localization/l10n.dart';
 // Shared fade page builder
 Page<void> _fadePage(GoRouterState state, Widget child) {
   return CustomTransitionPage(
@@ -387,20 +388,18 @@ class AppRouter {
               color: Colors.red,
             ),
             const SizedBox(height: 16),
-            Text(
-              'Page Not Found',
+            Text(context.l10n.pageNotFound,
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const SizedBox(height: 8),
-            Text(
-              'The page you are looking for does not exist.',
+            Text(context.l10n.thePageYouAreLookingFor,
               style: Theme.of(context).textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () => context.go('/home'),
-              child: const Text('Go Home'),
+              child: Text(context.l10n.goHome),
             ),
           ],
         ),
@@ -484,15 +483,14 @@ class ComingSoonScreen extends StatelessWidget {
               ],
             ),
           ),
-          const Expanded(
+          Expanded(
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text('🚧', style: TextStyle(fontSize: 64)),
                   SizedBox(height: 20),
-                  Text(
-                    'Coming Soon',
+                  Text(context.l10n.comingSoon,
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
@@ -500,8 +498,7 @@ class ComingSoonScreen extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 8),
-                  Text(
-                    'This feature is under development.\nCheck back soon!',
+                  Text(context.l10n.thisFeatureIsUnderDevelopmentNcheck,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14,

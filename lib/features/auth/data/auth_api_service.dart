@@ -7,6 +7,7 @@ import '../../../core/network/api_response.dart';
 import '../../../core/network/dio_client.dart';
 import 'auth_dtos.dart';
 
+import '../../../core/localization/l10n.dart';
 /// Thin client over the RIMA Identity API `/api/auth/*` endpoints.
 /// Every method returns an [ApiResponse], never throws for HTTP/parse errors.
 class AuthApiService {

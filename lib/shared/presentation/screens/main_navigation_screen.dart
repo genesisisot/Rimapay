@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/Utils/haptics.dart';
 
+import '../../../core/localization/l10n.dart';
 class MainNavigationScreen extends ConsumerStatefulWidget {
   final Widget child;
 
@@ -22,40 +23,42 @@ class _MainNavigationScreenState
     extends ConsumerState<MainNavigationScreen> {
   int _currentIndex = 0;
 
-  static const List<_NavItem> _items = [
+  // A getter, not a field: the labels are localized, and `context` is not
+  // available in a field initializer.
+  List<_NavItem> get _items => [
     _NavItem(
       id: 'home',
       icon: Icons.home_outlined,
       activeIcon: Icons.home_rounded,
-      label: 'Home',
+      label: context.l10n.home,
       route: '/home',
     ),
     _NavItem(
       id: 'transfer',
       icon: Icons.swap_horiz_outlined,
       activeIcon: Icons.swap_horiz_rounded,
-      label: 'Transfer',
+      label: context.l10n.transfer,
       route: '/transfer',
     ),
     _NavItem(
       id: 'transactions',
       icon: Icons.history_outlined,
       activeIcon: Icons.history_rounded,
-      label: 'History',
+      label: context.l10n.transactions,
       route: '/transactions',
     ),
     _NavItem(
       id: 'bills',
       icon: Icons.grid_view_outlined,
       activeIcon: Icons.grid_view_rounded,
-      label: 'Services',
+      label: context.l10n.services,
       route: '/bills',
     ),
     _NavItem(
       id: 'profile',
       icon: Icons.person_outline_rounded,
       activeIcon: Icons.person_rounded,
-      label: 'Profile',
+      label: context.l10n.profile,
       route: '/profile',
     ),
   ];

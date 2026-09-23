@@ -626,8 +626,7 @@ class _ComplianceBar extends StatelessWidget {
                 margin: const EdgeInsets.symmetric(horizontal: 14),
                 color: Colors.white.withOpacity(0.18),
               ),
-              Text(
-                'AUTHORIZED AND\nREGULATED BY',
+              Text(context.l10n.authorizedAndNregulatedBy,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.65),
@@ -656,8 +655,7 @@ class _ComplianceBar extends StatelessWidget {
             Icon(Icons.verified_user_outlined,
                 color: Colors.white.withOpacity(0.85), size: 14),
             const SizedBox(width: 5),
-            Text(
-              'YOUR DEPOSITS ARE ',
+            Text(context.l10n.yourDepositsAre,
               style: TextStyle(
                 color: Colors.white.withOpacity(0.85),
                 fontSize: 11,
@@ -665,8 +663,7 @@ class _ComplianceBar extends StatelessWidget {
                 letterSpacing: 0.6,
               ),
             ),
-            const Text(
-              'PROTECTED',
+            Text(context.l10n.protected,
               style: TextStyle(
                 color: Color(0xFF4EC97A),
                 fontSize: 11,
@@ -686,8 +683,7 @@ class _ComplianceBar extends StatelessWidget {
             Icon(Icons.lock_outline,
                 color: const Color(0xFF4EC97A).withOpacity(0.85), size: 11),
             const SizedBox(width: 4),
-            Text(
-              'Licensed by CBN',
+            Text(context.l10n.licensedByCbn,
               style: TextStyle(
                 color: const Color(0xFF4EC97A).withOpacity(0.85),
                 fontSize: 11,
@@ -701,8 +697,7 @@ class _ComplianceBar extends StatelessWidget {
                 fontSize: 11,
               ),
             ),
-            Text(
-              'Insured by NDIC',
+            Text(context.l10n.insuredByNdic,
               style: TextStyle(
                 color: const Color(0xFF4EC97A).withOpacity(0.85),
                 fontSize: 11,

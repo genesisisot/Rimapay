@@ -8,6 +8,7 @@ import '../../../bills/data/bills_dtos.dart';
 import '../../../bills/presentation/providers/bills_providers.dart';
 import '../../../bills/presentation/widgets/bill_purchase_flow.dart';
 
+import '../../../../core/localization/l10n.dart';
 class _GovService {
   final String id;
   final int billerId;
@@ -132,7 +133,7 @@ class _GovernmentScreenState extends ConsumerState<GovernmentScreen> {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24),
                 child: Align(alignment: Alignment.centerLeft,
-                    child: Text('Select Service', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface))),
+                    child: Text(context.l10n.selectService, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface))),
               ),
               const SizedBox(height: 12),
               Expanded(
@@ -171,7 +172,7 @@ class _GovernmentScreenState extends ConsumerState<GovernmentScreen> {
                             Expanded(
                               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                                 Text(svc.name, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurface)),
-                                Text('${svc.agency} · ${svc.description}',
+                                Text(context.l10n.agencyDescription(svc.agency, svc.description),
                                     style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)), maxLines: 1, overflow: TextOverflow.ellipsis),
                               ]),
                             ),
@@ -179,7 +180,7 @@ class _GovernmentScreenState extends ConsumerState<GovernmentScreen> {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                 decoration: BoxDecoration(color: svc.color.withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
-                                child: Text('₦${svc.fixedAmount}', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: svc.color)),
+                                child: Text(context.l10n.fixedamount(svc.fixedAmount ?? 0), style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: svc.color)),
                               )
                             else
                               Icon(Icons.keyboard_arrow_right_rounded, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4), size: 18),
@@ -256,8 +257,8 @@ class _GovernmentScreenState extends ConsumerState<GovernmentScreen> {
       body: Column(
         children: [
           BillGreenHeader(
-            title: 'Government Services',
-            subtitle: 'Taxes, levies & official payments',
+            title: context.l10n.governmentServices,
+            subtitle: context.l10n.taxesLeviesOfficialPayments,
             showAccountCard: false,
           ),
           Expanded(
@@ -277,11 +278,11 @@ class _GovernmentScreenState extends ConsumerState<GovernmentScreen> {
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.3)),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
                         Icon(Icons.verified_outlined, size: 16, color: Color(0xFF3B82F6)),
                         SizedBox(width: 8),
-                        Expanded(child: Text('Payments are forwarded directly to the relevant government agency',
+                        Expanded(child: Text(context.l10n.paymentsAreForwardedDirectlyToThe,
                             style: TextStyle(fontSize: 12, color: Color(0xFF1D4ED8), fontWeight: FontWeight.w500))),
                       ],
                     ),
@@ -290,7 +291,7 @@ class _GovernmentScreenState extends ConsumerState<GovernmentScreen> {
 
                   // Service selector
                   _SelectorTile(
-                    label: 'Government Service',
+                    label: context.l10n.governmentService,
                     value: _selectedService == null ? null : '${_selectedService!.name} (${_selectedService!.agency})',
                     hint: billersAsync.isLoading ? 'Loading services…' : 'Select a service to pay',
                     icon: _selectedService?.icon ?? Icons.account_balance_outlined,
@@ -318,7 +319,7 @@ class _GovernmentScreenState extends ConsumerState<GovernmentScreen> {
 
                     // Amount — fixed or user-entered
                     if (itemsLoading) ...[
-                      Text('Loading payment details…',
+                      Text(context.l10n.loadingPaymentDetails,
                           style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5))),
                     ] else if (_fixedAmount != null) ...[
                       Container(
@@ -335,15 +336,15 @@ class _GovernmentScreenState extends ConsumerState<GovernmentScreen> {
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                Text('Payment Amount', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
-                                Text('₦${_fixedAmount}',
+                                Text(context.l10n.paymentAmount, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
+                                Text(context.l10n.fixedamount2(_fixedAmount ?? 0),
                                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Color(0xFF166C46))),
                               ]),
                             ),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(color: const Color(0xFF166C46).withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
-                              child: const Text('Fixed Fee', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF166C46))),
+                              child: Text(context.l10n.fixedFee, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF166C46))),
                             ),
                           ],
                         ),

@@ -12,6 +12,7 @@ import '../../core/Utils/haptics.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme_colors.dart';
 
+import '../../core/localization/l10n.dart';
 export 'package:flutter/services.dart' show TextInputFormatter;
 
 class CommaFormatter extends TextInputFormatter {
@@ -257,8 +258,7 @@ class BillAccountCard extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                     child: Center(
-                      child: Text(
-                        'CA',
+                      child: Text(context.l10n.ca,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 12,
@@ -271,8 +271,7 @@ class BillAccountCard extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Current Account',
+                      Text(context.l10n.currentAccount,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 13,
@@ -291,8 +290,7 @@ class BillAccountCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 14),
-              Text(
-                'Available Balance',
+              Text(context.l10n.availableBalance,
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.6),
                   fontSize: 11,
@@ -401,16 +399,14 @@ class BillDailyLimitCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Daily Limit Usage',
+              Text(context.l10n.dailyLimitUsage,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
                 ),
               ),
-              Text(
-                '${(percent * 100).toStringAsFixed(1)}%',
+              Text(context.l10n.percent((percent * 100).toStringAsFixed(1)),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -444,8 +440,7 @@ class BillDailyLimitCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Total Limit',
+                      Text(context.l10n.totalLimit,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
                           fontSize: 10,
@@ -476,8 +471,7 @@ class BillDailyLimitCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Available',
+                      Text(context.l10n.available,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.primary,
                           fontSize: 10,
@@ -1101,8 +1095,7 @@ class _PinConfirmSheetState extends State<_PinConfirmSheet> {
           ),
 
           const SizedBox(height: 6),
-          Text(
-            'Enter your 4-digit PIN',
+          Text(context.l10n.enterYour4DigitPin,
             style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4)),
           ),
 
@@ -1129,8 +1122,7 @@ class _PinConfirmSheetState extends State<_PinConfirmSheet> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                const Text(
-                  'Pay with Biometrics',
+                Text(context.l10n.payWithBiometrics,
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:rimapay/core/theme/app_colors.dart';
 import 'package:flutter/services.dart';
 
+import '../../core/localization/l10n.dart';
 class ToDoItem {
   final String id;
   final String title;
@@ -129,8 +130,8 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
   List<ToDoItem> get allTodoItems => [
         ToDoItem(
           id: 'cac-certificate',
-          title: 'Upload CAC Certificate',
-          description: 'Upload your Certificate of Incorporation',
+          title: context.l10n.uploadCacCertificate,
+          description: context.l10n.uploadYourCertificateOfIncorporation,
           icon: Icons.description,
           status: 'pending',
           priority: 'high',
@@ -139,8 +140,8 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
         ),
         ToDoItem(
           id: 'business-photo',
-          title: 'Business Premises Photo',
-          description: 'Take a photo of your business location',
+          title: context.l10n.businessPremisesPhoto,
+          description: context.l10n.takeAPhotoOfYourBusiness,
           icon: Icons.camera_alt,
           status: 'pending',
           priority: 'high',
@@ -149,8 +150,8 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
         ),
         ToDoItem(
           id: 'utility-bill',
-          title: 'Utility Bill',
-          description: 'Upload recent utility bill for address verification',
+          title: context.l10n.utilityBill,
+          description: context.l10n.uploadRecentUtilityBillForAddress,
           icon: Icons.receipt_long,
           status: 'pending',
           priority: 'medium',
@@ -159,8 +160,8 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
         ),
         ToDoItem(
           id: 'director-id',
-          title: 'Directors ID Cards',
-          description: 'Upload valid ID cards for all directors',
+          title: context.l10n.directorsIdCards,
+          description: context.l10n.uploadValidIdCardsForAll,
           icon: Icons.upload_file,
           status: 'pending',
           priority: 'high',
@@ -176,7 +177,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
           id: '1',
           type: 'received',
           name: 'Customer Payment',
-          description: 'Invoice #INV-2024-001',
+          description: context.l10n.invoiceInv2024001,
           amount: '45,000.00',
           time: '2 hours ago',
           category: 'income',
@@ -185,7 +186,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
           id: '2',
           type: 'sent',
           name: 'Office Supplies',
-          description: 'Stationery purchase',
+          description: context.l10n.stationeryPurchase,
           amount: '12,500.00',
           time: 'Yesterday',
           category: 'bill',
@@ -194,7 +195,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
           id: '3',
           type: 'sent',
           name: 'Internet Bill',
-          description: 'Monthly subscription',
+          description: context.l10n.monthlySubscription,
           amount: '8,900.00',
           time: '2 days ago',
           category: 'subscription',
@@ -204,8 +205,8 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
   List<QuickAction> get quickActions => [
         QuickAction(
           id: 'send-money',
-          title: 'Send Money',
-          description: 'Transfer to banks & wallets',
+          title: context.l10n.sendMoney,
+          description: context.l10n.transferToBanksWallets,
           icon: Icons.send,
           gradient: const LinearGradient(
             colors: [Color(0xFFD4AF37), Color(0xFF0E5C37)],
@@ -214,8 +215,8 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
         ),
         QuickAction(
           id: 'add-money',
-          title: 'Add Money',
-          description: 'Fund your account',
+          title: context.l10n.addMoney,
+          description: context.l10n.fundYourAccount,
           icon: Icons.add,
           gradient: const LinearGradient(
             colors: [Color(0xFF60A5FA), Color(0xFF2563EB)],
@@ -224,8 +225,8 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
         ),
         QuickAction(
           id: 'pay-bills',
-          title: 'Pay Bills',
-          description: 'Utilities & services',
+          title: context.l10n.payBills,
+          description: context.l10n.utilitiesServices,
           icon: Icons.lightbulb,
           gradient: const LinearGradient(
             colors: [Color(0xFFFB923C), Color(0xFFEA580C)],
@@ -234,8 +235,8 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
         ),
         QuickAction(
           id: 'request-money',
-          title: 'Request Payment',
-          description: 'Generate payment links',
+          title: context.l10n.requestPayment,
+          description: context.l10n.generatePaymentLinks,
           icon: Icons.add_circle,
           gradient: const LinearGradient(
             colors: [Color(0xFFA78BFA), Color(0xFF7C3AED)],
@@ -247,8 +248,8 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
   List<BusinessService> get businessServices => [
         BusinessService(
           id: 'payroll',
-          title: 'Payroll',
-          description: 'Staff salary payments',
+          title: context.l10n.payroll,
+          description: context.l10n.staffSalaryPayments,
           icon: Icons.credit_card,
           color: Colors.blue,
           isNew: true,
@@ -256,16 +257,16 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
         ),
         BusinessService(
           id: 'bulk-transfer',
-          title: 'Bulk Transfer',
-          description: 'Multiple transfers at once',
+          title: context.l10n.bulkTransfer,
+          description: context.l10n.multipleTransfersAtOnce,
           icon: Icons.send,
           color: Colors.green,
           action: () {},
         ),
         BusinessService(
           id: 'invoice',
-          title: 'Create Invoice',
-          description: 'Generate professional invoices',
+          title: context.l10n.createInvoice,
+          description: context.l10n.generateProfessionalInvoices,
           icon: Icons.description,
           color: Colors.purple,
           isNew: true,
@@ -273,8 +274,8 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
         ),
         BusinessService(
           id: 'analytics',
-          title: 'Business Analytics',
-          description: 'View business insights',
+          title: context.l10n.businessAnalytics,
+          description: context.l10n.viewBusinessInsights,
           icon: Icons.trending_up,
           color: Colors.orange,
           action: () {},
@@ -379,8 +380,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Good morning',
+                Text(context.l10n.goodMorning2,
                   style: TextStyle(
                     fontSize: 12,
                     color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
@@ -452,8 +452,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                   shape: BoxShape.circle,
                 ),
                 child: Center(
-                  child: Text(
-                    '${todoItems.length}',
+                  child: Text(context.l10n.length(todoItems.length),
                     style: TextStyle(
                       color: Theme.of(context).cardColor,
                       fontSize: 10,
@@ -497,16 +496,14 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Account Under Review',
+                Text(context.l10n.accountUnderReview,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                     color: Colors.orange,
                   ),
                 ),
-                const Text(
-                  'Complete required documents to activate your account',
+                Text(context.l10n.completeRequiredDocumentsToActivateYour,
                   style: TextStyle(
                     fontSize: 10,
                     color: Colors.orange,
@@ -523,8 +520,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text(
-                      '${completedDocuments.length}/${allTodoItems.length}',
+                    Text(context.l10n.lengthLength2(completedDocuments.length, allTodoItems.length),
                       style: TextStyle(
                         fontSize: 9,
                         color: Colors.orange.shade600,
@@ -548,8 +544,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'My To-dos',
+            Text(context.l10n.myToDos,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -558,8 +553,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
             ),
             TextButton(
               onPressed: () {},
-              child: const Text(
-                'Hide',
+              child: Text(context.l10n.hideLabel,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -666,8 +660,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                                 : Colors.blue.shade100,
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: Text(
-                        '${item.priority[0].toUpperCase()}${item.priority.substring(1)}',
+                      child: Text(context.l10n.priorityPriority2(item.priority[0].toUpperCase(), item.priority.substring(1)),
                         style: TextStyle(
                           fontSize: 8,
                           fontWeight: FontWeight.w500,
@@ -700,21 +693,19 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.green.shade200),
       ),
-      child: const Column(
+      child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.check_circle, color: Colors.green, size: 24),
           SizedBox(height: 8),
-          Text(
-            'All Done!',
+          Text(context.l10n.allDone,
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
               color: Colors.green,
             ),
           ),
-          Text(
-            'All requirements completed',
+          Text(context.l10n.allRequirementsCompleted,
             style: TextStyle(
               fontSize: 9,
               color: Colors.green,
@@ -773,8 +764,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                     children: [
                       const Icon(Icons.business, color: Colors.white70, size: 16),
                       const SizedBox(width: 8),
-                      const Text(
-                        'Business Account',
+                      Text(context.l10n.businessAccount,
                         style: TextStyle(
                           color: Colors.white70,
                           fontSize: 12,
@@ -789,8 +779,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                             color: Colors.orange.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Text(
-                            'Under Review',
+                          child: Text(context.l10n.underReview,
                             style: TextStyle(
                               color: Colors.orange,
                               fontSize: 10,
@@ -804,8 +793,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Business Balance',
+                      Text(context.l10n.businessBalance,
                         style: TextStyle(
                           color: Colors.white70,
                           fontSize: 12,
@@ -843,8 +831,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                       ),
                     ),
                   ),
-                  Text(
-                    'Account: $accountNumber',
+                  Text(context.l10n.accountAccountnumber(accountNumber),
                     style: TextStyle(
                       color: Colors.white70,
                       fontSize: 10,
@@ -927,8 +914,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Quick Actions',
+        Text(context.l10n.quickActions,
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -1037,8 +1023,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Business Services',
+            Text(context.l10n.businessServices,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -1047,8 +1032,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
             ),
             TextButton(
               onPressed: () {},
-              child: const Text(
-                'View All',
+              child: Text(context.l10n.viewAll2,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -1154,8 +1138,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                           color: Colors.red,
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Text(
-                          'NEW',
+                        child: Text(context.l10n.newLabel,
                           style: TextStyle(
                             color: Theme.of(context).cardColor,
                             fontSize: 10,
@@ -1180,8 +1163,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Recent Activity',
+            Text(context.l10n.recentActivity,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -1190,8 +1172,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
             ),
             TextButton(
               onPressed: () {},
-              child: const Text(
-                'View All',
+              child: Text(context.l10n.viewAll2,
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,

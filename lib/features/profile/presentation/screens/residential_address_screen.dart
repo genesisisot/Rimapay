@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../data/profile_dtos.dart';
 import '../providers/profile_provider.dart';
 
+import '../../../../core/localization/l10n.dart';
 class ResidentialAddressScreen extends ConsumerStatefulWidget {
   const ResidentialAddressScreen({super.key});
 
@@ -93,8 +94,8 @@ class _ResidentialAddressScreenState
   Future<void> _saveAndShowSuccess() async {
     if (_addressController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter your address'),
+        SnackBar(
+          content: Text(context.l10n.pleaseEnterYourAddress),
           backgroundColor: Colors.red,
         ),
       );
@@ -102,8 +103,8 @@ class _ResidentialAddressScreenState
     }
     if (_selectedState.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select your state'),
+        SnackBar(
+          content: Text(context.l10n.pleaseSelectYourState),
           backgroundColor: Colors.red,
         ),
       );
@@ -111,8 +112,8 @@ class _ResidentialAddressScreenState
     }
     if (_lgaController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter your LGA'),
+        SnackBar(
+          content: Text(context.l10n.pleaseEnterYourLga),
           backgroundColor: Colors.red,
         ),
       );
@@ -145,8 +146,8 @@ class _ResidentialAddressScreenState
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) =>
               _CompletionSuccessScreen(
-            title: 'Residential Address',
-            message: 'Your address has been saved successfully.',
+            title: context.l10n.residentialAddress,
+            message: context.l10n.yourAddressHasBeenSavedSuccessfully,
             onComplete: () {
               context.pop(true);
             },
@@ -205,8 +206,7 @@ class _ResidentialAddressScreenState
                     ),
                   ),
                   const Spacer(),
-                  const Text(
-                    'Residential Address',
+                  Text(context.l10n.residentialAddress,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -231,7 +231,7 @@ class _ResidentialAddressScreenState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Where do you live?',
+                    Text(context.l10n.whereDoYouLive,
                         style: TextStyle(
                             fontSize: 13,
                             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
@@ -347,8 +347,7 @@ class _ResidentialAddressScreenState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Select State',
+            Text(context.l10n.selectState,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -407,8 +406,7 @@ class _ResidentialAddressScreenState
                           AlwaysStoppedAnimation<Color>(Colors.white),
                     ),
                   )
-                : Text(
-                    'Continue →',
+                : Text(context.l10n.continueArrow,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,

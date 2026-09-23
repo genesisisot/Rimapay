@@ -8,6 +8,7 @@ import '../../../../core/services/secure_store.dart';
 import '../../../../core/Utils/haptics.dart';
 import '../../data/pin_dtos.dart';
 
+import '../../../../core/localization/l10n.dart';
 /// Two-step transaction-PIN reset backed by the RIMA Identity API:
 ///  step 0 → choose new PIN, POST /api/security/pin/reset/initiate (sends OTP)
 ///  step 1 → enter OTP, POST /api/security/pin/reset/validate
@@ -111,7 +112,7 @@ class _ResetPinScreenState extends State<ResetPinScreen> {
       appBar: AppBar(
         elevation: 0,
         foregroundColor: Theme.of(context).colorScheme.onSurface,
-        title: Text('Reset Transaction PIN',
+        title: Text(context.l10n.resetTransactionPin,
             style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
@@ -132,14 +133,13 @@ class _ResetPinScreenState extends State<ResetPinScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Set a new 4-digit PIN',
+        Text(context.l10n.setANew4DigitPin,
             style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
                 color: Theme.of(context).colorScheme.onSurface)),
         const SizedBox(height: 8),
-        Text(
-          "We'll send a one-time code to your registered number to confirm the reset.",
+        Text(context.l10n.weLlSendAOneTime2,
           style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), height: 1.5),
         ),
         const SizedBox(height: 28),
@@ -156,13 +156,13 @@ class _ResetPinScreenState extends State<ResetPinScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Enter the OTP',
+        Text(context.l10n.enterTheOtp,
             style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
                 color: Theme.of(context).colorScheme.onSurface)),
         const SizedBox(height: 8),
-        Text('Enter the code sent to your registered phone number.',
+        Text(context.l10n.enterTheCodeSentToYour,
             style:
                 TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), height: 1.5)),
         const SizedBox(height: 28),
@@ -170,7 +170,7 @@ class _ResetPinScreenState extends State<ResetPinScreen> {
         const SizedBox(height: 12),
         GestureDetector(
           onTap: _loading ? null : _initiate,
-          child: const Text('Resend code',
+          child: Text(context.l10n.resendCode2,
               style: TextStyle(
                   fontSize: 13, fontWeight: FontWeight.w700, color: _green)),
         ),
@@ -186,13 +186,13 @@ class _ResetPinScreenState extends State<ResetPinScreen> {
         const SizedBox(height: 40),
         const Icon(Icons.check_circle, color: _green, size: 72),
         const SizedBox(height: 20),
-        Text('PIN reset!',
+        Text(context.l10n.pinReset,
             style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
                 color: Theme.of(context).colorScheme.onSurface)),
         const SizedBox(height: 8),
-        Text('Your transaction PIN has been reset.',
+        Text(context.l10n.yourTransactionPinHasBeenReset,
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6))),
         const SizedBox(height: 28),

@@ -8,6 +8,7 @@ import '../../../bills/data/bills_dtos.dart';
 import '../../../bills/presentation/providers/bills_providers.dart';
 import '../../../bills/presentation/widgets/bill_purchase_flow.dart';
 
+import '../../../../core/localization/l10n.dart';
 class ElectricityProvider {
   final String id;
   final int billerId;
@@ -215,9 +216,9 @@ class _ElectricityPurchaseScreenState
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Column(
         children: [
-          const BillGreenHeader(
-            title: 'Electricity',
-            subtitle: 'Pay electricity bills',
+          BillGreenHeader(
+            title: context.l10n.electricity,
+            subtitle: context.l10n.payElectricityBills,
             showAccountCard: false,
           ),
           Expanded(
@@ -246,14 +247,14 @@ class _ElectricityPurchaseScreenState
                   Row(
                     children: [
                       _MeterTypeBtn(
-                        label: 'Prepaid',
+                        label: context.l10n.prepaid,
                         icon: '🔋',
                         selected: _meterType == MeterType.prepaid,
                         onTap: () => setState(() => _meterType = MeterType.prepaid),
                       ),
                       const SizedBox(width: 10),
                       _MeterTypeBtn(
-                        label: 'Postpaid',
+                        label: context.l10n.postpaid,
                         icon: '📄',
                         selected: _meterType == MeterType.postpaid,
                         onTap: () => setState(() => _meterType = MeterType.postpaid),
@@ -266,7 +267,7 @@ class _ElectricityPurchaseScreenState
                   _EFloatingField(
                     controller: _meterController,
                     focusNode: _meterFocus,
-                    label: 'Meter Number',
+                    label: context.l10n.meterNumber,
                     hint: 'Enter 11-digit meter number',
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -276,8 +277,7 @@ class _ElectricityPurchaseScreenState
                   const SizedBox(height: 24),
 
                   // ── Quick amounts ──
-                  Text(
-                    'Quick Select Amount',
+                  Text(context.l10n.quickSelectAmount,
                     style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -334,8 +334,7 @@ class _ElectricityPurchaseScreenState
 
                   const SizedBox(height: 20),
 
-                  Text(
-                    'Enter Amount',
+                  Text(context.l10n.enterAmount,
                     style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -409,8 +408,7 @@ class _ProviderSheet extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(20, 16, 20, 4),
             child: Row(
               children: [
-                Text(
-                  'Choose Provider',
+                Text(context.l10n.chooseProvider,
                   style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w800,

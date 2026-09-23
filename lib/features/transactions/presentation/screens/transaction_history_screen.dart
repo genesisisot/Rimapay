@@ -9,6 +9,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../shared/widgets/noise_painter.dart';
 
+import '../../../../core/localization/l10n.dart';
 class TransactionHistoryScreen extends ConsumerStatefulWidget {
   const TransactionHistoryScreen({super.key});
 
@@ -244,8 +245,7 @@ class _TransactionHistoryScreenState
                                         letterSpacing: 0.2,
                                       ),
                                     ),
-                                    Text(
-                                      '₦${_fmtAmount(total)} spent',
+                                    Text(context.l10n.totalSpent(_fmtAmount(total)),
                                       style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w500,
@@ -358,8 +358,7 @@ class _Header extends StatelessWidget {
                       ),
                       const SizedBox(width: 14),
                       Expanded(
-                        child: Text(
-                          'Transaction History',
+                        child: Text(context.l10n.transactionHistory,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 18,
@@ -391,7 +390,7 @@ class _Header extends StatelessWidget {
                           fontSize: 14,
                           fontFamily: 'Effra'),
                       decoration: InputDecoration(
-                        hintText: 'Search by name, type...',
+                        hintText: context.l10n.searchByNameType,
                         hintStyle: TextStyle(
                             color: Colors.white.withOpacity(0.45),
                             fontSize: 14,
@@ -529,8 +528,7 @@ class _SummaryStrip extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Today\'s Spending',
+                Text(context.l10n.todaySSpending,
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -561,8 +559,7 @@ class _SummaryStrip extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Today\'s Income',
+                Text(context.l10n.todaySIncome,
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -922,8 +919,7 @@ class _ErrorState extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            Text(
-              'Couldn\'t load transactions',
+            Text(context.l10n.couldnTLoadTransactions,
               style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
@@ -952,8 +948,7 @@ class _ErrorState extends StatelessWidget {
                   color: AppColors.primary500,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Text(
-                  'Retry',
+                child: Text(context.l10n.retry,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -1023,8 +1018,7 @@ class _FilterModal extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'Filter Transactions',
+                        Text(context.l10n.filterTransactions,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,

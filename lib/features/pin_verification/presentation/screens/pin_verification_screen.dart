@@ -11,6 +11,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../features/success/presentation/screens/success_screen.dart';
 
+import '../../../../core/localization/l10n.dart';
 class PinVerificationScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic> transactionData;
 
@@ -317,8 +318,7 @@ class _PinVerificationScreenState extends ConsumerState<PinVerificationScreen>
           ),
           const SizedBox(width: 16),
           Expanded(
-            child: Text(
-              'Confirm Transaction',
+            child: Text(context.l10n.confirmTransaction,
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 18,
@@ -499,8 +499,7 @@ class _PinVerificationScreenState extends ConsumerState<PinVerificationScreen>
             ),
           ),
           const SizedBox(height: 12),
-          Text(
-            'Enter Transaction PIN',
+          Text(context.l10n.enterTransactionPin,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -508,8 +507,7 @@ class _PinVerificationScreenState extends ConsumerState<PinVerificationScreen>
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            'Enter your 4-digit PIN to authorize this transaction',
+          Text(context.l10n.enterYour4DigitPinTo,
             style: TextStyle(
               fontSize: 12,
               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
@@ -665,8 +663,7 @@ class _PinVerificationScreenState extends ConsumerState<PinVerificationScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Secure Transaction',
+                      Text(context.l10n.secureTransaction2,
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
@@ -674,8 +671,7 @@ class _PinVerificationScreenState extends ConsumerState<PinVerificationScreen>
                         ),
                       ),
                       SizedBox(height: 2),
-                      Text(
-                        'Your PIN is encrypted and never stored for security.',
+                      Text(context.l10n.yourPinIsEncryptedAndNever,
                         style: TextStyle(
                           fontSize: 10,
                           color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
@@ -747,8 +743,7 @@ class _PinVerificationScreenState extends ConsumerState<PinVerificationScreen>
                         },
                       ),
                       const SizedBox(width: 8),
-                      Text(
-                        'Processing...',
+                      Text(context.l10n.processing,
                         style: TextStyle(
                           color: Theme.of(context).cardColor,
                           fontSize: 15,
@@ -760,7 +755,8 @@ class _PinVerificationScreenState extends ConsumerState<PinVerificationScreen>
                 : Opacity(
                     opacity: isEnabled ? 1.0 : 0.5,
                     child: Text(
-                      'Confirm & Pay ${_formatAmount(widget.transactionData['amount']?.toString() ?? '0')}',
+                      context.l10n.confirmAndPay(_formatAmount(
+                          widget.transactionData['amount']?.toString() ?? '0')),
                       style: TextStyle(
                         color: Theme.of(context).cardColor,
                         fontSize: 15,

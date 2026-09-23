@@ -17,6 +17,7 @@ import 'dart:math' show Random;
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/localization/l10n.dart';
 class SuccessScreenProps {
   final String transactionType;
   final String amount;
@@ -193,7 +194,8 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
     setState(() => _receiptBusy = true);
     try {
       final p = widget.props;
-      await shareReceiptPdf(ReceiptPdfData(
+      final l10n = context.l10n;
+      await shareReceiptPdf(l10n: l10n, ReceiptPdfData(
         title: p.transactionType,
         amount: p.amount,
         reference: p.transactionId,
@@ -206,8 +208,8 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Couldn't create the receipt. Please try again."),
+        SnackBar(
+          content: Text(context.l10n.couldnTCreateTheReceiptPlease),
           backgroundColor: Color(0xFFD33B31),
           behavior: SnackBarBehavior.floating,
         ),
@@ -235,8 +237,8 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
   void _onSaveBeneficiary(SavedBeneficiaryData beneficiaryData) {
     // Implement save beneficiary functionality
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Beneficiary saved successfully'),
+      SnackBar(
+        content: Text(context.l10n.beneficiarySaved),
         backgroundColor: Colors.green,
         behavior: SnackBarBehavior.floating,
       ),
@@ -431,8 +433,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  'Your ${widget.props.transactionType.toLowerCase()} has been processed successfully',
+                Text(context.l10n.yourTransactiontypeHasBeenProcessedSuccessfully(widget.props.transactionType.toLowerCase()),
                   style: TextStyle(
                     fontSize: 14,
                     color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
@@ -484,8 +485,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        'Transaction Amount',
+                      Text(context.l10n.transactionAmount,
                         style: TextStyle(
                           fontSize: 12,
                           color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55), // neutral-500
@@ -547,8 +547,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            'Status',
+          Text(context.l10n.status,
             style: TextStyle(
               fontSize: 12,
               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55), // neutral-500
@@ -565,8 +564,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                 ),
               ),
               const SizedBox(width: 8),
-              const Text(
-                'Successful',
+              Text(context.l10n.successful,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -596,7 +594,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                     Expanded(
                       child: _outlineBtn(
                         icon: Icons.refresh,
-                        label: 'Repeat',
+                        label: context.l10n.repeat,
                         onTap: _onRepeatTransaction,
                       ),
                     ),
@@ -604,7 +602,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                     Expanded(
                       child: _outlineBtn(
                         icon: Icons.download_rounded,
-                        label: 'Receipt',
+                        label: context.l10n.receipt,
                         onTap: _handleDownload,
                       ),
                     ),
@@ -619,7 +617,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                     Expanded(
                       child: _outlineBtn(
                         icon: Icons.flag_outlined,
-                        label: 'Dispute',
+                        label: context.l10n.dispute,
                         onTap: _handleDispute,
                         color: const Color(0xFFDC2626),
                       ),
@@ -629,7 +627,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                       child: ElevatedButton.icon(
                         onPressed: _onHome,
                         icon: const Icon(Icons.close, size: 16),
-                        label: const Text('Close'),
+                        label: Text(context.l10n.close),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF16A34A),
                           foregroundColor: Colors.white,
@@ -674,8 +672,8 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
 
   void _handleDispute() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Dispute submitted. Our team will review it shortly.'),
+      SnackBar(
+        content: Text(context.l10n.disputeSubmitted),
         backgroundColor: Color(0xFFDC2626),
         behavior: SnackBarBehavior.floating,
       ),
@@ -690,8 +688,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
           opacity: _fadeInAnimation.value,
           child: Padding(
             padding: const EdgeInsets.all(24),
-            child: Text(
-              'Transaction processed securely by RimaPay',
+            child: Text(context.l10n.processedSecurelyBy,
               style: TextStyle(
                 fontSize: 12,
                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4).withOpacity(0.8), // neutral-400
@@ -747,8 +744,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Save Beneficiary',
+                      Text(context.l10n.saveBeneficiary,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -798,8 +794,9 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          '${widget.props.beneficiaryData?.accountNumber} • ${widget.props.beneficiaryData?.bank}',
+                        Text(context.l10n.accountnumberBank(
+                            widget.props.beneficiaryData?.accountNumber ?? '',
+                            widget.props.beneficiaryData?.bank ?? ''),
                           style: TextStyle(
                             fontSize: 12,
                             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
@@ -815,8 +812,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Nickname (Optional)',
+                      Text(context.l10n.nicknameOptional,
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
@@ -885,8 +881,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  'Mark as Favorite',
+                                Text(context.l10n.markAsFavorite,
                                   style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w500,
@@ -896,8 +891,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                                   ),
                                 ),
                                 const SizedBox(height: 2),
-                                Text(
-                                  'Quick access for future transfers',
+                                Text(context.l10n.quickAccessFutureTransfers,
                                   style: TextStyle(
                                     fontSize: 11,
                                     color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55), // neutral-500
@@ -930,8 +924,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                             ),
                             side: BorderSide(color: Theme.of(context).dividerColor), // neutral-200
                           ),
-                          child: Text(
-                            'Cancel',
+                          child: Text(context.l10n.cancel,
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
@@ -951,8 +944,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: Text(
-                            'Save',
+                          child: Text(context.l10n.save,
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,

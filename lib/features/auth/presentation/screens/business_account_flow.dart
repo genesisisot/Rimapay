@@ -8,6 +8,7 @@ import 'package:rimapay/shared/widgets/noise_painter.dart';
 import 'package:rimapay/shared/widgets/rimapay_logo.dart';
 import 'package:rimapay/core/theme/app_colors.dart';
 
+import '../../../../core/localization/l10n.dart';
 // ─── Step enum ───────────────────────────────────────────────────────────────
 
 enum BusinessAccountStep {
@@ -368,8 +369,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                     ),
                     const SizedBox(width: 14),
                     // Step counter
-                    Text(
-                      '${currentIdx + 1}/$_totalSteps',
+                    Text(context.l10n.currentidxTotalsteps(currentIdx + 1, _totalSteps),
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.7),
                         fontSize: 12,
@@ -442,8 +442,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'What is your phone number?',
+                Text(context.l10n.whatIsYourPhoneNumber,
                   style: TextStyle(
                     fontSize: 14,
                     color: Color(0xFF6B7280),
@@ -521,7 +520,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
           ),
         ),
         _buildCTA(
-          label: 'Continue',
+          label: context.l10n.continueLabel,
           onTap: () {
             final phoneNum = _phoneDigits.startsWith('0')
                 ? _phoneDigits
@@ -574,8 +573,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                       color: Color(0xFF16A34A), size: 34),
                 ),
                 const SizedBox(height: 12),
-                const Text(
-                  'Enter verification code',
+                Text(context.l10n.enterVerificationCode,
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
@@ -584,8 +582,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                   ),
                 ),
                 const SizedBox(height: 6),
-                Text(
-                  'We sent a code to +234 $_phoneDigits',
+                Text(context.l10n.weSentACodeTo234(_phoneDigits),
                   style: const TextStyle(
                     fontSize: 14,
                     color: Color(0xFF6B7280),
@@ -634,7 +631,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Didn't receive code? ",
+                    Text(context.l10n.didnTReceiveCode,
                         style: TextStyle(
                           fontSize: 14,
                           color: Color(0xFF6B7280),
@@ -687,7 +684,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
             ),
           ),
         ),
-        _buildCTA(label: 'Continue', onTap: _nextStep),
+        _buildCTA(label: context.l10n.continueLabel, onTap: _nextStep),
       ],
     );
   }
@@ -706,8 +703,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Enter your business email address',
+                Text(context.l10n.enterYourBusinessEmailAddress,
                   style: TextStyle(
                     fontSize: 14,
                     color: Color(0xFF6B7280),
@@ -734,7 +730,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
           ),
         ),
         _buildCTA(
-          label: 'Continue',
+          label: context.l10n.continueLabel,
           onTap: () {
             if (_emailController.text.contains('@') &&
                 _emailController.text.contains('.')) {
@@ -763,8 +759,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Create a password to secure your account',
+                Text(context.l10n.createPasswordToSecure,
                   style: TextStyle(
                     fontSize: 14,
                     color: Color(0xFF6B7280),
@@ -827,10 +822,9 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                   ),
                   const SizedBox(height: 4),
                 ],
-                const Align(
+                Align(
                   alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Min 8 chars with uppercase, lowercase & number',
+                  child: Text(context.l10n.passwordRequirements,
                     style: TextStyle(
                       fontSize: 11,
                       color: Color(0xFF9CA3AF),
@@ -871,7 +865,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
           ),
         ),
         _buildCTA(
-          label: 'Continue',
+          label: context.l10n.continueLabel,
           onTap: _onPasswordContinue,
         ),
       ],
@@ -923,8 +917,8 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
     if (!_showConfirmPin) {
       return _buildPinEntry(
         key: const ValueKey('createPin'),
-        title: 'Create a PIN',
-        subtitle: 'Set up a 4-digit transaction PIN',
+        title: context.l10n.createAPin,
+        subtitle: context.l10n.setUpA4DigitTransaction,
         icon: Icons.shield_outlined,
         pinList: _pin,
         onDigit: (d) {
@@ -944,8 +938,8 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
     } else {
       return _buildPinEntry(
         key: const ValueKey('confirmPin'),
-        title: 'Confirm your PIN',
-        subtitle: 'Re-enter your 4-digit PIN to confirm',
+        title: context.l10n.confirmYourPin,
+        subtitle: context.l10n.reEnterYour4DigitPin,
         icon: Icons.shield,
         pinList: _confirmPin,
         onDigit: (d) {
@@ -1054,7 +1048,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
             ),
           ),
         ),
-        _buildCTA(label: 'Continue', onTap: onContinue),
+        _buildCTA(label: context.l10n.continueLabel, onTap: onContinue),
       ],
     );
   }
@@ -1076,8 +1070,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Verify your identity with your NIN or BVN',
+                Text(context.l10n.verifyYourIdentityWithYourNin,
                   style: TextStyle(
                     fontSize: 13,
                     color: Color(0xFF6B7280),
@@ -1229,7 +1222,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
           ),
         ),
         _buildCTA(
-          label: 'Continue',
+          label: context.l10n.continueLabel,
           onTap: () {
             if (_idDigits.length == 11) {
               _businessInfo.idType = _idType;
@@ -1268,14 +1261,13 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                     border: Border.all(
                         color: const Color(0xFF166C46).withOpacity(0.2)),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
                       Icon(Icons.camera_alt_outlined,
                           color: Color(0xFF166C46), size: 20),
                       SizedBox(width: 10),
                       Expanded(
-                        child: Text(
-                          'Take a clear selfie for identity verification.',
+                        child: Text(context.l10n.takeAClearSelfieForIdentity,
                           style: TextStyle(
                             fontSize: 13,
                             color: Color(0xFF166C46),
@@ -1309,8 +1301,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                               color: Colors.white54, size: 44),
                         ),
                         const SizedBox(height: 14),
-                        const Text(
-                          'Camera preview will appear here',
+                        Text(context.l10n.cameraPreviewWillAppearHere,
                           style: TextStyle(
                             color: Colors.white54,
                             fontSize: 13,
@@ -1338,7 +1329,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
           ),
         ),
         _buildCTA(
-          label: 'Take Photo',
+          label: context.l10n.takePhoto,
           onTap: () {
             // Mock delay simulating photo capture
             setState(() => _isLoading = true);
@@ -1385,8 +1376,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Tell us about your business',
+                Text(context.l10n.tellUsAboutYourBusiness,
                   style: TextStyle(
                     fontSize: 14,
                     color: Color(0xFF6B7280),
@@ -1477,7 +1467,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
             ),
           ),
         ),
-        _buildCTA(label: 'Continue', onTap: _nextStep),
+        _buildCTA(label: context.l10n.continueLabel, onTap: _nextStep),
       ],
     );
   }
@@ -1536,8 +1526,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Where is your business located?',
+                Text(context.l10n.whereIsYourBusinessLocated,
                   style: TextStyle(
                     fontSize: 14,
                     color: Color(0xFF6B7280),
@@ -1598,7 +1587,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
             ),
           ),
         ),
-        _buildCTA(label: 'Continue', onTap: _nextStep),
+        _buildCTA(label: context.l10n.continueLabel, onTap: _nextStep),
       ],
     );
   }
@@ -1625,10 +1614,9 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                       color: Color(0xFF16A34A), size: 60),
                 ),
                 const SizedBox(height: 28),
-                const Padding(
+                Padding(
                   padding: EdgeInsets.symmetric(horizontal: 28),
-                  child: Text(
-                    'Are you a Politically Exposed Person?',
+                  child: Text(context.l10n.areYouAPoliticallyExposedPerson,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 18,
@@ -1640,10 +1628,9 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Padding(
+                Padding(
                   padding: EdgeInsets.symmetric(horizontal: 28),
-                  child: Text(
-                    'A PEP (Politically Exposed Person) is someone who currently holds or has held an important public position, which gives them influence over public funds or decisions. This includes family members and close associates of such persons.',
+                  child: Text(context.l10n.aPepPoliticallyExposedPersonIs,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 13,
@@ -1704,7 +1691,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
           ),
         ),
         _buildCTA(
-          label: 'Continue',
+          label: context.l10n.continueLabel,
           onTap: () {
             if (_businessInfo.isPep == null) {
               _snack('Please select Yes or No', isError: true);
@@ -1740,8 +1727,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Select all sources of revenue for your business',
+                Text(context.l10n.selectAllSourcesOfRevenueFor,
                   style: TextStyle(
                     fontSize: 14,
                     color: Color(0xFF6B7280),
@@ -1836,7 +1822,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
           ),
         ),
         _buildCTA(
-          label: 'Continue',
+          label: context.l10n.continueLabel,
           onTap: () {
             if (_selectedRevenueSources.isEmpty) {
               _snack('Please select at least one revenue source',
@@ -1915,8 +1901,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                     color: Colors.white, size: 54),
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Congratulations!',
+              Text(context.l10n.congratulations,
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w900,
@@ -1928,8 +1913,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
               const SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: Text(
-                  'Your business account has been created successfully.',
+                child: Text(context.l10n.yourBusinessAccountHasBeenCreated,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 15,
@@ -1972,8 +1956,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                                 size: 20),
                           ),
                           const SizedBox(width: 12),
-                          const Text(
-                            'Your Account Number',
+                          Text(context.l10n.yourAccountNumber,
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
@@ -2003,14 +1986,13 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(color: const Color(0xFFBBF7D0)),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(Icons.business_outlined,
                                 size: 14, color: Color(0xFF16A34A)),
                             SizedBox(width: 6),
-                            Text(
-                              'Your business account is now active',
+                            Text(context.l10n.yourBusinessAccountIsNowActive,
                               style: TextStyle(
                                 fontSize: 11,
                                 color: Color(0xFF166534),
@@ -2043,9 +2025,8 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                           offset: const Offset(0, 4)),
                     ],
                   ),
-                  child: const Center(
-                    child: Text(
-                      'Go to Dashboard',
+                  child: Center(
+                    child: Text(context.l10n.goToDashboard,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,

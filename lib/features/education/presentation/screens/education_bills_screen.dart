@@ -8,6 +8,7 @@ import '../../../bills/data/bills_dtos.dart';
 import '../../../bills/presentation/providers/bills_providers.dart';
 import '../../../bills/presentation/widgets/bill_purchase_flow.dart';
 
+import '../../../../core/localization/l10n.dart';
 // ── Models ────────────────────────────────────────────────────────────────────
 
 class _EduProvider {
@@ -201,8 +202,8 @@ class _EducationBillsScreenState extends ConsumerState<EducationBillsScreen> {
       body: Column(
         children: [
           BillGreenHeader(
-            title: 'Education',
-            subtitle: 'WAEC, JAMB, NECO & more',
+            title: context.l10n.education,
+            subtitle: context.l10n.waecJambNecoMore,
             showAccountCard: false,
           ),
           Expanded(
@@ -216,7 +217,7 @@ class _EducationBillsScreenState extends ConsumerState<EducationBillsScreen> {
 
                   // Provider selector
                   _DropdownField(
-                    label: 'Exam Body',
+                    label: context.l10n.examBody,
                     value: _selectedProvider?.name,
                     hint: billersAsync.isLoading ? 'Loading…' : 'Select exam body',
                     onTap: _openProviderSheet,
@@ -225,7 +226,7 @@ class _EducationBillsScreenState extends ConsumerState<EducationBillsScreen> {
 
                   // Exam type selector
                   _DropdownField(
-                    label: 'Exam Type',
+                    label: context.l10n.examType,
                     value: _selectedExam?.name,
                     hint: _selectedProvider == null
                         ? 'Select exam body first'
@@ -242,7 +243,7 @@ class _EducationBillsScreenState extends ConsumerState<EducationBillsScreen> {
                   BillFloatingField(
                     controller: _candidateController,
                     focusNode: _candidateFocus,
-                    label: 'Candidate / Registration Number',
+                    label: context.l10n.candidateRegistrationNumber,
                     hint: 'e.g. 4123456789',
                     keyboardType: TextInputType.text,
                     onChanged: (_) => setState(() {}),
@@ -385,8 +386,7 @@ class _AmountDisplay extends StatelessWidget {
               ],
             ),
           ),
-          Text(
-            '₦$amount',
+          Text(context.l10n.amount2(amount),
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF166C46)),
           ),
         ],
@@ -417,7 +417,7 @@ class _ProviderSheet extends StatelessWidget {
               decoration: BoxDecoration(color: Theme.of(context).dividerColor, borderRadius: BorderRadius.circular(999))),
           Align(
             alignment: Alignment.centerLeft,
-            child: Text('Select Exam Body', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface)),
+            child: Text(context.l10n.selectExamBody, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface)),
           ),
           const SizedBox(height: 16),
           ...providers.map((p) => GestureDetector(
@@ -479,7 +479,7 @@ class _ExamSheet extends StatelessWidget {
               decoration: BoxDecoration(color: Theme.of(context).dividerColor, borderRadius: BorderRadius.circular(999))),
           Align(
             alignment: Alignment.centerLeft,
-            child: Text('Select Exam Type', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface)),
+            child: Text(context.l10n.selectExamType, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface)),
           ),
           const SizedBox(height: 16),
           ...examTypes.map((e) => GestureDetector(
@@ -508,7 +508,7 @@ class _ExamSheet extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text('₦${e.price}', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface)),
+                      Text(context.l10n.price(e.price), style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface)),
                       if (selected?.id == e.id)
                         const Icon(Icons.check_circle, color: Color(0xFF166C46), size: 16),
                     ],

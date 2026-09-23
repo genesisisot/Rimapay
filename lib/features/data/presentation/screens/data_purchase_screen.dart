@@ -384,7 +384,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
     setState(() => _selectedPlan = plan);
     if (_selectedNetwork == null || _phoneController.text.length != 10) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Enter a valid 10-digit phone number')),
+        SnackBar(content: Text(context.l10n.enterValidTenDigitPhone)),
       );
       return;
     }
@@ -437,8 +437,8 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
         children: [
           // ── Green header with tabs ──
           BillGreenHeader(
-            title: 'Mobile Top-Up',
-            subtitle: 'Buy airtime and data bundles',
+            title: context.l10n.mobileTopUp,
+            subtitle: context.l10n.buyAirtimeAndDataBundles,
             showAccountCard: false,
             tabs: const ['Airtime', 'Data'],
             selectedTab: 1,
@@ -463,7 +463,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                   // Phone number
                   _DataFloatingField(
                     controller: _phoneController,
-                    label: 'Phone Number',
+                    label: context.l10n.phoneNumber,
                     hint: '801 234 5678',
                     keyboardType: TextInputType.phone,
                     inputFormatters: [
@@ -514,8 +514,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                   const SizedBox(height: 20),
 
                   // Frequent Beneficiaries
-                  Text(
-                    'Frequent Beneficiaries',
+                  Text(context.l10n.frequentBeneficiaries,
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -571,8 +570,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                                   overflow: TextOverflow.ellipsis,
                                   textAlign: TextAlign.center,
                                 ),
-                                Text(
-                                  '${c.number.substring(0, 7)}...',
+                                Text(context.l10n.number(c.number.substring(0, 7)),
                                   style: TextStyle(
                                     fontSize: 10,
                                     color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
@@ -590,8 +588,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                   const SizedBox(height: 20),
 
                   // Network selection
-                  Text(
-                    'Choose Network',
+                  Text(context.l10n.chooseNetwork,
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -667,8 +664,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                     const SizedBox(height: 24),
 
                     // Plan duration tabs + plans
-                    Text(
-                      'Select Plan',
+                    Text(context.l10n.selectPlan,
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -688,8 +684,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 28),
                         child: Center(
-                          child: Text(
-                            'No plans available',
+                          child: Text(context.l10n.noPlansAvailable,
                             style: TextStyle(
                               fontSize: 13,
                               color: Theme.of(context)
@@ -766,16 +761,14 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                 },
               ),
               const SizedBox(height: 24),
-              Text(
-                'Processing Payment',
+              Text(context.l10n.processingPayment,
                 style: Theme.of(context).textTheme.headlineSmall!.copyWith(
                   color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 8),
-              Text(
-                'Please wait while we process your data purchase...',
+              Text(context.l10n.pleaseWaitWhileWeProcessYour,
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                 ),
@@ -860,8 +853,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                     height: 36,
                   ),
                   const SizedBox(width: 8),
-                    Text(
-                      'Data',
+                    Text(context.l10n.data,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -897,8 +889,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                   color: _isFormValid ? null : Theme.of(context).scaffoldBackgroundColor,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text(
-                  'Next',
+                child: Text(context.l10n.next,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
@@ -920,8 +911,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Phone Number',
+            Text(context.l10n.phoneNumber,
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -1004,10 +994,9 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
               : null,
         ),
         if (_phoneController.text.isNotEmpty && _phoneController.text.length < 10)
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(top: 4),
-            child: Text(
-              'Please enter a complete 10-digit phone number',
+            child: Text(context.l10n.pleaseEnterAComplete10Digit,
               style: TextStyle(
                 fontSize: 11,
                 color: Colors.red,
@@ -1022,8 +1011,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Choose Network',
+        Text(context.l10n.chooseNetwork,
           style: TextStyle(
             fontSize: isSmallScreen ? 14 : 16,
             fontWeight: FontWeight.w500,
@@ -1114,8 +1102,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Plan Duration',
+        Text(context.l10n.planDuration,
           style: TextStyle(
             fontSize: isSmallScreen ? 14 : 16,
             fontWeight: FontWeight.w500,
@@ -1194,8 +1181,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Choose Data Plan',
+        Text(context.l10n.chooseDataPlan,
           style: TextStyle(
             fontSize: isSmallScreen ? 14 : 16,
             fontWeight: FontWeight.w500,
@@ -1249,8 +1235,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                       ),
                     ),
                     const Spacer(),
-                    Text(
-                      '₦${plan.price}',
+                    Text(context.l10n.price(plan.price),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
@@ -1279,8 +1264,7 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
             ),
             const SizedBox(width: 6),
-            Text(
-              'Recent Purchases',
+            Text(context.l10n.recentPurchases,
               style: TextStyle(
                 fontSize: isSmallScreen ? 14 : 16,
                 fontWeight: FontWeight.w500,
@@ -1403,9 +1387,8 @@ class _DataPurchaseScreenState extends ConsumerState<DataPurchaseScreen> with Ti
                     color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Center(
-                    child: Text(
-                      'View All Recent Purchases',
+                  child: Center(
+                    child: Text(context.l10n.viewAllRecentPurchases,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -1544,8 +1527,7 @@ class _PlanCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 10),
-                Text(
-                  '₦${plan.price}',
+                Text(context.l10n.price(plan.price),
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -1564,8 +1546,7 @@ class _PlanCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Text(
-              'Valid for ${plan.validity}',
+            Text(context.l10n.validForValidity(plan.validity),
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
@@ -1595,8 +1576,7 @@ class _PlanCard extends StatelessWidget {
                             color: AppColors.goldPrimary,
                           ),
                           const SizedBox(width: 6),
-                          Text(
-                            'More Info',
+                          Text(context.l10n.moreInfo,
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
@@ -1619,9 +1599,8 @@ class _PlanCard extends StatelessWidget {
                         gradient: AppColors.goldGradient,
                         borderRadius: BorderRadius.circular(999),
                       ),
-                      child: const Center(
-                        child: Text(
-                          'Buy Now',
+                      child: Center(
+                        child: Text(context.l10n.buyNow,
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
@@ -1709,9 +1688,8 @@ class _PlanInfoSheet extends StatelessWidget {
                       gradient: AppColors.goldGradient,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Center(
-                      child: Text(
-                        'Buy Now',
+                    child: Center(
+                      child: Text(context.l10n.buyNow,
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/localization/l10n.dart';
 /// Animated face-scan loader with expanding pulse rings, circular progress,
 /// and a face icon — same design as the onboarding face-verification overlay.
 class FaceScanLoader extends StatefulWidget {
@@ -126,21 +127,19 @@ class FaceVerifyOverlay extends StatelessWidget {
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
           ),
-          child: const Column(
+          child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               FaceScanLoader(),
               SizedBox(height: 22),
-              Text(
-                'Verifying your face',
+              Text(context.l10n.verifyingYourFacePlain,
                 style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
                     color: Color(0xFF111827)),
               ),
               SizedBox(height: 8),
-              Text(
-                'Hold on a moment — this can take a few seconds.\nPlease don\'t close or refresh the page.',
+              Text(context.l10n.holdOnAMomentThisCan,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     fontSize: 13, color: Color(0xFF6B7280), height: 1.5),

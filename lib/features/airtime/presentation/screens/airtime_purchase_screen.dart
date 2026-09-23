@@ -9,6 +9,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
 import '../../../success/presentation/screens/success_screen.dart';
 
+import '../../../../core/localization/l10n.dart';
 // ── Data Models ───────────────────────────────────────────────────────────────
 
 enum PlanCategory { daily, weekly, monthly, yearly }
@@ -299,7 +300,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
     setState(() => _selectedPlan = plan);
     if (!_dataValid) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Enter a valid 10-digit phone number')),
+        SnackBar(content: Text(context.l10n.enterValidTenDigitPhone)),
       );
       return;
     }
@@ -372,13 +373,13 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Mobile Top-Up',
+                        Text(context.l10n.mobileTopUp,
                             style: TextStyle(
                                 color: Theme.of(context).cardColor,
                                 fontSize: 18,
                                 fontWeight: FontWeight.w800,
                                 fontFamily: 'Effra')),
-                        Text('Airtime & data bundles',
+                        Text(context.l10n.airtimeAndDataBundles,
                             style: TextStyle(
                                 color: Color(0x99FFFFFF),
                                 fontSize: 12,
@@ -469,7 +470,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
     return _FloatingField(
       controller: _phoneController,
       focusNode: _phoneFocus,
-      label: 'Phone Number',
+      label: context.l10n.phoneNumber,
       hint: '801 234 5678',
       keyboardType: TextInputType.phone,
       inputFormatters: [
@@ -519,7 +520,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Frequent Beneficiaries',
+        Text(context.l10n.frequentBeneficiaries,
             style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -562,7 +563,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center),
-                      Text('${c.number.substring(0, 7)}...',
+                      Text(context.l10n.number(c.number.substring(0, 7)),
                           style: TextStyle(
                               fontSize: 10,
                               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
@@ -583,7 +584,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Choose Network',
+        Text(context.l10n.chooseNetwork,
             style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -646,7 +647,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
 
   List<Widget> _buildAirtimeContent() {
     return [
-      Text('Quick Select Amount',
+      Text(context.l10n.quickSelectAmount,
           style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -696,7 +697,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
         }).toList(),
       ),
       const SizedBox(height: 20),
-      Text('Enter Amount',
+      Text(context.l10n.enterAmount,
           style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -732,8 +733,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Theme.of(context).dividerColor),
           ),
-          child: Text(
-            'Select a network first',
+          child: Text(context.l10n.selectNetworkFirst,
             style: TextStyle(
               fontSize: 15,
               fontFamily: 'Effra',
@@ -1098,7 +1098,7 @@ class _AmountInputCardState extends State<_AmountInputCard> {
                 Icon(Icons.info_outline_rounded,
                     size: 14, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4)),
                 const SizedBox(width: 6),
-                Text('Min: ₦50, Max: ₦50,000',
+                Text(context.l10n.min50Max50000,
                     style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
               ],
             ),
@@ -1137,7 +1137,7 @@ class _PlanSearchField extends StatelessWidget {
           color: onSurface,
         ),
         decoration: InputDecoration(
-          hintText: 'Search plans...',
+          hintText: context.l10n.searchPlans,
           hintStyle: TextStyle(
             fontSize: 14,
             fontFamily: 'Effra',
@@ -1296,8 +1296,7 @@ class _PlanCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 10),
-                Text(
-                  '₦${plan.price}',
+                Text(context.l10n.price(plan.price),
                   style: const TextStyle(
                     fontSize: 15,
                     fontFamily: 'Effra',
@@ -1318,8 +1317,7 @@ class _PlanCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Text(
-              'Valid for ${plan.validity}',
+            Text(context.l10n.validForValidity(plan.validity),
               style: const TextStyle(
                 fontSize: 12,
                 fontFamily: 'Effra',
@@ -1350,8 +1348,7 @@ class _PlanCard extends StatelessWidget {
                             color: AppColors.goldPrimary,
                           ),
                           const SizedBox(width: 6),
-                          Text(
-                            'More Info',
+                          Text(context.l10n.moreInfo,
                             style: TextStyle(
                               fontSize: 13,
                               fontFamily: 'Effra',
@@ -1375,9 +1372,8 @@ class _PlanCard extends StatelessWidget {
                         gradient: AppColors.goldGradient,
                         borderRadius: BorderRadius.circular(999),
                       ),
-                      child: const Center(
-                        child: Text(
-                          'Buy Now',
+                      child: Center(
+                        child: Text(context.l10n.buyNow,
                           style: TextStyle(
                             fontSize: 13,
                             fontFamily: 'Effra',
@@ -1466,9 +1462,8 @@ class _PlanInfoSheet extends StatelessWidget {
                       gradient: AppColors.goldGradient,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Center(
-                      child: Text(
-                        'Buy Now',
+                    child: Center(
+                      child: Text(context.l10n.buyNow,
                         style: TextStyle(
                           fontSize: 15,
                           fontFamily: 'Effra',

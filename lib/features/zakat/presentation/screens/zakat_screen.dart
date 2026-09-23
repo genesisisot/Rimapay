@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
 
+import '../../../../core/localization/l10n.dart';
 class ZakatScreen extends StatefulWidget {
   const ZakatScreen({super.key});
 
@@ -80,17 +81,16 @@ class _ZakatScreenState extends State<ZakatScreen> {
                             text: TextSpan(
                               style: TextStyle(fontSize: 12, height: 1.5),
                               children: [
-                                const TextSpan(
-                                    text: 'Nisab threshold: ',
+                                TextSpan(
+                                    text: context.l10n.nisabThreshold,
                                     style: TextStyle(
                                         color: Color(0xFF9A3412),
                                         fontWeight: FontWeight.w700)),
                                 TextSpan(
                                     text: _fmt(_nisabNGN),
                                     style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                                const TextSpan(
-                                    text:
-                                        ' (approx. value of 85g of gold). Zakat rate: 2.5%.',
+                                TextSpan(
+                                    text: context.l10n.approxValueOf85gOfGold,
                                     style: TextStyle(color: Color(0xFF9A3412))),
                               ],
                             ),
@@ -130,7 +130,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Total Wealth',
+                            Text(context.l10n.totalWealth,
                                 style: TextStyle(
                                     fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
                             Text(_fmt(_totalWealth),
@@ -144,7 +144,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Zakat Due (2.5%)',
+                            Text(context.l10n.zakatDue25,
                                 style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w700,
@@ -160,8 +160,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
                         ),
                         if (!_aboveNisab && _totalWealth > 0) ...[
                           const SizedBox(height: 8),
-                          Text(
-                            'Your wealth is below the Nisab threshold — Zakat is not yet due.',
+                          Text(context.l10n.yourWealthIsBelowTheNisab,
                             style: TextStyle(
                                 fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), height: 1.4),
                           ),
@@ -236,8 +235,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14)),
                         ),
-                        child: Text(
-                          'Pay Zakat (${_fmt(_zakatDue)})',
+                        child: Text(context.l10n.payZakatZakatdue(_fmt(_zakatDue)),
                           style: TextStyle(
                               color: Theme.of(context).cardColor,
                               fontSize: 16,
@@ -322,9 +320,9 @@ class _ZakatScreenState extends State<ZakatScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Zakat / Religious',
+              Text(context.l10n.zakatReligious,
                   style: TextStyle(color: Theme.of(context).cardColor, fontSize: 17, fontWeight: FontWeight.w800)),
-              Text('Calculate and pay your Zakat',
+              Text(context.l10n.calculateAndPayYourZakat,
                   style: TextStyle(color: Colors.white60, fontSize: 12)),
             ],
           ),

@@ -7,6 +7,7 @@ import '../../../../core/providers/auth_provider.dart';
 import '../../../../core/Utils/haptics.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
 
+import '../../../../core/localization/l10n.dart';
 /// Account details the user shares to receive money: name, number, bank.
 class AccountDetailsScreen extends StatelessWidget {
   const AccountDetailsScreen({super.key});
@@ -25,7 +26,7 @@ class AccountDetailsScreen extends StatelessWidget {
     Haptics.tap();
     Clipboard.setData(ClipboardData(text: value));
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text('$what copied'),
+      content: Text(context.l10n.whatCopied(what)),
       behavior: SnackBarBehavior.floating,
       backgroundColor: _green,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -52,9 +53,9 @@ class AccountDetailsScreen extends StatelessWidget {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Column(
         children: [
-          const BillGreenHeader(
-            title: 'Account Details',
-            subtitle: 'Share these details to receive money',
+          BillGreenHeader(
+            title: context.l10n.accountDetails,
+            subtitle: context.l10n.shareTheseDetailsToReceiveMoney,
             showAccountCard: false,
           ),
           Expanded(
@@ -136,7 +137,7 @@ class AccountDetailsScreen extends StatelessWidget {
                       Expanded(
                         child: _ActionButton(
                           icon: Icons.copy_all_rounded,
-                          label: 'Copy All',
+                          label: context.l10n.copyAll,
                           filled: false,
                           onTap: acct.isEmpty
                               ? null
@@ -147,7 +148,7 @@ class AccountDetailsScreen extends StatelessWidget {
                       Expanded(
                         child: _ActionButton(
                           icon: Icons.share_rounded,
-                          label: 'Share',
+                          label: context.l10n.share,
                           filled: true,
                           onTap: acct.isEmpty
                               ? null

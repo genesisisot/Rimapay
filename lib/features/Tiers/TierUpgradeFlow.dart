@@ -1,3 +1,4 @@
+import '../../core/localization/l10n.dart';
 // // screens/tier_upgrade_flow_screen.dart
 // import 'package:flutter/material.dart';
 // import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -267,7 +268,7 @@
 //       }
 //     } catch (e) {
 //       ScaffoldMessenger.of(context).showSnackBar(
-//         SnackBar(content: Text('Error picking image: $e')),
+//         SnackBar(content: Text(context.l10n.errorPickingImageE(e))),
 //       );
 //     }
 //   }
@@ -286,7 +287,7 @@
 //       }
 //     } catch (e) {
 //       ScaffoldMessenger.of(context).showSnackBar(
-//         SnackBar(content: Text('Error picking file: $e')),
+//         SnackBar(content: Text(context.l10n.errorPickingFileE(e))),
 //       );
 //     }
 //   }
@@ -610,14 +611,14 @@
 //           if (widget.targetTier == TierLevel.tier1)
 //             _buildInfoCard(
 //               color: Colors.blue,
-//               title: 'Tier 1 Requirements',
-//               description: '• Provide either BVN OR NIN (only one required)\n• Complete OTP verification',
+//               title: context.l10n.tier1Requirements,
+//               description: context.l10n.provideEitherBvnOrNinOnly,
 //             ),
 
 //           if (widget.targetTier == TierLevel.tier2)
 //             _buildInfoCard(
 //               color: Colors.orange,
-//               title: 'Tier 2 Requirements',
+//               title: context.l10n.tier2Requirements,
 //               description: '• Provide the alternative verification method (${!user.bvnVerified ? 'BVN' : 'NIN'}) since you already provided ${user.bvnVerified ? 'BVN' : 'NIN'} for Tier 1\n• Complete additional OTP verification',
 //             ),
 
@@ -626,7 +627,7 @@
 //           // BVN Input
 //           if (_shouldShowBvnInput())
 //             _buildTextInput(
-//               label: 'BVN ${_getBvnLabel()}',
+//               label: context.l10n.bvnGetbvnlabel(_getBvnLabel()),
 //               value: formData.bvn,
 //               onChanged: (value) => setState(() {
 //                 formData = formData.copyWith(bvn: value);
@@ -639,7 +640,7 @@
 //           // NIN Input
 //           if (_shouldShowNinInput())
 //             _buildTextInput(
-//               label: 'NIN ${_getNinLabel()}',
+//               label: context.l10n.ninGetninlabel(_getNinLabel()),
 //               value: formData.nin,
 //               onChanged: (value) => setState(() {
 //                 formData = formData.copyWith(nin: value);
@@ -653,32 +654,32 @@
 //           if (widget.targetTier == TierLevel.tier3) ...[
 //             _buildInfoCard(
 //               color: Colors.purple,
-//               title: 'Tier 3 Requirements',
-//               description: '• Upload a clear photo of your government-issued ID\n• Provide address verification document',
+//               title: context.l10n.tier3Requirements,
+//               description: context.l10n.uploadAClearPhotoOfYour,
 //             ),
 
 //             const SizedBox(height: 16),
 
 //             // Government ID
 //             _buildDropdown(
-//               label: 'Government ID Document',
+//               label: context.l10n.governmentIdDocument,
 //               value: formData.documentType,
 //               onChanged: (value) => setState(() {
 //                 formData = formData.copyWith(documentType: value ?? '');
 //               }),
 //               items: const [
-//                 DropdownMenuItem(value: '', child: Text('Select ID type')),
-//                 DropdownMenuItem(value: 'drivers-license', child: Text('Driver\'s License')),
-//                 DropdownMenuItem(value: 'passport', child: Text('International Passport')),
-//                 DropdownMenuItem(value: 'nin-slip', child: Text('NIN Slip')),
-//                 DropdownMenuItem(value: 'voters-card', child: Text('Voter\'s Card')),
+//                 DropdownMenuItem(value: '', child: Text(context.l10n.selectIdType)),
+//                 DropdownMenuItem(value: 'drivers-license', child: Text(context.l10n.driverSLicense)),
+//                 DropdownMenuItem(value: 'passport', child: Text(context.l10n.internationalPassport)),
+//                 DropdownMenuItem(value: 'nin-slip', child: Text(context.l10n.ninSlip)),
+//                 DropdownMenuItem(value: 'voters-card', child: Text(context.l10n.voterSCard)),
 //               ],
 //             ),
 
 //             const SizedBox(height: 8),
 
 //             _buildFileUpload(
-//               label: 'Upload government ID photo',
+//               label: context.l10n.uploadGovernmentIdPhoto,
 //               file: formData.governmentDocument,
 //               onTap: () => _pickImage(isGovernmentDoc: true),
 //             ),
@@ -697,8 +698,8 @@
 //             const SizedBox(height: 8),
 
 //             _buildFileUpload(
-//               label: 'Upload address proof',
-//               description: 'Utility bill, bank statement, etc.',
+//               label: context.l10n.uploadAddressProof,
+//               description: context.l10n.utilityBillBankStatementEtc,
 //               file: formData.addressDocument,
 //               onTap: _pickFile,
 //             ),
@@ -706,7 +707,7 @@
 //             const SizedBox(height: 16),
 
 //             _buildTextInput(
-//               label: 'Full Address',
+//               label: context.l10n.fullAddress,
 //               value: formData.address,
 //               onChanged: (value) => setState(() {
 //                 formData = formData.copyWith(address: value);
@@ -722,7 +723,7 @@
 //               children: [
 //                 Expanded(
 //                   child: _buildTextInput(
-//                     label: 'City',
+//                     label: context.l10n.city,
 //                     value: formData.city,
 //                     onChanged: (value) => setState(() {
 //                       formData = formData.copyWith(city: value);
@@ -733,13 +734,13 @@
 //                 const SizedBox(width: 12),
 //                 Expanded(
 //                   child: _buildDropdown(
-//                     label: 'State',
+//                     label: context.l10n.state,
 //                     value: formData.state,
 //                     onChanged: (value) => setState(() {
 //                       formData = formData.copyWith(state: value ?? '', lga: '');
 //                     }),
 //                     items: [
-//                       const DropdownMenuItem(value: '', child: Text('Select State')),
+//                       const DropdownMenuItem(value: '', child: Text(context.l10n.selectState)),
 //                       ...NIGERIAN_STATES.map((state) => 
 //                         DropdownMenuItem(value: state.id, child: Text(state.name)),
 //                       ),
@@ -755,7 +756,7 @@
 //               children: [
 //                 Expanded(
 //                   child: _buildDropdown(
-//                     label: 'LGA',
+//                     label: context.l10n.lga,
 //                     value: formData.lga,
 //                     onChanged: (value) => setState(() {
 //                       formData = formData.copyWith(lga: value ?? '');
@@ -876,7 +877,7 @@
 //           SizedBox(
 //             width: 200,
 //             child: _buildTextInput(
-//               label: 'Enter OTP sent to your phone',
+//               label: context.l10n.enterOtpSentToYourPhone,
 //               value: formData.otp,
 //               onChanged: (value) => setState(() {
 //                 formData = formData.copyWith(otp: value);
@@ -916,7 +917,7 @@
 //                           ),
 //                         ),
 //                         SizedBox(width: 8),
-//                         Text('Verifying...'),
+//                         Text(context.l10n.verifying),
 //                       ],
 //                     )
 //                   : const Text(

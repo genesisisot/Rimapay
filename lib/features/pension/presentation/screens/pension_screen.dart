@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
 import '../../../success/presentation/screens/success_screen.dart';
 
+import '../../../../core/localization/l10n.dart';
 class _PFA {
   final String id;
   final String name;
@@ -30,15 +31,16 @@ class _PensionScreenState extends State<PensionScreen> {
   final _rsaFocus = FocusNode();
   final _amountFocus = FocusNode();
 
-  final List<_PFA> _pfas = const [
-    _PFA(id: 'stanbic', name: 'Stanbic IBTC Pension Managers', shortName: 'Stanbic IBTC', description: 'Largest PFA in Nigeria by AUM', color: Color(0xFF003087)),
-    _PFA(id: 'arm', name: 'ARM Pension Managers', shortName: 'ARM Pension', description: 'Trusted pension manager since 2004', color: Color(0xFF00529B)),
-    _PFA(id: 'leadway', name: 'Leadway Pensure', shortName: 'Leadway', description: 'Leadway Group pension arm', color: Color(0xFFD4042A)),
-    _PFA(id: 'axa', name: 'AXA Mansard Pensions', shortName: 'AXA Mansard', description: 'AXA Group subsidiary in Nigeria', color: Color(0xFF00008F)),
-    _PFA(id: 'fidelity', name: 'Fidelity Pension Managers', shortName: 'Fidelity Pension', description: 'Part of Fidelity Bank Group', color: Color(0xFF003366)),
-    _PFA(id: 'crusader', name: 'Crusader Sterling Pensions', shortName: 'Crusader Sterling', description: 'Quality pension management', color: Color(0xFF8B0000)),
-    _PFA(id: 'premium', name: 'Premium Pension', shortName: 'Premium Pension', description: 'CBN licensed pension fund administrator', color: Color(0xFF006400)),
-    _PFA(id: 'nlpc', name: 'NLPC Pension Fund Administrators', shortName: 'NLPC', description: 'Licensed by PenCom', color: Color(0xFF4B0082)),
+  // Getter rather than field — the descriptions need `context` for l10n.
+  List<_PFA> get _pfas => [
+    _PFA(id: 'stanbic', name: 'Stanbic IBTC Pension Managers', shortName: 'Stanbic IBTC', description: context.l10n.largestPfaInNigeriaByAum, color: Color(0xFF003087)),
+    _PFA(id: 'arm', name: 'ARM Pension Managers', shortName: 'ARM Pension', description: context.l10n.trustedPensionManagerSince2004, color: Color(0xFF00529B)),
+    _PFA(id: 'leadway', name: 'Leadway Pensure', shortName: 'Leadway', description: context.l10n.leadwayGroupPensionArm, color: Color(0xFFD4042A)),
+    _PFA(id: 'axa', name: 'AXA Mansard Pensions', shortName: 'AXA Mansard', description: context.l10n.axaGroupSubsidiaryInNigeria, color: Color(0xFF00008F)),
+    _PFA(id: 'fidelity', name: 'Fidelity Pension Managers', shortName: 'Fidelity Pension', description: context.l10n.partOfFidelityBankGroup, color: Color(0xFF003366)),
+    _PFA(id: 'crusader', name: 'Crusader Sterling Pensions', shortName: 'Crusader Sterling', description: context.l10n.qualityPensionManagement, color: Color(0xFF8B0000)),
+    _PFA(id: 'premium', name: 'Premium Pension', shortName: 'Premium Pension', description: context.l10n.cbnLicensedPensionFundAdministrator, color: Color(0xFF006400)),
+    _PFA(id: 'nlpc', name: 'NLPC Pension Fund Administrators', shortName: 'NLPC', description: context.l10n.licensedByPencom, color: Color(0xFF4B0082)),
   ];
 
   bool get _isFormValid =>
@@ -67,7 +69,7 @@ class _PensionScreenState extends State<PensionScreen> {
                   decoration: BoxDecoration(color: Theme.of(context).dividerColor, borderRadius: BorderRadius.circular(999))),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24),
-                child: Align(alignment: Alignment.centerLeft, child: Text('Select Pension Fund Administrator',
+                child: Align(alignment: Alignment.centerLeft, child: Text(context.l10n.selectPensionFundAdministrator,
                     style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Theme.of(context).colorScheme.onSurface))),
               ),
               const SizedBox(height: 12),
@@ -160,8 +162,8 @@ class _PensionScreenState extends State<PensionScreen> {
       body: Column(
         children: [
           BillGreenHeader(
-            title: 'Voluntary Pension',
-            subtitle: 'PenCom regulated contributions',
+            title: context.l10n.voluntaryPension,
+            subtitle: context.l10n.pencomRegulatedContributions,
             showAccountCard: false,
           ),
           Expanded(
@@ -181,11 +183,11 @@ class _PensionScreenState extends State<PensionScreen> {
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(color: const Color(0xFF3B82F6).withOpacity(0.3)),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
                         Icon(Icons.verified_user_outlined, size: 16, color: Color(0xFF3B82F6)),
                         SizedBox(width: 8),
-                        Expanded(child: Text('Regulated by PenCom · Contributions are tax deductible',
+                        Expanded(child: Text(context.l10n.regulatedByPencomContributionsAreTax,
                             style: TextStyle(fontSize: 12, color: Color(0xFF1D4ED8), fontWeight: FontWeight.w500))),
                       ],
                     ),
@@ -194,7 +196,7 @@ class _PensionScreenState extends State<PensionScreen> {
 
                   // PFA selector
                   _SelectorField(
-                    label: 'Pension Fund Administrator',
+                    label: context.l10n.pensionFundAdministrator,
                     value: _selectedPFA?.shortName,
                     hint: 'Select your PFA',
                     onTap: _openPFASheet,
@@ -205,7 +207,7 @@ class _PensionScreenState extends State<PensionScreen> {
                   BillFloatingField(
                     controller: _rsaController,
                     focusNode: _rsaFocus,
-                    label: 'RSA PIN',
+                    label: context.l10n.rsaPin,
                     hint: 'Your Retirement Savings Account PIN',
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(20)],
@@ -214,7 +216,7 @@ class _PensionScreenState extends State<PensionScreen> {
                   const SizedBox(height: 16),
 
                   // Contribution type
-                  Text('Contribution Type', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85))),
+                  Text(context.l10n.contributionType, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85))),
                   const SizedBox(height: 10),
                   Row(
                     children: ['Voluntary', 'AVC'].map((type) {

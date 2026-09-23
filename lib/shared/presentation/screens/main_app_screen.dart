@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/providers/app_state_provider.dart';
 import '../../../core/providers/auth_provider.dart';
 
+import '../../../core/localization/l10n.dart';
 // class CardManagementScreen extends StatefulWidget {
 //   const CardManagementScreen({super.key});
 
@@ -116,16 +117,16 @@ import '../../../core/providers/auth_provider.dart';
 //         ),
 //         QuickAction(
 //           id: 'change-pin',
-//           title: 'Change PIN',
-//           subtitle: 'Update PIN',
+//           title: context.l10n.changePin,
+//           subtitle: context.l10n.updatePin,
 //           icon: Icons.key,
 //           color: Colors.blue,
 //           action: () => _showSnackBar('Change PIN feature coming soon'),
 //         ),
 //         QuickAction(
 //           id: 'block-card',
-//           title: 'Block & Request New',
-//           subtitle: 'Replace card',
+//           title: context.l10n.blockRequestNew,
+//           subtitle: context.l10n.replaceCard,
 //           icon: Icons.shield,
 //           color: Colors.orange,
 //           action: () => _showSnackBar('Block card feature coming soon'),
@@ -881,7 +882,7 @@ import '../../../core/providers/auth_provider.dart';
 //                           borderRadius: BorderRadius.circular(8),
 //                         ),
 //                       ),
-//                       child: const Text('Cancel'),
+//                       child: const Text(context.l10n.cancel),
 //                     ),
 //                   ),
 //                   const SizedBox(width: 12),
@@ -900,7 +901,7 @@ import '../../../core/providers/auth_provider.dart';
 //                         ),
 //                         elevation: 0,
 //                       ),
-//                       child: const Text('Verify'),
+//                       child: const Text(context.l10n.verify),
 //                     ),
 //                   ),
 //                 ],
@@ -982,8 +983,8 @@ class CardManagementScreen extends StatelessWidget {
 
     return Scaffold(
   backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: const Center(
-        child: Text('Coming soon'),
+      body: Center(
+        child: Text(context.l10n.comingSoon2),
       ),
     );
   }

@@ -19,6 +19,7 @@ import '../../../../core/services/secure_store.dart';
 import '../../../../core/Utils/haptics.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart' show showPinConfirmSheet;
 
+import '../../../../core/localization/l10n.dart';
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
@@ -226,8 +227,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                 left: 0,
                 right: 0,
                 child: Center(
-                  child: Text(
-                    'Profile',
+                  child: Text(context.l10n.profile,
                     style: TextStyle(
                       color: Colors.white.withOpacity(collapsed ? 1.0 : 0.0),
                       fontSize: 18,
@@ -332,17 +332,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             icon: Icons.phone_outlined,
             iconColor: const Color(0xFF166C46),
             bgColor: const Color(0xFFF2F7F3),
-            label: 'PHONE NUMBER',
+            label: context.l10n.phoneNumber2,
             value: _data['phone']!,
-            subtitle:
-                "Registered number — can't be changed. Others find you by this.",
+            subtitle: context.l10n.registeredNumberCanTBeChanged,
           ),
           const SizedBox(height: 10),
           _buildInfoCard(
             icon: Icons.email_outlined,
             iconColor: const Color(0xFF8B5CF6),
             bgColor: const Color(0xFFF5F3FF),
-            label: 'EMAIL ADDRESS',
+            label: context.l10n.emailAddress,
             value: _isEditing ? _emailController.text : _data['email']!,
             editable: true,
             controller: _emailController,
@@ -352,7 +351,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             icon: Icons.person_outline,
             iconColor: const Color(0xFF3B82F6),
             bgColor: const Color(0xFFEFF6FF),
-            label: 'GENDER',
+            label: context.l10n.gender2,
             value: _data['gender']!.isNotEmpty ? _data['gender']! : 'Not set',
           ),
           const SizedBox(height: 10),
@@ -360,7 +359,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             icon: Icons.calendar_today_outlined,
             iconColor: const Color(0xFFEC4899),
             bgColor: const Color(0xFFFDF2F8),
-            label: 'DATE OF BIRTH',
+            label: context.l10n.dateOfBirth2,
             value: _data['dateOfBirth']!.isNotEmpty ? _data['dateOfBirth']! : 'Not set',
           ),
           const SizedBox(height: 20),
@@ -386,7 +385,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                     Icon(Icons.dark_mode,
                         color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), size: 20),
                     const SizedBox(width: 12),
-                    Text('Dark Mode',
+                    Text(context.l10n.darkMode,
                         style: TextStyle(
                             fontSize: 14, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurface)),
                     const Spacer(),
@@ -530,8 +529,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  'Complete Your Profile',
+                child: Text(context.l10n.completeYourProfile,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -545,7 +543,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           // Residential Address
           _buildProfileItem(
             icon: Icons.home_outlined,
-            title: 'Residential Address',
+            title: context.l10n.residentialAddress,
             isCompleted: addressDone,
             onTap: () => _navigateToProfileStep(context, 'residentialAddress'),
           ),
@@ -553,7 +551,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           // PEP Declaration
           _buildProfileItem(
             icon: Icons.verified_outlined,
-            title: 'PEP Declaration',
+            title: context.l10n.pepDeclaration,
             isCompleted: pepDone,
             onTap: () => _navigateToProfileStep(context, 'pepDeclaration'),
           ),
@@ -561,7 +559,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           // Source of Income
           _buildProfileItem(
             icon: Icons.work_outline,
-            title: 'Source of Income',
+            title: context.l10n.sourceOfIncome,
             isCompleted: incomeDone,
             onTap: () => _navigateToProfileStep(context, 'sourceOfIncome'),
           ),
@@ -699,8 +697,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                   color: Color(0xFF16A34A), size: 32),
             ),
             const SizedBox(height: 16),
-            Text(
-              'Profile Completed!',
+            Text(context.l10n.profileCompleted,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
@@ -709,8 +706,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               ),
             ),
             const SizedBox(height: 8),
-            Text(
-              'Your profile is now fully complete.',
+            Text(context.l10n.yourProfileIsNowFullyComplete,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
@@ -732,7 +728,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                 ),
-                child: const Text('Great!',
+                child: Text(context.l10n.great,
                     style: TextStyle(
                         fontFamily: 'Effra', fontWeight: FontWeight.w700)),
               ),
@@ -780,8 +776,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'CURRENT TIER',
+                  Text(context.l10n.currentTier2,
                     style: TextStyle(
                       fontSize: 10,
                       color: Colors.white.withOpacity(0.6),
@@ -800,8 +795,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                       fontFamily: 'Effra',
                     ),
                   ),
-                  Text(
-                    '₦50,000 balance • ₦20,000 per txn',
+                  Text(context.l10n.balance20000Per50000,
                     style: TextStyle(
                       fontSize: 11,
                       color: Colors.white.withOpacity(0.6),
@@ -817,8 +811,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                 color: const Color(0xFF166C46),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Text(
-                'Upgrade',
+              child: Text(context.l10n.upgrade,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 12,
@@ -949,8 +942,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
         child: OutlinedButton.icon(
           onPressed: () => setState(() => _isEditing = true),
           icon: const Icon(Icons.edit_outlined, size: 17),
-          label: const Text(
-            'Edit Profile',
+          label: Text(context.l10n.editProfile,
             style: TextStyle(
                 fontSize: 14, fontWeight: FontWeight.w600, fontFamily: 'Effra'),
           ),
@@ -983,7 +975,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text('Cancel',
+              child: Text(context.l10n.cancel,
                   style: TextStyle(
                       fontFamily: 'Effra', fontWeight: FontWeight.w600)),
             ),
@@ -997,8 +989,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               onPressed: () {
                 setState(() => _isEditing = false);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Profile updated'),
+                  SnackBar(
+                    content: Text(context.l10n.profileUpdated),
                     backgroundColor: Color(0xFF166C46),
                   ),
                 );
@@ -1010,7 +1002,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text('Save Changes',
+              child: Text(context.l10n.saveChanges,
                   style: TextStyle(
                       fontFamily: 'Effra', fontWeight: FontWeight.w700)),
             ),
@@ -1049,8 +1041,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
-            child: Text(
-              'SECURITY',
+            child: Text(context.l10n.security2,
               style: TextStyle(
                 fontSize: 11,
                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
@@ -1122,8 +1113,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           _biometricRow(
             context,
             icon: Icons.fingerprint,
-            title: 'Biometric Login',
-            subtitle: 'Sign in with fingerprint or face',
+            title: context.l10n.biometricLogin,
+            subtitle: context.l10n.signInWithFingerprintOrFace,
             value: _bioLogin,
             onChanged: (v) => _toggleBiometric(forLogin: true, enable: v),
           ),
@@ -1134,8 +1125,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           _biometricRow(
             context,
             icon: Icons.verified_user_outlined,
-            title: 'Biometric for Transactions',
-            subtitle: 'Approve payments without typing your PIN',
+            title: context.l10n.biometricForTransactions,
+            subtitle: context.l10n.approvePaymentsWithoutTypingYourPin,
             value: _bioTxn,
             onChanged: (v) => _toggleBiometric(forLogin: false, enable: v),
           ),
@@ -1336,7 +1327,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                           ),
                         ),
                         const SizedBox(height: 16),
-                        Text('Password Changed!',
+                        Text(context.l10n.passwordChanged,
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
@@ -1344,7 +1335,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                               fontFamily: 'Effra',
                             )),
                         const SizedBox(height: 6),
-                        Text('Your password has been updated',
+                        Text(context.l10n.yourPasswordHasBeenUpdated,
                             style: TextStyle(
                               fontSize: 13,
                               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
@@ -1358,7 +1349,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                         padding: const EdgeInsets.all(20),
                         child: Row(
                           children: [
-                            Text('Change Password',
+                            Text(context.l10n.changePassword,
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w800,
@@ -1454,7 +1445,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                                           height: 20,
                                           child: CircularProgressIndicator(
                                               strokeWidth: 2, color: Colors.white))
-                                      : const Text('Change Password',
+                                      : Text(context.l10n.changePassword,
                                           style: TextStyle(
                                               fontFamily: 'Effra', fontWeight: FontWeight.w700)),
                                 ),
@@ -1520,8 +1511,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
       child: ElevatedButton.icon(
         onPressed: () => _confirmLogout(context),
         icon: const Icon(Icons.logout_rounded, size: 18),
-        label: const Text(
-          'Log Out',
+        label: Text(context.l10n.logOut,
           style: TextStyle(
               fontSize: 15, fontWeight: FontWeight.w700, fontFamily: 'Effra'),
         ),
@@ -1570,8 +1560,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                   color: Color(0xFFDC2626), size: 28),
             ),
             const SizedBox(height: 16),
-            Text(
-              'Log Out?',
+            Text(context.l10n.logOut2,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
@@ -1580,8 +1569,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               ),
             ),
             const SizedBox(height: 8),
-            Text(
-              'Are you sure you want to log out of your RimaPay account?',
+            Text(context.l10n.areYouSureYouWantTo,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
@@ -1604,7 +1592,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12)),
                       ),
-                      child: const Text('Cancel',
+                      child: Text(context.l10n.cancel,
                           style: TextStyle(
                               fontFamily: 'Effra',
                               fontWeight: FontWeight.w600)),
@@ -1627,7 +1615,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12)),
                       ),
-                      child: const Text('Log Out',
+                      child: Text(context.l10n.logOut,
                           style: TextStyle(
                               fontFamily: 'Effra',
                               fontWeight: FontWeight.w700)),
@@ -1651,8 +1639,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
       child: ElevatedButton.icon(
         onPressed: () => _confirmDeleteAccount(context),
         icon: const Icon(Icons.delete_forever_rounded, size: 18),
-        label: const Text(
-          'Delete Account',
+        label: Text(context.l10n.deleteAccount,
           style: TextStyle(
               fontSize: 15, fontWeight: FontWeight.w700, fontFamily: 'Effra'),
         ),
@@ -1701,8 +1688,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                   color: Color(0xFFDC2626), size: 28),
             ),
             const SizedBox(height: 16),
-            Text(
-              'Delete Account?',
+            Text(context.l10n.deleteAccount2,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
@@ -1711,8 +1697,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               ),
             ),
             const SizedBox(height: 8),
-            Text(
-              'This will permanently delete your account and all data. This action cannot be undone.',
+            Text(context.l10n.thisWillPermanentlyDeleteYourAccount,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
@@ -1735,7 +1720,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12)),
                       ),
-                      child: const Text('Cancel',
+                      child: Text(context.l10n.cancel,
                           style: TextStyle(
                               fontFamily: 'Effra',
                               fontWeight: FontWeight.w600)),
@@ -1768,7 +1753,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12)),
                       ),
-                      child: const Text('Delete',
+                      child: Text(context.l10n.delete,
                           style: TextStyle(
                               fontFamily: 'Effra',
                               fontWeight: FontWeight.w700)),
@@ -1802,8 +1787,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  'Change Photo',
+                Text(context.l10n.changePhoto,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -1836,7 +1820,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: Text('Cancel',
+                    child: Text(context.l10n.cancel,
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                             fontFamily: 'Effra',
@@ -1897,7 +1881,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error picking image: $e')),
+        SnackBar(content: Text(context.l10n.errorPickingImageE(e))),
       );
     }
   }
