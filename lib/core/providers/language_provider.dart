@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:rimapay/core/localization/l10n.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,10 +12,17 @@ const String _kLegacyLanguagePrefKey = 'rimapay_language';
 /// Holds the active [Locale]. Unlike the previous implementation, the state
 /// holds the *real* locale — forcing it to English here is what made the
 /// Hausa translations unreachable.
+///
+/// Note what this deliberately does NOT do: it never assigns the app locale to
+/// `Intl.defaultLocale`. The `intl` package has no Hausa data — both
+/// `NumberFormat(...)` and `DateFormat(..., 'ha')` throw
+/// `ArgumentError: Invalid locale "ha"`. Setting it blew up the balance card
+/// and blanked the whole dashboard body. Dates and money stay on the default
+/// locale, which is correct for Nigeria in both languages: ₦ with Western
+/// digits and `#,##0.00` grouping. See test/intl_formatting_test.dart.
 class LanguageNotifier extends StateNotifier<Locale> {
   LanguageNotifier([Locale? initial])
       : super(initial ?? const Locale('en')) {
-    Intl.defaultLocale = state.languageCode;
     // Only needed when the locale was not preloaded in main(); a preloaded
     // value is already correct, so this avoids a redundant read.
     if (initial == null) _loadSavedLanguage();
@@ -26,7 +32,6 @@ class LanguageNotifier extends StateNotifier<Locale> {
     final code = await readSavedLanguageCode();
     if (code != state.languageCode) {
       state = Locale(code);
-      Intl.defaultLocale = code;
     }
   }
 
@@ -58,8 +63,6 @@ class LanguageNotifier extends StateNotifier<Locale> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(kLanguagePrefKey, languageCode);
 
-    // Keeps DateFormat/NumberFormat in step with the UI language.
-    Intl.defaultLocale = languageCode;
     state = Locale(languageCode);
   }
 

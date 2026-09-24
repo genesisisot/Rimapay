@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 import 'package:rimapay/core/localization/l10n.dart';
 import 'package:rimapay/core/providers/language_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -132,6 +133,43 @@ void main() {
       SharedPreferences.setMockInitialValues({kLanguagePrefKey: 'fr'});
       expect(await LanguageNotifier.readSavedLanguageCode(), 'en');
     });
+  });
+
+  testWidgets('a screen that formats money still builds in Hausa',
+      (tester) async {
+    // The regression this guards: switching to Hausa used to set
+    // Intl.defaultLocale = 'ha', and intl has no Hausa number data, so every
+    // NumberFormat threw. On the dashboard that took out the balance card and
+    // blanked the entire page body.
+    late WidgetRef ref;
+    await tester.pumpWidget(ProviderScope(
+      child: Consumer(builder: (context, r, _) {
+        ref = r;
+        return MaterialApp(
+          locale: r.watch(languageProvider),
+          localizationsDelegates: L10n.delegates,
+          supportedLocales: L10n.supportedLocales,
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: Column(
+                children: [
+                  Text(context.l10n.availableBalance),
+                  Text('₦${NumberFormat('#,##0.00').format(12345.6)}'),
+                ],
+              ),
+            ),
+          ),
+        );
+      }),
+    ));
+    await tester.pumpAndSettle();
+
+    await ref.read(languageProvider.notifier).setLanguage('ha');
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('₦12,345.60'), findsOneWidget);
+    expect(find.text('Kudade da ake da su'), findsOneWidget);
   });
 
   testWidgets('toggle flips between the two languages', (tester) async {

@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../core/providers/auth_provider.dart';
+import '../../../core/providers/language_provider.dart';
 import '../../../core/providers/transaction_provider.dart';
 import '../../../core/Utils/haptics.dart';
 import '../../../shared/widgets/rimapay_logo.dart';
@@ -289,6 +290,8 @@ class _HeaderSection extends StatelessWidget {
           ),
           Row(
             children: [
+              const _LanguageToggle(),
+              const SizedBox(width: 8),
               GestureDetector(
                 onTap: () => _showCustomerCare(context),
                 child: Container(
@@ -629,6 +632,59 @@ class _ActionButtons extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Compact EN/HA switch in the dashboard header.
+///
+/// Settings has a full picker, but the language is worth reaching in one tap
+/// from the home screen — a Hausa speaker who lands in English should not have
+/// to navigate an English settings menu to get out of it. Shows the language
+/// you would switch *to*, so the tap target reads as the action.
+class _LanguageToggle extends ConsumerWidget {
+  const _LanguageToggle();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final current = ref.watch(languageProvider).languageCode;
+    final other = current == 'en' ? 'ha' : 'en';
+    final textDark = Theme.of(context).colorScheme.onSurface;
+
+    return Semantics(
+      button: true,
+      label: L10n.languageNames[other],
+      child: GestureDetector(
+        onTap: () {
+          Haptics.tap();
+          ref.read(languageProvider.notifier).setLanguage(other);
+        },
+        child: Container(
+          height: 38,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.07),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.language, size: 16, color: textDark),
+              const SizedBox(width: 5),
+              Text(
+                other.toUpperCase(),
+                style: TextStyle(
+                  fontFamily: 'Effra',
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: textDark,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
