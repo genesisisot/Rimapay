@@ -37,17 +37,21 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
   final _bankAccountController = TextEditingController();
   final _bankAccountFocus = FocusNode();
   String _selectedBank = '';
+  String _selectedBankCode = '';
   String _recipientName = '';
   String _bankError = '';
   bool _validating = false;
+  bool _bankListLoaded = false;
 
   String _rimaRecipientName = '';
   bool _rimaIsPhone = false;
   bool _rimaLookupFailed = false;
   bool _validatingRima = false;
 
-  // Seed list — doubles as fallback when the getbanks endpoint is unreachable
-  // and as the source of per-bank success-rate badges (the API has no rate).
+  // Seed list — display fallback when the getbanks endpoint is unreachable,
+  // and the source of per-bank success-rate badges (the API has no rate).
+  // Its codes are NEVER sent to the backend; only institution codes returned
+  // by getbanks are used for transfers (see _bankListLoaded).
   List<Map<String, String>> _banks = [
     {'name': 'Access Bank',   'rate': '98', 'code': '044'},
     {'name': 'GTBank',        'rate': '97', 'code': '058'},
@@ -83,7 +87,12 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
     try {
       final api = ref.read(profileApiServiceProvider);
       final banks = await api.getBanks();
-      if (!mounted || banks.isEmpty) return;
+      if (!mounted || banks.isEmpty) {
+        // Keep the seed list for display only; no institution codes are
+        // available from the endpoint, so bank transfers stay blocked.
+        setState(() => _bankListLoaded = false);
+        return;
+      }
       // Preserve the hand-tuned success-rate badges by matching on code.
       final rateByCode = {
         for (final b in _banks) b['code']!: b['rate'] ?? '',
@@ -99,9 +108,12 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                   'rate': rateByCode[b.institutionCode] ?? '',
                 })
             .toList();
+        _bankListLoaded = true;
       });
     } catch (_) {
-      // Keep the seed list on any failure.
+      if (!mounted) return;
+      // Seed list remains for display only; bank transfers stay blocked.
+      setState(() => _bankListLoaded = false);
     }
   }
 
@@ -227,12 +239,15 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
     }
   }
 
-  String _bankCodeFor(String bankName) {
-    return _banks.firstWhere(
-          (b) => b['name'] == bankName,
-          orElse: () => const {'code': ''},
-        )['code'] ??
-        '';
+  /// Resolves a bank code for legacy saved beneficiaries that predate storing
+  /// the code. Only the endpoint-backed list is trusted; empty when the list
+  /// hasn't loaded so a hardcoded code can never be sent.
+  String _legacyBankCodeFor(String bankName) {
+    if (!_bankListLoaded) return '';
+    for (final b in _banks) {
+      if (b['name'] == bankName) return b['code'] ?? '';
+    }
+    return '';
   }
 
   Future<void> _validateBankAccount() async {
@@ -246,7 +261,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
       }
       return;
     }
-    final bankCode = _bankCodeFor(_selectedBank);
+    final bankCode = _selectedBankCode;
     if (bankCode.isEmpty) return;
 
     setState(() {
@@ -296,7 +311,18 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
         ? (_rimaRecipientName.isNotEmpty ? _rimaRecipientName : _accountController.text)
         : (_recipientName.isNotEmpty ? _recipientName : _bankAccountController.text);
     final bankName = isRimaLocal ? 'RimaPay' : _selectedBank;
-    final bankCode = isRimaLocal ? '000' : _bankCodeFor(_selectedBank);
+    final bankCode = isRimaLocal ? '000' : _selectedBankCode;
+    if (!isRimaLocal && bankCode.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+              "Couldn't load the bank list. Tap the bank field to retry."),
+          backgroundColor: Color(0xFFD33B31),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
     final recipientAccount = isRimaLocal
         ? _digits(_accountController.text)
         : _bankAccountController.text;
@@ -348,6 +374,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
             name: recipient,
             bank: bankName,
             account: recipientAccount,
+            code: bankCode,
           );
           await context.read<AuthProvider>().fetchAccounts(silent: true);
           if (!mounted) return;
@@ -381,6 +408,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
     required String name,
     required String bank,
     required String account,
+    required String code,
   }) async {
     if (name.isEmpty) return;
     final initials = name
@@ -399,12 +427,24 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
         0,
         isRima
             ? {'type': 'rimapay', 'name': name, 'sub': account, 'initials': initials, 'color': color}
-            : {'type': 'bank', 'name': name, 'bank': bank, 'account': account, 'initials': initials, 'color': color});
+            : {'type': 'bank', 'name': name, 'bank': bank, 'account': account, 'code': code, 'initials': initials, 'color': color});
     if (existing.length > 20) existing.removeRange(20, existing.length);
     await StorageService.saveBeneficiaries(existing);
   }
 
-  void _showBankSelector() {
+  void _showBankSelector() async {
+    if (!_bankListLoaded) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Couldn't load the bank list. Retrying…"),
+          backgroundColor: Color(0xFFD33B31),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      await _loadBanks();
+      if (!mounted || !_bankListLoaded) return;
+    }
+    if (!mounted) return;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -413,7 +453,8 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
         banks: _banks,
         onSelect: (bank) {
           setState(() {
-            _selectedBank = bank;
+            _selectedBank = bank['name'] ?? '';
+            _selectedBankCode = bank['code'] ?? '';
             _recipientName = '';
             _bankError = '';
           });
@@ -909,6 +950,8 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                     setState(() {
                       _bankAccountController.text = r['account']!;
                       _selectedBank = r['bank']!;
+                      _selectedBankCode =
+                          r['code'] ?? _legacyBankCodeFor(r['bank']!);
                       _recipientName = r['name']!;
                     });
                   },
@@ -1405,7 +1448,7 @@ class _SuccessRateBadge extends StatelessWidget {
 
 class _BankSelectorSheet extends StatefulWidget {
   final List<Map<String, String>> banks;
-  final void Function(String name) onSelect;
+  final void Function(Map<String, String> bank) onSelect;
 
   const _BankSelectorSheet({required this.banks, required this.onSelect});
 
@@ -1525,7 +1568,7 @@ class _BankSelectorSheetState extends State<_BankSelectorSheet> {
                 return InkWell(
                   onTap: () {
                     HapticFeedback.lightImpact();
-                    widget.onSelect(bank['name']!);
+                    widget.onSelect(bank);
                     Navigator.pop(context);
                   },
                   child: Padding(
