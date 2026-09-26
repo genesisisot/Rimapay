@@ -183,6 +183,83 @@ class BillerItemDto {
       );
 }
 
+// ── Beneficiaries ─────────────────────────────────────────────────────────────
+
+/// GET /api/v1/bills/beneficiaries → `BeneficiaryResponseDto`.
+class BeneficiaryDto {
+  final String id;
+  final String alias;
+  final String mobileNo;
+  final String networkProvider;
+
+  /// `AirtimeAndData` | `Airtime` | `Data`.
+  final String category;
+  final int usageCount;
+  final DateTime? lastUsedOn;
+
+  const BeneficiaryDto({
+    required this.id,
+    required this.alias,
+    required this.mobileNo,
+    this.networkProvider = '',
+    this.category = 'AirtimeAndData',
+    this.usageCount = 0,
+    this.lastUsedOn,
+  });
+
+  /// First letter of the alias, for the avatar.
+  String get initial =>
+      alias.trim().isEmpty ? '#' : alias.trim()[0].toUpperCase();
+
+  factory BeneficiaryDto.fromJson(Map<String, dynamic> json) => BeneficiaryDto(
+        id: json['id']?.toString() ?? '',
+        alias: (json['alias'] as String?)?.trim() ?? '',
+        mobileNo: (json['mobileNo'] as String?)?.trim() ?? '',
+        networkProvider: (json['networkProvider'] as String?)?.trim() ?? '',
+        category: json['category']?.toString() ?? 'AirtimeAndData',
+        usageCount: _toInt(json['usageCount']),
+        lastUsedOn: DateTime.tryParse(json['lastUsedOn']?.toString() ?? ''),
+      );
+}
+
+/// POST /api/v1/bills/beneficiaries
+class CreateBeneficiaryRequest {
+  final String alias;
+  final String mobileNo;
+  final String networkProvider;
+  final String category;
+
+  const CreateBeneficiaryRequest({
+    required this.alias,
+    required this.mobileNo,
+    required this.networkProvider,
+    this.category = 'AirtimeAndData',
+  });
+
+  Map<String, dynamic> toJson() => {
+        'alias': alias,
+        'mobileNo': mobileNo,
+        'networkProvider': networkProvider,
+        'category': category,
+      };
+}
+
+/// PUT /api/v1/bills/beneficiaries/{id}
+class UpdateBeneficiaryRequest {
+  final String alias;
+  final String networkProvider;
+
+  const UpdateBeneficiaryRequest({
+    required this.alias,
+    required this.networkProvider,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'alias': alias,
+        'networkProvider': networkProvider,
+      };
+}
+
 // ── Limits ────────────────────────────────────────────────────────────────────
 
 /// GET /api/v1/bills/airtime/limit and /api/v1/bills/limit → `UtilityLimitResponseDto`.

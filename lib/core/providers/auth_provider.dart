@@ -578,11 +578,11 @@ class AuthProvider extends ChangeNotifier {
     _profileFetched = true;
     try {
       final profile = await ProfileApiService().getMyProfile();
-      if (profile != null &&
-          (profile.firstName != null || profile.lastName != null)) {
+      if (profile != null) {
         _user = _user!.copyWith(
           firstName: profile.firstName ?? _user!.firstName,
           lastName: profile.lastName ?? _user!.lastName,
+          profileImageUrl: profile.profilePictureUrl ?? _user!.profileImageUrl,
         );
         await StorageService.saveUser(_user!);
         notifyListeners();

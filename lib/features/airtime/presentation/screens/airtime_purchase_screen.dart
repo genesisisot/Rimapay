@@ -6,6 +6,7 @@ import '../../../bills/data/bills_dtos.dart';
 import '../../../bills/presentation/providers/bills_providers.dart';
 import '../../../bills/presentation/widgets/bill_purchase_flow.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/Utils/haptics.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
 import '../../../success/presentation/screens/success_screen.dart';
 
@@ -100,12 +101,6 @@ class NetworkProvider {
   });
 }
 
-class _Contact {
-  final String name;
-  final String number;
-  final String initial;
-  const _Contact(this.name, this.number, this.initial);
-}
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 
@@ -151,12 +146,6 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
         id: 'glo', name: 'GLO', color: Color(0xFF166C46), bgColor: Color(0xFFF2F7F3), icon: '🌐'),
     NetworkProvider(
         id: '9mobile', name: '9MOBILE', color: Color(0xFF00A86B), bgColor: Color(0xFFE8F6F3), icon: '📱'),
-  ];
-
-  static const _contacts = [
-    _Contact('My Number', '08137954069', 'M'),
-    _Contact('Adebayo Johnson', '08123456789', 'A'),
-    _Contact('Sarah Williams', '08198765432', 'S'),
   ];
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────
@@ -255,7 +244,9 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
                 mobileNo: localMobileNumber(phone),
                 amount: double.tryParse(amountText.replaceAll(',', '')) ?? 0,
                 transactionPin: pin,
+                vtuMode: 'Prepaid',
               )),
+      onSuccess: (_) => _maybeSaveBeneficiary(phone, network.name),
       successProps: (result) => SuccessScreenProps(
         transactionType: 'Airtime Purchase',
         amount: amountText,
@@ -286,6 +277,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
                 mobileNo: localMobileNumber(phone),
                 transactionPin: pin,
               )),
+      onSuccess: (_) => _maybeSaveBeneficiary(phone, network.name),
       successProps: (result) => SuccessScreenProps(
         transactionType: 'Data Purchase',
         amount: plan.price,
@@ -517,6 +509,11 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
 
   Widget _buildRecentContacts() {
     const colors = [Color(0xFF166C46), Color(0xFF7C3AED), Color(0xFFD33B31)];
+    final beneficiaries =
+        ref.watch(beneficiariesProvider).valueOrNull ?? const <BeneficiaryDto>[];
+    // Nothing saved yet (or still loading): keep the screen as it was.
+    if (beneficiaries.isEmpty) return const SizedBox.shrink();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -531,43 +528,55 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
           height: 100,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: _contacts.length,
+            itemCount: beneficiaries.length,
             itemBuilder: (_, i) {
-              final c = _contacts[i];
+              final b = beneficiaries[i];
               return GestureDetector(
-                onTap: () => setState(() {
-                  _phoneController.text = c.number;
-                  _detectNetwork();
-                }),
+                onTap: () {
+                  Haptics.tap();
+                  setState(() {
+                    _phoneController.text = _localDigits(b.mobileNo);
+                    _detectNetwork();
+                  });
+                },
                 child: Container(
-                  margin: EdgeInsets.only(right: i < _contacts.length - 1 ? 12 : 0),
+                  margin:
+                      EdgeInsets.only(right: i < beneficiaries.length - 1 ? 12 : 0),
                   width: 72,
                   child: Column(
                     children: [
                       CircleAvatar(
                         radius: 28,
                         backgroundColor: colors[i % colors.length],
-                        child: Text(c.initial,
+                        child: Text(b.initial,
                             style: TextStyle(
                                 color: Theme.of(context).cardColor,
                                 fontWeight: FontWeight.w700,
                                 fontSize: 18)),
                       ),
                       const SizedBox(height: 6),
-                      Text(c.name,
+                      Text(b.alias,
                           style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
-                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
-                              fontFamily: 'Effra'),
+                              fontFamily: 'Effra',
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withOpacity(0.85)),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center),
-                      Text(context.l10n.number(c.number.substring(0, 7)),
+                      Text(b.mobileNo,
                           style: TextStyle(
                               fontSize: 10,
-                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
-                              fontFamily: 'Effra'),
+                              fontFamily: 'Effra',
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withOpacity(0.4)),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center),
                     ],
                   ),
@@ -578,6 +587,172 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
         ),
       ],
     );
+  }
+
+  /// The 10 digits the phone field holds (it renders after a +234 prefix).
+  String _localDigits(String raw) {
+    final digits = raw.replaceAll(RegExp(r'\D'), '');
+    if (digits.length == 13 && digits.startsWith('234')) return digits.substring(3);
+    if (digits.length == 11 && digits.startsWith('0')) return digits.substring(1);
+    return digits;
+  }
+
+  /// After a successful purchase to a number that isn't saved yet, offer to
+  /// keep it. Nothing is stored unless the user confirms.
+  Future<void> _maybeSaveBeneficiary(String phone, String networkName) async {
+    final number = localMobileNumber(phone);
+    final existing =
+        ref.read(beneficiariesProvider).valueOrNull ?? const <BeneficiaryDto>[];
+    if (existing.any((b) => localMobileNumber(b.mobileNo) == number)) return;
+    if (!mounted) return;
+
+    final controller = TextEditingController();
+    final alias = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) => Padding(
+        padding: EdgeInsets.only(
+            bottom: MediaQuery.of(sheetContext).viewInsets.bottom),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(sheetContext).cardColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: Theme.of(sheetContext).dividerColor,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+              ),
+              Text(context.l10n.saveBeneficiary,
+                  style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                      fontFamily: 'Effra',
+                      color: Theme.of(sheetContext).colorScheme.onSurface)),
+              const SizedBox(height: 6),
+              Text(context.l10n.saveNumberForFasterTopUps(number),
+                  style: TextStyle(
+                      fontSize: 13,
+                      height: 1.4,
+                      fontFamily: 'Effra',
+                      color: Theme.of(sheetContext)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.6))),
+              const SizedBox(height: 18),
+              TextField(
+                controller: controller,
+                autofocus: true,
+                textCapitalization: TextCapitalization.words,
+                style: const TextStyle(fontFamily: 'Effra'),
+                decoration: InputDecoration(
+                  hintText: context.l10n.enterNickname,
+                  filled: true,
+                  fillColor: Theme.of(sheetContext).scaffoldBackgroundColor,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                        color: Theme.of(sheetContext).dividerColor),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                        color: Theme.of(sheetContext).dividerColor),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide:
+                        const BorderSide(color: Color(0xFF166C46), width: 1.5),
+                  ),
+                ),
+                onSubmitted: (v) => Navigator.pop(sheetContext, v),
+              ),
+              const SizedBox(height: 18),
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => Navigator.pop(sheetContext),
+                      child: SizedBox(
+                        height: 50,
+                        child: Center(
+                          child: Text(context.l10n.cancel,
+                              style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'Effra',
+                                  color: Theme.of(sheetContext)
+                                      .colorScheme
+                                      .onSurface
+                                      .withOpacity(0.6))),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(sheetContext, controller.text),
+                      child: Container(
+                        height: 50,
+                        decoration: BoxDecoration(
+                          gradient: AppColors.goldGradient,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Center(
+                          child: Text(context.l10n.save,
+                              style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  fontFamily: 'Effra',
+                                  color: Colors.white)),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    controller.dispose();
+
+    final name = (alias ?? '').trim();
+    if (name.isEmpty) return;
+
+    final ok = await ref.read(billsApiServiceProvider).addBeneficiary(
+          CreateBeneficiaryRequest(
+            alias: name,
+            mobileNo: number,
+            networkProvider: networkName,
+          ),
+        );
+    if (!mounted) return;
+    if (ok) {
+      Haptics.success();
+      ref.invalidate(beneficiariesProvider);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(context.l10n.beneficiarySaved),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: const Color(0xFF166C46),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ));
+    }
   }
 
   Widget _buildNetworkSelector() {

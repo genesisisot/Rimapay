@@ -1506,5 +1506,13 @@
   "yourWealthIsBelowTheNisab": "Your wealth is below the Nisab threshold — Zakat is not yet due.",
   "zakat": "Zakat",
   "zakatDue25": "Zakat Due (2.5%)",
-  "zakatReligious": "Zakat / Religious"
+  "zakatReligious": "Zakat / Religious",
+  "saveNumberForFasterTopUps": "Save {number} for faster top-ups next time?",
+  "@saveNumberForFasterTopUps": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  }
 }

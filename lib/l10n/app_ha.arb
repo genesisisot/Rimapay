@@ -917,5 +917,6 @@
   "yourWealthIsBelowTheNisab": "Dukiyar ku bai kai ma'aunin Nisab ba — ba a wajabta zakka ba tukuna.",
   "zakat": "Zakka",
   "zakatDue25": "Zakkar da Ya Wajaba (2.5%)",
-  "zakatReligious": "Zakka / Addini"
+  "zakatReligious": "Zakka / Addini",
+  "saveNumberForFasterTopUps": "Ajiye {number} don saurin cika waya na gaba?"
 }

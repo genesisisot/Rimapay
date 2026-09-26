@@ -11,6 +11,7 @@ import '../../../core/providers/language_provider.dart';
 import '../../../core/providers/transaction_provider.dart';
 import '../../../core/Utils/haptics.dart';
 import '../../../shared/widgets/rimapay_logo.dart';
+import '../../../shared/widgets/user_avatar.dart';
 
 import '../../../core/localization/l10n.dart';
 const Color brandGreen = Color(0xFF1A6B35);
@@ -261,10 +262,10 @@ class _HeaderSection extends StatelessWidget {
         children: [
           Row(
             children: [
-              CircleAvatar(
+              UserAvatar(
+                imageUrl: user?.profileImageUrl,
+                initials: user?.initials ?? '',
                 radius: 21,
-                backgroundColor: Theme.of(context).dividerColor,
-                child: Icon(Icons.person, color: Theme.of(context).cardColor, size: 22),
               ),
               const SizedBox(width: 12),
               Column(

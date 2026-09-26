@@ -3051,4 +3051,9 @@ class AppL10nHa extends AppL10n {
 
   @override
   String get zakatReligious => 'Zakka / Addini';
+
+  @override
+  String saveNumberForFasterTopUps(String number) {
+    return 'Ajiye $number don saurin cika waya na gaba?';
+  }
 }

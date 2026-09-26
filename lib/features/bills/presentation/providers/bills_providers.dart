@@ -31,6 +31,12 @@ final dataPlansProvider = FutureProvider.autoDispose
       : a.amount.compareTo(b.amount));
 });
 
+/// Saved + frequent airtime/data beneficiaries for the signed-in user.
+final beneficiariesProvider =
+    FutureProvider.autoDispose<List<BeneficiaryDto>>((ref) {
+  return ref.watch(billsApiServiceProvider).getBeneficiaries();
+});
+
 // ── Billers ───────────────────────────────────────────────────────────────────
 
 final billerCategoriesProvider =

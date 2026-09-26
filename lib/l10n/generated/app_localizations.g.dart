@@ -5607,6 +5607,12 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Zakat / Religious'**
   String get zakatReligious;
+
+  /// No description provided for @saveNumberForFasterTopUps.
+  ///
+  /// In en, this message translates to:
+  /// **'Save {number} for faster top-ups next time?'**
+  String saveNumberForFasterTopUps(String number);
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

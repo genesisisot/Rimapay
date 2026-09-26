@@ -62,6 +62,24 @@ class BillsApiService {
   Future<BillPurchaseResult> purchaseData(DataPurchaseRequest request) =>
       _purchase('/api/v1/bills/data/purchase', request.toJson());
 
+  // ── Beneficiaries ─────────────────────────────────────────────────────────
+
+  /// GET /api/v1/bills/beneficiaries — saved + frequent, backend-sorted.
+  Future<List<BeneficiaryDto>> getBeneficiaries() =>
+      _getList('/api/v1/bills/beneficiaries', BeneficiaryDto.fromJson);
+
+  /// POST /api/v1/bills/beneficiaries
+  Future<bool> addBeneficiary(CreateBeneficiaryRequest request) =>
+      _ok(() => _dio.post('/api/v1/bills/beneficiaries', data: request.toJson()));
+
+  /// PUT /api/v1/bills/beneficiaries/{id}
+  Future<bool> updateBeneficiary(String id, UpdateBeneficiaryRequest request) =>
+      _ok(() => _dio.put('/api/v1/bills/beneficiaries/$id', data: request.toJson()));
+
+  /// DELETE /api/v1/bills/beneficiaries/{id}
+  Future<bool> deleteBeneficiary(String id) =>
+      _ok(() => _dio.delete('/api/v1/bills/beneficiaries/$id'));
+
   // ── Billers ───────────────────────────────────────────────────────────────
 
   /// GET /api/v1/bills/categories
@@ -88,6 +106,20 @@ class BillsApiService {
       );
 
   // ── Helpers ───────────────────────────────────────────────────────────────
+
+  /// Runs a write and reports whether the envelope came back successful.
+  Future<bool> _ok(Future<Response<dynamic>> Function() send) async {
+    try {
+      final res = await send();
+      final body = res.data;
+      if (body is Map<String, dynamic>) return body['isSuccess'] == true;
+      final code = res.statusCode ?? 500;
+      return code >= 200 && code < 300;
+    } catch (e) {
+      debugPrint('beneficiary write failed: $e');
+      return false;
+    }
+  }
 
   Future<List<T>> _getList<T>(
     String path,

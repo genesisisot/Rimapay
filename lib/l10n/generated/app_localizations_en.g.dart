@@ -3048,4 +3048,9 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get zakatReligious => 'Zakat / Religious';
+
+  @override
+  String saveNumberForFasterTopUps(String number) {
+    return 'Save $number for faster top-ups next time?';
+  }
 }

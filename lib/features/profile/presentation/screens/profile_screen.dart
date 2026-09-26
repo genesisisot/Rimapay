@@ -18,6 +18,7 @@ import '../../../../core/services/biometric_service.dart';
 import '../../../../core/services/secure_store.dart';
 import '../../../../core/Utils/haptics.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart' show showPinConfirmSheet;
+import '../../../../shared/widgets/user_avatar.dart';
 
 import '../../../../core/localization/l10n.dart';
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -281,8 +282,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                       decoration: BoxDecoration(
                         gradient: AppColors.goldGradient,
                       ),
-                      child: Icon(Icons.person,
-                          color: Colors.white, size: 40),
+                      child: UserAvatar(
+                        imageUrl:
+                            context.watch<AuthProvider>().user?.profileImageUrl,
+                        initials:
+                            context.watch<AuthProvider>().user?.initials ?? '',
+                        radius: 44,
+                        backgroundColor: Colors.transparent,
+                        foregroundColor: Colors.white,
+                      ),
                     ),
             ),
           ),

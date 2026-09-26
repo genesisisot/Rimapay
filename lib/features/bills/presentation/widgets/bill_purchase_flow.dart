@@ -72,6 +72,10 @@ void runBillPurchase({
   required List<Map<String, String>> summary,
   required Future<BillPurchaseResult> Function(String pin, String sourceAccount) submit,
   required SuccessScreenProps Function(BillPurchaseResult result) successProps,
+
+  /// Runs after a successful purchase, before the success screen opens.
+  /// Used by airtime/data to offer saving the number as a beneficiary.
+  Future<void> Function(BillPurchaseResult result)? onSuccess,
 }) {
   showPinConfirmSheet(
     context: context,
@@ -110,6 +114,13 @@ void runBillPurchase({
         await auth.fetchAccounts(silent: true);
       } catch (_) {
         // Balance refresh is best-effort; the payment already succeeded.
+      }
+      if (onSuccess != null) {
+        try {
+          await onSuccess(result);
+        } catch (_) {
+          // Never block the success screen on a follow-up action.
+        }
       }
       if (!context.mounted) return;
       context.pushReplacement('/success', extra: successProps(result));
