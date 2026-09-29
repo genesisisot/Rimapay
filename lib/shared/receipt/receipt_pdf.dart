@@ -55,7 +55,6 @@ class ReceiptPdfData {
 
 const _green = PdfColor.fromInt(0xFF166C46);
 const _greenDeep = PdfColor.fromInt(0xFF0B4F2F);
-const _gold = PdfColor.fromInt(0xFFD4AF37);
 const _goldLight = PdfColor.fromInt(0xFFE8C84A);
 const _cream = PdfColor.fromInt(0xFFFAF8F3);
 const _ink = PdfColor.fromInt(0xFF1A1A1A);
@@ -181,31 +180,19 @@ Future<Uint8List> buildReceiptPdf(ReceiptPdfData r,
         child: pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.stretch,
           children: [
-            // ── Logo + wordmark, on the same centred axis as the amount ──
-            pw.Padding(
-              padding: const pw.EdgeInsets.fromLTRB(16, 22, 16, 0),
-              child: pw.Column(
-                children: [
-                  if (logo != null) ...[
-                    pw.SizedBox(
-                      height: 46,
-                      child: pw.Image(logo, fit: pw.BoxFit.contain),
-                    ),
-                    pw.SizedBox(height: 10),
-                  ],
-                  pw.Text(
-                    'RIMAPAY',
-                    textAlign: pw.TextAlign.center,
-                    style: pw.TextStyle(
-                      font: jakartaExtraBold,
-                      fontSize: 34,
-                      color: _gold,
-                      letterSpacing: 1,
-                    ),
+            // ── Logo, on the same centred axis as the amount ──
+            if (logo != null)
+              pw.Padding(
+                padding: const pw.EdgeInsets.fromLTRB(16, 26, 16, 0),
+                // The parent column stretches its children, so the image needs
+                // centring explicitly.
+                child: pw.Center(
+                  child: pw.SizedBox(
+                    height: 78,
+                    child: pw.Image(logo, fit: pw.BoxFit.contain),
                   ),
-                ],
+                ),
               ),
-            ),
 
             // ── Amount ──
             pw.Padding(
@@ -299,10 +286,6 @@ Future<Uint8List> buildReceiptPdf(ReceiptPdfData r,
                                 fontFallback: fallbackBold,
                                 fontSize: 8.5,
                                 color: PdfColors.white)),
-                        pw.SizedBox(height: 1),
-                        pw.Text('rimapay.vercel.app',
-                            style: pw.TextStyle(
-                                font: regular, fontSize: 7.5, color: _goldLight)),
                       ],
                     ),
                   ),
