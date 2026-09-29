@@ -18,7 +18,6 @@ import 'package:rimapay/features/auth/presentation/screens/forgot_password_scree
 import 'package:rimapay/features/auth/presentation/screens/personal_account_flow.dart';
 import 'package:rimapay/features/bills/presentation/screens/bill_payments_screen.dart';
 import 'package:rimapay/features/cable/presentation/screens/cable_purchase_screen.dart';
-import 'package:rimapay/features/data/presentation/screens/data_purchase_screen.dart';
 import 'package:rimapay/features/education/presentation/screens/education_bills_screen.dart';
 import 'package:rimapay/features/electricity/presentation/screens/electricity_purchase_screen.dart';
 import 'package:rimapay/features/events/presentation/screens/events_screen.dart';

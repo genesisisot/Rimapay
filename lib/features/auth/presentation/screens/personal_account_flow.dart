@@ -16,6 +16,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:rimapay/Utils/Logics.dart';
 import 'package:rimapay/core/providers/auth_provider.dart';
 import 'package:rimapay/core/services/storage_service.dart';
+import 'package:rimapay/core/Utils/password_policy.dart';
 import 'package:rimapay/features/auth/data/auth_api_service.dart';
 import 'package:rimapay/features/onboarding/data/onboarding_dtos.dart';
 import 'package:rimapay/features/onboarding/presentation/providers/onboarding_provider.dart';
@@ -1379,7 +1380,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   controller: _passwordController,
                   focusNode: _passwordFocus,
                   label: context.l10n.password,
-                  hint: 'Min 8 characters',
+                  hint: '8-$kPasswordMaxLength characters',
+                  maxLength: kPasswordMaxLength,
                   obscureText: !_showPassword,
                   suffix: GestureDetector(
                     onTap: () => setState(() => _showPassword = !_showPassword),
@@ -1399,6 +1401,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   focusNode: _confirmPasswordFocus,
                   label: context.l10n.confirmPassword,
                   hint: 'Re-enter your password',
+                  maxLength: kPasswordMaxLength,
                   obscureText: !_showConfirmPassword,
                   suffix: GestureDetector(
                     onTap: () => setState(
@@ -3928,14 +3931,17 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
 
   Widget _buildPasswordRequirements() {
     final confirmFilled = _confirmPassword.isNotEmpty;
+    final disallowed = disallowedCharsIn(_password);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _passwordReq('At least 8 characters', _password.length >= 8),
-        _passwordReq('Uppercase letter (A-Z)', RegExp(r'[A-Z]').hasMatch(_password)),
-        _passwordReq('Lowercase letter (a-z)', RegExp(r'[a-z]').hasMatch(_password)),
-        _passwordReq('Number (0-9)', RegExp(r'\d').hasMatch(_password)),
-        _passwordReq('Special character (!@#\$%...)', RegExp(r'[^a-zA-Z0-9]').hasMatch(_password)),
+        _passwordReq('8-$kPasswordMaxLength characters', isLengthOk(_password)),
+        _passwordReq('Uppercase letter (A-Z)', hasUpper(_password)),
+        _passwordReq('Lowercase letter (a-z)', hasLower(_password)),
+        _passwordReq('Number (0-9)', hasDigit(_password)),
+        _passwordReq('Symbol from $allowedSymbolsLabel', hasAllowedSpecial(_password)),
+        if (disallowed.isNotEmpty)
+          _passwordReq('${disallowed.join(' ')} cannot be used', false),
         if (_password.isNotEmpty && confirmFilled)
           _passwordReq('Passwords match', _confirmPassword == _password),
       ],
@@ -3966,13 +3972,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     );
   }
 
-  String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) return 'Password is required';
-    if (value.length < 8) return 'Password must be at least 8 characters';
-    if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9])').hasMatch(value))
-      return 'Must contain uppercase, lowercase, number & special character';
-    return null;
-  }
+  String? _validatePassword(String? value) => validateSignupPassword(value);
 
   String? _validateConfirmPassword(String? value) {
     if (value == null || value.isEmpty) return 'Please confirm your password';
@@ -4258,6 +4258,9 @@ class _OFloatingField extends StatefulWidget {
   final bool obscureText;
   final bool readOnly;
 
+  /// Caps what can be typed; used where the API has a length limit.
+  final int? maxLength;
+
   const _OFloatingField({
     required this.controller,
     required this.focusNode,
@@ -4270,6 +4273,7 @@ class _OFloatingField extends StatefulWidget {
     this.prefixIcon,
     this.obscureText = false,
     this.readOnly = false,
+    this.maxLength,
   });
 
   @override
@@ -4358,6 +4362,12 @@ class _OFloatingFieldState extends State<_OFloatingField> {
               textCapitalization: widget.textCapitalization,
               obscureText: widget.obscureText,
               readOnly: widget.readOnly,
+              maxLength: widget.maxLength,
+              buildCounter: (_,
+                      {required currentLength,
+                      required isFocused,
+                      required maxLength}) =>
+                  null,
               onChanged: widget.onChanged,
               style: TextStyle(
                 fontSize: 15,

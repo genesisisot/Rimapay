@@ -11,6 +11,37 @@ import '../../../../shared/widgets/rimapay_logo.dart';
 import '../../../../shared/receipt/receipt_pdf.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../core/providers/transaction_provider.dart';
+
+/// Builds the receipt for a transaction, so every entry point (home, history)
+/// shows the same details rather than each screen assembling its own map.
+ReceiptData receiptDataForTransaction(Transaction tx) {
+  final h = tx.timestamp.hour > 12
+      ? tx.timestamp.hour - 12
+      : (tx.timestamp.hour == 0 ? 12 : tx.timestamp.hour);
+  final time = '$h:${tx.timestamp.minute.toString().padLeft(2, '0')} '
+      '${tx.timestamp.hour >= 12 ? 'PM' : 'AM'}';
+  return ReceiptData(
+    id: tx.id,
+    type: tx.typeDisplayName,
+    amount: tx.formattedAmount,
+    recipient: tx.recipient,
+    date: '${tx.timestamp.day}/${tx.timestamp.month}/${tx.timestamp.year}',
+    time: time,
+    status: tx.status.name,
+    reference: tx.reference.isNotEmpty
+        ? tx.reference
+        : 'RMP${DateTime.now().millisecondsSinceEpoch}',
+    description: '${tx.typeDisplayName} payment',
+    isCredit: tx.type == TransactionType.addMoney,
+    accountNumber: tx.accountNumber,
+    bank: tx.bank,
+    network: tx.network,
+    plan: tx.plan,
+    provider: tx.provider,
+  );
+}
+
 class ReceiptScreen extends StatefulWidget {
   final ReceiptData receiptData;
 

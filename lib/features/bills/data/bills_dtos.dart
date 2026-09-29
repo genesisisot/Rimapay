@@ -418,8 +418,25 @@ class BillPurchaseResult {
       isSuccess: ok,
       transactionReference: pick(data['transactionReference']),
       status: status,
-      message: message,
+      message: ok ? message : humanizeProviderMessage(message),
       errorCode: pick(body['errorCode']),
     );
   }
+}
+
+/// The VTU provider answers with colon-separated codes such as
+/// `99:Topup Service Failed:But Reversal Successfull:No Issue`. Testers saw
+/// that verbatim, so turn it into a sentence while keeping the code for support.
+String humanizeProviderMessage(String message) {
+  final parts = message.split(':').map((p) => p.trim()).toList();
+  if (parts.length < 2 || !RegExp(r'^\d{1,3}$').hasMatch(parts.first)) {
+    return message;
+  }
+  final code = parts.first;
+  final rest = parts.sublist(1).where((p) => p.isNotEmpty).toList();
+  final reversed = rest.any((p) => p.toLowerCase().contains('reversal'));
+  final detail = rest.isEmpty ? 'Transaction failed' : rest.first;
+  return reversed
+      ? '$detail. Your money has been reversed (code $code).'
+      : '$detail (code $code).';
 }

@@ -99,19 +99,7 @@ class _TransactionHistoryScreenState
   }
 
   void _openReceipt(Transaction tx) {
-    final re = ReceiptData.fromJson({
-      'id': tx.id,
-      'type': tx.typeDisplayName,
-      'amount': tx.formattedAmount,
-      'recipient': tx.recipient,
-      'date': '${tx.timestamp.day}/${tx.timestamp.month}/${tx.timestamp.year}',
-      'time': _fmtTime(tx.timestamp),
-      'status': 'success',
-      'reference': tx.reference ?? 'RMP${DateTime.now().millisecondsSinceEpoch}',
-      'description': '${tx.typeDisplayName} payment',
-      'isCredit': tx.type == TransactionType.addMoney,
-    });
-    context.push('/receipt', extra: re);
+    context.push('/receipt', extra: receiptDataForTransaction(tx));
   }
 
   String _fmtTime(DateTime dt) {

@@ -384,6 +384,8 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                 amount: '₦${amount.toStringAsFixed(2)}',
                 recipient: recipient,
                 transactionId: refNo,
+                recipientAccount: recipientAccount,
+                recipientBank: isRimaLocal ? 'Rima Microfinance Bank' : bankName,
               ));
         } else {
           Haptics.error();

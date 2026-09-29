@@ -26,6 +26,11 @@ class SuccessScreenProps {
   final bool canSaveBeneficiary;
   final BeneficiaryData? beneficiaryData;
 
+  /// Recipient account number and bank, shown on the receipt when the flow
+  /// knows them (bank transfers). Null for bills/airtime.
+  final String? recipientAccount;
+  final String? recipientBank;
+
   SuccessScreenProps({
     this.transactionType = "Payment",
     this.amount = "2000.00",
@@ -33,6 +38,8 @@ class SuccessScreenProps {
     String? transactionId,
     this.canSaveBeneficiary = true,
     this.beneficiaryData,
+    this.recipientAccount,
+    this.recipientBank,
   }) : transactionId = transactionId ?? "TXN${DateTime.now().millisecondsSinceEpoch}";
 }
 
@@ -203,6 +210,10 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
         details: [
           MapEntry('Transaction', p.transactionType),
           MapEntry('Recipient', p.recipient),
+          if ((p.recipientAccount ?? '').isNotEmpty)
+            MapEntry('Account', p.recipientAccount!),
+          if ((p.recipientBank ?? '').isNotEmpty)
+            MapEntry('Bank', p.recipientBank!),
         ],
       ));
     } catch (e) {
@@ -499,6 +510,10 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                   // Transaction Info
                   _buildDetailRow('Service', widget.props.transactionType),
                   _buildDetailRow('Recipient', widget.props.recipient),
+                  if ((widget.props.recipientAccount ?? '').isNotEmpty)
+                    _buildDetailRow('Account', widget.props.recipientAccount!),
+                  if ((widget.props.recipientBank ?? '').isNotEmpty)
+                    _buildDetailRow('Bank', widget.props.recipientBank!),
                   _buildDetailRow('Transaction ID', widget.props.transactionId),
                   _buildDetailRow('Date & Time', _formatDateTime()),
                   _buildStatusRow(),

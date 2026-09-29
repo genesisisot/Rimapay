@@ -18,9 +18,39 @@ class StorageService {
   static const String _deviceIdKey = 'rimapay_device_id';
 
   static SharedPreferences? _prefs;
+
+  /// Id of the user whose data is currently on screen. Per-user data
+  /// (beneficiaries, cached transactions) is stored under a key suffixed with
+  /// this, so signing in as someone else on the same device never shows the
+  /// previous user's recipients.
+  static String? _activeUserId;
+
+  static String _scoped(String base) =>
+      (_activeUserId == null || _activeUserId!.isEmpty)
+          ? base
+          : '${base}_$_activeUserId';
+
+  /// Moves data saved under the old shared key into the current user's key,
+  /// then deletes the shared copy so it can't leak to the next account.
+  static Future<void> _migrateLegacy(String base) async {
+    final scoped = _scoped(base);
+    if (scoped == base) return;
+    final legacy = prefs.getString(base);
+    if (legacy == null) return;
+    if (prefs.getString(scoped) == null) await prefs.setString(scoped, legacy);
+    await prefs.remove(base);
+  }
   
   static Future<void> initialize() async {
     _prefs ??= await SharedPreferences.getInstance();
+  }
+
+  /// Drops the cached preferences handle and the active user, so each test
+  /// starts from the mock values it set.
+  @visibleForTesting
+  static void resetForTests() {
+    _prefs = null;
+    _activeUserId = null;
   }
   
   static SharedPreferences get prefs {
@@ -33,6 +63,7 @@ class StorageService {
   // User Management
   static Future<void> saveUser(User user) async {
     await initialize();
+    _activeUserId = user.id;
     final userJson = {
       'id': user.id,
       'email': user.email,
@@ -56,6 +87,7 @@ class StorageService {
     
     try {
       final userJson = jsonDecode(userString) as Map<String, dynamic>;
+      _activeUserId = userJson['id']?.toString();
       return User(
         id: userJson['id'],
         email: userJson['email'],
@@ -84,6 +116,7 @@ class StorageService {
   static Future<void> clearUser() async {
     await initialize();
     await prefs.remove(_userKey);
+    _activeUserId = null;
   }
 
   // Auth Token Management (used by DioClient for Bearer auth + 401 refresh)
@@ -130,12 +163,13 @@ class StorageService {
   // Transaction Management
   static Future<void> saveTransactions(List<Map<String, dynamic>> transactions) async {
     await initialize();
-    await prefs.setString(_transactionsKey, jsonEncode(transactions));
+    await prefs.setString(_scoped(_transactionsKey), jsonEncode(transactions));
   }
   
   static Future<List<Map<String, dynamic>>> getTransactions() async {
     await initialize();
-    final transactionsString = prefs.getString(_transactionsKey);
+    await _migrateLegacy(_transactionsKey);
+    final transactionsString = prefs.getString(_scoped(_transactionsKey));
     if (transactionsString == null) return [];
     
     try {
@@ -150,12 +184,13 @@ class StorageService {
   // Beneficiaries Management
   static Future<void> saveBeneficiaries(List<Map<String, dynamic>> beneficiaries) async {
     await initialize();
-    await prefs.setString(_beneficiariesKey, jsonEncode(beneficiaries));
+    await prefs.setString(_scoped(_beneficiariesKey), jsonEncode(beneficiaries));
   }
   
   static Future<List<Map<String, dynamic>>> getBeneficiaries() async {
     await initialize();
-    final beneficiariesString = prefs.getString(_beneficiariesKey);
+    await _migrateLegacy(_beneficiariesKey);
+    final beneficiariesString = prefs.getString(_scoped(_beneficiariesKey));
     if (beneficiariesString == null) return [];
     
     try {

@@ -12,8 +12,10 @@ import '../../../core/providers/transaction_provider.dart';
 import '../../../core/Utils/haptics.dart';
 import '../../../shared/widgets/rimapay_logo.dart';
 import '../../../shared/widgets/user_avatar.dart';
+import '../../receipt/presentation/screens/receipt_screen.dart';
 
 import '../../../core/localization/l10n.dart';
+
 const Color brandGreen = Color(0xFF1A6B35);
 const Color darkGreen = Color(0xFF155C2C);
 const Color goldAccent = Color(0xFFC9A84C);
@@ -62,8 +64,8 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   void _startPolling() {
     _pollTimer?.cancel();
-    _pollTimer = Timer.periodic(
-        const Duration(seconds: 30), (_) => _refreshBalance());
+    _pollTimer =
+        Timer.periodic(const Duration(seconds: 30), (_) => _refreshBalance());
   }
 
   Future<void> _refreshBalance() async {
@@ -151,7 +153,10 @@ void _showCustomerCare(BuildContext context) {
                         context.l10n.wereHereToHelp,
                         style: TextStyle(
                           fontSize: 13,
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.6),
                         ),
                       ),
                     ),
@@ -159,8 +164,12 @@ void _showCustomerCare(BuildContext context) {
                     _careRow(context, Icons.phone_outlined, context.l10n.callUs,
                         '0800-RIMAPAY (0800-7462729)', const Color(0xFF1A6B35)),
                     const SizedBox(height: 10),
-                    _careRow(context, Icons.chat_bubble_outline, context.l10n.whatsapp,
-                        '+234 800 746 2729', const Color(0xFF25D366)),
+                    _careRow(
+                        context,
+                        Icons.chat_bubble_outline,
+                        context.l10n.whatsapp,
+                        '+234 800 746 2729',
+                        const Color(0xFF25D366)),
                     const SizedBox(height: 10),
                     _careRow(context, Icons.mail_outline, context.l10n.email,
                         'support@rimamfb.ng', const Color(0xFF3B82F6)),
@@ -170,12 +179,16 @@ void _showCustomerCare(BuildContext context) {
                       decoration: BoxDecoration(
                         color: Theme.of(context).scaffoldBackgroundColor,
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Theme.of(context).dividerColor),
+                        border:
+                            Border.all(color: Theme.of(context).dividerColor),
                       ),
                       child: Row(
                         children: [
                           Icon(Icons.access_time,
-                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withOpacity(0.5),
                               size: 16),
                           const SizedBox(width: 8),
                           Expanded(
@@ -183,7 +196,10 @@ void _showCustomerCare(BuildContext context) {
                               context.l10n.supportHours,
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withOpacity(0.7),
                                 height: 1.4,
                               ),
                             ),
@@ -202,7 +218,8 @@ void _showCustomerCare(BuildContext context) {
   );
 }
 
-Widget _careRow(BuildContext context, IconData icon, String title, String detail, Color color) {
+Widget _careRow(BuildContext context, IconData icon, String title,
+    String detail, Color color) {
   return Container(
     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
     decoration: BoxDecoration(
@@ -223,7 +240,10 @@ Widget _careRow(BuildContext context, IconData icon, String title, String detail
             Text(detail,
                 style: TextStyle(
                     fontSize: 12,
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.6))),
           ],
         ),
       ],
@@ -302,7 +322,8 @@ class _HeaderSection extends StatelessWidget {
                     color: iconBg,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(Icons.headset_mic_outlined, size: 20, color: textDark),
+                  child: Icon(Icons.headset_mic_outlined,
+                      size: 20, color: textDark),
                 ),
               ),
               const SizedBox(width: 8),
@@ -318,7 +339,8 @@ class _HeaderSection extends StatelessWidget {
                         color: iconBg,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Icon(Icons.notifications_outlined, size: 20, color: textDark),
+                      child: Icon(Icons.notifications_outlined,
+                          size: 20, color: textDark),
                     ),
                     Positioned(
                       top: -2,
@@ -406,141 +428,150 @@ class _BalanceCardState extends State<_BalanceCard> {
               ),
             ),
             Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(context.l10n.availableBalance,
-                        style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
-                            color: Color(0xFFAAAAAA))),
-                    const SizedBox(width: 6),
-                    GestureDetector(
-                      onTap: () => setState(() => _balanceVisible = !_balanceVisible),
-                      child: Icon(
-                        _balanceVisible
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
-                        color: Colors.white54,
-                        size: 16,
-                      ),
+                    Row(
+                      children: [
+                        Text(context.l10n.availableBalance,
+                            style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w400,
+                                color: Color(0xFFAAAAAA))),
+                        const SizedBox(width: 6),
+                        GestureDetector(
+                          onTap: () => setState(
+                              () => _balanceVisible = !_balanceVisible),
+                          child: Icon(
+                            _balanceVisible
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                            color: Colors.white54,
+                            size: 16,
+                          ),
+                        ),
+                      ],
                     ),
+                    const SizedBox(height: 6),
+                    if (auth.isFetchingBalance && _balanceVisible)
+                      _skeleton(180, 36)
+                    else
+                      Text(
+                        _balanceVisible ? formattedBalance : '••••••',
+                        style: const TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    const SizedBox(height: 4),
+                    if (accountNumber.isNotEmpty)
+                      GestureDetector(
+                        onTap: () {
+                          Clipboard.setData(ClipboardData(text: accountNumber));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(context.l10n.accountNumberCopied),
+                              behavior: SnackBarBehavior.floating,
+                              duration: const Duration(seconds: 2),
+                              backgroundColor: const Color(0xFF155C2C),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(context.l10n.accountNoPrefix(displayAccount),
+                                  style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white)),
+                              const SizedBox(width: 8),
+                              const Icon(Icons.copy_rounded,
+                                  color: Colors.white70, size: 16),
+                            ],
+                          ),
+                        ),
+                      ),
                   ],
                 ),
-                const SizedBox(height: 6),
-                if (auth.isFetchingBalance && _balanceVisible)
-                  _skeleton(180, 36)
-                else
-                  Text(
-                    _balanceVisible ? formattedBalance : '••••••',
-                    style: const TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                const SizedBox(height: 4),
-                if (accountNumber.isNotEmpty)
-                  GestureDetector(
-                    onTap: () {
-                      Clipboard.setData(ClipboardData(text: accountNumber));
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(context.l10n.accountNumberCopied),
-                          behavior: SnackBarBehavior.floating,
-                          duration: const Duration(seconds: 2),
-                          backgroundColor: const Color(0xFF155C2C),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
+                        color: const Color.fromRGBO(255, 255, 255, 0.15),
+                        borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
-                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
-                              context.l10n.accountNoPrefix(displayAccount),
+                          const Text('⭐', style: TextStyle(fontSize: 12)),
+                          const SizedBox(width: 4),
+                          Text(tierName,
                               style: const TextStyle(
-                                  fontSize: 15,
+                                  fontFamily: 'Effra',
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.white)),
-                          const SizedBox(width: 8),
-                          const Icon(Icons.copy_rounded, color: Colors.white70, size: 16),
                         ],
                       ),
                     ),
-                  ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: const Color.fromRGBO(255, 255, 255, 0.15),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    children: [
-                      const Text('⭐', style: TextStyle(fontSize: 12)),
-                      const SizedBox(width: 4),
-                      Text(tierName,
-                          style: const TextStyle(
-                              fontFamily: 'Effra',
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white)),
-                    ],
-                  ),
-                ),
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    Haptics.tap();
-                    context.push('/account-details');
-                  },
-                  child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    children: [
-                      Text(context.l10n.accountDetails,
-                          style: TextStyle(
-                              fontFamily: 'Effra',
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(context).colorScheme.onSurface)),
-                      const SizedBox(width: 2),
-                      Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5), size: 16),
-                    ],
-                  ),
-                ),
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () {
+                        Haptics.tap();
+                        context.push('/account-details');
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).cardColor,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          children: [
+                            Text(context.l10n.accountDetails,
+                                style: TextStyle(
+                                    fontFamily: 'Effra',
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface)),
+                            const SizedBox(width: 2),
+                            Icon(Icons.chevron_right,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withOpacity(0.5),
+                                size: 16),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ],
         ),
-      ],
-    ),
-    ),
-  );
+      ),
+    );
   }
 }
 
@@ -570,7 +601,8 @@ class _ActionButtons extends StatelessWidget {
                   color: brandGreen,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   children: [
                     Container(
@@ -580,7 +612,8 @@ class _ActionButtons extends StatelessWidget {
                         color: Color.fromRGBO(255, 255, 255, 0.2),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.send, color: Colors.white, size: 20),
+                      child:
+                          const Icon(Icons.send, color: Colors.white, size: 20),
                     ),
                     const SizedBox(width: 10),
                     Text(context.l10n.transfer,
@@ -604,18 +637,25 @@ class _ActionButtons extends StatelessWidget {
                 height: 70,
                 margin: const EdgeInsets.only(left: 8),
                 decoration: BoxDecoration(
-                  color: isDark ? Color(0xFF1A1F2E) : Theme.of(context).cardColor,
+                  color:
+                      isDark ? Color(0xFF1A1F2E) : Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: isDark ? Color(0xFF2D3348) : Theme.of(context).dividerColor),
+                  border: Border.all(
+                      color: isDark
+                          ? Color(0xFF2D3348)
+                          : Theme.of(context).dividerColor),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   children: [
                     Container(
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: isDark ? brandGreen.withOpacity(0.15) : lightGreenBg,
+                        color: isDark
+                            ? brandGreen.withOpacity(0.15)
+                            : lightGreenBg,
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(Icons.add, color: brandGreen, size: 22),
@@ -721,7 +761,8 @@ class _QuickServices extends StatelessWidget {
                             fontFamily: 'Effra',
                             fontSize: 13,
                             color: Theme.of(context).colorScheme.primary)),
-                    Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.primary, size: 16),
+                    Icon(Icons.chevron_right,
+                        color: Theme.of(context).colorScheme.primary, size: 16),
                   ],
                 ),
               ),
@@ -810,7 +851,8 @@ class _QuickServiceTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final tileBg = isDark ? Color(0xFF1A1F2E) : Theme.of(context).cardColor;
-    final tileBorder = isDark ? Color(0xFF2D3348) : Theme.of(context).dividerColor;
+    final tileBorder =
+        isDark ? Color(0xFF2D3348) : Theme.of(context).dividerColor;
     final iconBg = isDark ? iconColor.withOpacity(0.15) : iconBgColor;
 
     return GestureDetector(
@@ -819,8 +861,7 @@ class _QuickServiceTile extends StatelessWidget {
         if (comingSoon) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content:
-                  Text(context.l10n.comingSoonFeature(label)),
+              content: Text(context.l10n.comingSoonFeature(label)),
               behavior: SnackBarBehavior.floating,
               backgroundColor: const Color(0xFF1A3A6B),
               shape: RoundedRectangleBorder(
@@ -975,7 +1016,10 @@ class _BannerCarouselState extends State<_BannerCarousel> {
                   style: TextStyle(
                     fontFamily: 'Effra',
                     fontSize: 13,
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.55),
                     height: 1.4,
                   ),
                 ),
@@ -983,7 +1027,8 @@ class _BannerCarouselState extends State<_BannerCarousel> {
                 GestureDetector(
                   onTap: () => context.push('/tiers'),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
                     decoration: BoxDecoration(
                       color: brandGreen,
                       borderRadius: BorderRadius.circular(20),
@@ -1071,7 +1116,8 @@ class _BannerCarouselState extends State<_BannerCarousel> {
                     ),
                   ),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                     decoration: BoxDecoration(
                       color: const Color(0xFFD4AF37),
                       borderRadius: BorderRadius.circular(20),
@@ -1115,8 +1161,8 @@ class _RecentTransactionsState extends ConsumerState<_RecentTransactions> {
 
   String _fmtAmount(double v) {
     final s = v.toStringAsFixed(2).split('.');
-    final whole = s[0].replaceAllMapped(
-        RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]},');
+    final whole = s[0]
+        .replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]},');
     return '$whole.${s[1]}';
   }
 
@@ -1164,7 +1210,8 @@ class _RecentTransactionsState extends ConsumerState<_RecentTransactions> {
                             fontFamily: 'Effra',
                             fontSize: 13,
                             color: brandGreen)),
-                    const Icon(Icons.chevron_right, color: brandGreen, size: 16),
+                    const Icon(Icons.chevron_right,
+                        color: brandGreen, size: 16),
                   ],
                 ),
               ),
@@ -1203,6 +1250,11 @@ class _RecentTransactionsState extends ConsumerState<_RecentTransactions> {
                 amount: '${isCredit ? '+' : '-'} ₦${_fmtAmount(tx.amount)}',
                 time: _fmtTime(tx.timestamp),
                 isCredit: isCredit,
+                onTap: () {
+                  Haptics.tap();
+                  context.push('/receipt',
+                      extra: receiptDataForTransaction(tx));
+                },
               );
             }),
         ],
@@ -1219,6 +1271,7 @@ class _TransactionTile extends StatelessWidget {
   final String amount;
   final String time;
   final bool isCredit;
+  final VoidCallback? onTap;
 
   const _TransactionTile({
     required this.iconBgColor,
@@ -1228,6 +1281,7 @@ class _TransactionTile extends StatelessWidget {
     required this.amount,
     required this.time,
     required this.isCredit,
+    this.onTap,
   });
 
   @override
@@ -1235,56 +1289,60 @@ class _TransactionTile extends StatelessWidget {
     final textDark = Theme.of(context).colorScheme.onSurface;
     final textGray = Theme.of(context).colorScheme.onSurface.withOpacity(0.55);
 
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Row(
-        children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: iconBgColor,
-              shape: BoxShape.circle,
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Row(
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: iconBgColor,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: Colors.white, size: 20),
             ),
-            child: Icon(icon, color: Colors.white, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                      style: TextStyle(
+                          fontFamily: 'Effra',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: textDark)),
+                  const SizedBox(height: 2),
+                  Text(subtitle,
+                      style: TextStyle(
+                          fontFamily: 'Effra', fontSize: 12, color: textGray)),
+                ],
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(title,
-                    style: TextStyle(
-                        fontFamily: 'Effra',
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: textDark)),
+                Text(
+                  amount,
+                  style: TextStyle(
+                    fontFamily: 'Effra',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: isCredit ? brandGreen : redDebit,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(subtitle,
+                Text(time,
                     style: TextStyle(
-                        fontFamily: 'Effra', fontSize: 12, color: textGray)),
+                        fontFamily: 'Effra', fontSize: 11, color: textGray)),
               ],
             ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                amount,
-                style: TextStyle(
-                  fontFamily: 'Effra',
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: isCredit ? brandGreen : redDebit,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(time,
-                  style: TextStyle(
-                      fontFamily: 'Effra', fontSize: 11, color: textGray)),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1334,8 +1392,7 @@ class WalletIllustrationPainter extends CustomPainter {
       ..color = const Color.fromRGBO(255, 255, 255, 0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
-    canvas.drawLine(
-        const Offset(20, 35), const Offset(55, 35), lightLinePaint);
+    canvas.drawLine(const Offset(20, 35), const Offset(55, 35), lightLinePaint);
   }
 
   @override

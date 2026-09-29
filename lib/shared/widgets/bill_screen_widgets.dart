@@ -278,11 +278,40 @@ class BillAccountCard extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      Text(
-                        displayAcct,
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.55),
-                          fontSize: 11,
+                      GestureDetector(
+                        onTap: acct.isEmpty
+                            ? null
+                            : () {
+                                Haptics.tap();
+                                Clipboard.setData(ClipboardData(text: acct));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content:
+                                        Text(context.l10n.accountNumberCopied),
+                                    behavior: SnackBarBehavior.floating,
+                                    duration: const Duration(seconds: 2),
+                                    backgroundColor: const Color(0xFF155C2C),
+                                  ),
+                                );
+                              },
+                        behavior: HitTestBehavior.opaque,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              displayAcct,
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.55),
+                                fontSize: 11,
+                              ),
+                            ),
+                            if (acct.isNotEmpty) ...[
+                              const SizedBox(width: 6),
+                              Icon(Icons.copy_rounded,
+                                  size: 12,
+                                  color: Colors.white.withOpacity(0.55)),
+                            ],
+                          ],
                         ),
                       ),
                     ],

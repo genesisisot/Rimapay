@@ -116,7 +116,7 @@ class AirtimePurchaseScreen extends ConsumerStatefulWidget {
 class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
     with TickerProviderStateMixin {
   // ── Controllers ─────────────────────────────────────────────────────────
-  final _phoneController = TextEditingController(text: '8137954069');
+  final _phoneController = TextEditingController();
   final _amountController = TextEditingController();
   final _planSearchController = TextEditingController();
   String _planQuery = '';

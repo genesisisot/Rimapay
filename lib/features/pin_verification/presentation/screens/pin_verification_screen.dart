@@ -170,6 +170,10 @@ class _PinVerificationScreenState extends ConsumerState<PinVerificationScreen>
           amount: '₦${double.tryParse(extra['amount']?.toString() ?? '0')?.toStringAsFixed(2) ?? '0.00'}',
           recipient: extra['recipientName']?.toString() ?? extra['recipient']?.toString() ?? '',
           transactionId: refNo,
+          recipientAccount: extra['accountNumber']?.toString(),
+          recipientBank: extra['isRimaPay'] == true
+              ? 'Rima Microfinance Bank'
+              : extra['bank']?.toString(),
         ));
       } else if (mounted) {
         final error =
