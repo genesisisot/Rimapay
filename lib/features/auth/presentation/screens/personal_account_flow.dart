@@ -3935,36 +3935,58 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Says up front what may be typed, so nobody has to discover the
+        // allowed set by being rejected.
+        Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: Text(
+            'Use letters, numbers and these symbols only: $allowedSymbolsLabel',
+            style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+          ),
+        ),
         _passwordReq('8-$kPasswordMaxLength characters', isLengthOk(_password)),
         _passwordReq('Uppercase letter (A-Z)', hasUpper(_password)),
         _passwordReq('Lowercase letter (a-z)', hasLower(_password)),
         _passwordReq('Number (0-9)', hasDigit(_password)),
-        _passwordReq('Symbol from $allowedSymbolsLabel', hasAllowedSpecial(_password)),
+        _passwordReq(
+            'One of these symbols: $allowedSymbolsLabel', hasAllowedSpecial(_password)),
         if (disallowed.isNotEmpty)
-          _passwordReq('${disallowed.join(' ')} cannot be used', false),
+          _passwordReq('Remove ${disallowed.join(' ')} - not allowed', false,
+              isError: true),
         if (_password.isNotEmpty && confirmFilled)
-          _passwordReq('Passwords match', _confirmPassword == _password),
+          _passwordReq('Passwords match', _confirmPassword == _password,
+              isError: _confirmPassword != _password),
       ],
     );
   }
 
-  Widget _passwordReq(String label, bool met) {
+  /// A requirement row. [isError] marks something that is actively wrong —
+  /// red, with a warning icon — rather than a box still to be ticked, which
+  /// stays grey.
+  Widget _passwordReq(String label, bool met, {bool isError = false}) {
+    const green = Color(0xFF166C46);
+    const grey = Color(0xFF9CA3AF);
+    const red = Color(0xFFD33B31);
+    final color = isError ? red : (met ? green : grey);
     return Padding(
       padding: const EdgeInsets.only(top: 3),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            met ? Icons.check_circle : Icons.radio_button_unchecked,
+            isError
+                ? Icons.error_outline
+                : (met ? Icons.check_circle : Icons.radio_button_unchecked),
             size: 14,
-            color: met ? const Color(0xFF166C46) : const Color(0xFF9CA3AF),
+            color: color,
           ),
           const SizedBox(width: 5),
           Text(
             label,
             style: TextStyle(
               fontSize: 12,
-              color: met ? const Color(0xFF166C46) : const Color(0xFF9CA3AF),
+              color: color,
+              fontWeight: isError ? FontWeight.w600 : FontWeight.w400,
             ),
           ),
         ],
