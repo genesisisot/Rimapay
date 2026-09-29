@@ -13,6 +13,9 @@ import '../../features/profile/presentation/providers/profile_provider.dart';
 enum TransactionType {
   airtime,
   data,
+  /// Money returned after a purchase failed upstream — a credit, but not the
+  /// user adding funds, so it is counted and labelled separately.
+  reversal,
   electricity,
   cable,
   transfer,
@@ -93,6 +96,11 @@ class Transaction {
         reference: json['reference'] as String,
       );
 
+  /// Money coming in: funds added, or a purchase refunded after it failed.
+  /// Anything else leaves the account.
+  bool get isIncoming =>
+      type == TransactionType.addMoney || type == TransactionType.reversal;
+
   String get formattedAmount => '₦${amount.toStringAsFixed(2)}';
   String get formattedFee => fee != null ? '₦${fee!.toStringAsFixed(2)}' : '₦0.00';
 
@@ -100,6 +108,8 @@ class Transaction {
     switch (type) {
       case TransactionType.airtime:
         return 'Airtime Purchase';
+      case TransactionType.reversal:
+        return 'Reversal';
       case TransactionType.data:
         return 'Data Purchase';
       case TransactionType.electricity:
@@ -169,6 +179,54 @@ class TransactionState {
       error: error,
     );
   }
+}
+
+/// The statement API gives only a free-text description and a credit/debit
+/// flag, so the category has to be inferred. Real descriptions look like
+/// `Topup:2347062746869` and `Rev Topup:2347062746869`, which match none of
+/// the obvious words — hence the explicit shapes below. Order matters: a
+/// reversal is checked before a top-up, since it contains both.
+TransactionType inferTransactionType(String description, bool isCredit) {
+  final d = description.toLowerCase();
+
+  if (d.contains('revers') || d.startsWith('rev ') || d.startsWith('rev:')) {
+    return TransactionType.reversal;
+  }
+  if (d.contains('airtime') || d.contains('topup') || d.contains('top up') ||
+      d.contains('vtu')) {
+    return TransactionType.airtime;
+  }
+  if (d.contains('data') || d.contains('bundle')) return TransactionType.data;
+  if (d.contains('electric') || d.contains('power') || d.contains('disco')) {
+    return TransactionType.electricity;
+  }
+  if (d.contains('cable') || d.contains('tv') || d.contains('gotv') ||
+      d.contains('dstv') || d.contains('startimes')) {
+    return TransactionType.cable;
+  }
+  if (d.contains('school') || d.contains('educat') || d.contains('waec') ||
+      d.contains('jamb')) {
+    return TransactionType.education;
+  }
+  if (d.contains('transport')) return TransactionType.transport;
+  if (d.contains('govern') || d.contains('tax') || d.contains('remita')) {
+    return TransactionType.government;
+  }
+
+  // Nothing matched: fall back on the direction of the money.
+  return isCredit ? TransactionType.addMoney : TransactionType.transfer;
+}
+
+/// `Topup:2347062746869` is the provider's wording, not something to show a
+/// customer. Pull the phone number out and present it in local form.
+String prettifyStatementDescription(String description) {
+  final m = RegExp(r'^(?:rev\s+)?(?:topup|top up|vtu)\s*[:\-]?\s*(\d{10,14})$',
+          caseSensitive: false)
+      .firstMatch(description.trim());
+  if (m == null) return description;
+  var number = m.group(1)!;
+  if (number.startsWith('234')) number = '0${number.substring(3)}';
+  return number;
 }
 
 class TransactionNotifier extends StateNotifier<TransactionState> {
@@ -325,37 +383,17 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
     final desc = (item.description ?? '').trim();
     return Transaction(
       id: ref.isNotEmpty ? ref : 'stmt_${ts.microsecondsSinceEpoch}',
-      type: _inferType(desc, item.isCredit),
+      type: inferTransactionType(desc, item.isCredit),
       amount: item.amount,
-      recipient: desc.isNotEmpty ? desc : (item.isCredit ? 'Credit' : 'Debit'),
+      recipient: desc.isNotEmpty
+          ? prettifyStatementDescription(desc)
+          : (item.isCredit ? 'Credit' : 'Debit'),
       description: desc.isNotEmpty ? desc : null,
       status: TransactionStatus.success,
       timestamp: ts,
       reference: ref,
       fee: 0,
     );
-  }
-
-  /// The statement API gives only a free-text description + credit/debit flag,
-  /// so infer a category for the UI's icon/colour. Credit → incoming money;
-  /// otherwise keyword-match the description, falling back to a transfer.
-  TransactionType _inferType(String description, bool isCredit) {
-    if (isCredit) return TransactionType.addMoney;
-    final d = description.toLowerCase();
-    if (d.contains('airtime')) return TransactionType.airtime;
-    if (d.contains('data')) return TransactionType.data;
-    if (d.contains('electric') || d.contains('power')) {
-      return TransactionType.electricity;
-    }
-    if (d.contains('cable') || d.contains('tv')) return TransactionType.cable;
-    if (d.contains('school') || d.contains('educat')) {
-      return TransactionType.education;
-    }
-    if (d.contains('transport')) return TransactionType.transport;
-    if (d.contains('govern') || d.contains('tax')) {
-      return TransactionType.government;
-    }
-    return TransactionType.transfer;
   }
 
   String _fmtDate(DateTime d) =>

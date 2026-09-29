@@ -1241,7 +1241,7 @@ class _RecentTransactionsState extends ConsumerState<_RecentTransactions> {
             )
           else
             ...txs.map((tx) {
-              final isCredit = tx.type == TransactionType.addMoney;
+              final isCredit = tx.isIncoming;
               return _TransactionTile(
                 iconBgColor: isCredit ? brandGreen : orangeIcon,
                 icon: isCredit ? Icons.arrow_downward : Icons.arrow_upward,

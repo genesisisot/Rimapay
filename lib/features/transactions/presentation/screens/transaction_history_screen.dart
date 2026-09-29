@@ -28,12 +28,17 @@ class _TransactionHistoryScreenState
   bool _showFilter = false;
   String _selectedFilter = 'all';
 
+  /// Set once the user picks a range; the 'range' chip filters by it and shows
+  /// the dates it is currently using.
+  DateTimeRange? _range;
+
   final List<_FilterOption> _filterOptions = [
     _FilterOption('all', 'All', Icons.list_rounded),
     _FilterOption('income', 'Income', Icons.arrow_downward_rounded),
     _FilterOption('expense', 'Expenses', Icons.arrow_upward_rounded),
     _FilterOption('today', 'Today', Icons.today_rounded),
     _FilterOption('yesterday', 'Yesterday', Icons.history_rounded),
+    _FilterOption('range', 'Date range', Icons.date_range_rounded),
   ];
 
   @override
@@ -63,6 +68,48 @@ class _TransactionHistoryScreenState
     super.dispose();
   }
 
+  /// Picking "Date range" opens the picker; every other chip just applies.
+  /// Cancelling the picker leaves the previous filter in place rather than
+  /// switching to an empty range.
+  Future<void> _onFilterSelected(String id) async {
+    if (id != 'range') {
+      setState(() => _selectedFilter = id);
+      return;
+    }
+    final now = DateTime.now();
+    final picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2025, 1, 1),
+      lastDate: DateTime(now.year, now.month, now.day),
+      initialDateRange: _range ??
+          DateTimeRange(
+              start: now.subtract(const Duration(days: 7)), end: now),
+      helpText: 'Select a date range',
+      builder: (context, child) => Theme(
+        data: Theme.of(context).copyWith(
+          colorScheme: Theme.of(context)
+              .colorScheme
+              .copyWith(primary: AppColors.primary500),
+        ),
+        child: child!,
+      ),
+    );
+    if (picked == null) return;
+    setState(() {
+      _range = picked;
+      _selectedFilter = 'range';
+    });
+  }
+
+  /// Label for the range chip, so the chosen dates are visible without
+  /// reopening the picker.
+  String get _rangeLabel {
+    final r = _range;
+    if (r == null) return 'Date range';
+    String d(DateTime t) => '${t.day}/${t.month}';
+    return '${d(r.start)} - ${d(r.end)}';
+  }
+
   List<Transaction> _filtered(List<Transaction> all) {
     var list = all;
     if (_searchQuery.isNotEmpty) {
@@ -75,9 +122,9 @@ class _TransactionHistoryScreenState
     }
     switch (_selectedFilter) {
       case 'income':
-        return list.where((tx) => tx.type == TransactionType.addMoney).toList();
+        return list.where((tx) => tx.isIncoming).toList();
       case 'expense':
-        return list.where((tx) => tx.type != TransactionType.addMoney).toList();
+        return list.where((tx) => !tx.isIncoming).toList();
       case 'today':
         final d = DateTime.now();
         return list
@@ -93,6 +140,18 @@ class _TransactionHistoryScreenState
                 tx.timestamp.year == d.year &&
                 tx.timestamp.month == d.month &&
                 tx.timestamp.day == d.day)
+            .toList();
+      case 'range':
+        final r = _range;
+        if (r == null) return list;
+        // Inclusive of both days the user picked, whatever time of day the
+        // transaction carries.
+        final from = DateTime(r.start.year, r.start.month, r.start.day);
+        final to = DateTime(r.end.year, r.end.month, r.end.day)
+            .add(const Duration(days: 1));
+        return list
+            .where((tx) =>
+                !tx.timestamp.isBefore(from) && tx.timestamp.isBefore(to))
             .toList();
     }
     return list;
@@ -119,9 +178,7 @@ class _TransactionHistoryScreenState
   }
 
   double _dayTotal(List<Transaction> list) => list.fold(0.0, (t, tx) {
-        return tx.type == TransactionType.addMoney
-            ? t - tx.amount
-            : t + tx.amount;
+        return tx.isIncoming ? t - tx.amount : t + tx.amount;
       });
 
   Map<String, List<Transaction>> _grouped(List<Transaction> list) {
@@ -167,8 +224,13 @@ class _TransactionHistoryScreenState
                 SliverToBoxAdapter(child: _Header(
                   searchController: _searchController,
                   selectedFilter: _selectedFilter,
-                  filterOptions: _filterOptions,
-                  onFilterTap: (id) => setState(() => _selectedFilter = id),
+                  filterOptions: [
+                    for (final o in _filterOptions)
+                      o.id == 'range'
+                          ? _FilterOption(o.id, _rangeLabel, o.icon)
+                          : o,
+                  ],
+                  onFilterTap: _onFilterSelected,
                   onFilterModalTap: () {
                     HapticFeedback.lightImpact();
                     setState(() => _showFilter = true);
@@ -268,11 +330,10 @@ class _TransactionHistoryScreenState
             _FilterModal(
               options: _filterOptions,
               selected: _selectedFilter,
-              onSelect: (id) =>
-                  setState(() {
-                    _selectedFilter = id;
-                    _showFilter = false;
-                  }),
+              onSelect: (id) {
+                setState(() => _showFilter = false);
+                _onFilterSelected(id);
+              },
               onClose: () => setState(() => _showFilter = false),
             ),
         ],
@@ -490,10 +551,10 @@ class _SummaryStrip extends StatelessWidget {
         tx.timestamp.month == today.month &&
         tx.timestamp.day == today.day);
     final spent = todayTx
-        .where((tx) => tx.type != TransactionType.addMoney)
+        .where((tx) => !tx.isIncoming)
         .fold(0.0, (t, tx) => t + tx.amount);
     final income = todayTx
-        .where((tx) => tx.type == TransactionType.addMoney)
+        .where((tx) => tx.isIncoming)
         .fold(0.0, (t, tx) => t + tx.amount);
 
     return Container(
@@ -590,7 +651,7 @@ class _TxCard extends StatelessWidget {
   });
 
   Color get _accentColor {
-    if (tx.type == TransactionType.addMoney) return AppColors.goldPrimary;
+    if (tx.isIncoming) return AppColors.goldPrimary;
     switch (tx.type) {
       case TransactionType.transfer:
         return const Color(0xFF3B82F6);
@@ -607,8 +668,7 @@ class _TxCard extends StatelessWidget {
   }
 
   Color get _bgColor {
-    if (tx.type == TransactionType.addMoney)
-      return AppColors.goldPrimary.withOpacity(0.08);
+    if (tx.isIncoming) return AppColors.goldPrimary.withOpacity(0.08);
     switch (tx.type) {
       case TransactionType.transfer:
         return const Color(0xFF3B82F6).withOpacity(0.1);
@@ -628,6 +688,8 @@ class _TxCard extends StatelessWidget {
     switch (tx.type) {
       case TransactionType.airtime:
         return '📱';
+      case TransactionType.reversal:
+        return '↩️';
       case TransactionType.data:
         return '📶';
       case TransactionType.electricity:
@@ -653,7 +715,7 @@ class _TxCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isIncoming = tx.type == TransactionType.addMoney;
+    final isIncoming = tx.isIncoming;
     final isPending = tx.status == TransactionStatus.pending;
 
     return GestureDetector(

@@ -34,7 +34,7 @@ ReceiptData receiptDataForTransaction(Transaction tx) {
         ? tx.reference
         : 'RMP${DateTime.now().millisecondsSinceEpoch}',
     description: '${tx.typeDisplayName} payment',
-    isCredit: tx.type == TransactionType.addMoney,
+    isCredit: tx.isIncoming,
     accountNumber: tx.accountNumber,
     bank: tx.bank,
     network: tx.network,
