@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:rimapay/core/router/app_router.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../../core/providers/app_state_provider.dart';
+import '../../../../core/providers/auth_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -241,6 +242,9 @@ www.rimapay.com
   Future<void> _downloadReceipt() async {
     final d = widget.receiptData;
     final status = _getStatusConfig(d.status)['label']?.toString() ?? 'Successful';
+    final user = context.read<AuthProvider>().user;
+    final senderName = user?.displayName ?? '';
+    final senderAccount = user?.accountNumber ?? '';
     try {
       final l10n = context.l10n;
       await shareReceiptPdf(l10n: l10n, ReceiptPdfData(
@@ -251,15 +255,32 @@ www.rimapay.com
         reference: d.reference,
         dateText: '${d.date}, ${d.time}',
         details: [
-          MapEntry('Transaction', d.type),
-          MapEntry(d.isCredit ? 'From' : 'To', d.recipient),
-          if (d.network != null) MapEntry('Network', d.network!),
-          if (d.plan != null) MapEntry('Plan', d.plan!),
-          if (d.customer != null) MapEntry('Customer', d.customer!),
-          if (d.provider != null) MapEntry('Provider', d.provider!),
-          if (d.accountNumber != null) MapEntry('Account', d.accountNumber!),
-          if (d.bank != null) MapEntry('Bank', d.bank!),
-          if (d.fee != null) MapEntry('Fee', _formatAmount(d.fee!)),
+          // The counterparty leads, with bank and account on the quieter
+          // second line, the way a bank receipt reads.
+          ReceiptRow(
+            d.isCredit ? 'Sender Details' : 'Beneficiary Details',
+            d.recipient,
+            sub: [d.bank, d.accountNumber]
+                .where((v) => (v ?? '').isNotEmpty)
+                .join('  |  '),
+          ),
+          if (senderName.isNotEmpty)
+            ReceiptRow(
+              d.isCredit ? 'Beneficiary Details' : 'Sender Details',
+              senderName,
+              sub: [
+                'Rima MFB',
+                if (senderAccount.isNotEmpty) senderAccount,
+              ].join('  |  '),
+            ),
+          if (d.network != null) ReceiptRow('Network', d.network!),
+          if (d.plan != null) ReceiptRow('Plan', d.plan!),
+          if (d.customer != null) ReceiptRow('Customer', d.customer!),
+          if (d.provider != null) ReceiptRow('Provider', d.provider!),
+          if (d.fee != null) ReceiptRow('Transfer Fee', _formatAmount(d.fee!)),
+          if ((d.description ?? '').isNotEmpty)
+            ReceiptRow('Description', d.description!),
+          ReceiptRow('Payment Type', d.type),
         ],
       ));
     } catch (_) {

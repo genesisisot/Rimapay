@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:provider/provider.dart';
+import '../../../../core/providers/auth_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rimapay/features/receipt/presentation/screens/receipt_screen.dart';
 import '../../../../core/providers/language_provider.dart';
@@ -202,18 +203,32 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
     try {
       final p = widget.props;
       final l10n = context.l10n;
+      final user = context.read<AuthProvider>().user;
+      final senderName = user?.displayName ?? '';
+      final senderAccount = user?.accountNumber ?? '';
       await shareReceiptPdf(l10n: l10n, ReceiptPdfData(
         title: p.transactionType,
         amount: p.amount,
         reference: p.transactionId,
         dateText: DateFormat('d MMM yyyy, h:mm a').format(DateTime.now()),
         details: [
-          MapEntry('Transaction', p.transactionType),
-          MapEntry('Recipient', p.recipient),
-          if ((p.recipientAccount ?? '').isNotEmpty)
-            MapEntry('Account', p.recipientAccount!),
-          if ((p.recipientBank ?? '').isNotEmpty)
-            MapEntry('Bank', p.recipientBank!),
+          ReceiptRow(
+            'Beneficiary Details',
+            p.recipient,
+            sub: [p.recipientBank, p.recipientAccount]
+                .where((v) => (v ?? '').isNotEmpty)
+                .join('  |  '),
+          ),
+          if (senderName.isNotEmpty)
+            ReceiptRow(
+              'Sender Details',
+              senderName,
+              sub: [
+                'Rima MFB',
+                if (senderAccount.isNotEmpty) senderAccount,
+              ].join('  |  '),
+            ),
+          ReceiptRow('Payment Type', p.transactionType),
         ],
       ));
     } catch (e) {

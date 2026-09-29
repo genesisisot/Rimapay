@@ -710,6 +710,8 @@
     }
   },
   "minimumTransfer100": "Minimum transfer: ₦100",
+  "moneyOut": "Money Out",
+  "moneyIn": "Money In",
   "mobileTopUp": "Mobile Top-Up",
   "modernFleetNationwide": "Modern fleet nationwide",
   "monFri8am8pmNsat9am": "Mon – Fri: 8am – 8pm\nSat: 9am – 5pm",

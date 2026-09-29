@@ -7,6 +7,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
 import '../../core/localization/l10n.dart';
+
 /// Formats any amount string as naira, e.g. `"5000"`, `"5,000"` or
 /// `"₦5000.00"` → `"₦5,000.00"`. Unparseable input is returned with a ₦ prefix.
 String formatNaira(String raw) {
@@ -14,6 +15,17 @@ String formatNaira(String raw) {
   final value = double.tryParse(cleaned);
   if (value == null) return raw.startsWith('₦') ? raw : '₦$raw';
   return '₦${NumberFormat('#,##0.00').format(value)}';
+}
+
+/// One line of the details card: a label on the left, a value on the right and
+/// an optional second line under the value — the bank and account number under
+/// a beneficiary's name, for instance.
+class ReceiptRow {
+  final String label;
+  final String value;
+  final String? sub;
+
+  const ReceiptRow(this.label, this.value, {this.sub});
 }
 
 /// Everything shown on a RimaPay transaction receipt.
@@ -27,8 +39,8 @@ class ReceiptPdfData {
   /// True when money came IN (credit); false for money going out (debit).
   final bool isCredit;
 
-  /// Label/value rows shown in the details block, in order.
-  final List<MapEntry<String, String>> details;
+  /// Label/value rows shown in the details card, in order.
+  final List<ReceiptRow> details;
 
   const ReceiptPdfData({
     required this.title,
@@ -42,68 +54,117 @@ class ReceiptPdfData {
 }
 
 const _green = PdfColor.fromInt(0xFF166C46);
-const _greenDark = PdfColor.fromInt(0xFF0B4F2F);
-const _grey = PdfColor.fromInt(0xFF6B7280);
-const _line = PdfColor.fromInt(0xFFE5E7EB);
-const _soft = PdfColor.fromInt(0xFFF6F8F7);
-const _debit = PdfColor.fromInt(0xFFB45309);
+const _greenDeep = PdfColor.fromInt(0xFF0B4F2F);
+const _gold = PdfColor.fromInt(0xFFD4AF37);
+const _goldLight = PdfColor.fromInt(0xFFE8C84A);
+const _cream = PdfColor.fromInt(0xFFFAF8F3);
+const _ink = PdfColor.fromInt(0xFF1A1A1A);
+const _grey = PdfColor.fromInt(0xFF8A8A8A);
+const _line = PdfColor.fromInt(0xFFE7E3DA);
 
+/// Status colours sit on the dark header, so they are the light variants.
 PdfColor _statusColor(String status) {
   final s = status.toLowerCase();
-  if (s.contains('fail') || s.contains('revers')) return const PdfColor.fromInt(0xFFD33B31);
-  if (s.contains('pend') || s.contains('process')) return const PdfColor.fromInt(0xFFD97706);
-  return _green;
+  if (s.contains('fail')) return const PdfColor.fromInt(0xFFFF8A80);
+  if (s.contains('revers')) return const PdfColor.fromInt(0xFFFFCC80);
+  if (s.contains('pend') || s.contains('process')) {
+    return const PdfColor.fromInt(0xFFFFD54F);
+  }
+  return _goldLight;
 }
-
-/// Very light version of [c] (88% white) for badge backgrounds.
-PdfColor _tint(PdfColor c) => PdfColor(
-      c.red + (1 - c.red) * 0.88,
-      c.green + (1 - c.green) * 0.88,
-      c.blue + (1 - c.blue) * 0.88,
-    );
 
 /// Builds a branded, single-page receipt. The page grows to fit its content.
 // The PDF is rendered outside the widget tree, so the active translations
 // are passed in rather than read from a BuildContext.
 Future<Uint8List> buildReceiptPdf(ReceiptPdfData r,
     {required AppL10n l10n}) async {
-  // Inter, not PlusJakartaSans: the PDF package embeds this font directly and
-  // does not use Flutter's fontFamilyFallback, so the file itself must cover
-  // the Hausa hooked letters (ƙ ɗ ɓ) as well as ₦. PlusJakartaSans has ₦ but
-  // none of the hooked letters, which rendered Hausa receipts as tofu.
-  final regular =
+  // PlusJakartaSans is the brand face and has a properly fitted naira sign —
+  // Inter draws its crossbars wider than the N, which reads as a strikethrough
+  // on a large amount. Inter is kept as a fallback because it covers the Hausa
+  // hooked letters (ƙ ɗ ɓ) that PlusJakartaSans lacks; without it a Hausa
+  // receipt renders those as tofu.
+  final jakartaRegular = pw.Font.ttf(
+      await rootBundle.load('assets/fonts/PlusJakartaSans-Regular.ttf'));
+  final jakartaBold = pw.Font.ttf(
+      await rootBundle.load('assets/fonts/PlusJakartaSans-Bold.ttf'));
+  final jakartaExtraBold = pw.Font.ttf(
+      await rootBundle.load('assets/fonts/PlusJakartaSans-ExtraBold.ttf'));
+  final interRegular =
       pw.Font.ttf(await rootBundle.load('assets/fonts/Inter/Inter-Regular.ttf'));
-  final bold =
+  final interBold =
       pw.Font.ttf(await rootBundle.load('assets/fonts/Inter/Inter-Bold.ttf'));
+
+  final regular = jakartaRegular;
+  final bold = jakartaBold;
+  final fallbackRegular = [interRegular];
+  final fallbackBold = [interBold];
+
   pw.MemoryImage? logo;
   try {
+    // mild.png is the app's own logo and is transparent, so it sits directly
+    // on the green without a plate behind it.
     logo = pw.MemoryImage(
-        (await rootBundle.load('assets/images/RimaMFBLogo.png')).buffer.asUint8List());
+        (await rootBundle.load('assets/images/mild.png')).buffer.asUint8List());
   } catch (_) {
     logo = null;
   }
 
   final statusColor = _statusColor(r.status);
-  final doc = pw.Document(title: 'RimaPay Receipt ${r.reference}', author: 'RimaPay');
+  final doc =
+      pw.Document(title: 'RimaPay Receipt ${r.reference}', author: 'RimaPay');
 
-  pw.Widget row(String label, String value, {bool emphasize = false}) => pw.Padding(
-        padding: const pw.EdgeInsets.symmetric(vertical: 5),
+  /// A details row: label left, value right, optional quieter line beneath.
+  pw.Widget detailRow(ReceiptRow d, {required bool last}) => pw.Container(
+        padding: const pw.EdgeInsets.symmetric(vertical: 9),
+        decoration: last
+            ? null
+            : const pw.BoxDecoration(
+                border: pw.Border(
+                    bottom: pw.BorderSide(color: _line, width: 0.6)),
+              ),
         child: pw.Row(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            pw.SizedBox(
-              width: 80,
-              child: pw.Text(label, style: pw.TextStyle(font: regular, fontSize: 8.5, color: _grey)),
-            ),
             pw.Expanded(
-              child: pw.Text(
-                value.isEmpty ? '—' : value,
-                textAlign: pw.TextAlign.right,
-                style: pw.TextStyle(
-                  font: bold,
-                  fontSize: emphasize ? 9.5 : 8.5,
-                  color: PdfColors.black,
-                ),
+              flex: 4,
+              child: pw.Text(d.label,
+                  style: pw.TextStyle(
+                      font: regular,
+                      fontFallback: fallbackRegular,
+                      fontSize: 8.5,
+                      color: _grey)),
+            ),
+            pw.SizedBox(width: 8),
+            pw.Expanded(
+              flex: 6,
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.end,
+                children: [
+                  pw.Text(
+                    d.value.isEmpty ? '—' : d.value,
+                    textAlign: pw.TextAlign.right,
+                    style: pw.TextStyle(
+                      font: bold,
+                      fontFallback: fallbackBold,
+                      fontSize: d.value.length > 26
+                          ? 7.5
+                          : (d.value.length > 20 ? 8.5 : 9.5),
+                      color: _ink,
+                    ),
+                  ),
+                  if ((d.sub ?? '').isNotEmpty) ...[
+                    pw.SizedBox(height: 2),
+                    pw.Text(
+                      d.sub!,
+                      textAlign: pw.TextAlign.right,
+                      style: pw.TextStyle(
+                          font: regular,
+                          fontFallback: fallbackRegular,
+                          fontSize: 8,
+                          color: _grey),
+                    ),
+                  ],
+                ],
               ),
             ),
           ],
@@ -112,114 +173,160 @@ Future<Uint8List> buildReceiptPdf(ReceiptPdfData r,
 
   doc.addPage(
     pw.Page(
-      pageFormat: const PdfPageFormat(105 * PdfPageFormat.mm, double.infinity, marginAll: 0),
-      build: (context) => pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-        children: [
-          // ── Header band ──
-          pw.Container(
-            padding: const pw.EdgeInsets.fromLTRB(18, 18, 18, 16),
-            decoration: const pw.BoxDecoration(
-              gradient: pw.LinearGradient(colors: [_greenDark, _green]),
-            ),
-            child: pw.Row(
-              children: [
-                if (logo != null)
-                  pw.Container(
-                    width: 34,
-                    height: 34,
-                    padding: const pw.EdgeInsets.all(3),
-                    decoration: const pw.BoxDecoration(
-                      color: PdfColors.white,
-                      shape: pw.BoxShape.circle,
+      pageFormat: const PdfPageFormat(
+          105 * PdfPageFormat.mm, double.infinity,
+          marginAll: 0),
+      build: (context) => pw.Container(
+        color: _greenDeep,
+        child: pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+          children: [
+            // ── Logo + wordmark, on the same centred axis as the amount ──
+            pw.Padding(
+              padding: const pw.EdgeInsets.fromLTRB(16, 22, 16, 0),
+              child: pw.Column(
+                children: [
+                  if (logo != null) ...[
+                    pw.SizedBox(
+                      height: 46,
+                      child: pw.Image(logo, fit: pw.BoxFit.contain),
                     ),
-                    child: pw.Image(logo, fit: pw.BoxFit.contain),
-                  ),
-                if (logo != null) pw.SizedBox(width: 10),
-                pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    pw.Text('RimaPay',
-                        style: pw.TextStyle(font: bold, fontSize: 14, color: PdfColors.white)),
-                    pw.Text(l10n.transactionReceipt,
-                        style: pw.TextStyle(font: regular, fontSize: 8.5, color: PdfColors.white)),
+                    pw.SizedBox(height: 10),
                   ],
-                ),
-              ],
-            ),
-          ),
-
-          // ── Amount + status ──
-          pw.Padding(
-            padding: const pw.EdgeInsets.fromLTRB(18, 20, 18, 6),
-            child: pw.Column(
-              children: [
-                pw.Text(r.title,
+                  pw.Text(
+                    'RIMAPAY',
                     textAlign: pw.TextAlign.center,
-                    style: pw.TextStyle(font: regular, fontSize: 9, color: _grey)),
-                pw.SizedBox(height: 4),
-                pw.Text('${r.isCredit ? '+' : '-'}${formatNaira(r.amount)}',
                     style: pw.TextStyle(
-                        font: bold,
-                        fontSize: 22,
-                        color: r.isCredit ? _green : _debit)),
-                pw.SizedBox(height: 6),
-                pw.Text(r.isCredit ? 'Money In' : 'Money Out',
-                    style: pw.TextStyle(
-                        font: bold,
-                        fontSize: 9,
-                        color: r.isCredit ? _green : _debit)),
-                pw.SizedBox(height: 8),
-                pw.Container(
-                  padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                  decoration: pw.BoxDecoration(
-                    color: _tint(statusColor),
-                    borderRadius: pw.BorderRadius.circular(8),
-                    border: pw.Border.all(color: statusColor, width: 0.6),
+                      font: jakartaExtraBold,
+                      fontSize: 34,
+                      color: _gold,
+                      letterSpacing: 1,
+                    ),
                   ),
-                  child: pw.Text(r.status,
-                      style: pw.TextStyle(font: bold, fontSize: 8, color: statusColor)),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
 
-          // ── Details ──
-          pw.Container(
-            margin: const pw.EdgeInsets.fromLTRB(14, 12, 14, 0),
-            padding: const pw.EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: pw.BoxDecoration(
-              color: _soft,
-              borderRadius: pw.BorderRadius.circular(8),
-              border: pw.Border.all(color: _line, width: 0.6),
+            // ── Amount ──
+            pw.Padding(
+              padding: const pw.EdgeInsets.fromLTRB(16, 18, 16, 4),
+              child: pw.Column(
+                children: [
+                  pw.Text(
+                    l10n.transactionAmount.toUpperCase(),
+                    style: pw.TextStyle(
+                      font: bold,
+                      fontSize: 8,
+                      color: PdfColors.white,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  pw.SizedBox(height: 6),
+                  pw.Text(
+                    // Hair space: the naira bar overshoots the N in this face,
+                    // and without it the mark runs into the first digit.
+                    formatNaira(r.amount).replaceFirst('₦', '₦ '),
+                    style: pw.TextStyle(
+                        font: jakartaExtraBold,
+                        fontSize: 29,
+                        color: PdfColors.white),
+                  ),
+                  pw.SizedBox(height: 8),
+                  pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.center,
+                    children: [
+                      pw.Container(
+                        width: 5,
+                        height: 5,
+                        decoration: pw.BoxDecoration(
+                            color: statusColor, shape: pw.BoxShape.circle),
+                      ),
+                      pw.SizedBox(width: 5),
+                      pw.Text(
+                        '${r.status} · ${r.isCredit ? l10n.moneyIn : l10n.moneyOut}',
+                        style: pw.TextStyle(
+                            font: bold, fontSize: 8.5, color: statusColor),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-            child: pw.Column(
-              children: [
-                for (final d in r.details) row(d.key, d.value),
-                pw.Divider(color: _line, thickness: 0.6, height: 10),
-                row('Transaction ID', r.reference, emphasize: true),
-                row('Date', r.dateText),
-              ],
-            ),
-          ),
 
-          // ── Footer ──
-          pw.Padding(
-            padding: const pw.EdgeInsets.fromLTRB(18, 16, 18, 20),
-            child: pw.Column(
-              children: [
-                pw.Text(l10n.thankYouForBankingWithRima,
-                    style: pw.TextStyle(font: bold, fontSize: 8.5, color: _green)),
-                pw.SizedBox(height: 3),
-                pw.Text(
-                  l10n.receiptGeneratedNote,
-                  textAlign: pw.TextAlign.center,
-                  style: pw.TextStyle(font: regular, fontSize: 7, color: _grey),
-                ),
-              ],
+            // ── Details card ──
+            pw.Container(
+              margin: const pw.EdgeInsets.fromLTRB(12, 16, 12, 0),
+              padding: const pw.EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+              decoration: pw.BoxDecoration(
+                color: _cream,
+                borderRadius: pw.BorderRadius.circular(12),
+              ),
+              child: pw.Column(
+                children: [
+                  for (final d in r.details) detailRow(d, last: false),
+                  detailRow(ReceiptRow(l10n.transactionReference, r.reference),
+                      last: false),
+                  detailRow(ReceiptRow(l10n.date, r.dateText), last: true),
+                ],
+              ),
             ),
-          ),
-        ],
+
+            // ── App prompt ──
+            pw.Container(
+              margin: const pw.EdgeInsets.fromLTRB(12, 14, 12, 0),
+              padding: const pw.EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+              decoration: pw.BoxDecoration(
+                color: _green,
+                borderRadius: pw.BorderRadius.circular(10),
+              ),
+              child: pw.Row(
+                children: [
+                  if (logo != null) ...[
+                    pw.SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: pw.Image(logo, fit: pw.BoxFit.contain),
+                    ),
+                    pw.SizedBox(width: 9),
+                  ],
+                  pw.Expanded(
+                    child: pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        pw.Text(l10n.thankYouForBankingWithRima,
+                            style: pw.TextStyle(
+                                font: bold,
+                                fontFallback: fallbackBold,
+                                fontSize: 8.5,
+                                color: PdfColors.white)),
+                        pw.SizedBox(height: 1),
+                        pw.Text('rimapay.vercel.app',
+                            style: pw.TextStyle(
+                                font: regular, fontSize: 7.5, color: _goldLight)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // ── Legal footer ──
+            pw.Padding(
+              padding: const pw.EdgeInsets.fromLTRB(16, 14, 16, 20),
+              child: pw.Text(
+                l10n.receiptGeneratedNote,
+                textAlign: pw.TextAlign.center,
+                style: pw.TextStyle(
+                  font: regular,
+                  fontFallback: fallbackRegular,
+                  fontSize: 6.5,
+                  color: PdfColor(1, 1, 1, 0.55),
+                  lineSpacing: 1.6,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     ),
   );
@@ -229,10 +336,10 @@ Future<Uint8List> buildReceiptPdf(ReceiptPdfData r,
 
 /// Builds the receipt and hands it to the OS: share sheet on Android/iOS
 /// (Save to Files/Downloads, WhatsApp, email…), a file download on web.
-Future<void> shareReceiptPdf(ReceiptPdfData r,
-    {required AppL10n l10n}) async {
+Future<void> shareReceiptPdf(ReceiptPdfData r, {required AppL10n l10n}) async {
   final bytes = await buildReceiptPdf(r, l10n: l10n);
   final safeRef = r.reference.replaceAll(RegExp(r'[^A-Za-z0-9_-]'), '');
-  final name = safeRef.isEmpty ? '${DateTime.now().millisecondsSinceEpoch}' : safeRef;
+  final name =
+      safeRef.isEmpty ? '${DateTime.now().millisecondsSinceEpoch}' : safeRef;
   await Printing.sharePdf(bytes: bytes, filename: 'RimaPay-Receipt-$name.pdf');
 }

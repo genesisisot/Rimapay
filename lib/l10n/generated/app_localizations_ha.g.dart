@@ -1387,6 +1387,12 @@ class AppL10nHa extends AppL10n {
   String get minimumTransfer100 => 'Mafi ƙarancin canja wuri: ₦100';
 
   @override
+  String get moneyOut => 'Kudi Fitowa';
+
+  @override
+  String get moneyIn => 'Kudi Shigowa';
+
+  @override
   String get mobileTopUp => 'Cika Wayar Hannu';
 
   @override

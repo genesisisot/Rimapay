@@ -2629,6 +2629,18 @@ abstract class AppL10n {
   /// **'Minimum transfer: ₦100'**
   String get minimumTransfer100;
 
+  /// No description provided for @moneyOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Money Out'**
+  String get moneyOut;
+
+  /// No description provided for @moneyIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Money In'**
+  String get moneyIn;
+
   /// No description provided for @mobileTopUp.
   ///
   /// In en, this message translates to:

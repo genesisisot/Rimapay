@@ -1385,6 +1385,12 @@ class AppL10nEn extends AppL10n {
   String get minimumTransfer100 => 'Minimum transfer: ₦100';
 
   @override
+  String get moneyOut => 'Money Out';
+
+  @override
+  String get moneyIn => 'Money In';
+
+  @override
   String get mobileTopUp => 'Mobile Top-Up';
 
   @override

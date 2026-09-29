@@ -422,6 +422,8 @@
   "minimum10000": "Mafi ƙaranci: ₦10,000",
   "minimumAmount": "Mafi ƙarancin adadin shine {amount}",
   "minimumTransfer100": "Mafi ƙarancin canja wuri: ₦100",
+  "moneyOut": "Kudi Fitowa",
+  "moneyIn": "Kudi Shigowa",
   "mobileTopUp": "Cika Wayar Hannu",
   "modernFleetNationwide": "Motoci na zamani a faɗin ƙasar",
   "monFri8am8pmNsat9am": "Litinin – Jumma'a: 8 na safe – 8 na dare\nAsabar: 9 na safe – 5 na yamma",
