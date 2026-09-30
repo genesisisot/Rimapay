@@ -3821,9 +3821,14 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     if (!mounted) return;
     setState(() => _isLoading = false);
     if (ok) {
-      _animateTo(_isUnderbanked
-          ? AccountStep.facialVerification
-          : AccountStep.idEntry);
+      // The backend tells us what it still needs. It only ever answers
+      // ValidateFace here for someone whose photo it already holds; an
+      // existing customer is sent to the linking sheet long before this.
+      final next = ref.read(onboardingProvider).nextStep;
+      _animateTo(
+          _isUnderbanked || next == OnboardingNextStep.face
+              ? AccountStep.facialVerification
+              : AccountStep.idEntry);
     } else {
       _snack(
           ref.read(onboardingProvider).error ??

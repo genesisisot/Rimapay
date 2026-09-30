@@ -36,7 +36,14 @@ enum OnboardingStage {
   coreBankingAccountCreated,
   pinCreationPending,
   completed,
+  /// Existing customer with neither a photo nor a BVN/NIN in core banking:
+  /// they must supply an ID alongside their selfie.
+  validateFaceWithIdPending,
   failed;
+
+  /// The numbers the backend uses. Not the declaration order: `failed` is 99,
+  /// and reading a stage by position silently turned it into the first step.
+  int get code => this == failed ? 99 : index + 1;
 
   static OnboardingStage fromString(String s) =>
       OnboardingStage.values.firstWhere(
@@ -47,14 +54,20 @@ enum OnboardingStage {
       );
 
   /// Tolerant parse — the gateway returns the stage as either the enum NAME
-  /// (e.g. "OtpPending") or its integer INDEX (e.g. 0). Handle both.
+  /// (e.g. "OtpPending") or its number (e.g. 4). Handle both. A number is
+  /// matched against [code], never against the declaration index.
   static OnboardingStage fromJson(Object? raw) {
     if (raw is int) {
-      return (raw >= 0 && raw < OnboardingStage.values.length)
-          ? OnboardingStage.values[raw]
-          : OnboardingStage.initialDataEntry;
+      return OnboardingStage.values.firstWhere(
+        (e) => e.code == raw,
+        orElse: () => OnboardingStage.initialDataEntry,
+      );
     }
-    if (raw is String) return fromString(raw);
+    if (raw is String) {
+      final n = int.tryParse(raw);
+      if (n != null) return fromJson(n);
+      return fromString(raw);
+    }
     return OnboardingStage.initialDataEntry;
   }
 }
@@ -206,13 +219,23 @@ class VerifyOnboardingOtpResponse {
   final String? facialValidationHint;
   final String? message;
 
+  /// Which screen to show next, e.g. `ValidateFaceWithId(bvn or nin)`.
+  /// Read it through [nextStep] rather than matching on this string.
+  final String? nextStepRaw;
+
   const VerifyOnboardingOtpResponse({
     required this.sessionId,
     required this.currentStage,
     required this.isVerified,
     this.facialValidationHint,
     this.message,
+    this.nextStepRaw,
   });
+
+  /// Falls back to the stage when the gateway sends no `nextStep`, so this
+  /// keeps working against a deployment that predates the field.
+  OnboardingNextStep get nextStep =>
+      OnboardingNextStep.resolve(raw: nextStepRaw, stage: currentStage);
 
   factory VerifyOnboardingOtpResponse.fromJson(Map<String, dynamic> json) =>
       VerifyOnboardingOtpResponse(
@@ -222,7 +245,43 @@ class VerifyOnboardingOtpResponse {
         isVerified: json['isVerified'] == true,
         facialValidationHint: json['facialValidationHint'] as String?,
         message: json['message'] as String?,
+        nextStepRaw: json['nextStep'] as String?,
       );
+}
+
+/// What the app must collect next after an OTP is verified.
+enum OnboardingNextStep {
+  /// BVN/NIN entry *and* a selfie — core banking has no photo and no ID.
+  faceWithId,
+
+  /// A selfie only; the reference photo already exists on the backend.
+  face,
+
+  /// The new-customer identity step.
+  identity;
+
+  /// The backend sends `ValidateFaceWithId(bvn or nin)`, `ValidateFace` or
+  /// `IdentityVerification`. The first is matched by prefix: the parenthetical
+  /// is prose, not contract, and is not worth depending on.
+  static OnboardingNextStep resolve({
+    required String? raw,
+    required OnboardingStage stage,
+  }) {
+    final s = (raw ?? '').trim().toLowerCase();
+    if (s.startsWith('validatefacewithid')) return OnboardingNextStep.faceWithId;
+    if (s.startsWith('validateface')) return OnboardingNextStep.face;
+    if (s.startsWith('identity')) return OnboardingNextStep.identity;
+
+    // No usable nextStep: fall back on the stage the same response carries.
+    switch (stage) {
+      case OnboardingStage.validateFaceWithIdPending:
+        return OnboardingNextStep.faceWithId;
+      case OnboardingStage.facialValidationPending:
+        return OnboardingNextStep.face;
+      default:
+        return OnboardingNextStep.identity;
+    }
+  }
 }
 
 // ── Resend OTP ──────────────────────────────────────────────────────────────
@@ -294,10 +353,17 @@ class FacialValidationRequest {
   final String capturedImageBase64;
   final bool? livenessCheckPassed;
 
+  /// Required only when the backend answered `ValidateFaceWithId`: the 11-digit
+  /// BVN or NIN it should fetch the reference photo with.
+  final String? identityNumber;
+  final IdentityDocumentType? documentType;
+
   const FacialValidationRequest({
     required this.sessionId,
     required this.capturedImageBase64,
     this.livenessCheckPassed,
+    this.identityNumber,
+    this.documentType,
   });
 
   Map<String, dynamic> toJson() => {
@@ -305,6 +371,12 @@ class FacialValidationRequest {
         'capturedImageBase64': capturedImageBase64,
         if (livenessCheckPassed != null)
           'livenessCheckPassed': livenessCheckPassed,
+        // Sent as "BVN"/"NIN": the live schema types this as a string enum,
+        // matching submit-identity, even though the integration guide says 1/2.
+        if (identityNumber != null && identityNumber!.isNotEmpty) ...{
+          'identityNumber': identityNumber,
+          'documentType': (documentType ?? IdentityDocumentType.bvn).apiName,
+        },
       };
 }
 

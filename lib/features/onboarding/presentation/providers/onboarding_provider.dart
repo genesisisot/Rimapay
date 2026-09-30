@@ -66,6 +66,10 @@ class OnboardingState {
   /// to show the account-number entry step for existing bank customers.
   final bool isExistingUser;
 
+  /// What verify-otp said is still needed to prove identity. Defaults to the
+  /// new-customer path until the backend says otherwise.
+  final OnboardingNextStep nextStep;
+
   const OnboardingState({
     this.isLoading = false,
     this.error,
@@ -89,6 +93,7 @@ class OnboardingState {
     this.justResumed = false,
     this.mockMode = false,
     this.isExistingUser = false,
+    this.nextStep = OnboardingNextStep.identity,
   });
 
   OnboardingState copyWith({
@@ -114,6 +119,7 @@ class OnboardingState {
     bool? justResumed,
     bool? mockMode,
     bool? isExistingUser,
+    OnboardingNextStep? nextStep,
   }) {
     return OnboardingState(
       isLoading: isLoading ?? this.isLoading,
@@ -138,6 +144,7 @@ class OnboardingState {
       justResumed: justResumed ?? this.justResumed,
       mockMode: mockMode ?? this.mockMode,
       isExistingUser: isExistingUser ?? this.isExistingUser,
+      nextStep: nextStep ?? this.nextStep,
     );
   }
 }
@@ -329,12 +336,18 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
     ));
     if (res.isSuccess && res.data != null) {
       final d = res.data!;
+      // The backend now says what it still needs: an existing customer whose
+      // photo it already holds skips identity entry and goes straight to the
+      // selfie. Anything unrecognised keeps the old path.
+      final next = d.nextStep == OnboardingNextStep.face
+          ? OnboardingStep.facialValidation
+          : OnboardingStep.identitySubmission;
       state = state.copyWith(
         isLoading: false,
         otpVerified: d.isVerified,
-        currentStep: d.isVerified
-            ? OnboardingStep.identitySubmission
-            : OnboardingStep.otpVerification,
+        nextStep: d.nextStep,
+        currentStep:
+            d.isVerified ? next : OnboardingStep.otpVerification,
       );
       return d.isVerified;
     }
@@ -628,7 +641,10 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       OnboardingStage.otpPending =>
         OnboardingStep.otpVerification,
       OnboardingStage.otpVerified => OnboardingStep.identitySubmission,
-      OnboardingStage.facialValidationPending =>
+      // Both land on facial validation; the ID is collected just before the
+      // camera, which the linking flow handles.
+      OnboardingStage.facialValidationPending ||
+      OnboardingStage.validateFaceWithIdPending =>
         OnboardingStep.facialValidation,
       OnboardingStage.facialValidationCompleted ||
       OnboardingStage.passwordCreationPending ||

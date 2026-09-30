@@ -449,17 +449,20 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
   }
 
   Future<void> _showLinkDeviceSheet(BuildContext context) async {
-    final sessionId = await showModalBottomSheet<String>(
+    final result = await showModalBottomSheet<_LinkResult>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => const _LinkDeviceSheet(),
     );
-    if (sessionId != null && mounted) {
+    if (result != null && mounted) {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => _ContinueLinkingPage(sessionId: sessionId),
+          builder: (_) => _ContinueLinkingPage(
+            sessionId: result.sessionId,
+            nextStep: result.nextStep,
+          ),
         ),
       );
     }
@@ -2613,7 +2616,9 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
       log('[auth] verifyOtp → isSuccess=${res.isSuccess} errorCode=${res.errorCode}');
       setState(() => _loading = false);
       if (res.isSuccess && res.data != null && res.data!.isVerified) {
-        Navigator.pop(context, _sessionId);
+        // The backend decides what identity proof is still needed.
+        Navigator.pop(
+            context, _LinkResult(_sessionId!, res.data!.nextStep));
       } else {
         setState(() => _error = res.errorMessage ?? 'Invalid code. Please try again.');
       }
@@ -2662,9 +2667,21 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
 
 // ── Continue Linking (Full-Screen) ─────────────────────────────────────────────
 
+/// What the link sheet hands back: the session, and what the backend says is
+/// still needed to prove identity.
+class _LinkResult {
+  final String sessionId;
+  final OnboardingNextStep nextStep;
+  const _LinkResult(this.sessionId, this.nextStep);
+}
+
 class _ContinueLinkingPage extends ConsumerStatefulWidget {
   final String sessionId;
-  const _ContinueLinkingPage({required this.sessionId});
+  final OnboardingNextStep nextStep;
+  const _ContinueLinkingPage({
+    required this.sessionId,
+    this.nextStep = OnboardingNextStep.face,
+  });
 
   @override
   ConsumerState<_ContinueLinkingPage> createState() =>
@@ -2673,10 +2690,21 @@ class _ContinueLinkingPage extends ConsumerStatefulWidget {
 
 class _ContinueLinkingPageState
     extends ConsumerState<_ContinueLinkingPage> {
-  int _step = 0; // 0=facial, 1=password, 2=pin, 3=success
+  int _step = 0; // 0=identity/facial, 1=password, 2=pin, 3=success
   bool _loading = false;
   String? _error;
   String? _message;
+
+  // Identity, collected before the selfie only when the backend asks for it.
+  // Kept across a failed face match so a retake doesn't mean retyping it.
+  late bool _needsId = widget.nextStep == OnboardingNextStep.faceWithId;
+  bool _idConfirmed = false;
+  String _idType = 'bvn';
+  String _idDigits = '';
+  bool _obscureId = true;
+
+  /// True while the ID screen should be shown instead of the camera.
+  bool get _onIdStep => _needsId && !_idConfirmed;
 
   // Camera / facial
   CameraController? _cameraController;
@@ -2712,14 +2740,22 @@ class _ContinueLinkingPageState
       if (res.isSuccess && res.data != null) {
         final stage = res.data!.currentStage;
         log('[continue] resume → stage=$stage');
-        if (stage.index >= OnboardingStage.coreBankingAccountCreated.index) {
+        // Compare the backend's own numbering, not the declaration order:
+        // validateFaceWithIdPending sits late in the enum but is an early step.
+        if (stage == OnboardingStage.validateFaceWithIdPending) {
+          setState(() {
+            _needsId = true;
+            _idConfirmed = false;
+            _step = 0;
+          });
+        } else if (stage.code >= OnboardingStage.coreBankingAccountCreated.code) {
           setState(() => _step = 3);
-        } else if (stage.index >= OnboardingStage.identityAccountCreated.index) {
+        } else if (stage.code >= OnboardingStage.identityAccountCreated.code) {
           setState(() => _step = 2);
-        } else if (stage.index >= OnboardingStage.facialValidationCompleted.index) {
+        } else if (stage.code >= OnboardingStage.facialValidationCompleted.code) {
           setState(() => _step = 1);
         }
-        // else stays at step 0 (facial)
+        // else stays at step 0 (identity, then facial)
       }
     } catch (e) {
       log('[continue] resume error: $e');
@@ -2766,11 +2802,258 @@ class _ContinueLinkingPageState
                       painter: NoisePainter(opacity: 0.055, seed: 7),
                     ),
                   ),
-                  if (_step == 0) _buildFacialStep(),
+                  if (_step == 0 && _onIdStep) _buildIdentityStep(),
+                  if (_step == 0 && !_onIdStep) _buildFacialStep(),
                   if (_step == 3) _buildSuccess(),
                 ],
               ),
       ),
+    );
+  }
+
+  // ── Identity (BVN / NIN) ────────────────────────────────────────
+  // Shown before the camera when core banking holds neither a photo nor an ID,
+  // so the backend has a reference to compare the selfie against.
+
+  Widget _buildIdentityStep() {
+    const gold = Color(0xFFD4AF37);
+    final label = _idType.toUpperCase();
+
+    return SafeArea(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
+            child: GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.white.withOpacity(0.18)),
+                ),
+                child: const Icon(Icons.arrow_back_ios_new,
+                    color: Colors.white, size: 18),
+              ),
+            ),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Verify your identity',
+                      style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white)),
+                  const SizedBox(height: 6),
+                  Text(
+                    'We have no photo on file for this account, so we need your '
+                    'BVN or NIN to confirm it belongs to you.',
+                    style: TextStyle(
+                        fontSize: 13,
+                        height: 1.5,
+                        color: Colors.white.withOpacity(0.75)),
+                  ),
+                  const SizedBox(height: 22),
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.10),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: ['bvn', 'nin'].map((t) {
+                        final active = _idType == t;
+                        return Expanded(
+                          child: GestureDetector(
+                            onTap: () => setState(() {
+                              _idType = t;
+                              _idDigits = '';
+                              _error = null;
+                            }),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 180),
+                              padding: const EdgeInsets.symmetric(vertical: 11),
+                              decoration: BoxDecoration(
+                                color: active ? gold : Colors.transparent,
+                                borderRadius: BorderRadius.circular(9),
+                              ),
+                              child: Text(
+                                t.toUpperCase(),
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 13,
+                                  color: active
+                                      ? const Color(0xFF073D25)
+                                      : Colors.white.withOpacity(0.8),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Row(
+                    children: [
+                      Text('Enter your 11-digit $label',
+                          style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white.withOpacity(0.8))),
+                      const Spacer(),
+                      GestureDetector(
+                        onTap: () => setState(() => _obscureId = !_obscureId),
+                        child: Icon(
+                          _obscureId
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          size: 17,
+                          color: Colors.white.withOpacity(0.7),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: List.generate(11, (i) {
+                      final filled = i < _idDigits.length;
+                      return Container(
+                        width: 26,
+                        height: 38,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(filled ? 0.16 : 0.07),
+                          borderRadius: BorderRadius.circular(7),
+                          border: Border.all(
+                            color: filled
+                                ? gold.withOpacity(0.8)
+                                : Colors.white.withOpacity(0.16),
+                          ),
+                        ),
+                        child: Text(
+                          !filled ? '' : (_obscureId ? '*' : _idDigits[i]),
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 15),
+                        ),
+                      );
+                    }),
+                  ),
+                  if (_error != null) ...[
+                    const SizedBox(height: 14),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFD33B31).withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                            color: const Color(0xFFD33B31).withOpacity(0.5)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.error_outline,
+                              color: Color(0xFFFF8A80), size: 17),
+                          const SizedBox(width: 9),
+                          Expanded(
+                            child: Text(_error!,
+                                style: const TextStyle(
+                                    color: Color(0xFFFFCDD2), fontSize: 12.5)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 18),
+                  _buildIdNumPad(),
+                  const SizedBox(height: 18),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton(
+                      onPressed: _idDigits.length == 11
+                          ? () => setState(() {
+                                _idConfirmed = true;
+                                _error = null;
+                              })
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: gold,
+                        disabledBackgroundColor: Colors.white.withOpacity(0.12),
+                        foregroundColor: const Color(0xFF073D25),
+                        disabledForegroundColor: Colors.white.withOpacity(0.35),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(13)),
+                      ),
+                      child: const Text('Continue to selfie',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w800, fontSize: 15)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIdNumPad() {
+    const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'del'];
+    return GridView.count(
+      crossAxisCount: 3,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      childAspectRatio: 2.1,
+      mainAxisSpacing: 8,
+      crossAxisSpacing: 8,
+      children: keys.map((k) {
+        if (k.isEmpty) return const SizedBox.shrink();
+        final isDel = k == 'del';
+        return GestureDetector(
+          onTap: () {
+            Haptics.tap();
+            setState(() {
+              if (isDel) {
+                if (_idDigits.isNotEmpty) {
+                  _idDigits = _idDigits.substring(0, _idDigits.length - 1);
+                }
+              } else if (_idDigits.length < 11) {
+                _idDigits += k;
+              }
+            });
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(11),
+              border: Border.all(color: Colors.white.withOpacity(0.12)),
+            ),
+            child: Center(
+              child: isDel
+                  ? const Icon(Icons.backspace_outlined,
+                      color: Colors.white, size: 19)
+                  : Text(k,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700)),
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 
@@ -3033,6 +3316,12 @@ class _ContinueLinkingPageState
         sessionId: widget.sessionId,
         capturedImageBase64: base64Image,
         livenessCheckPassed: true,
+        identityNumber: _needsId ? _idDigits : null,
+        documentType: _needsId
+            ? (_idType == 'nin'
+                ? IdentityDocumentType.nin
+                : IdentityDocumentType.bvn)
+            : null,
       ));
       if (!mounted) return;
       setState(() => _verifyingFace = false);
@@ -3041,12 +3330,26 @@ class _ContinueLinkingPageState
           _step = 1;
           _error = null;
         });
-      } else {
-        setState(() {
-          _error = res.errorMessage ??
-              'Face verification failed. Please try again.';
-        });
+        return;
       }
+
+      // The three failures the backend documents need different recoveries.
+      final code = (res.errorCode ?? '').toUpperCase();
+      setState(() {
+        if (code == 'IDENTITY_NUMBER_REQUIRED') {
+          _needsId = true;
+          _idConfirmed = false;
+          _error = 'Please enter your BVN or NIN to continue.';
+        } else if (code == 'IDENTITY_PHOTO_UNAVAILABLE') {
+          _idConfirmed = false;
+          _error = res.errorMessage ??
+              "We couldn't find a photo for that number. Please check it and try again.";
+        } else {
+          // Face mismatch, or anything else: retake, keeping the ID entered.
+          _error = res.errorMessage ??
+              'Face verification failed. Please try again in good lighting.';
+        }
+      });
     } catch (e) {
       setState(() {
         _cameraError = 'Failed to capture photo: $e';
