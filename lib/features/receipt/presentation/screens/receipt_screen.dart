@@ -713,8 +713,15 @@ www.rimapay.com
                                       onPressed: _downloadReceipt,
                                       icon: const Icon(Icons.download, size: 16),
                                       label: Text(context.l10n.downloadPdfReceipt,
-                                        style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelLarge!
+                                            .copyWith(
                                           fontSize: isSmallScreen ? 14 : 16,
+                                          // labelLarge carries the theme's own
+                                          // (dark) colour, which overrode the
+                                          // button's white foreground.
+                                          color: Colors.white,
                                         ),
                                       ),
                                       style: ElevatedButton.styleFrom(
