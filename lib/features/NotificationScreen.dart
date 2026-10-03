@@ -141,6 +141,157 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
   void _deleteNotification(String id) =>
       ref.read(inAppNotificationsProvider.notifier).remove(id);
 
+  /// Opens the notification in a sheet, and marks it read on the way — the
+  /// list row is too short for a long message.
+  void _openNotification(NotificationModel n, Color accent) {
+    HapticFeedback.lightImpact();
+    if (!n.isRead) _markAsRead(n.id);
+
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (sheetContext) {
+        final theme = Theme.of(sheetContext);
+        return Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(sheetContext).size.height * 0.8,
+          ),
+          decoration: BoxDecoration(
+            color: theme.cardColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 36,
+                  height: 4,
+                  margin: const EdgeInsets.symmetric(vertical: 12),
+                  decoration: BoxDecoration(
+                    color: theme.dividerColor,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                Flexible(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 46,
+                              height: 46,
+                              decoration: BoxDecoration(
+                                color: accent.withOpacity(0.12),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: Text(n.icon ?? '📢',
+                                    style: const TextStyle(fontSize: 21)),
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    n.title,
+                                    style: TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w800,
+                                      fontFamily: 'Effra',
+                                      color: theme.colorScheme.onSurface,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    n.time,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontFamily: 'Effra',
+                                      color: theme.colorScheme.onSurface
+                                          .withOpacity(0.45),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 18),
+                        Text(
+                          n.message,
+                          style: TextStyle(
+                            fontSize: 14.5,
+                            height: 1.55,
+                            fontFamily: 'Effra',
+                            color:
+                                theme.colorScheme.onSurface.withOpacity(0.78),
+                          ),
+                        ),
+                        const SizedBox(height: 22),
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            Navigator.pop(sheetContext);
+                            _deleteNotification(n.id);
+                          },
+                          icon: const Icon(Icons.delete_outline, size: 17),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: const Color(0xFFD33B31),
+                            minimumSize: const Size.fromHeight(46),
+                            side: const BorderSide(color: Color(0x33D33B31)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                          ),
+                          label: const Text('Delete',
+                              style: TextStyle(fontWeight: FontWeight.w700)),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () => Navigator.pop(sheetContext),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary500,
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            minimumSize: const Size.fromHeight(46),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: const Text('Done',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Color _typeAccent(NotificationType type) {
     switch (type) {
       case NotificationType.transaction:
@@ -394,6 +545,14 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
 
   Widget _buildItem(NotificationModel n) {
     final accent = _typeAccent(n.type);
+    return GestureDetector(
+      onTap: () => _openNotification(n, accent),
+      behavior: HitTestBehavior.opaque,
+      child: _buildItemBody(n, accent),
+    );
+  }
+
+  Widget _buildItemBody(NotificationModel n, Color accent) {
     return Container(
       color: n.isRead ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
       child: Padding(

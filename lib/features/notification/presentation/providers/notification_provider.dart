@@ -236,6 +236,14 @@ class InAppNotificationsNotifier extends StateNotifier<InAppFeedState> {
     );
   }
 
+  /// Just the badge number. The bell needs it on every home screen build,
+  /// and pulling the whole feed for that would be wasteful.
+  Future<void> refreshUnreadCount() async {
+    final res = await _api.getUnreadCount();
+    if (!mounted || !res.isSuccess || res.data == null) return;
+    state = state.copyWith(unreadCount: res.data!);
+  }
+
   Future<void> markRead(String id) async {
     final before = state.items;
     final idx = before.indexWhere((n) => n.id == id);

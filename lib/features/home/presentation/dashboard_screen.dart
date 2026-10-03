@@ -13,6 +13,7 @@ import '../../../core/Utils/haptics.dart';
 import '../../../shared/widgets/rimapay_logo.dart';
 import '../../../shared/widgets/user_avatar.dart';
 import '../../receipt/presentation/screens/receipt_screen.dart';
+import '../../notification/presentation/providers/notification_provider.dart';
 
 import '../../../core/localization/l10n.dart';
 
@@ -253,12 +254,27 @@ Widget _careRow(BuildContext context, IconData icon, String title,
 
 // ── Header ────────────────────────────────────────────────────────────────────
 
-class _HeaderSection extends StatelessWidget {
+class _HeaderSection extends ConsumerStatefulWidget {
   const _HeaderSection();
+
+  @override
+  ConsumerState<_HeaderSection> createState() => _HeaderSectionState();
+}
+
+class _HeaderSectionState extends ConsumerState<_HeaderSection> {
+  @override
+  void initState() {
+    super.initState();
+    // Fetch just the badge number, not the whole feed; the list loads when
+    // the notifications screen opens.
+    WidgetsBinding.instance.addPostFrameCallback((_) =>
+        ref.read(inAppNotificationsProvider.notifier).refreshUnreadCount());
+  }
 
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
+    final unread = ref.watch(unreadNotificationCountProvider);
     if (!auth.profileFetched) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         auth.fetchProfileFromApi();
@@ -342,25 +358,30 @@ class _HeaderSection extends StatelessWidget {
                       child: Icon(Icons.notifications_outlined,
                           size: 20, color: textDark),
                     ),
-                    Positioned(
-                      top: -2,
-                      right: -2,
-                      child: Container(
-                        width: 16,
-                        height: 16,
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Center(
-                          child: Text('3',
-                              style: TextStyle(
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white)),
+                    // Only when there is something to read; the number used to
+                    // be a hardcoded 3 and showed even with an empty feed.
+                    if (unread > 0)
+                      Positioned(
+                        top: -2,
+                        right: -2,
+                        child: Container(
+                          constraints: const BoxConstraints(minWidth: 16),
+                          height: 16,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: unread > 9 ? 4 : 0),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Center(
+                            child: Text(unread > 99 ? '99+' : '$unread',
+                                style: const TextStyle(
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white)),
+                          ),
                         ),
                       ),
-                    ),
                   ],
                 ),
               ),
