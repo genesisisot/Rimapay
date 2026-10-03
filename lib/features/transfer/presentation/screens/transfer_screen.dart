@@ -11,6 +11,7 @@ import 'package:rimapay/core/services/storage_service.dart';
 import 'package:rimapay/features/profile/presentation/providers/profile_provider.dart';
 import 'package:rimapay/features/success/presentation/screens/success_screen.dart';
 import 'package:rimapay/shared/widgets/bill_screen_widgets.dart';
+import '../../../../shared/widgets/bank_logo_assets.dart';
 
 import '../../../../core/localization/l10n.dart';
 class TransferScreen extends ConsumerStatefulWidget {
@@ -1058,7 +1059,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                       ),
                     ),
                   ] else ...[
-                    _BankLogo(bankName: _selectedBank, size: 32),
+                    _BankLogo(bankName: _selectedBank, bankCode: _selectedBankCode, size: 32),
                     const SizedBox(width: 10),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1338,8 +1339,11 @@ class _SheetOption extends StatelessWidget {
 
 class _BankLogo extends StatelessWidget {
   final String bankName;
+
+  /// Institution code, when the caller has it — the exact way to pick a mark.
+  final String? bankCode;
   final double size;
-  const _BankLogo({required this.bankName, this.size = 40});
+  const _BankLogo({required this.bankName, this.bankCode, this.size = 40});
 
   static Color _color(String name) {
     switch (name) {
@@ -1387,6 +1391,26 @@ class _BankLogo extends StatelessWidget {
     final color = _color(bankName);
     final abbr = _abbr(bankName);
     final radius = size * 0.25;
+
+    final asset = bankLogoAsset(code: bankCode, name: bankName);
+    if (asset != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(radius),
+        child: Image.asset(
+          asset,
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          // A missing or unreadable file falls through to the lettered badge
+          // rather than leaving a hole in the row.
+          errorBuilder: (_, __, ___) => _letters(color, abbr, radius),
+        ),
+      );
+    }
+    return _letters(color, abbr, radius);
+  }
+
+  Widget _letters(Color color, String abbr, double radius) {
     final fontSize = size * 0.27;
     return Container(
       width: size,
@@ -1577,7 +1601,7 @@ class _BankSelectorSheetState extends State<_BankSelectorSheet> {
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 11),
                     child: Row(
                       children: [
-                        _BankLogo(bankName: bank['name']!, size: 40),
+                        _BankLogo(bankName: bank['name']!, bankCode: bank['code'], size: 40),
                         const SizedBox(width: 14),
                         Expanded(
                           child: Text(

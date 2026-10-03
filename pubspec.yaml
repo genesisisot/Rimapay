@@ -101,6 +101,7 @@ flutter:
   
   assets:
     - assets/images/
+    - assets/images/banks/
     - assets/icons/
     - assets/
     - assets/fonts/Effra/

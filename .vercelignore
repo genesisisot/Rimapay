@@ -12,3 +12,9 @@ test
 *.iml
 .flutter-plugins
 .flutter-plugins-dependencies
+
+# flutter test leaves a multi-hundred-MB kernel cache under build/; only
+# build/web is served, and these tripped Vercel's 100 MB file limit.
+build/test_cache
+build/*.dill
+build/**/*.dill
