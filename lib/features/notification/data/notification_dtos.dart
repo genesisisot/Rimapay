@@ -223,3 +223,123 @@ class SendPushNotificationResponse {
     );
   }
 }
+
+
+// ── In-app notification feed ────────────────────────────────────────────────
+// GET /api/v1/notifications/in-app on the otp-notify service.
+
+/// Buckets the backend sorts notifications into. Unknown values fall back to
+/// [general] so a new category on the server can't break the list.
+enum NotificationCategory {
+  payment,
+  moneyReceived,
+  promotion,
+  security,
+  system,
+  cashback,
+  general;
+
+  static NotificationCategory fromJson(Object? raw) {
+    final s = raw?.toString().toLowerCase().replaceAll('_', '');
+    if (s == null || s.isEmpty) return NotificationCategory.general;
+    return NotificationCategory.values.firstWhere(
+      (e) => e.name.toLowerCase() == s,
+      orElse: () => NotificationCategory.general,
+    );
+  }
+
+  /// The name the API expects back when filtering the feed.
+  String get apiName => '${name[0].toUpperCase()}${name.substring(1)}';
+}
+
+class InAppNotification {
+  final String id;
+  final String? title;
+  final String? body;
+  final NotificationCategory category;
+
+  /// Server-chosen icon hint. Advisory only — the UI falls back to the
+  /// category when it is missing or unrecognised.
+  final String? iconType;
+  final bool isRead;
+  final DateTime? readAt;
+
+  /// Deep link to open when the notification is tapped, when there is one.
+  final String? actionUrl;
+  final Map<String, dynamic>? metadata;
+  final DateTime createdOn;
+
+  const InAppNotification({
+    required this.id,
+    required this.category,
+    required this.isRead,
+    required this.createdOn,
+    this.title,
+    this.body,
+    this.iconType,
+    this.readAt,
+    this.actionUrl,
+    this.metadata,
+  });
+
+  InAppNotification copyWith({bool? isRead, DateTime? readAt}) =>
+      InAppNotification(
+        id: id,
+        category: category,
+        isRead: isRead ?? this.isRead,
+        createdOn: createdOn,
+        title: title,
+        body: body,
+        iconType: iconType,
+        readAt: readAt ?? this.readAt,
+        actionUrl: actionUrl,
+        metadata: metadata,
+      );
+
+  factory InAppNotification.fromJson(Map<String, dynamic> json) =>
+      InAppNotification(
+        id: json['id'].toString(),
+        title: json['title'] as String?,
+        body: json['body'] as String?,
+        category: NotificationCategory.fromJson(json['category']),
+        iconType: json['iconType'] as String?,
+        isRead: json['isRead'] == true,
+        readAt: DateTime.tryParse(json['readAt']?.toString() ?? ''),
+        actionUrl: json['actionUrl'] as String?,
+        metadata: json['metadata'] is Map<String, dynamic>
+            ? json['metadata'] as Map<String, dynamic>
+            : null,
+        // A feed row with no date would sort unpredictably; treat it as now.
+        createdOn: DateTime.tryParse(json['createdOn']?.toString() ?? '') ??
+            DateTime.now(),
+      );
+}
+
+class InAppNotificationFeed {
+  final int totalCount;
+  final int unreadCount;
+  final List<InAppNotification> notifications;
+
+  const InAppNotificationFeed({
+    required this.totalCount,
+    required this.unreadCount,
+    required this.notifications,
+  });
+
+  static const empty =
+      InAppNotificationFeed(totalCount: 0, unreadCount: 0, notifications: []);
+
+  factory InAppNotificationFeed.fromJson(Map<String, dynamic> json) {
+    final raw = json['notifications'];
+    return InAppNotificationFeed(
+      totalCount: (json['totalCount'] as num?)?.toInt() ?? 0,
+      unreadCount: (json['unreadCount'] as num?)?.toInt() ?? 0,
+      notifications: raw is List
+          ? raw
+              .whereType<Map<String, dynamic>>()
+              .map(InAppNotification.fromJson)
+              .toList()
+          : const [],
+    );
+  }
+}

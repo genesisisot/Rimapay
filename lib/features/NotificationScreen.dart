@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../core/theme/app_colors.dart';
+import 'notification/data/notification_dtos.dart';
+import 'notification/presentation/providers/notification_provider.dart';
 
 import '../core/localization/l10n.dart';
 // Notification model
@@ -32,76 +35,93 @@ enum NotificationType {
   security,
 }
 
-class NotificationScreen extends StatefulWidget {
+class NotificationScreen extends ConsumerStatefulWidget {
   const NotificationScreen({super.key});
 
   @override
-  State<NotificationScreen> createState() => _NotificationScreenState();
+  ConsumerState<NotificationScreen> createState() => _NotificationScreenState();
 }
 
-class _NotificationScreenState extends State<NotificationScreen> {
-  // Built lazily on first read: the copy is localized, so it needs `context`,
-  // which a field initializer cannot use. Cached because the list is mutated
-  // in place (read flags, dismissal).
-  List<NotificationModel>? _notifications;
-  List<NotificationModel> get notifications => _notifications ??= [
-    NotificationModel(
-      id: '1',
-      title: context.l10n.paymentSuccessful,
-      message: context.l10n.yourAirtimePurchaseOf1000,
-      time: '2 minutes ago',
-      type: NotificationType.transaction,
-      isRead: false,
-      icon: '✅',
-    ),
-    NotificationModel(
-      id: '2',
-      title: context.l10n.newFeatureAvailable,
-      message: context.l10n.loanServicesAreNowAvailableIn,
-      time: '1 hour ago',
-      type: NotificationType.promotion,
-      isRead: false,
-      icon: '🎉',
-    ),
-    NotificationModel(
-      id: '3',
-      title: context.l10n.moneyReceived,
-      message: context.l10n.youReceived25000FromAdebayo,
-      time: '3 hours ago',
-      type: NotificationType.transaction,
-      isRead: true,
-      icon: '💰',
-    ),
-    NotificationModel(
-      id: '4',
-      title: context.l10n.securityAlert,
-      message: context.l10n.newDeviceLoginDetectedFromLagos,
-      time: '1 day ago',
-      type: NotificationType.security,
-      isRead: true,
-      icon: '🔒',
-    ),
-    NotificationModel(
-      id: '5',
-      title: context.l10n.systemMaintenance,
-      message: context.l10n.scheduledMaintenanceOnSunday2am4am,
-      time: '2 days ago',
-      type: NotificationType.system,
-      isRead: true,
-      icon: '⚙️',
-    ),
-    NotificationModel(
-      id: '6',
-      title: context.l10n.cashbackEarned,
-      message: context.l10n.youEarned50CashbackFromYour,
-      time: '3 days ago',
-      type: NotificationType.promotion,
-      isRead: true,
-      icon: '🎁',
-    ),
-  ];
-
+class _NotificationScreenState extends ConsumerState<NotificationScreen> {
+  /// Which tab is showing: all notifications, or unread only.
   String _filter = 'all';
+
+  @override
+  void initState() {
+    super.initState();
+    // After the first frame so the provider can be read safely.
+    WidgetsBinding.instance.addPostFrameCallback(
+        (_) => ref.read(inAppNotificationsProvider.notifier).load());
+  }
+
+  /// The feed, in the shape this screen already renders.
+  List<NotificationModel> get notifications => ref
+      .watch(inAppNotificationsProvider)
+      .items
+      .map(_toModel)
+      .toList(growable: false);
+
+  NotificationModel _toModel(InAppNotification n) => NotificationModel(
+        id: n.id,
+        title: (n.title ?? '').isEmpty ? 'Notification' : n.title!,
+        message: n.body ?? '',
+        time: _relativeTime(n.createdOn),
+        type: _typeFor(n.category),
+        isRead: n.isRead,
+        icon: _iconFor(n.category),
+      );
+
+  NotificationType _typeFor(NotificationCategory c) {
+    switch (c) {
+      case NotificationCategory.payment:
+      case NotificationCategory.moneyReceived:
+      case NotificationCategory.cashback:
+        return NotificationType.transaction;
+      case NotificationCategory.promotion:
+        return NotificationType.promotion;
+      case NotificationCategory.security:
+        return NotificationType.security;
+      case NotificationCategory.system:
+      case NotificationCategory.general:
+        return NotificationType.system;
+    }
+  }
+
+  String _iconFor(NotificationCategory c) {
+    switch (c) {
+      case NotificationCategory.payment:
+        return '✅';
+      case NotificationCategory.moneyReceived:
+        return '💰';
+      case NotificationCategory.promotion:
+        return '🎉';
+      case NotificationCategory.security:
+        return '🔒';
+      case NotificationCategory.cashback:
+        return '🎁';
+      case NotificationCategory.system:
+        return '⚙️';
+      case NotificationCategory.general:
+        return '📢';
+    }
+  }
+
+  /// "2 minutes ago" and friends; falls back to a date once it is old enough
+  /// that a relative label stops being useful.
+  String _relativeTime(DateTime t) {
+    final d = DateTime.now().difference(t);
+    if (d.inSeconds < 60) return 'Just now';
+    if (d.inMinutes < 60) {
+      return '${d.inMinutes} minute${d.inMinutes == 1 ? '' : 's'} ago';
+    }
+    if (d.inHours < 24) {
+      return '${d.inHours} hour${d.inHours == 1 ? '' : 's'} ago';
+    }
+    if (d.inDays < 7) {
+      return '${d.inDays} day${d.inDays == 1 ? '' : 's'} ago';
+    }
+    return '${t.day}/${t.month}/${t.year}';
+  }
 
   List<NotificationModel> get _filteredNotifications {
     return notifications
@@ -109,26 +129,17 @@ class _NotificationScreenState extends State<NotificationScreen> {
         .toList();
   }
 
-  int get unreadCount => notifications.where((n) => !n.isRead).length;
+  int get unreadCount =>
+      ref.watch(inAppNotificationsProvider).unreadCount;
 
-  void _markAsRead(String id) {
-    setState(() {
-      final i = notifications.indexWhere((n) => n.id == id);
-      if (i != -1) notifications[i].isRead = true;
-    });
-  }
+  void _markAsRead(String id) =>
+      ref.read(inAppNotificationsProvider.notifier).markRead(id);
 
-  void _markAllAsRead() {
-    setState(() {
-      for (var n in notifications) {
-        n.isRead = true;
-      }
-    });
-  }
+  void _markAllAsRead() =>
+      ref.read(inAppNotificationsProvider.notifier).markAllRead();
 
-  void _deleteNotification(String id) {
-    setState(() => notifications.removeWhere((n) => n.id == id));
-  }
+  void _deleteNotification(String id) =>
+      ref.read(inAppNotificationsProvider.notifier).remove(id);
 
   Color _typeAccent(NotificationType type) {
     switch (type) {
@@ -284,6 +295,46 @@ class _NotificationScreenState extends State<NotificationScreen> {
   }
 
   Widget _buildList() {
+    final feed = ref.watch(inAppNotificationsProvider);
+
+    if (feed.isLoading && !feed.loaded) {
+      return const Center(
+          child: CircularProgressIndicator(color: Color(0xFF166C46)));
+    }
+
+    if (feed.error != null && feed.items.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.cloud_off_rounded,
+                  size: 34, color: Color(0xFF9CA3AF)),
+              const SizedBox(height: 14),
+              Text(
+                feed.error!,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontFamily: 'Effra',
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: () =>
+                    ref.read(inAppNotificationsProvider.notifier).load(),
+                child: const Text('Try again',
+                    style: TextStyle(
+                        color: Color(0xFF166C46), fontWeight: FontWeight.w700)),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     if (_filteredNotifications.isEmpty) {
       return Center(
         child: Column(
@@ -323,12 +374,21 @@ class _NotificationScreenState extends State<NotificationScreen> {
       );
     }
 
-    return ListView.separated(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      itemCount: _filteredNotifications.length,
-      separatorBuilder: (_, __) => Divider(
-          height: 1, indent: 72, endIndent: 16, color: Theme.of(context).dividerColor),
-      itemBuilder: (_, i) => _buildItem(_filteredNotifications[i]),
+    return RefreshIndicator(
+      color: const Color(0xFF166C46),
+      onRefresh: () =>
+          ref.read(inAppNotificationsProvider.notifier).load(silent: true),
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        physics: const AlwaysScrollableScrollPhysics(),
+        itemCount: _filteredNotifications.length,
+        separatorBuilder: (_, __) => Divider(
+            height: 1,
+            indent: 72,
+            endIndent: 16,
+            color: Theme.of(context).dividerColor),
+        itemBuilder: (_, i) => _buildItem(_filteredNotifications[i]),
+      ),
     );
   }
 

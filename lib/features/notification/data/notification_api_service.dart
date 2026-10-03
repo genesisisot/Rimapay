@@ -105,6 +105,87 @@ class NotificationApiService {
     }
   }
 
+  // ── In-app feed ──────────────────────────────────────────────────────────
+  // These are the notifications shown in the app's own list, as opposed to the
+  // push/SMS senders above. All are scoped to the caller's Bearer token.
+
+  /// GET /api/v1/notifications/in-app
+  Future<ApiResponse<InAppNotificationFeed>> getInAppFeed({
+    bool? unreadOnly,
+    NotificationCategory? category,
+    int pageNumber = 1,
+    int pageSize = 20,
+  }) async {
+    try {
+      final res = await _dio.get(
+        '/api/v1/notifications/in-app',
+        queryParameters: {
+          if (unreadOnly != null) 'unreadOnly': unreadOnly,
+          if (category != null) 'category': category.apiName,
+          'pageNumber': pageNumber,
+          'pageSize': pageSize,
+        },
+      );
+      final data = res.data;
+      if (data is Map<String, dynamic>) {
+        return ApiResponse<InAppNotificationFeed>.fromJson(
+          data,
+          fromData: (d) =>
+              InAppNotificationFeed.fromJson(d as Map<String, dynamic>),
+        );
+      }
+      return ApiResponse<InAppNotificationFeed>.failure(
+          'Unexpected response (${res.statusCode}).');
+    } on DioException catch (e) {
+      return ApiResponse<InAppNotificationFeed>.failure(_dioMessage(e));
+    } catch (e) {
+      return ApiResponse<InAppNotificationFeed>.failure('Unexpected error: $e');
+    }
+  }
+
+  /// GET /api/v1/notifications/in-app/unread-count — the badge number.
+  Future<ApiResponse<int>> getUnreadCount() =>
+      _call<int>(() => _dio.get('/api/v1/notifications/in-app/unread-count'),
+          (d) => (d as num?)?.toInt() ?? 0);
+
+  /// PATCH /api/v1/notifications/in-app/{id}/read
+  Future<ApiResponse<bool>> markRead(String id) => _call<bool>(
+      () => _dio.patch('/api/v1/notifications/in-app/$id/read'),
+      (d) => d == true);
+
+  /// POST /api/v1/notifications/in-app/read-all
+  Future<ApiResponse<bool>> markAllRead() => _call<bool>(
+      () => _dio.post('/api/v1/notifications/in-app/read-all'),
+      (d) => d == true);
+
+  /// DELETE /api/v1/notifications/in-app/{id} — a soft delete server-side.
+  Future<ApiResponse<bool>> deleteNotification(String id) => _call<bool>(
+      () => _dio.delete('/api/v1/notifications/in-app/$id'), (d) => d == true);
+
+  /// DELETE /api/v1/notifications/in-app/clear-all
+  Future<ApiResponse<bool>> clearAll() => _call<bool>(
+      () => _dio.delete('/api/v1/notifications/in-app/clear-all'),
+      (d) => d == true);
+
+  /// Shared wrapper for the small scalar-returning calls above.
+  Future<ApiResponse<T>> _call<T>(
+    Future<Response<dynamic>> Function() send,
+    T Function(Object? data) parse,
+  ) async {
+    try {
+      final res = await send();
+      final data = res.data;
+      if (data is Map<String, dynamic>) {
+        return ApiResponse<T>.fromJson(data, fromData: parse);
+      }
+      return ApiResponse<T>.failure('Unexpected response (${res.statusCode}).');
+    } on DioException catch (e) {
+      return ApiResponse<T>.failure(_dioMessage(e));
+    } catch (e) {
+      return ApiResponse<T>.failure('Unexpected error: $e');
+    }
+  }
+
   // ── helpers ──────────────────────────────────────────────────────────────
 
   Future<ApiResponse<SendSmsResponse>> _postSms(

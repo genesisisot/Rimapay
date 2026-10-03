@@ -92,13 +92,37 @@ class NetworkProvider {
   final Color bgColor;
   final String icon;
 
+  /// The operator's own mark. The emoji stays as a fallback for a missing or
+  /// unreadable asset, so the tile never renders empty.
+  final String? logoAsset;
+
   const NetworkProvider({
     required this.id,
     required this.name,
     required this.color,
     required this.bgColor,
     required this.icon,
+    this.logoAsset,
   });
+
+  /// The logo at [size], falling back to the emoji.
+  Widget logo({double size = 20}) {
+    final asset = logoAsset;
+    if (asset == null) return Text(icon, style: TextStyle(fontSize: size));
+    // The marks ship on an opaque white square, so round the corners rather
+    // than letting a hard white box sit on the tinted tile.
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(size * 0.22),
+      child: Image.asset(
+        asset,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) =>
+            Text(icon, style: TextStyle(fontSize: size)),
+      ),
+    );
+  }
 }
 
 
@@ -139,13 +163,33 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
   // ── Static data ───────────────────────────────────────────────────────────
   static const _networks = [
     NetworkProvider(
-        id: 'mtn', name: 'MTN', color: Color(0xFFFFCC02), bgColor: Color(0xFFFFF8E1), icon: '📶'),
+        id: 'mtn',
+        name: 'MTN',
+        color: Color(0xFFFFCC02),
+        bgColor: Color(0xFFFFF8E1),
+        icon: '📶',
+        logoAsset: 'assets/images/Mtn.png'),
     NetworkProvider(
-        id: 'airtel', name: 'AIRTEL', color: Color(0xFFFF0000), bgColor: Color(0xFFFFEBEE), icon: '📡'),
+        id: 'airtel',
+        name: 'AIRTEL',
+        color: Color(0xFFFF0000),
+        bgColor: Color(0xFFFFEBEE),
+        icon: '📡',
+        logoAsset: 'assets/images/Airtel.png'),
     NetworkProvider(
-        id: 'glo', name: 'GLO', color: Color(0xFF166C46), bgColor: Color(0xFFF2F7F3), icon: '🌐'),
+        id: 'glo',
+        name: 'GLO',
+        color: Color(0xFF166C46),
+        bgColor: Color(0xFFF2F7F3),
+        icon: '🌐',
+        logoAsset: 'assets/images/Glo.png'),
     NetworkProvider(
-        id: '9mobile', name: '9MOBILE', color: Color(0xFF00A86B), bgColor: Color(0xFFE8F6F3), icon: '📱'),
+        id: '9mobile',
+        name: '9MOBILE',
+        color: Color(0xFF00A86B),
+        bgColor: Color(0xFFE8F6F3),
+        icon: '📱',
+        logoAsset: 'assets/images/9mobile.png'),
   ];
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────
@@ -174,7 +218,8 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
 
   // ── Helpers ───────────────────────────────────────────────────────────────
   void _detectNetwork() {
-    final phone = _phoneController.text.replaceAll(' ', '');
+    // Work from the national number so `0803…` and `803…` detect the same.
+    final phone = _nationalDigits(_phoneController.text);
     if (phone.length < 3) return;
     final prefix = phone.substring(0, 3);
     const prefixMap = {
@@ -213,15 +258,17 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
     return available.any((n) => n.toUpperCase() == net.name.toUpperCase());
   }
 
+  /// True once the field holds a complete Nigerian mobile number, typed
+  /// either as `08137954069` or as `8137954069`.
+  bool get _phoneComplete => _nationalDigits(_phoneController.text).length == 10;
+
   bool get _airtimeValid =>
-      _phoneController.text.replaceAll(' ', '').length == 10 &&
+      _phoneComplete &&
       _amountController.text.isNotEmpty &&
       _selectedNetwork != null;
 
   bool get _dataValid =>
-      _phoneController.text.replaceAll(' ', '').length == 10 &&
-      _selectedPlan != null &&
-      _selectedNetwork != null;
+      _phoneComplete && _selectedPlan != null && _selectedNetwork != null;
 
   // ── Actions ───────────────────────────────────────────────────────────────
   void _buyAirtime() {
@@ -463,18 +510,22 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
       controller: _phoneController,
       focusNode: _phoneFocus,
       label: context.l10n.phoneNumber,
-      hint: '801 234 5678',
+      hint: '0801 234 5678',
       keyboardType: TextInputType.phone,
       inputFormatters: [
         FilteringTextInputFormatter.digitsOnly,
-        LengthLimitingTextInputFormatter(10),
+        // 11 so the number can be typed the way people know it, with the
+        // leading zero, rather than having to drop it to fit.
+        LengthLimitingTextInputFormatter(11),
       ],
       onChanged: (_) => setState(() {}),
       prefixWidget: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            '+234',
+            // The country code only makes sense in front of a number without
+            // its trunk zero; with the zero typed, the number stands alone.
+            _phoneController.text.startsWith('0') ? 'NG' : '+234',
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -499,9 +550,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
                 color: Theme.of(context).brightness == Brightness.dark ? _selectedNetwork!.color.withOpacity(0.15) : _selectedNetwork!.bgColor,
                 shape: BoxShape.circle,
               ),
-              child: Center(
-                  child: Text(_selectedNetwork!.icon,
-                      style: TextStyle(fontSize: 13))),
+              child: Center(child: _selectedNetwork!.logo(size: 15)),
             )
           : null,
     );
@@ -589,12 +638,22 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
     );
   }
 
-  /// The 10 digits the phone field holds (it renders after a +234 prefix).
-  String _localDigits(String raw) {
+  /// The national number, i.e. without the country code or the trunk zero,
+  /// so `08137954069`, `8137954069` and `2348137954069` all come out the same.
+  String _nationalDigits(String raw) {
     final digits = raw.replaceAll(RegExp(r'\D'), '');
-    if (digits.length == 13 && digits.startsWith('234')) return digits.substring(3);
+    if (digits.length == 13 && digits.startsWith('234')) {
+      return digits.substring(3);
+    }
     if (digits.length == 11 && digits.startsWith('0')) return digits.substring(1);
     return digits;
+  }
+
+  /// What the phone field should show for a saved beneficiary: the whole
+  /// number, leading zero and all.
+  String _localDigits(String raw) {
+    final national = _nationalDigits(raw);
+    return national.length == 10 ? '0$national' : national;
   }
 
   /// After a successful purchase to a number that isn't saved yet, offer to
@@ -796,7 +855,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
                   ),
                   child: Column(
                     children: [
-                      Text(net.icon, style: TextStyle(fontSize: 20)),
+                      net.logo(size: 24),
                       const SizedBox(height: 4),
                       Text(net.name,
                           style: TextStyle(

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rimapay/core/providers/auth_provider.dart';
 import 'package:rimapay/core/services/storage_service.dart';
+import 'package:rimapay/features/bills/presentation/widgets/bill_purchase_flow.dart';
 import 'package:rimapay/features/bills/data/bills_dtos.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -76,6 +77,21 @@ void main() {
       await StorageService.clearUser();
       await StorageService.saveUser(_user('user-b'));
       expect(await StorageService.getBeneficiaries(), isEmpty);
+    });
+  });
+
+  group('airtime phone numbers', () {
+    test('a number typed in full, with its leading zero, is sent as-is', () {
+      expect(localMobileNumber('08137954069'), '08137954069');
+    });
+
+    test('a number typed without the zero still gets one', () {
+      expect(localMobileNumber('8137954069'), '08137954069');
+    });
+
+    test('international form is brought back to local form', () {
+      expect(localMobileNumber('2348137954069'), '08137954069');
+      expect(localMobileNumber('+234 813 795 4069'), '08137954069');
     });
   });
 }

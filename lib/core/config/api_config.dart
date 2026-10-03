@@ -46,7 +46,10 @@ class ApiConfig {
   static String get baseUrl => '$_gateway/identity';
 
   /// Base URL for the OTP / Notification API gateway.
-  static String get otpBaseUrl => '$_gateway/otp';
+  ///
+  /// The service is routed at `/otp-notify`; `/otp` is not routed at all and
+  /// answers every path with the gateway's own running-stub.
+  static String get otpBaseUrl => '$_gateway/otp-notify';
 
   /// Base URL for the Profile-Transaction API gateway.
   static String get profileBaseUrl => '$_gateway/profile-transaction';
