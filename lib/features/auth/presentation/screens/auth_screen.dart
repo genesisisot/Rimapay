@@ -2418,7 +2418,23 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
                 raw: null, stage: rd.currentStage));
             return;
           }
-          if (rd.requiresOtpResend) {
+          // Only these two mean a code is out, or can be. Every other stage
+          // below otpVerified has never had one issued, and showing the OTP
+          // screen there leaves the user entering a code that doesn't exist.
+          final atOtp = rd.currentStage == OnboardingStage.otpPending ||
+              rd.currentStage == OnboardingStage.phoneNumberVerification;
+          if (!atOtp) {
+            setState(() {
+              _loading = false;
+              _error = rd.message ??
+                  'This account has an unfinished application at '
+                      '${rd.currentStage.name}. Please contact support to '
+                      'continue.';
+            });
+            return;
+          }
+
+          if (rd.currentStage.canResendOtp && rd.requiresOtpResend) {
             final otpRes = await api.resendOtp(
               ResendOnboardingOtpRequest(sessionId: _sessionId!),
             );

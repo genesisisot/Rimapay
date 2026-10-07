@@ -59,4 +59,23 @@ void main() {
           OnboardingStage.validateFaceWithIdPending);
     });
   });
+
+  group('resending a code', () {
+    test('only while one is actually outstanding', () {
+      expect(OnboardingStage.otpPending.canResendOtp, isTrue);
+    });
+
+    test('never at IdentityVerification — the stage that broke linking', () {
+      // resume returned this with requiresOtpResend: true, and resend-otp
+      // answered INVALID_STAGE. The flag alone is not a reason to call it.
+      expect(OnboardingStage.identityVerification.canResendOtp, isFalse);
+    });
+
+    test('nor anywhere else', () {
+      for (final s in OnboardingStage.values) {
+        if (s == OnboardingStage.otpPending) continue;
+        expect(s.canResendOtp, isFalse, reason: s.name);
+      }
+    });
+  });
 }

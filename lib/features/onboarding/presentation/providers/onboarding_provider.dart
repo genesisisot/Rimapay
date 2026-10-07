@@ -600,10 +600,10 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
         otpVerified: !landsOnOtp,
         justResumed: true,
       );
-      // Only request a fresh OTP when the resumed session is at a pre-OTP
-      // stage and the backend says it is needed. For later stages it would
-      // be rejected, so never call it there.
-      if (landsOnOtp && d.requiresOtpResend) {
+      // Only when a code is actually outstanding. `landsOnOtp` is not enough:
+      // several pre-OTP stages map to the OTP screen, and resend-otp answers
+      // INVALID_STAGE at every one of them except otpPending.
+      if (d.currentStage.canResendOtp && d.requiresOtpResend) {
         log('[provider] resume → resending OTP');
         await resendOtp();
       }
@@ -636,11 +636,15 @@ class OnboardingNotifier extends StateNotifier<OnboardingState> {
       // screen rather than bouncing back to phone entry (which would re-trigger
       // ACTIVE_SESSION_EXISTS).
       OnboardingStage.initialDataEntry ||
-      OnboardingStage.identityVerification ||
       OnboardingStage.phoneNumberVerification ||
       OnboardingStage.otpPending =>
         OnboardingStep.otpVerification,
-      OnboardingStage.otpVerified => OnboardingStep.identitySubmission,
+      // Identity outstanding — the stage says so. It used to be lumped in with
+      // the OTP stages, which made the app resend a code the backend refuses
+      // to send at that stage.
+      OnboardingStage.identityVerification ||
+      OnboardingStage.otpVerified =>
+        OnboardingStep.identitySubmission,
       // Both land on facial validation; the ID is collected just before the
       // camera, which the linking flow handles.
       OnboardingStage.facialValidationPending ||

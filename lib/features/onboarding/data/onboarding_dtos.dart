@@ -45,6 +45,12 @@ enum OnboardingStage {
   /// and reading a stage by position silently turned it into the first step.
   int get code => this == failed ? 99 : index + 1;
 
+  /// `resend-otp` is only accepted while a code is actually outstanding.
+  /// Anywhere else it answers INVALID_STAGE — "Cannot resend OTP at current
+  /// stage" — so `requiresOtpResend` on a resume is not on its own a reason
+  /// to call it.
+  bool get canResendOtp => this == otpPending;
+
   static OnboardingStage fromString(String s) =>
       OnboardingStage.values.firstWhere(
         // Backend sends PascalCase ("FacialValidationPending"); enum names are
