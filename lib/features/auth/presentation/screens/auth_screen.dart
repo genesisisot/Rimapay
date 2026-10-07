@@ -2407,8 +2407,15 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
           _sessionId = rd.sessionId;
           _otpRef = null;
           log('[auth] resume → stage=${rd.currentStage} requiresOtpResend=${rd.requiresOtpResend}');
-          if (rd.currentStage.index >= OnboardingStage.otpVerified.index) {
-            Navigator.pop(context, _sessionId);
+          // Compare the backend's numbering, not the declaration order:
+          // validateFaceWithIdPending sits late in the enum but is an early
+          // step, and failed is 99.
+          if (rd.currentStage.code >= OnboardingStage.otpVerified.code &&
+              rd.currentStage != OnboardingStage.failed) {
+            // Resuming means verify-otp was never called here, so there is no
+            // nextStep to read — the stage says what is still outstanding.
+            _finish(OnboardingNextStep.resolve(
+                raw: null, stage: rd.currentStage));
             return;
           }
           if (rd.requiresOtpResend) {
@@ -2594,6 +2601,13 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
     );
   }
 
+  /// The sheet's only exit. `Navigator.pop` infers its type from whatever it
+  /// is handed, so the compiler cannot catch a path popping the wrong shape —
+  /// which is how the resume path came to pop a bare session id and throw.
+  void _finish(OnboardingNextStep next) {
+    Navigator.pop(context, _LinkResult(_sessionId!, next));
+  }
+
   Future<void> _onLinkAccount() async {
     final filled = _otp.where((d) => d.isNotEmpty).length;
     if (filled < 6) return;
@@ -2617,8 +2631,7 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
       setState(() => _loading = false);
       if (res.isSuccess && res.data != null && res.data!.isVerified) {
         // The backend decides what identity proof is still needed.
-        Navigator.pop(
-            context, _LinkResult(_sessionId!, res.data!.nextStep));
+        _finish(res.data!.nextStep);
       } else {
         setState(() => _error = res.errorMessage ?? 'Invalid code. Please try again.');
       }
