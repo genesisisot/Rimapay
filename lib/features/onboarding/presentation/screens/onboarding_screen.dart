@@ -374,7 +374,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             // For now, simulate with placeholder base64
             notifier.validateFace(
               capturedImageBase64: 'placeholder',
-              livenessCheckPassed: true,
             );
           },
         ),

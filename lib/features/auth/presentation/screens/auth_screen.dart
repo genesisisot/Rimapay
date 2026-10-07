@@ -3328,7 +3328,9 @@ class _ContinueLinkingPageState
       final res = await api.validateFace(FacialValidationRequest(
         sessionId: widget.sessionId,
         capturedImageBase64: base64Image,
-        livenessCheckPassed: true,
+        // No liveness flag: the app runs no liveness check, and claiming one
+        // passed would tell the backend something untrue. The DTO omits it
+        // when null.
         identityNumber: _needsId ? _idDigits : null,
         documentType: _needsId
             ? (_idType == 'nin'

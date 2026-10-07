@@ -4159,10 +4159,10 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       _cameraController?.dispose();
       _cameraController = null;
 
-      // Selfie captured live via camera — flag liveness as passed
+      // No liveness flag: a photo taken through the camera is not a liveness
+      // check, and the backend should not be told one passed.
       final ok = await ref.read(onboardingProvider.notifier).validateFace(
             capturedImageBase64: base64Image,
-            livenessCheckPassed: true,
           );
       if (!mounted) return;
       setState(() {
