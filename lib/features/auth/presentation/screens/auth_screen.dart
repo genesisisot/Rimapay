@@ -2425,6 +2425,15 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
             if (!mounted) return;
             if (otpRes.isSuccess && otpRes.data != null) {
               _otpRef = otpRes.data!.otpReference;
+            } else {
+              // No code was sent, so showing the OTP screen would leave the
+              // user waiting for something that is never going to arrive.
+              setState(() {
+                _loading = false;
+                _error = otpRes.errorMessage ??
+                    'We could not send you a code. Please try again shortly.';
+              });
+              return;
             }
           }
           setState(() { _step = 1; _loading = false; _error = null; });
@@ -2769,9 +2778,19 @@ class _ContinueLinkingPageState
           setState(() => _step = 1);
         }
         // else stays at step 0 (identity, then facial)
+        return;
       }
+      // Resume decides which screen is correct, so failing it silently leaves
+      // the user on the first step, which may be the wrong one — and looks
+      // like the app simply stopped.
+      setState(() => _error = res.errorMessage ??
+          'Could not pick up where you left off. Please try again.');
     } catch (e) {
       log('[continue] resume error: $e');
+      if (mounted) {
+        setState(() =>
+            _error = 'Network error while resuming. Please try again.');
+      }
     }
   }
 
