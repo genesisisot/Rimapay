@@ -69,12 +69,13 @@ class BillsApiService {
       _getList('/api/v1/bills/beneficiaries', BeneficiaryDto.fromJson);
 
   /// POST /api/v1/bills/beneficiaries
-  Future<bool> addBeneficiary(CreateBeneficiaryRequest request) =>
-      _ok(() => _dio.post('/api/v1/bills/beneficiaries', data: request.toJson()));
+  Future<bool> addBeneficiary(CreateBeneficiaryRequest request) => _ok(
+      () => _dio.post('/api/v1/bills/beneficiaries', data: request.toJson()));
 
   /// PUT /api/v1/bills/beneficiaries/{id}
   Future<bool> updateBeneficiary(String id, UpdateBeneficiaryRequest request) =>
-      _ok(() => _dio.put('/api/v1/bills/beneficiaries/$id', data: request.toJson()));
+      _ok(() =>
+          _dio.put('/api/v1/bills/beneficiaries/$id', data: request.toJson()));
 
   /// DELETE /api/v1/bills/beneficiaries/{id}
   Future<bool> deleteBeneficiary(String id) =>
@@ -87,12 +88,60 @@ class BillsApiService {
       _getList('/api/v1/bills/categories', BillerCategoryDto.fromJson);
 
   /// GET /api/v1/bills/categories/{categoryId}/billers
-  Future<List<BillerDto>> getBillers(int categoryId) =>
-      _getList('/api/v1/bills/categories/$categoryId/billers', BillerDto.fromJson);
+  Future<List<BillerDto>> getBillers(int categoryId) => _getList(
+      '/api/v1/bills/categories/$categoryId/billers', BillerDto.fromJson);
 
   /// GET /api/v1/bills/billers/{billerId}/items
   Future<List<BillerItemDto>> getBillerItems(int billerId) =>
       _getList('/api/v1/bills/billers/$billerId/items', BillerItemDto.fromJson);
+
+  /// POST /api/v1/bills/validate — checks a meter / smartcard number with the
+  /// biller and returns the customer's name. Never throws.
+  Future<CustomerValidationResult> validateCustomer(
+      ValidateCustomerRequest request) async {
+    const retry = "Couldn't verify right now. Please retry.";
+    const expired = 'Your session has expired. Please log in again.';
+    const notFound = 'Customer not found.';
+    try {
+      final res =
+          await _dio.post('/api/v1/bills/validate', data: request.toJson());
+      final code = res.statusCode ?? 0;
+      final body = res.data is Map<String, dynamic>
+          ? res.data as Map<String, dynamic>
+          : const <String, dynamic>{};
+      final message = (body['message'] as String?)?.trim();
+
+      if (body['isSuccess'] == true && body['data'] is Map<String, dynamic>) {
+        final dto =
+            ValidateCustomerDto.fromJson(body['data'] as Map<String, dynamic>);
+        if ((dto.fullName ?? '').isNotEmpty) {
+          return CustomerValidationResult.verified(dto);
+        }
+        return CustomerValidationResult.invalid(
+            (message?.isNotEmpty ?? false) ? message! : notFound);
+      }
+      if (code == 401) return CustomerValidationResult.unavailable(expired);
+      if (code == 0 || code >= 500) {
+        return CustomerValidationResult.unavailable(retry);
+      }
+      return CustomerValidationResult.invalid(
+          (message?.isNotEmpty ?? false) ? message! : notFound);
+    } on DioException catch (e) {
+      final code = e.response?.statusCode ?? 0;
+      final data = e.response?.data;
+      final message =
+          (data is Map<String, dynamic> ? data['message'] as String? : null)
+              ?.trim();
+      if (code == 400 || code == 404) {
+        return CustomerValidationResult.invalid(
+            (message?.isNotEmpty ?? false) ? message! : notFound);
+      }
+      return CustomerValidationResult.unavailable(
+          code == 401 ? expired : _dioMessage(e));
+    } catch (_) {
+      return CustomerValidationResult.unavailable(retry);
+    }
+  }
 
   /// POST /api/v1/bills/payment
   Future<BillPurchaseResult> payBill(BillPaymentRequest request) =>
@@ -104,6 +153,52 @@ class BillsApiService {
         UtilityLimitDto.fromJson,
         query: {'categoryId': categoryId},
       );
+
+  /// GET /api/v1/bills/history?pageNumber=&pageSize=&utilityType= — bills the
+  /// user paid, optionally only one [utilityType] (`Electricity` | `CableTv`).
+  /// `pageSize` max is 100.
+  ///
+  /// Unlike the other list calls this throws on failure, so the history screen
+  /// can tell "nothing bought yet" apart from "couldn't load".
+  Future<List<BillPaymentHistoryDto>> getBillHistory({
+    int page = 1,
+    int pageSize = 20,
+    String? utilityType,
+  }) async {
+    final Response<dynamic> res;
+    try {
+      res = await _dio.get(
+        '/api/v1/bills/history',
+        queryParameters: {
+          'pageNumber': page,
+          'pageSize': pageSize,
+          if (utilityType != null) 'utilityType': utilityType,
+        },
+      );
+    } on DioException catch (e) {
+      throw Exception(_dioMessage(e));
+    }
+    final body = res.data;
+    if (body is Map<String, dynamic> && body['data'] is List) {
+      final rows = (body['data'] as List).whereType<Map<String, dynamic>>();
+      // The token has no field of its own; log raw rows so a live call shows
+      // where QuickTeller actually put it.
+      if (kDebugMode && page == 1 && rows.isNotEmpty) {
+        debugPrint('bills/history sample row: ${rows.first}');
+      }
+      return rows.map(BillPaymentHistoryDto.fromJson).toList();
+    }
+    if (body is Map<String, dynamic> && body['isSuccess'] == true) {
+      return const []; // success with null data → no history
+    }
+    if (res.statusCode == 401) {
+      throw Exception('Your session has expired. Please log in again.');
+    }
+    throw Exception(
+      (body is Map<String, dynamic> ? body['message'] as String? : null) ??
+          'Could not load your history (${res.statusCode}).',
+    );
+  }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -151,7 +246,8 @@ class BillsApiService {
     try {
       final res = await _dio.get(path, queryParameters: query);
       final body = res.data;
-      if (body is Map<String, dynamic> && body['data'] is Map<String, dynamic>) {
+      if (body is Map<String, dynamic> &&
+          body['data'] is Map<String, dynamic>) {
         return fromJson(body['data'] as Map<String, dynamic>);
       }
       return null;
@@ -167,7 +263,8 @@ class BillsApiService {
       final res = await _dio.post(path, data: payload);
       final body = res.data;
       if (body is Map<String, dynamic>) {
-        return BillPurchaseResult.fromEnvelope(body, httpStatus: res.statusCode);
+        return BillPurchaseResult.fromEnvelope(body,
+            httpStatus: res.statusCode);
       }
       return BillPurchaseResult.failure(res.statusCode == 401
           ? 'Your session has expired. Please log in again.'

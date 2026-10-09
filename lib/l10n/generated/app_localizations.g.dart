@@ -2357,7 +2357,7 @@ abstract class AppL10n {
   ///
   /// In en, this message translates to:
   /// **'{label} copied'**
-  String labelCopied(Object label);
+  String labelCopied(String label);
 
   /// No description provided for @language.
   ///
@@ -5625,6 +5625,222 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Save {number} for faster top-ups next time?'**
   String saveNumberForFasterTopUps(String number);
+
+  /// No description provided for @buyTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy'**
+  String get buyTab;
+
+  /// No description provided for @historyTab.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get historyTab;
+
+  /// No description provided for @yesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get yesterday;
+
+  /// No description provided for @reversed.
+  ///
+  /// In en, this message translates to:
+  /// **'Reversed'**
+  String get reversed;
+
+  /// No description provided for @provider.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider'**
+  String get provider;
+
+  /// No description provided for @units.
+  ///
+  /// In en, this message translates to:
+  /// **'Units'**
+  String get units;
+
+  /// No description provided for @meterType.
+  ///
+  /// In en, this message translates to:
+  /// **'Meter Type'**
+  String get meterType;
+
+  /// No description provided for @copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get copy;
+
+  /// No description provided for @electricityToken.
+  ///
+  /// In en, this message translates to:
+  /// **'Token'**
+  String get electricityToken;
+
+  /// No description provided for @tokenCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Token copied'**
+  String get tokenCopied;
+
+  /// No description provided for @tokenUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Token not shown yet. Contact support with the reference below.'**
+  String get tokenUnavailable;
+
+  /// No description provided for @postpaidNoToken.
+  ///
+  /// In en, this message translates to:
+  /// **'Postpaid — no token needed'**
+  String get postpaidNoToken;
+
+  /// No description provided for @noElectricityPurchasesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No electricity purchases yet'**
+  String get noElectricityPurchasesYet;
+
+  /// No description provided for @electricityHistoryEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Every token you buy is saved here, so you can find it again any time.'**
+  String get electricityHistoryEmptyHint;
+
+  /// No description provided for @buyElectricity.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy Electricity'**
+  String get buyElectricity;
+
+  /// No description provided for @buyAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy Again'**
+  String get buyAgain;
+
+  /// No description provided for @couldNotLoadHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your history'**
+  String get couldNotLoadHistory;
+
+  /// No description provided for @searchMeterOrReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Search meter number or reference'**
+  String get searchMeterOrReference;
+
+  /// No description provided for @noMatchingPurchases.
+  ///
+  /// In en, this message translates to:
+  /// **'No purchases match your search'**
+  String get noMatchingPurchases;
+
+  /// No description provided for @lastToken.
+  ///
+  /// In en, this message translates to:
+  /// **'Your last token'**
+  String get lastToken;
+
+  /// No description provided for @endOfHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve reached the end'**
+  String get endOfHistory;
+
+  /// No description provided for @purchaseDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase Details'**
+  String get purchaseDetails;
+
+  /// No description provided for @copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get copied;
+
+  /// No description provided for @verifyingMeter.
+  ///
+  /// In en, this message translates to:
+  /// **'Verifying meter number…'**
+  String get verifyingMeter;
+
+  /// No description provided for @verifyingSmartcard.
+  ///
+  /// In en, this message translates to:
+  /// **'Verifying smartcard number…'**
+  String get verifyingSmartcard;
+
+  /// No description provided for @meterNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find this meter number. Check it and try again.'**
+  String get meterNotFound;
+
+  /// No description provided for @smartcardNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find this smartcard number. Check it and try again.'**
+  String get smartcardNotFound;
+
+  /// No description provided for @couldNotVerify.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t verify right now'**
+  String get couldNotVerify;
+
+  /// No description provided for @customerName.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get customerName;
+
+  /// No description provided for @renew.
+  ///
+  /// In en, this message translates to:
+  /// **'Renew'**
+  String get renew;
+
+  /// No description provided for @package.
+  ///
+  /// In en, this message translates to:
+  /// **'Package'**
+  String get package;
+
+  /// No description provided for @amountDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount due'**
+  String get amountDue;
+
+  /// No description provided for @noCablePurchasesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No Cable TV payments yet'**
+  String get noCablePurchasesYet;
+
+  /// No description provided for @cableHistoryEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Every subscription you pay for is saved here, so you can renew in one tap.'**
+  String get cableHistoryEmptyHint;
+
+  /// No description provided for @payCableTv.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay Cable TV'**
+  String get payCableTv;
+
+  /// No description provided for @searchSmartcardOrReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Search smartcard number or reference'**
+  String get searchSmartcardOrReference;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

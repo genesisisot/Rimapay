@@ -6,7 +6,9 @@ import '../../../../shared/widgets/bill_screen_widgets.dart';
 import '../../../success/presentation/screens/success_screen.dart';
 import '../../../bills/data/bills_dtos.dart';
 import '../../../bills/presentation/providers/bills_providers.dart';
+import '../../../bills/presentation/widgets/bill_history_list.dart';
 import '../../../bills/presentation/widgets/bill_purchase_flow.dart';
+import '../../../bills/presentation/widgets/customer_validation.dart';
 
 import '../../../../core/localization/l10n.dart';
 // ── Models ────────────────────────────────────────────────────────────────────
@@ -76,7 +78,8 @@ class CablePurchaseScreen extends ConsumerStatefulWidget {
   const CablePurchaseScreen({super.key});
 
   @override
-  ConsumerState<CablePurchaseScreen> createState() => _CablePurchaseScreenState();
+  ConsumerState<CablePurchaseScreen> createState() =>
+      _CablePurchaseScreenState();
 }
 
 class _CablePurchaseScreenState extends ConsumerState<CablePurchaseScreen>
@@ -87,7 +90,17 @@ class _CablePurchaseScreenState extends ConsumerState<CablePurchaseScreen>
   final _cardController = TextEditingController();
   final _cardFocus = FocusNode();
 
+  /// 0 = Buy, 1 = History.
+  int _tab = 0;
+
+  /// Package to select once the provider's packages load (Renew).
+  String? _pendingPackageId;
+
   late AnimationController _processingController;
+
+  late final CustomerValidator _validator = CustomerValidator(
+    (req) => ref.read(billsApiServiceProvider).validateCustomer(req),
+  );
 
   @override
   void initState() {
@@ -97,6 +110,71 @@ class _CablePurchaseScreenState extends ConsumerState<CablePurchaseScreen>
       duration: const Duration(seconds: 2),
     );
     _cardFocus.addListener(() => setState(() {}));
+    _validator.addListener(() {
+      if (mounted) setState(() {});
+    });
+  }
+
+  List<BillerItemDto> get _items => _selectedProvider == null
+      ? const []
+      : ref
+              .read(billerItemsProvider(_selectedProvider!.billerId))
+              .valueOrNull ??
+          const [];
+
+  /// Validate the smartcard against the provider. The card doesn't depend on
+  /// the package, so the provider's first item is used and changing package
+  /// doesn't re-run the check.
+  void _revalidate() {
+    final items = _items;
+    final card = _cardController.text;
+    if (_selectedProvider == null || items.isEmpty || card.length < 8) {
+      _validator.reset();
+      return;
+    }
+    _validator.check(ValidateCustomerRequest(
+      customerId: card,
+      billerItemId: items.first.billerItemId,
+      paymentCode: items.first.paymentCode,
+    ));
+  }
+
+  void _switchTab(int tab) {
+    FocusScope.of(context).unfocus();
+    setState(() => _tab = tab);
+  }
+
+  /// Prefill provider, smartcard and package from a past payment.
+  void _renew(BillPaymentHistoryDto row) {
+    CableProvider? provider;
+    for (final p in _providers) {
+      if (p.billerId == row.billerId) provider = p;
+    }
+    setState(() {
+      _tab = 0;
+      if (provider != null) {
+        _selectedProvider = provider;
+        _selectedPackage = null;
+        _pendingPackageId = row.billerItemId;
+      }
+      _cardController.text = row.customerId ?? '';
+    });
+    _applyPendingPackage();
+    _revalidate();
+  }
+
+  void _applyPendingPackage() {
+    final id = _pendingPackageId;
+    if (id == null) return;
+    final items = _items;
+    if (items.isEmpty) return;
+    _pendingPackageId = null;
+    for (final i in items) {
+      if (i.billerItemId == id) {
+        setState(() => _selectedPackage = CablePackage.fromItem(i));
+        return;
+      }
+    }
   }
 
   @override
@@ -104,18 +182,22 @@ class _CablePurchaseScreenState extends ConsumerState<CablePurchaseScreen>
     _processingController.dispose();
     _cardController.dispose();
     _cardFocus.dispose();
+    _validator.dispose();
     super.dispose();
   }
 
   bool get _isFormValid =>
       _cardController.text.length >= 8 &&
       _selectedProvider != null &&
-      _selectedPackage != null;
+      _selectedPackage != null &&
+      _validator.isVerified;
 
   List<CableProvider> get _providers {
-    final billers =
-        ref.read(billersByKindProvider(BillCategoryKind.cable)).valueOrNull?.billers ??
-            const <BillerDto>[];
+    final billers = ref
+            .read(billersByKindProvider(BillCategoryKind.cable))
+            .valueOrNull
+            ?.billers ??
+        const <BillerDto>[];
     return billers.map(CableProvider.fromBiller).toList();
   }
 
@@ -124,6 +206,7 @@ class _CablePurchaseScreenState extends ConsumerState<CablePurchaseScreen>
     final pkg = _selectedPackage;
     if (!_isFormValid || provider == null || pkg == null) return;
     final card = _cardController.text;
+    final customer = _validator.customerName;
     runBillPurchase(
       context: context,
       summary: [
@@ -131,6 +214,7 @@ class _CablePurchaseScreenState extends ConsumerState<CablePurchaseScreen>
         {'label': 'Provider', 'value': provider.name},
         {'label': 'Package', 'value': pkg.name},
         {'label': 'Card No.', 'value': card},
+        if (customer != null) {'label': 'Customer', 'value': customer},
         {'label': 'Amount', 'value': '₦${pkg.price}'},
       ],
       submit: (pin, sourceAccount) =>
@@ -145,14 +229,18 @@ class _CablePurchaseScreenState extends ConsumerState<CablePurchaseScreen>
       successProps: (result) => SuccessScreenProps(
         transactionType: 'Cable TV',
         amount: pkg.price,
-        recipient: '${provider.name} – $card',
+        recipient: customer != null
+            ? '$customer · ${provider.name} – $card'
+            : '${provider.name} – $card',
         transactionId: result.transactionReference,
       ),
     );
   }
 
   void _showProviderSheet() {
-    if (ref.read(billersByKindProvider(BillCategoryKind.cable)).isLoading) return;
+    if (ref.read(billersByKindProvider(BillCategoryKind.cable)).isLoading) {
+      return;
+    }
     final providers = _providers;
     if (providers.isEmpty) {
       refreshBillers(ref, BillCategoryKind.cable);
@@ -170,7 +258,9 @@ class _CablePurchaseScreenState extends ConsumerState<CablePurchaseScreen>
           setState(() {
             _selectedProvider = p;
             _selectedPackage = null;
+            _pendingPackageId = null;
           });
+          _revalidate();
           Navigator.pop(context);
         },
       ),
@@ -179,7 +269,8 @@ class _CablePurchaseScreenState extends ConsumerState<CablePurchaseScreen>
 
   void _showPackageSheet() {
     if (_selectedProvider == null) return;
-    final itemsAsync = ref.read(billerItemsProvider(_selectedProvider!.billerId));
+    final itemsAsync =
+        ref.read(billerItemsProvider(_selectedProvider!.billerId));
     if (itemsAsync.isLoading) return;
     final pkgs = (itemsAsync.valueOrNull ?? const <BillerItemDto>[])
         .map(CablePackage.fromItem)
@@ -207,13 +298,23 @@ class _CablePurchaseScreenState extends ConsumerState<CablePurchaseScreen>
 
   @override
   Widget build(BuildContext context) {
-    final billersAsync = ref.watch(billersByKindProvider(BillCategoryKind.cable));
+    final billersAsync =
+        ref.watch(billersByKindProvider(BillCategoryKind.cable));
     final categoryId = billersAsync.valueOrNull?.categoryId;
     final limit = categoryId == null
         ? null
         : ref.watch(billLimitProvider(categoryId)).valueOrNull;
     final itemsLoading = _selectedProvider != null &&
         ref.watch(billerItemsProvider(_selectedProvider!.billerId)).isLoading;
+    if (_selectedProvider != null) {
+      // Validation and Renew both need the provider's items, which load after
+      // the provider is picked.
+      ref.listen(billerItemsProvider(_selectedProvider!.billerId), (_, next) {
+        if (!next.hasValue) return;
+        _applyPendingPackage();
+        _revalidate();
+      });
+    }
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -223,92 +324,128 @@ class _CablePurchaseScreenState extends ConsumerState<CablePurchaseScreen>
             title: context.l10n.cableTV,
             subtitle: context.l10n.payCableTvSubscriptions,
             showAccountCard: false,
+            pillTabs: true,
+            tabs: [context.l10n.buyTab, context.l10n.historyTab],
+            selectedTab: _tab,
+            onTabChanged: _switchTab,
           ),
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const BillAccountCard(),
-                  const SizedBox(height: 10),
-                  const BillPaginationDots(count: 1, active: 0),
-                  const SizedBox(height: 24),
-
-                  // ── Provider dropdown ──
-                  _CDropdownField(
-                    label: billersAsync.isLoading
-                        ? 'Loading providers…'
-                        : 'Choose Provider',
-                    value: _selectedProvider?.name,
-                    leadingLogo: _selectedProvider?.icon,
-                    onTap: _showProviderSheet,
-                  ),
-                  const SizedBox(height: 16),
-
-                  // ── Smart card number ──
-                  _CFloatingField(
-                    controller: _cardController,
-                    focusNode: _cardFocus,
-                    label: context.l10n.smartCardIucNumber,
-                    hint: 'Enter customer number',
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    onChanged: (_) => setState(() {}),
-                    suffix: _selectedProvider?.icon != null
-                        ? Padding(
-                            padding: const EdgeInsets.only(right: 4),
-                            child: Container(
-                              width: 26,
-                              height: 26,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  image: AssetImage(_selectedProvider!.icon!),
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-                          )
-                        : null,
-                  ),
-                  const SizedBox(height: 16),
-
-                  // ── Package dropdown ──
-                  _CDropdownField(
-                    label: itemsLoading ? 'Loading packages…' : 'Choose Package',
-                    value: _selectedPackage?.name,
-                    sublabel: _selectedPackage != null
-                        ? [
-                            '₦${_selectedPackage!.price}',
-                            _selectedPackage!.subtitle,
-                          ].where((p) => p.isNotEmpty).join(' · ')
-                        : null,
-                    enabled: _selectedProvider != null,
-                    onTap: _showPackageSheet,
-                  ),
-
-                  const SizedBox(height: 24),
-                  BillDailyLimitCard(
-                    dailyLimit: limit?.dailyLimit,
-                    remaining: limit?.remainingLimit,
-                  ),
-                  const SizedBox(height: 100),
-                ],
-              ),
+            child: IndexedStack(
+              index: _tab,
+              children: [
+                _buildBuyTab(limit, billersAsync, itemsLoading),
+                BillHistoryList(
+                  kind: BillHistoryKind.cableTv,
+                  onRepeat: _renew,
+                  onBuyNew: () => _switchTab(0),
+                ),
+              ],
             ),
-          ),
-
-          // ── CTA ──
-          _CCta(
-            enabled: _isFormValid,
-            label: _selectedPackage != null
-                ? 'Pay Cable TV — ₦${_selectedPackage!.price}'
-                : 'Continue',
-            onTap: _handleNext,
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildBuyTab(
+    UtilityLimitDto? limit,
+    AsyncValue<CategoryBillers> billersAsync,
+    bool itemsLoading,
+  ) {
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const BillAccountCard(),
+                const SizedBox(height: 10),
+                const BillPaginationDots(count: 1, active: 0),
+                const SizedBox(height: 24),
+
+                // ── Provider dropdown ──
+                _CDropdownField(
+                  label: billersAsync.isLoading
+                      ? 'Loading providers…'
+                      : 'Choose Provider',
+                  value: _selectedProvider?.name,
+                  leadingLogo: _selectedProvider?.icon,
+                  onTap: _showProviderSheet,
+                ),
+                const SizedBox(height: 16),
+
+                // ── Smart card number ──
+                _CFloatingField(
+                  controller: _cardController,
+                  focusNode: _cardFocus,
+                  label: context.l10n.smartCardIucNumber,
+                  hint: 'Enter customer number',
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  onChanged: (_) {
+                    setState(() {});
+                    _revalidate();
+                  },
+                  suffix: _selectedProvider?.icon != null
+                      ? Padding(
+                          padding: const EdgeInsets.only(right: 4),
+                          child: Container(
+                            width: 26,
+                            height: 26,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                image: AssetImage(_selectedProvider!.icon!),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        )
+                      : null,
+                ),
+                CustomerValidationStatus(
+                  validator: _validator,
+                  checkingText: context.l10n.verifyingSmartcard,
+                  invalidText: context.l10n.smartcardNotFound,
+                ),
+                const SizedBox(height: 16),
+
+                // ── Package dropdown ──
+                _CDropdownField(
+                  label: itemsLoading ? 'Loading packages…' : 'Choose Package',
+                  value: _selectedPackage?.name,
+                  sublabel: _selectedPackage != null
+                      ? [
+                          '₦${_selectedPackage!.price}',
+                          _selectedPackage!.subtitle,
+                        ].where((p) => p.isNotEmpty).join(' · ')
+                      : null,
+                  enabled: _selectedProvider != null,
+                  onTap: _showPackageSheet,
+                ),
+
+                const SizedBox(height: 24),
+                BillDailyLimitCard(
+                  dailyLimit: limit?.dailyLimit,
+                  remaining: limit?.remainingLimit,
+                ),
+                const SizedBox(height: 100),
+              ],
+            ),
+          ),
+        ),
+
+        // ── CTA ──
+        _CCta(
+          enabled: _isFormValid,
+          label: _selectedPackage != null
+              ? 'Pay Cable TV — ₦${_selectedPackage!.price}'
+              : 'Continue',
+          onTap: _handleNext,
+        ),
+      ],
     );
   }
 }
@@ -363,8 +500,10 @@ class _CableProviderSheet extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             padding: const EdgeInsets.symmetric(vertical: 8),
             itemCount: providers.length,
-            separatorBuilder: (_, __) =>
-                Divider(height: 1, indent: 68, color: Theme.of(context).scaffoldBackgroundColor),
+            separatorBuilder: (_, __) => Divider(
+                height: 1,
+                indent: 68,
+                color: Theme.of(context).scaffoldBackgroundColor),
             itemBuilder: (_, i) {
               final p = providers[i];
               final isSelected = selected?.id == p.id;
@@ -372,11 +511,13 @@ class _CableProviderSheet extends StatelessWidget {
                 behavior: HitTestBehavior.opaque,
                 onTap: () => onSelect(p),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                   child: Row(
                     children: [
                       Builder(builder: (context) {
-                        final image = billerImage(asset: p.icon, url: p.logoUrl);
+                        final image =
+                            billerImage(asset: p.icon, url: p.logoUrl);
                         return Container(
                           width: 40,
                           height: 40,
@@ -485,8 +626,10 @@ class _PackageSheet extends StatelessWidget {
               shrinkWrap: true,
               padding: const EdgeInsets.symmetric(vertical: 8),
               itemCount: packages.length,
-              separatorBuilder: (_, __) =>
-                  Divider(height: 1, indent: 20, color: Theme.of(context).scaffoldBackgroundColor),
+              separatorBuilder: (_, __) => Divider(
+                  height: 1,
+                  indent: 20,
+                  color: Theme.of(context).scaffoldBackgroundColor),
               itemBuilder: (_, i) {
                 final pkg = packages[i];
                 final isSelected = selected?.id == pkg.id;
@@ -494,7 +637,8 @@ class _PackageSheet extends StatelessWidget {
                   behavior: HitTestBehavior.opaque,
                   onTap: () => onSelect(pkg),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 14),
                     child: Row(
                       children: [
                         Expanded(
@@ -509,7 +653,9 @@ class _PackageSheet extends StatelessWidget {
                                           fontWeight: FontWeight.w700,
                                           color: isSelected
                                               ? AppColors.goldPrimary
-                                              : Theme.of(context).colorScheme.onSurface)),
+                                              : Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurface)),
                                   if (pkg.popular) ...[
                                     const SizedBox(width: 6),
                                     Container(
@@ -522,7 +668,8 @@ class _PackageSheet extends StatelessWidget {
                                       child: Text(context.l10n.popular,
                                           style: TextStyle(
                                               fontSize: 9,
-                                              color: Theme.of(context).cardColor,
+                                              color:
+                                                  Theme.of(context).cardColor,
                                               fontWeight: FontWeight.w600)),
                                     ),
                                   ],
@@ -531,7 +678,11 @@ class _PackageSheet extends StatelessWidget {
                               const SizedBox(height: 2),
                               Text(pkg.subtitle,
                                   style: TextStyle(
-                                      fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55))),
+                                      fontSize: 12,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withOpacity(0.55))),
                             ],
                           ),
                         ),
@@ -545,7 +696,9 @@ class _PackageSheet extends StatelessWidget {
                                     fontWeight: FontWeight.w800,
                                     color: isSelected
                                         ? AppColors.goldPrimary
-                                        : Theme.of(context).colorScheme.onSurface)),
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .onSurface)),
                             if (isSelected)
                               const Icon(Icons.check_circle_rounded,
                                   color: Color(0xFF166C46), size: 18),
@@ -597,7 +750,9 @@ class _CDropdownField extends StatelessWidget {
         duration: const Duration(milliseconds: 150),
         height: fieldHeight,
         decoration: BoxDecoration(
-          color: enabled ? Theme.of(context).cardColor : Theme.of(context).scaffoldBackgroundColor,
+          color: enabled
+              ? Theme.of(context).cardColor
+              : Theme.of(context).scaffoldBackgroundColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: !enabled
@@ -643,7 +798,10 @@ class _CDropdownField extends StatelessWidget {
                         ? Theme.of(context).dividerColor
                         : hasValue
                             ? const Color(0xFF166C46)
-                            : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+                            : Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.4),
                   ),
                   child: Text(label),
                 ),
@@ -673,7 +831,12 @@ class _CDropdownField extends StatelessWidget {
                 child: IgnorePointer(
                   child: Text(
                     sublabel!,
-                    style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55)),
+                    style: TextStyle(
+                        fontSize: 11,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.55)),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -689,7 +852,10 @@ class _CDropdownField extends StatelessWidget {
                       ? Theme.of(context).dividerColor
                       : hasValue
                           ? const Color(0xFF166C46)
-                          : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+                          : Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.4),
                   size: 22,
                 ),
               ),
@@ -789,7 +955,10 @@ class _CFloatingFieldState extends State<_CFloatingField> {
                   height: 1.2,
                   color: isActive
                       ? AppColors.goldPrimary
-                      : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+                      : Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.4),
                 ),
                 child: Text(widget.label),
               ),
@@ -857,7 +1026,8 @@ class _CCta extends StatelessWidget {
           20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        border: Border(top: BorderSide(color: Theme.of(context).scaffoldBackgroundColor)),
+        border: Border(
+            top: BorderSide(color: Theme.of(context).scaffoldBackgroundColor)),
       ),
       child: GestureDetector(
         onTap: enabled ? onTap : null,
@@ -866,9 +1036,7 @@ class _CCta extends StatelessWidget {
           width: double.infinity,
           height: 54,
           decoration: BoxDecoration(
-            gradient: enabled
-                ? AppColors.goldGradient
-                : null,
+            gradient: enabled ? AppColors.goldGradient : null,
             color: enabled ? null : Theme.of(context).dividerColor,
             borderRadius: BorderRadius.circular(12),
           ),
@@ -878,7 +1046,9 @@ class _CCta extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: enabled ? Theme.of(context).cardColor : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+                color: enabled
+                    ? Theme.of(context).cardColor
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
               ),
             ),
           ),

@@ -1516,5 +1516,49 @@
         "type": "String"
       }
     }
-  }
+  },
+  "buyTab": "Buy",
+  "historyTab": "History",
+  "yesterday": "Yesterday",
+  "reversed": "Reversed",
+  "provider": "Provider",
+  "units": "Units",
+  "meterType": "Meter Type",
+  "copy": "Copy",
+  "electricityToken": "Token",
+  "tokenCopied": "Token copied",
+  "tokenUnavailable": "Token not shown yet. Contact support with the reference below.",
+  "postpaidNoToken": "Postpaid — no token needed",
+  "noElectricityPurchasesYet": "No electricity purchases yet",
+  "electricityHistoryEmptyHint": "Every token you buy is saved here, so you can find it again any time.",
+  "buyElectricity": "Buy Electricity",
+  "buyAgain": "Buy Again",
+  "couldNotLoadHistory": "Couldn't load your history",
+  "searchMeterOrReference": "Search meter number or reference",
+  "noMatchingPurchases": "No purchases match your search",
+  "lastToken": "Your last token",
+  "endOfHistory": "You've reached the end",
+  "purchaseDetails": "Purchase Details",
+  "copied": "Copied",
+  "labelCopied": "{label} copied",
+  "@labelCopied": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "verifyingMeter": "Verifying meter number…",
+  "verifyingSmartcard": "Verifying smartcard number…",
+  "meterNotFound": "We couldn't find this meter number. Check it and try again.",
+  "smartcardNotFound": "We couldn't find this smartcard number. Check it and try again.",
+  "couldNotVerify": "Couldn't verify right now",
+  "customerName": "Customer",
+  "renew": "Renew",
+  "package": "Package",
+  "amountDue": "Amount due",
+  "noCablePurchasesYet": "No Cable TV payments yet",
+  "cableHistoryEmptyHint": "Every subscription you pay for is saved here, so you can renew in one tap.",
+  "payCableTv": "Pay Cable TV",
+  "searchSmartcardOrReference": "Search smartcard number or reference"
 }

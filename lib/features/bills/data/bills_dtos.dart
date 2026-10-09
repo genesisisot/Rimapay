@@ -124,8 +124,9 @@ class BillerDto {
   });
 
   /// Best display name: short name, else full name.
-  String get displayName =>
-      (shortName?.trim().isNotEmpty ?? false) ? shortName!.trim() : (name ?? 'Biller');
+  String get displayName => (shortName?.trim().isNotEmpty ?? false)
+      ? shortName!.trim()
+      : (name ?? 'Biller');
 
   factory BillerDto.fromJson(Map<String, dynamic> json) => BillerDto(
         billerId: _toInt(json['billerId']),
@@ -150,6 +151,9 @@ class BillerItemDto {
   final String? name;
   final String? code;
   final String? consumerIdField;
+
+  /// QuickTeller payment code; sent with customer validation.
+  final String? paymentCode;
   final double itemFee;
   final double amount;
   final bool isAmountFixed;
@@ -162,6 +166,7 @@ class BillerItemDto {
     this.name,
     this.code,
     this.consumerIdField,
+    this.paymentCode,
     this.itemFee = 0,
     this.amount = 0,
     this.isAmountFixed = false,
@@ -175,6 +180,7 @@ class BillerItemDto {
         name: json['name'] as String?,
         code: json['code'] as String?,
         consumerIdField: json['consumerIdField'] as String?,
+        paymentCode: json['paymentCode']?.toString(),
         itemFee: _toDouble(json['itemFee']),
         amount: _toDouble(json['amount']),
         isAmountFixed: json['isAmountFixed'] == true,
@@ -276,7 +282,8 @@ class UtilityLimitDto {
     this.remainingLimit = 0,
   });
 
-  factory UtilityLimitDto.fromJson(Map<String, dynamic> json) => UtilityLimitDto(
+  factory UtilityLimitDto.fromJson(Map<String, dynamic> json) =>
+      UtilityLimitDto(
         utilityType: json['utilityType']?.toString(),
         dailyLimit: _toDouble(json['dailyLimit']),
         dailySpent: _toDouble(json['dailySpent']),
@@ -366,6 +373,217 @@ class BillPaymentRequest {
       };
 }
 
+// ── Payment history ───────────────────────────────────────────────────────────
+
+/// GET /api/v1/bills/history → `BillPaymentResponseDto`.
+///
+/// The backend has no dedicated token field: QuickTeller returns the prepaid
+/// meter token inside its response text, so [token] digs it out of that.
+class BillPaymentHistoryDto {
+  final String id;
+  final String? transactionReference;
+  final String? gatewayTransactionRef;
+  final String? sourceAccount;
+  final int billerId;
+  final String? billerName;
+  final String? categoryName;
+
+  /// `Electricity` | `CableTv` | `Airtime` | `Data`.
+  final String? utilityType;
+  final String? billerItemId;
+  final String? itemName;
+
+  /// Meter number for electricity, smartcard/IUC for cable.
+  final String? customerId;
+  final double amount;
+  final String? status;
+  final bool isReversed;
+  final String? responseCode;
+  final String? responseDesc;
+  final String? reversalDescription;
+  final DateTime? createdAt;
+
+  const BillPaymentHistoryDto({
+    required this.id,
+    this.transactionReference,
+    this.gatewayTransactionRef,
+    this.sourceAccount,
+    this.billerId = 0,
+    this.billerName,
+    this.categoryName,
+    this.utilityType,
+    this.billerItemId,
+    this.itemName,
+    this.customerId,
+    this.amount = 0,
+    this.status,
+    this.isReversed = false,
+    this.responseCode,
+    this.responseDesc,
+    this.reversalDescription,
+    this.createdAt,
+  });
+
+  factory BillPaymentHistoryDto.fromJson(Map<String, dynamic> json) =>
+      BillPaymentHistoryDto(
+        id: json['id']?.toString() ?? '',
+        transactionReference: json['transactionReference'] as String?,
+        gatewayTransactionRef: json['gatewayTransactionRef'] as String?,
+        sourceAccount: json['sourceAccount'] as String?,
+        billerId: _toInt(json['billerId']),
+        billerName: json['billerName'] as String?,
+        categoryName: json['categoryName'] as String?,
+        utilityType: json['utilityType']?.toString(),
+        billerItemId: json['billerItemId']?.toString(),
+        itemName: json['itemName'] as String?,
+        customerId: json['customerId'] as String?,
+        amount: _toDouble(json['amount']),
+        status: json['status']?.toString(),
+        isReversed: json['isReversed'] == true,
+        responseCode: json['responseCode']?.toString(),
+        responseDesc: json['responseDesc'] as String?,
+        reversalDescription: json['reversalDescription'] as String?,
+        createdAt:
+            DateTime.tryParse(json['createdAt']?.toString() ?? '')?.toLocal(),
+      );
+
+  static const _digits = r'\d(?:[\s-]?\d){15,19}';
+  static final _labelledToken =
+      RegExp('(?:token|pin)\\D{0,12}($_digits)', caseSensitive: false);
+  static final _anyToken = RegExp('($_digits)');
+
+  /// Prepaid meter token (digits grouped in fours), or null when the backend
+  /// didn't return one — postpaid payments never have a token.
+  ///
+  /// Only `responseDesc` is searched: gateway references are often long
+  /// all-digit strings, and showing one as a token would be worse than none.
+  String? get token {
+    final text = responseDesc ?? '';
+    final match = _labelledToken.firstMatch(text) ?? _anyToken.firstMatch(text);
+    if (match == null) return null;
+    final digits = match.group(1)!.replaceAll(RegExp(r'\D'), '');
+    return [
+      for (var i = 0; i < digits.length; i += 4)
+        digits.substring(i, i + 4 > digits.length ? digits.length : i + 4),
+    ].join('-');
+  }
+
+  /// Units of energy bought, when the response text mentions them (e.g. "45.3 kWh").
+  String? get units {
+    final match = RegExp(r'(\d+(?:\.\d+)?)\s*kwh', caseSensitive: false)
+        .firstMatch(responseDesc ?? '');
+    return match == null ? null : '${match.group(1)} kWh';
+  }
+
+  bool get isPostpaid => (itemName ?? '').toLowerCase().contains('postpaid');
+
+  bool get isFailed =>
+      isReversed || (status ?? '').toLowerCase().contains('fail');
+
+  bool get isPending {
+    final s = (status ?? '').toLowerCase();
+    return !isFailed && (s.contains('pend') || s.contains('process'));
+  }
+}
+
+// ── Customer validation ───────────────────────────────────────────────────────
+
+/// POST /api/v1/bills/validate
+class ValidateCustomerRequest {
+  final String customerId;
+  final String? billerItemId;
+  final String? paymentCode;
+
+  const ValidateCustomerRequest({
+    required this.customerId,
+    this.billerItemId,
+    this.paymentCode,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'customerId': customerId,
+        if (billerItemId != null && billerItemId!.isNotEmpty)
+          'billerItemId': billerItemId,
+        if (paymentCode != null && paymentCode!.isNotEmpty)
+          'paymentCode': paymentCode,
+      };
+}
+
+/// POST /api/v1/bills/validate → `ValidateCustomerResponseDto`.
+class ValidateCustomerDto {
+  final String? customerId;
+  final String? fullName;
+  final String? paymentCode;
+
+  /// Amount due / fixed amount, when the biller reports one.
+  final double? amount;
+  final int amountType;
+  final String? amountTypeDescription;
+  final double? surcharge;
+  final int billerId;
+  final String? responseCode;
+
+  const ValidateCustomerDto({
+    this.customerId,
+    this.fullName,
+    this.paymentCode,
+    this.amount,
+    this.amountType = 0,
+    this.amountTypeDescription,
+    this.surcharge,
+    this.billerId = 0,
+    this.responseCode,
+  });
+
+  /// QuickTeller marks a fixed amount in the description ("Fixed", "Exact").
+  bool get isAmountFixed {
+    final d = (amountTypeDescription ?? '').toLowerCase();
+    return d.contains('fixed') || d.contains('exact');
+  }
+
+  factory ValidateCustomerDto.fromJson(Map<String, dynamic> json) =>
+      ValidateCustomerDto(
+        customerId: json['customerId']?.toString(),
+        fullName: (json['fullName'] as String?)?.trim(),
+        paymentCode: json['paymentCode']?.toString(),
+        amount: (json['amount'] as num?)?.toDouble(),
+        amountType: _toInt(json['amountType']),
+        amountTypeDescription: json['amountTypeDescription']?.toString(),
+        surcharge: (json['surcharge'] as num?)?.toDouble(),
+        billerId: _toInt(json['billerId']),
+        responseCode: json['responseCode']?.toString(),
+      );
+}
+
+enum CustomerValidationOutcome { verified, invalid, unavailable }
+
+/// Result of validating a meter / smartcard number.
+///
+/// [CustomerValidationOutcome.invalid] means the biller rejected the number;
+/// [CustomerValidationOutcome.unavailable] means we couldn't get an answer
+/// (network, timeout, 5xx) and the user should retry.
+class CustomerValidationResult {
+  final CustomerValidationOutcome outcome;
+  final ValidateCustomerDto? customer;
+  final String message;
+
+  const CustomerValidationResult._(this.outcome, this.customer, this.message);
+
+  factory CustomerValidationResult.verified(ValidateCustomerDto customer) =>
+      CustomerValidationResult._(
+          CustomerValidationOutcome.verified, customer, 'Verified');
+
+  factory CustomerValidationResult.invalid(String message) =>
+      CustomerValidationResult._(CustomerValidationOutcome.invalid, null,
+          humanizeProviderMessage(message));
+
+  factory CustomerValidationResult.unavailable(String message) =>
+      CustomerValidationResult._(
+          CustomerValidationOutcome.unavailable, null, message);
+
+  bool get isVerified => outcome == CustomerValidationOutcome.verified;
+}
+
 // ── Purchase result ───────────────────────────────────────────────────────────
 
 /// Normalised outcome of airtime top-up, data purchase and bill payment.
@@ -388,15 +606,18 @@ class BillPurchaseResult {
   });
 
   factory BillPurchaseResult.failure(String message, {String? errorCode}) =>
-      BillPurchaseResult(isSuccess: false, message: message, errorCode: errorCode);
+      BillPurchaseResult(
+          isSuccess: false, message: message, errorCode: errorCode);
 
-  factory BillPurchaseResult.fromEnvelope(Map<String, dynamic> body, {int? httpStatus}) {
+  factory BillPurchaseResult.fromEnvelope(Map<String, dynamic> body,
+      {int? httpStatus}) {
     final data = body['data'] is Map<String, dynamic>
         ? body['data'] as Map<String, dynamic>
         : const <String, dynamic>{};
     final status = data['status']?.toString();
     final reversed = data['isReversed'] == true;
-    final failedStatus = status != null && status.toLowerCase().contains('fail');
+    final failedStatus =
+        status != null && status.toLowerCase().contains('fail');
     final ok = body['isSuccess'] == true && !reversed && !failedStatus;
 
     String? pick(Object? v) {

@@ -7,8 +7,11 @@ import '../../../success/presentation/screens/success_screen.dart';
 import '../../../bills/data/bills_dtos.dart';
 import '../../../bills/presentation/providers/bills_providers.dart';
 import '../../../bills/presentation/widgets/bill_purchase_flow.dart';
+import '../../../bills/presentation/widgets/bill_history_list.dart';
+import '../../../bills/presentation/widgets/customer_validation.dart';
 
 import '../../../../core/localization/l10n.dart';
+
 class ElectricityProvider {
   final String id;
   final int billerId;
@@ -74,12 +77,19 @@ class _ElectricityPurchaseScreenState
   String _meterNumber = '';
   MeterType _meterType = MeterType.prepaid;
 
+  /// 0 = Buy, 1 = History.
+  int _tab = 0;
+
   final _meterController = TextEditingController();
   final _customAmountController = TextEditingController();
   final _meterFocus = FocusNode();
   final _amountFocus = FocusNode();
 
   late AnimationController _processingController;
+
+  late final CustomerValidator _validator = CustomerValidator(
+    (req) => ref.read(billsApiServiceProvider).validateCustomer(req),
+  );
 
   final List<String> _quickAmounts = ['1000', '2000', '5000', '10000'];
 
@@ -92,6 +102,37 @@ class _ElectricityPurchaseScreenState
     );
     _meterFocus.addListener(() => setState(() {}));
     _amountFocus.addListener(() => setState(() {}));
+    _validator.addListener(_onValidation);
+  }
+
+  void _onValidation() {
+    if (!mounted) return;
+    // Postpaid: prefill what the disco says is owed, if the user hasn't typed.
+    final due = _validator.customer?.amount;
+    if (_validator.isVerified &&
+        _meterType == MeterType.postpaid &&
+        _amount.isEmpty &&
+        due != null &&
+        due > 0) {
+      final text = due.toStringAsFixed(due.truncateToDouble() == due ? 0 : 2);
+      _amount = text;
+      _customAmountController.text = text;
+    }
+    setState(() {});
+  }
+
+  /// Re-run meter validation for the current provider / type / number.
+  void _revalidate() {
+    final item = _selectedItem;
+    if (_selectedProvider == null || item == null || _meterNumber.length < 10) {
+      _validator.reset();
+      return;
+    }
+    _validator.check(ValidateCustomerRequest(
+      customerId: _meterNumber,
+      billerItemId: item.billerItemId,
+      paymentCode: item.paymentCode,
+    ));
   }
 
   @override
@@ -101,6 +142,7 @@ class _ElectricityPurchaseScreenState
     _customAmountController.dispose();
     _meterFocus.dispose();
     _amountFocus.dispose();
+    _validator.dispose();
     super.dispose();
   }
 
@@ -118,7 +160,9 @@ class _ElectricityPurchaseScreenState
 
   List<BillerItemDto> get _items => _selectedProvider == null
       ? const []
-      : ref.read(billerItemsProvider(_selectedProvider!.billerId)).valueOrNull ??
+      : ref
+              .read(billerItemsProvider(_selectedProvider!.billerId))
+              .valueOrNull ??
           const [];
 
   /// Payment item matching the Prepaid/Postpaid toggle (first item as fallback).
@@ -138,6 +182,7 @@ class _ElectricityPurchaseScreenState
       _selectedProvider != null &&
       _selectedItem != null &&
       _meterNumber.length >= 10 &&
+      _validator.isVerified &&
       _amountValue > 0;
 
   void _handleNext() {
@@ -147,15 +192,18 @@ class _ElectricityPurchaseScreenState
     final meter = _meterNumber;
     final amountText = _amount;
     final amount = _amountValue;
+    final customer = _validator.customerName;
     runBillPurchase(
       context: context,
       summary: [
         {'label': 'Service', 'value': 'Electricity Bill'},
         {'label': 'Provider', 'value': provider.shortName},
         {'label': 'Meter', 'value': meter},
+        if (customer != null) {'label': 'Customer', 'value': customer},
         {
           'label': 'Type',
-          'value': item.name ?? (_meterType == MeterType.prepaid ? 'Prepaid' : 'Postpaid'),
+          'value': item.name ??
+              (_meterType == MeterType.prepaid ? 'Prepaid' : 'Postpaid'),
         },
         {'label': 'Amount', 'value': '₦$amountText'},
       ],
@@ -171,14 +219,47 @@ class _ElectricityPurchaseScreenState
       successProps: (result) => SuccessScreenProps(
         transactionType: 'Electricity Bill',
         amount: amountText,
-        recipient: '${provider.shortName} – $meter',
+        recipient: customer != null
+            ? '$customer · ${provider.shortName} – $meter'
+            : '${provider.shortName} – $meter',
         transactionId: result.transactionReference,
       ),
     );
   }
 
+  void _switchTab(int tab) {
+    FocusScope.of(context).unfocus();
+    setState(() => _tab = tab);
+  }
+
+  /// Prefill the Buy tab from a past purchase; the user only picks an amount.
+  void _buyAgain(BillPaymentHistoryDto row) {
+    ElectricityProvider? provider;
+    for (final p in _providers) {
+      if (p.billerId == row.billerId) provider = p;
+    }
+    final meter = row.customerId ?? '';
+    setState(() {
+      _tab = 0;
+      if (provider != null) _selectedProvider = provider;
+      _meterType = row.isPostpaid ? MeterType.postpaid : MeterType.prepaid;
+      _meterNumber = meter;
+      _meterController.text = meter;
+      _amount = '';
+      _customAmountController.clear();
+    });
+    _revalidate();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _amountFocus.requestFocus();
+    });
+  }
+
   void _showProviderSheet() {
-    if (ref.read(billersByKindProvider(BillCategoryKind.electricity)).isLoading) return;
+    if (ref
+        .read(billersByKindProvider(BillCategoryKind.electricity))
+        .isLoading) {
+      return;
+    }
     final providers = _providers;
     if (providers.isEmpty) {
       refreshBillers(ref, BillCategoryKind.electricity);
@@ -194,6 +275,7 @@ class _ElectricityPurchaseScreenState
         selected: _selectedProvider,
         onSelect: (p) {
           setState(() => _selectedProvider = p);
+          _revalidate();
           Navigator.pop(context);
         },
       ),
@@ -209,7 +291,13 @@ class _ElectricityPurchaseScreenState
         ? null
         : ref.watch(billLimitProvider(categoryId)).valueOrNull;
     if (_selectedProvider != null) {
-      ref.watch(billerItemsProvider(_selectedProvider!.billerId));
+      final items = billerItemsProvider(_selectedProvider!.billerId);
+      ref.watch(items);
+      // Validation needs the prepaid/postpaid item, which loads after the
+      // provider is picked.
+      ref.listen(items, (_, next) {
+        if (next.hasValue) _revalidate();
+      });
     }
 
     return Scaffold(
@@ -220,153 +308,210 @@ class _ElectricityPurchaseScreenState
             title: context.l10n.electricity,
             subtitle: context.l10n.payElectricityBills,
             showAccountCard: false,
+            pillTabs: true,
+            tabs: [context.l10n.buyTab, context.l10n.historyTab],
+            selectedTab: _tab,
+            onTabChanged: _switchTab,
           ),
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const BillAccountCard(),
-                  const SizedBox(height: 10),
-                  const BillPaginationDots(count: 1, active: 0),
-                  const SizedBox(height: 24),
+            child: IndexedStack(
+              index: _tab,
+              children: [
+                _buildBuyTab(limit, billersAsync),
+                BillHistoryList(
+                  kind: BillHistoryKind.electricity,
+                  onRepeat: _buyAgain,
+                  onBuyNew: () => _switchTab(0),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-                  // ── Provider dropdown ──
-                  _DropdownField(
-                    label: billersAsync.isLoading
-                        ? 'Loading providers…'
-                        : 'Choose Provider',
-                    value: _selectedProvider?.name,
-                    leadingLogo: _selectedProvider?.logo,
-                    onTap: _showProviderSheet,
-                  ),
-                  const SizedBox(height: 16),
+  Widget _buildBuyTab(
+      UtilityLimitDto? limit, AsyncValue<CategoryBillers> billersAsync) {
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const BillAccountCard(),
+                const SizedBox(height: 10),
+                const BillPaginationDots(count: 1, active: 0),
+                const SizedBox(height: 24),
 
-                  // ── Meter type toggle ──
-                  Row(
-                    children: [
-                      _MeterTypeBtn(
-                        label: context.l10n.prepaid,
-                        icon: '🔋',
-                        selected: _meterType == MeterType.prepaid,
-                        onTap: () => setState(() => _meterType = MeterType.prepaid),
-                      ),
-                      const SizedBox(width: 10),
-                      _MeterTypeBtn(
-                        label: context.l10n.postpaid,
-                        icon: '📄',
-                        selected: _meterType == MeterType.postpaid,
-                        onTap: () => setState(() => _meterType = MeterType.postpaid),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
+                LastTokenCard(
+                  onSeeAll: () => _switchTab(1),
+                  onBuyAgain: _buyAgain,
+                ),
 
-                  // ── Meter number floating field ──
-                  _EFloatingField(
-                    controller: _meterController,
-                    focusNode: _meterFocus,
-                    label: context.l10n.meterNumber,
-                    hint: 'Enter 11-digit meter number',
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    onChanged: (v) => setState(() => _meterNumber = v),
-                  ),
+                // ── Provider dropdown ──
+                _DropdownField(
+                  label: billersAsync.isLoading
+                      ? 'Loading providers…'
+                      : 'Choose Provider',
+                  value: _selectedProvider?.name,
+                  leadingLogo: _selectedProvider?.logo,
+                  onTap: _showProviderSheet,
+                ),
+                const SizedBox(height: 16),
 
-                  const SizedBox(height: 24),
+                // ── Meter type toggle ──
+                Row(
+                  children: [
+                    _MeterTypeBtn(
+                      label: context.l10n.prepaid,
+                      icon: '🔋',
+                      selected: _meterType == MeterType.prepaid,
+                      onTap: () {
+                        setState(() => _meterType = MeterType.prepaid);
+                        _revalidate();
+                      },
+                    ),
+                    const SizedBox(width: 10),
+                    _MeterTypeBtn(
+                      label: context.l10n.postpaid,
+                      icon: '📄',
+                      selected: _meterType == MeterType.postpaid,
+                      onTap: () {
+                        setState(() => _meterType = MeterType.postpaid);
+                        _revalidate();
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
 
-                  // ── Quick amounts ──
-                  Text(context.l10n.quickSelectAmount,
-                    style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85)),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: _quickAmounts.asMap().entries.map((e) {
-                      final amt = e.value;
-                      final isLast = e.key == _quickAmounts.length - 1;
-                      final isSelected = _amount == amt;
-                      final label = int.parse(amt) >= 1000
-                          ? '₦${(int.parse(amt) ~/ 1000)},000'
-                          : '₦$amt';
-                      return Expanded(
-                        child: GestureDetector(
-                          onTap: () => setState(() {
-                            _amount = amt;
-                            _customAmountController.text = amt;
-                          }),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 150),
-                            margin: EdgeInsets.only(right: isLast ? 0 : 8),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
+                // ── Meter number floating field ──
+                _EFloatingField(
+                  controller: _meterController,
+                  focusNode: _meterFocus,
+                  label: context.l10n.meterNumber,
+                  hint: 'Enter 11-digit meter number',
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  onChanged: (v) {
+                    setState(() => _meterNumber = v);
+                    _revalidate();
+                  },
+                ),
+                CustomerValidationStatus(
+                  validator: _validator,
+                  checkingText: context.l10n.verifyingMeter,
+                  invalidText: context.l10n.meterNotFound,
+                  showAmountDue: _meterType == MeterType.postpaid,
+                ),
+
+                const SizedBox(height: 24),
+
+                // ── Quick amounts ──
+                Text(
+                  context.l10n.quickSelectAmount,
+                  style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.85)),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: _quickAmounts.asMap().entries.map((e) {
+                    final amt = e.value;
+                    final isLast = e.key == _quickAmounts.length - 1;
+                    final isSelected = _amount == amt;
+                    final label = int.parse(amt) >= 1000
+                        ? '₦${(int.parse(amt) ~/ 1000)},000'
+                        : '₦$amt';
+                    return Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() {
+                          _amount = amt;
+                          _customAmountController.text = amt;
+                        }),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 150),
+                          margin: EdgeInsets.only(right: isLast ? 0 : 8),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? Theme.of(context)
+                                    .colorScheme
+                                    .surface
+                                    .withOpacity(0.5)
+                                : Theme.of(context).scaffoldBackgroundColor,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
                               color: isSelected
-                                  ? Theme.of(context).colorScheme.surface.withOpacity(0.5)
-                                  : Theme.of(context).scaffoldBackgroundColor,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
+                                  ? AppColors.goldPrimary
+                                  : Theme.of(context).dividerColor,
+                              width: isSelected ? 2 : 1,
+                            ),
+                          ),
+                          child: Center(
+                            child: Text(
+                              label,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
                                 color: isSelected
                                     ? AppColors.goldPrimary
-                                    : Theme.of(context).dividerColor,
-                                width: isSelected ? 2 : 1,
-                              ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                label,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: isSelected
-                                      ? AppColors.goldPrimary
-                                      : Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
-                                ),
+                                    : Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withOpacity(0.85),
                               ),
                             ),
                           ),
                         ),
-                      );
-                    }).toList(),
-                  ),
+                      ),
+                    );
+                  }).toList(),
+                ),
 
-                  const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-                  Text(context.l10n.enterAmount,
-                    style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).colorScheme.onSurface),
-                  ),
-                  const SizedBox(height: 10),
-                  _AmountCard(
-                    controller: _customAmountController,
-                    focusNode: _amountFocus,
-                    onChanged: (v) => setState(() => _amount = v),
-                    minMax: 'Min: ₦1,000 · Max: ₦100,000',
-                  ),
+                Text(
+                  context.l10n.enterAmount,
+                  style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSurface),
+                ),
+                const SizedBox(height: 10),
+                _AmountCard(
+                  controller: _customAmountController,
+                  focusNode: _amountFocus,
+                  onChanged: (v) => setState(() => _amount = v),
+                  minMax: 'Min: ₦1,000 · Max: ₦100,000',
+                ),
 
-                  const SizedBox(height: 20),
-                  BillDailyLimitCard(
-                    dailyLimit: limit?.dailyLimit,
-                    remaining: limit?.remainingLimit,
-                  ),
-                  const SizedBox(height: 100),
-                ],
-              ),
+                const SizedBox(height: 20),
+                BillDailyLimitCard(
+                  dailyLimit: limit?.dailyLimit,
+                  remaining: limit?.remainingLimit,
+                ),
+                const SizedBox(height: 100),
+              ],
             ),
           ),
+        ),
 
-          // ── CTA ──
-          _BillCTA(
-            enabled: _isFormValid,
-            label: _amount.isNotEmpty ? 'Pay Electricity — ₦$_amount' : 'Continue',
-            onTap: _handleNext,
-          ),
-        ],
-      ),
+        // ── CTA ──
+        _BillCTA(
+          enabled: _isFormValid,
+          label:
+              _amount.isNotEmpty ? 'Pay Electricity — ₦$_amount' : 'Continue',
+          onTap: _handleNext,
+        ),
+      ],
     );
   }
 }
@@ -408,7 +553,8 @@ class _ProviderSheet extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(20, 16, 20, 4),
             child: Row(
               children: [
-                Text(context.l10n.chooseProvider,
+                Text(
+                  context.l10n.chooseProvider,
                   style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
@@ -423,8 +569,10 @@ class _ProviderSheet extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             padding: const EdgeInsets.symmetric(vertical: 8),
             itemCount: providers.length,
-            separatorBuilder: (_, __) =>
-                Divider(height: 1, indent: 68, color: Theme.of(context).scaffoldBackgroundColor),
+            separatorBuilder: (_, __) => Divider(
+                height: 1,
+                indent: 68,
+                color: Theme.of(context).scaffoldBackgroundColor),
             itemBuilder: (_, i) {
               final p = providers[i];
               final isSelected = selected?.id == p.id;
@@ -432,11 +580,13 @@ class _ProviderSheet extends StatelessWidget {
                 behavior: HitTestBehavior.opaque,
                 onTap: () => onSelect(p),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                   child: Row(
                     children: [
                       Builder(builder: (context) {
-                        final image = billerImage(asset: p.logo, url: p.logoUrl);
+                        final image =
+                            billerImage(asset: p.logo, url: p.logoUrl);
                         return Container(
                           width: 40,
                           height: 40,
@@ -449,7 +599,10 @@ class _ProviderSheet extends StatelessWidget {
                                     fit: BoxFit.cover,
                                     onError: (_, __) {},
                                   ),
-                            color: Theme.of(context).brightness == Brightness.dark ? p.color.withOpacity(0.15) : p.bgColor,
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? p.color.withOpacity(0.15)
+                                    : p.bgColor,
                           ),
                           child: image == null
                               ? Center(
@@ -475,11 +628,16 @@ class _ProviderSheet extends StatelessWidget {
                                     fontWeight: FontWeight.w700,
                                     color: isSelected
                                         ? AppColors.goldPrimary
-                                        : Theme.of(context).colorScheme.onSurface)),
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .onSurface)),
                             Text(p.name,
                                 style: TextStyle(
                                     fontSize: 12,
-                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55)),
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withOpacity(0.55)),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis),
                           ],
@@ -571,7 +729,10 @@ class _DropdownField extends StatelessWidget {
                     height: 1.2,
                     color: hasValue
                         ? AppColors.goldPrimary
-                        : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+                        : Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.4),
                   ),
                   child: Text(label),
                 ),
@@ -606,7 +767,10 @@ class _DropdownField extends StatelessWidget {
                   Icons.keyboard_arrow_down_rounded,
                   color: hasValue
                       ? AppColors.goldPrimary
-                      : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+                      : Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.4),
                   size: 22,
                 ),
               ),
@@ -642,10 +806,14 @@ class _MeterTypeBtn extends StatelessWidget {
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: selected ? Theme.of(context).colorScheme.surface.withOpacity(0.5) : Theme.of(context).cardColor,
+            color: selected
+                ? Theme.of(context).colorScheme.surface.withOpacity(0.5)
+                : Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: selected ? AppColors.goldPrimary : Theme.of(context).dividerColor,
+              color: selected
+                  ? AppColors.goldPrimary
+                  : Theme.of(context).dividerColor,
               width: selected ? 2 : 1,
             ),
           ),
@@ -659,7 +827,12 @@ class _MeterTypeBtn extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: selected ? AppColors.goldPrimary : Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
+                  color: selected
+                      ? AppColors.goldPrimary
+                      : Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.55),
                 ),
               ),
             ],
@@ -757,7 +930,10 @@ class _EFloatingFieldState extends State<_EFloatingField> {
                   height: 1.2,
                   color: isActive
                       ? AppColors.goldPrimary
-                      : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+                      : Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.4),
                 ),
                 child: Text(widget.label),
               ),
@@ -835,7 +1011,8 @@ class _AmountCardState extends State<_AmountCard> {
   @override
   void initState() {
     super.initState();
-    widget.focusNode.addListener(() => setState(() => _focused = widget.focusNode.hasFocus));
+    widget.focusNode.addListener(
+        () => setState(() => _focused = widget.focusNode.hasFocus));
   }
 
   @override
@@ -843,10 +1020,13 @@ class _AmountCardState extends State<_AmountCard> {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       decoration: BoxDecoration(
-        color: _focused ? Theme.of(context).cardColor : Theme.of(context).scaffoldBackgroundColor,
+        color: _focused
+            ? Theme.of(context).cardColor
+            : Theme.of(context).scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: _focused ? AppColors.goldPrimary : Theme.of(context).dividerColor,
+          color:
+              _focused ? AppColors.goldPrimary : Theme.of(context).dividerColor,
           width: _focused ? 2 : 1,
         ),
       ),
@@ -861,9 +1041,12 @@ class _AmountCardState extends State<_AmountCard> {
                     style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.w700,
-                    color: _focused
-                        ? Theme.of(context).colorScheme.onSurface
-                        : Theme.of(context).colorScheme.onSurface.withOpacity(0.55))),
+                        color: _focused
+                            ? Theme.of(context).colorScheme.onSurface
+                            : Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.55))),
                 const SizedBox(width: 6),
                 Expanded(
                   child: TextField(
@@ -880,7 +1063,10 @@ class _AmountCardState extends State<_AmountCard> {
                       hintText: '0',
                       hintStyle: TextStyle(
                           fontSize: 36,
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.4),
                           fontWeight: FontWeight.w300),
                       border: InputBorder.none,
                       enabledBorder: InputBorder.none,
@@ -902,10 +1088,20 @@ class _AmountCardState extends State<_AmountCard> {
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
             child: Row(
               children: [
-                Icon(Icons.info_outline_rounded, size: 14, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4)),
+                Icon(Icons.info_outline_rounded,
+                    size: 14,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.4)),
                 const SizedBox(width: 6),
                 Text(widget.minMax,
-                    style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
+                    style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.6))),
               ],
             ),
           ),
@@ -931,7 +1127,8 @@ class _BillCTA extends StatelessWidget {
           20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        border: Border(top: BorderSide(color: Theme.of(context).scaffoldBackgroundColor)),
+        border: Border(
+            top: BorderSide(color: Theme.of(context).scaffoldBackgroundColor)),
       ),
       child: GestureDetector(
         onTap: enabled ? onTap : null,
@@ -940,9 +1137,7 @@ class _BillCTA extends StatelessWidget {
           width: double.infinity,
           height: 54,
           decoration: BoxDecoration(
-            gradient: enabled
-                ? AppColors.goldGradient
-                : null,
+            gradient: enabled ? AppColors.goldGradient : null,
             color: enabled ? null : Theme.of(context).dividerColor,
             borderRadius: BorderRadius.circular(12),
           ),
@@ -952,7 +1147,9 @@ class _BillCTA extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: enabled ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
+                color: enabled
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
               ),
             ),
           ),

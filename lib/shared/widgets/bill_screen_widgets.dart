@@ -51,6 +51,10 @@ class BillGreenHeader extends StatelessWidget {
   final ValueChanged<int>? onTabChanged;
   final bool showAccountCard;
 
+  /// Draw [tabs] as the rounded pill toggle used by Airtime and Send Money
+  /// instead of the full-width underline tabs.
+  final bool pillTabs;
+
   const BillGreenHeader({
     super.key,
     required this.title,
@@ -59,6 +63,7 @@ class BillGreenHeader extends StatelessWidget {
     this.selectedTab = 0,
     this.onTabChanged,
     this.showAccountCard = true,
+    this.pillTabs = false,
   });
 
   @override
@@ -138,8 +143,56 @@ class BillGreenHeader extends StatelessWidget {
                 ),
               ),
 
+              if (pillTabs && tabs != null && tabs!.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 18),
+                  child: Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(color: Colors.white.withOpacity(0.18)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: List.generate(tabs!.length, (i) {
+                        final active = i == selectedTab;
+                        return GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            if (active) return;
+                            Haptics.tap();
+                            onTabChanged?.call(i);
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: active
+                                  ? Theme.of(context).cardColor
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              tabs![i],
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: active
+                                    ? const Color(0xFF0B4F2F)
+                                    : Colors.white70,
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                ),
+
               // Tabs — full width, flush at bottom of header
-              if (tabs != null && tabs!.isNotEmpty) ...[
+              if (!pillTabs && tabs != null && tabs!.isNotEmpty) ...[
                 Row(
                   children: List.generate(tabs!.length, (i) {
                     final isSelected = i == selectedTab;

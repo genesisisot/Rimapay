@@ -10,6 +10,8 @@ windows
 test
 .swagger_tmp
 *.iml
+# Local build secrets (OAuth client for --dart-define-from-file).
+.env*
 .flutter-plugins
 .flutter-plugins-dependencies
 

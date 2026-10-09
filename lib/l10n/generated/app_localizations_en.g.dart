@@ -1229,7 +1229,7 @@ class AppL10nEn extends AppL10n {
   String get kycVerification => 'KYC Verification';
 
   @override
-  String labelCopied(Object label) {
+  String labelCopied(String label) {
     return '$label copied';
   }
 
@@ -3059,4 +3059,118 @@ class AppL10nEn extends AppL10n {
   String saveNumberForFasterTopUps(String number) {
     return 'Save $number for faster top-ups next time?';
   }
+
+  @override
+  String get buyTab => 'Buy';
+
+  @override
+  String get historyTab => 'History';
+
+  @override
+  String get yesterday => 'Yesterday';
+
+  @override
+  String get reversed => 'Reversed';
+
+  @override
+  String get provider => 'Provider';
+
+  @override
+  String get units => 'Units';
+
+  @override
+  String get meterType => 'Meter Type';
+
+  @override
+  String get copy => 'Copy';
+
+  @override
+  String get electricityToken => 'Token';
+
+  @override
+  String get tokenCopied => 'Token copied';
+
+  @override
+  String get tokenUnavailable =>
+      'Token not shown yet. Contact support with the reference below.';
+
+  @override
+  String get postpaidNoToken => 'Postpaid — no token needed';
+
+  @override
+  String get noElectricityPurchasesYet => 'No electricity purchases yet';
+
+  @override
+  String get electricityHistoryEmptyHint =>
+      'Every token you buy is saved here, so you can find it again any time.';
+
+  @override
+  String get buyElectricity => 'Buy Electricity';
+
+  @override
+  String get buyAgain => 'Buy Again';
+
+  @override
+  String get couldNotLoadHistory => 'Couldn\'t load your history';
+
+  @override
+  String get searchMeterOrReference => 'Search meter number or reference';
+
+  @override
+  String get noMatchingPurchases => 'No purchases match your search';
+
+  @override
+  String get lastToken => 'Your last token';
+
+  @override
+  String get endOfHistory => 'You\'ve reached the end';
+
+  @override
+  String get purchaseDetails => 'Purchase Details';
+
+  @override
+  String get copied => 'Copied';
+
+  @override
+  String get verifyingMeter => 'Verifying meter number…';
+
+  @override
+  String get verifyingSmartcard => 'Verifying smartcard number…';
+
+  @override
+  String get meterNotFound =>
+      'We couldn\'t find this meter number. Check it and try again.';
+
+  @override
+  String get smartcardNotFound =>
+      'We couldn\'t find this smartcard number. Check it and try again.';
+
+  @override
+  String get couldNotVerify => 'Couldn\'t verify right now';
+
+  @override
+  String get customerName => 'Customer';
+
+  @override
+  String get renew => 'Renew';
+
+  @override
+  String get package => 'Package';
+
+  @override
+  String get amountDue => 'Amount due';
+
+  @override
+  String get noCablePurchasesYet => 'No Cable TV payments yet';
+
+  @override
+  String get cableHistoryEmptyHint =>
+      'Every subscription you pay for is saved here, so you can renew in one tap.';
+
+  @override
+  String get payCableTv => 'Pay Cable TV';
+
+  @override
+  String get searchSmartcardOrReference =>
+      'Search smartcard number or reference';
 }

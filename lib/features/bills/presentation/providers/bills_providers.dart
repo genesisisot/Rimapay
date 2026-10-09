@@ -10,7 +10,8 @@ final billsApiServiceProvider = Provider<BillsApiService>((ref) {
 
 // ── Airtime & data ────────────────────────────────────────────────────────────
 
-final airtimeLimitProvider = FutureProvider.autoDispose<UtilityLimitDto?>((ref) {
+final airtimeLimitProvider =
+    FutureProvider.autoDispose<UtilityLimitDto?>((ref) {
   return ref.watch(billsApiServiceProvider).getAirtimeLimit();
 });
 
@@ -98,7 +99,8 @@ final billersByKindProvider = FutureProvider.autoDispose
     return const CategoryBillers();
   }
 
-  final billers = await ref.watch(billsApiServiceProvider).getBillers(match.categoryId);
+  final billers =
+      await ref.watch(billsApiServiceProvider).getBillers(match.categoryId);
   return CategoryBillers(
     categoryId: match.categoryId,
     billers: billers.where((b) => b.isActive).toList(),
@@ -107,7 +109,8 @@ final billersByKindProvider = FutureProvider.autoDispose
 
 final billerItemsProvider = FutureProvider.autoDispose
     .family<List<BillerItemDto>, int>((ref, billerId) async {
-  final items = await ref.watch(billsApiServiceProvider).getBillerItems(billerId);
+  final items =
+      await ref.watch(billsApiServiceProvider).getBillerItems(billerId);
   return items.where((i) => i.isActive).toList()
     ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
 });
@@ -122,3 +125,94 @@ void refreshBillers(WidgetRef ref, BillCategoryKind kind) {
   ref.invalidate(billerCategoriesProvider);
   ref.invalidate(billersByKindProvider(kind));
 }
+
+// ── Bill history ──────────────────────────────────────────────────────────────
+
+/// Bill screens with a History tab, mapped to the backend `UtilityType` filter.
+enum BillHistoryKind { electricity, cableTv }
+
+extension BillHistoryKindApi on BillHistoryKind {
+  String get utilityType =>
+      this == BillHistoryKind.electricity ? 'Electricity' : 'CableTv';
+}
+
+class BillHistoryState {
+  final List<BillPaymentHistoryDto> items;
+  final bool isLoading;
+  final bool hasMore;
+  final String? error;
+
+  const BillHistoryState({
+    this.items = const [],
+    this.isLoading = false,
+    this.hasMore = true,
+    this.error,
+  });
+
+  /// True before the first page has come back.
+  bool get isInitialLoad => isLoading && items.isEmpty;
+
+  BillHistoryState copyWith({
+    List<BillPaymentHistoryDto>? items,
+    bool? isLoading,
+    bool? hasMore,
+    String? error,
+  }) =>
+      BillHistoryState(
+        items: items ?? this.items,
+        isLoading: isLoading ?? this.isLoading,
+        hasMore: hasMore ?? this.hasMore,
+        error: error,
+      );
+}
+
+/// Paged purchase history for one bill kind, filtered server-side by
+/// `utilityType`, newest first.
+class BillHistoryNotifier extends StateNotifier<BillHistoryState> {
+  BillHistoryNotifier(this._ref, this.kind) : super(const BillHistoryState()) {
+    loadMore();
+  }
+
+  final Ref _ref;
+  final BillHistoryKind kind;
+  static const _pageSize = 20;
+  int _nextPage = 1;
+
+  Future<void> refresh() async {
+    _nextPage = 1;
+    state = const BillHistoryState();
+    await loadMore();
+  }
+
+  Future<void> loadMore() async {
+    if (state.isLoading || !state.hasMore) return;
+    state = state.copyWith(isLoading: true);
+    try {
+      final page = await _ref.read(billsApiServiceProvider).getBillHistory(
+            page: _nextPage,
+            pageSize: _pageSize,
+            utilityType: kind.utilityType,
+          );
+      if (!mounted) return;
+      _nextPage++;
+      final seen = state.items.map((e) => e.id).toSet();
+      final items = [
+        ...state.items,
+        ...page.where((e) => e.id.isEmpty || seen.add(e.id)),
+      ]..sort((a, b) =>
+          (b.createdAt ?? DateTime(0)).compareTo(a.createdAt ?? DateTime(0)));
+      state = BillHistoryState(items: items, hasMore: page.length >= _pageSize);
+    } catch (e) {
+      if (!mounted) return;
+      state = state.copyWith(
+        isLoading: false,
+        error: e.toString().replaceFirst('Exception: ', ''),
+      );
+    }
+  }
+}
+
+final billHistoryProvider = StateNotifierProvider.autoDispose
+    .family<BillHistoryNotifier, BillHistoryState, BillHistoryKind>(
+  BillHistoryNotifier.new,
+);

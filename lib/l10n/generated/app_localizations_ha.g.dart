@@ -1231,7 +1231,7 @@ class AppL10nHa extends AppL10n {
   String get kycVerification => 'Tabbatar da KYC';
 
   @override
-  String labelCopied(Object label) {
+  String labelCopied(String label) {
     return 'An kwafi $label';
   }
 
@@ -3062,4 +3062,118 @@ class AppL10nHa extends AppL10n {
   String saveNumberForFasterTopUps(String number) {
     return 'Ajiye $number don saurin cika waya na gaba?';
   }
+
+  @override
+  String get buyTab => 'Saya';
+
+  @override
+  String get historyTab => 'Tarihi';
+
+  @override
+  String get yesterday => 'Jiya';
+
+  @override
+  String get reversed => 'An mayar';
+
+  @override
+  String get provider => 'Mai bayarwa';
+
+  @override
+  String get units => 'Raka\'a';
+
+  @override
+  String get meterType => 'Nau\'in Mita';
+
+  @override
+  String get copy => 'Kwafa';
+
+  @override
+  String get electricityToken => 'Lambar Token';
+
+  @override
+  String get tokenCopied => 'An kwafi token';
+
+  @override
+  String get tokenUnavailable =>
+      'Ba a nuna token ba tukuna. Tuntuɓi tallafi da lambar shaida a ƙasa.';
+
+  @override
+  String get postpaidNoToken => 'Bayan-biya — ba a buƙatar token';
+
+  @override
+  String get noElectricityPurchasesYet => 'Babu sayan wutar lantarki tukuna';
+
+  @override
+  String get electricityHistoryEmptyHint =>
+      'Kowane token da kuka saya ana ajiye shi a nan, don ku sake samunsa a kowane lokaci.';
+
+  @override
+  String get buyElectricity => 'Sayi Wutar Lantarki';
+
+  @override
+  String get buyAgain => 'Sake Saya';
+
+  @override
+  String get couldNotLoadHistory => 'Ba a iya loda tarihin ku ba';
+
+  @override
+  String get searchMeterOrReference => 'Nemi lambar mita ko lambar shaida';
+
+  @override
+  String get noMatchingPurchases => 'Babu sayayya da ta dace da bincikenku';
+
+  @override
+  String get lastToken => 'Token ɗinku na ƙarshe';
+
+  @override
+  String get endOfHistory => 'Kun kai ƙarshe';
+
+  @override
+  String get purchaseDetails => 'Bayanan Sayayya';
+
+  @override
+  String get copied => 'An kwafa';
+
+  @override
+  String get verifyingMeter => 'Ana tabbatar da lambar mita…';
+
+  @override
+  String get verifyingSmartcard => 'Ana tabbatar da lambar smartcard…';
+
+  @override
+  String get meterNotFound =>
+      'Ba mu sami wannan lambar mita ba. Duba ta ku sake gwadawa.';
+
+  @override
+  String get smartcardNotFound =>
+      'Ba mu sami wannan lambar smartcard ba. Duba ta ku sake gwadawa.';
+
+  @override
+  String get couldNotVerify => 'Ba a iya tabbatarwa yanzu ba';
+
+  @override
+  String get customerName => 'Abokin ciniki';
+
+  @override
+  String get renew => 'Sabunta';
+
+  @override
+  String get package => 'Kunshi';
+
+  @override
+  String get amountDue => 'Kuɗin da ake bi';
+
+  @override
+  String get noCablePurchasesYet => 'Babu biyan Cable TV tukuna';
+
+  @override
+  String get cableHistoryEmptyHint =>
+      'Duk biyan kuɗin da kuka yi ana ajiye su a nan, don ku sabunta da taɓawa ɗaya.';
+
+  @override
+  String get payCableTv => 'Biya Cable TV';
+
+  @override
+  String get searchSmartcardOrReference =>
+      'Nemi lambar smartcard ko lambar shaida';
 }
