@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/localization/l10n.dart';
 import '../../../../core/theme/app_theme_colors.dart';
+import '../../../../shared/widgets/coming_soon_pill.dart';
 class AccountLimitsScreen extends StatelessWidget {
   const AccountLimitsScreen({super.key});
 
@@ -60,22 +61,8 @@ class AccountLimitsScreen extends StatelessWidget {
                             ],
                           ),
                         ),
-                        GestureDetector(
-                          onTap: () => context.push('/tiers'),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 7),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFD4AF37),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(context.l10n.upgrade,
-                                style: TextStyle(
-                                    color: Theme.of(context).cardColor,
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 12)),
-                          ),
-                        ),
+                        // Account upgrades have no backend yet.
+                        const ComingSoonPill(onDark: true),
                       ],
                     ),
                   ),

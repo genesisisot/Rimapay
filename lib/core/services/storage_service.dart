@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import '../providers/auth_provider.dart';
+import 'secure_store.dart';
 
 class StorageService {
   static const String _userKey = 'rimapay_user';
@@ -82,6 +84,7 @@ class StorageService {
       'isVerified': user.isVerified,
       'bvnVerified': user.bvnVerified,
       'balance': user.balance,
+      'accountNumber': user.accountNumber,
       'profileImageUrl': user.profileImageUrl,
     };
     await prefs.setString(_userKey, jsonEncode(userJson));
@@ -112,6 +115,7 @@ class StorageService {
         isVerified: userJson['isVerified'] ?? false,
         bvnVerified: userJson['bvnVerified'] ?? false,
         balance: (userJson['balance'] ?? 0.0).toDouble(),
+        accountNumber: userJson['accountNumber'] as String?,
         profileImageUrl: userJson['profileImageUrl'],
       );
     } catch (e) {
@@ -127,33 +131,68 @@ class StorageService {
   }
 
   // Auth Token Management (used by DioClient for Bearer auth + 401 refresh)
+  //
+  // On Android/iOS the session tokens live in the Keystore/Keychain
+  // ([SecureStore]); plain SharedPreferences is readable on rooted devices.
+  // Browsers have no secure store, so web keeps them in preferences and
+  // relies on logout wiping them.
+
+  /// False on web. Tests flip it to exercise the preferences path.
+  @visibleForTesting
+  static bool tokensInSecureStore = !kIsWeb;
+
+  static Future<void> _writeToken(String key, String value) async {
+    if (tokensInSecureStore) {
+      await SecureStore.writeSecret(key, value);
+      await prefs.remove(key);
+    } else {
+      await prefs.setString(key, value);
+    }
+  }
+
+  static Future<String?> _readToken(String key) async {
+    if (!tokensInSecureStore) return prefs.getString(key);
+    // One-time move of tokens saved by older builds in plain preferences.
+    final legacy = prefs.getString(key);
+    if (legacy != null) {
+      await SecureStore.writeSecret(key, legacy);
+      await prefs.remove(key);
+      return legacy;
+    }
+    return SecureStore.readSecret(key);
+  }
+
   static Future<void> saveTokens({
     required String? accessToken,
     required String? refreshToken,
   }) async {
     await initialize();
     if (accessToken != null && accessToken.isNotEmpty) {
-      await prefs.setString(_accessTokenKey, accessToken);
+      await _writeToken(_accessTokenKey, accessToken);
     }
     if (refreshToken != null && refreshToken.isNotEmpty) {
-      await prefs.setString(_refreshTokenKey, refreshToken);
+      await _writeToken(_refreshTokenKey, refreshToken);
     }
   }
 
   static Future<String?> getAccessToken() async {
     await initialize();
-    return prefs.getString(_accessTokenKey);
+    return _readToken(_accessTokenKey);
   }
 
   static Future<String?> getRefreshToken() async {
     await initialize();
-    return prefs.getString(_refreshTokenKey);
+    return _readToken(_refreshTokenKey);
   }
 
   static Future<void> clearTokens() async {
     await initialize();
     await prefs.remove(_accessTokenKey);
     await prefs.remove(_refreshTokenKey);
+    if (tokensInSecureStore) {
+      await SecureStore.deleteSecret(_accessTokenKey);
+      await SecureStore.deleteSecret(_refreshTokenKey);
+    }
   }
 
   // Device ID (generated once on first launch, persisted for life)

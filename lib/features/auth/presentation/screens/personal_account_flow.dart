@@ -1130,7 +1130,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
             const SizedBox(height: 16),
             _limitRow(Icons.swap_horiz, '₦10,000 daily transaction limit'),
             _limitRow(Icons.savings_outlined, '₦100,000 maximum balance'),
-            _limitRow(Icons.upgrade, 'Upgrade anytime by adding BVN/NIN'),
+            _limitRow(Icons.upgrade, 'Account upgrades coming soon'),
             _limitRow(Icons.check_circle_outline, 'Access to savings & micro-loans'),
             const SizedBox(height: 24),
             Row(
@@ -3969,7 +3969,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   /// stays grey.
   Widget _passwordReq(String label, bool met, {bool isError = false}) {
     const green = Color(0xFF166C46);
-    const grey = context.adapt(const Color(0xFF9CA3AF), const Color(0xFF5A6478));
+    final grey = context.adapt(const Color(0xFF9CA3AF), const Color(0xFF5A6478));
     const red = Color(0xFFD33B31);
     final color = isError ? red : (met ? green : grey);
     return Padding(

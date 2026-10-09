@@ -18,6 +18,7 @@ import '../../../../core/services/biometric_service.dart';
 import '../../../../core/services/secure_store.dart';
 import '../../../../core/Utils/haptics.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart' show showPinConfirmSheet;
+import '../../../../shared/widgets/coming_soon_pill.dart';
 import '../../../../shared/widgets/user_avatar.dart';
 
 import '../../../../core/localization/l10n.dart';
@@ -814,21 +815,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                 ],
               ),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-              decoration: BoxDecoration(
-                color: const Color(0xFF166C46),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(context.l10n.upgrade,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  fontFamily: 'Effra',
-                ),
-              ),
-            ),
+            // Account upgrades have no backend yet.
+            const ComingSoonPill(onDark: true),
           ],
         ),
       ),
@@ -949,11 +937,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
         width: double.infinity,
         height: 50,
         child: OutlinedButton.icon(
-          onPressed: () => setState(() => _isEditing = true),
+          // No profile-update endpoint exists yet, so Save could only pretend
+          // (UAT: "Profile edit not working"). Restore
+          // `() => setState(() => _isEditing = true)` once the API is available.
+          onPressed: null,
           icon: const Icon(Icons.edit_outlined, size: 17),
-          label: Text(context.l10n.editProfile,
-            style: TextStyle(
-                fontSize: 14, fontWeight: FontWeight.w600, fontFamily: 'Effra'),
+          label: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(context.l10n.editProfile,
+                style: TextStyle(
+                    fontSize: 14, fontWeight: FontWeight.w600, fontFamily: 'Effra'),
+              ),
+              const SizedBox(width: 8),
+              const ComingSoonPill(),
+            ],
           ),
           style: OutlinedButton.styleFrom(
             foregroundColor: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),

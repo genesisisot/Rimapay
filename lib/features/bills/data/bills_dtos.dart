@@ -4,6 +4,8 @@
 // response is wrapped in the standard `ApiResponse<T>` envelope
 // `{ isSuccess, errorCode, statusCode, message, devMessage, data }`.
 
+import '../../../core/Utils/brand_names.dart';
+
 double _toDouble(Object? v) => (v as num?)?.toDouble() ?? 0;
 int _toInt(Object? v) => (v as num?)?.toInt() ?? 0;
 
@@ -51,7 +53,7 @@ class DataBundleDto {
         billerId: _toInt(json['billerId']),
         billerCategoryId: _toInt(json['billerCategoryId']),
         billerItemId: json['billerItemId'] as String?,
-        name: json['name'] as String?,
+        name: fixBrandSpellingOrNull(json['name'] as String?),
         validityType: json['validityType']?.toString(),
         validityDays: _toInt(json['validityDays']),
         validityDescription: json['validityDescription'] as String?,
@@ -84,7 +86,7 @@ class BillerCategoryDto {
   factory BillerCategoryDto.fromJson(Map<String, dynamic> json) =>
       BillerCategoryDto(
         categoryId: _toInt(json['categoryId']),
-        name: json['name'] as String?,
+        name: fixBrandSpellingOrNull(json['name'] as String?),
         description: json['description'] as String?,
         isActive: json['isActive'] != false,
         billerCount: _toInt(json['billerCount']),
@@ -132,8 +134,8 @@ class BillerDto {
         billerId: _toInt(json['billerId']),
         billerCategoryId: _toInt(json['billerCategoryId']),
         categoryName: json['categoryName'] as String?,
-        name: json['name'] as String?,
-        shortName: json['shortName'] as String?,
+        name: fixBrandSpellingOrNull(json['name'] as String?),
+        shortName: fixBrandSpellingOrNull(json['shortName'] as String?),
         narration: json['narration'] as String?,
         customerField1: json['customerField1'] as String?,
         customerField2: json['customerField2'] as String?,
@@ -177,7 +179,7 @@ class BillerItemDto {
   factory BillerItemDto.fromJson(Map<String, dynamic> json) => BillerItemDto(
         billerId: _toInt(json['billerId']),
         billerItemId: json['billerItemId']?.toString() ?? '',
-        name: json['name'] as String?,
+        name: fixBrandSpellingOrNull(json['name'] as String?),
         code: json['code'] as String?,
         consumerIdField: json['consumerIdField'] as String?,
         paymentCode: json['paymentCode']?.toString(),
@@ -431,11 +433,11 @@ class BillPaymentHistoryDto {
         gatewayTransactionRef: json['gatewayTransactionRef'] as String?,
         sourceAccount: json['sourceAccount'] as String?,
         billerId: _toInt(json['billerId']),
-        billerName: json['billerName'] as String?,
+        billerName: fixBrandSpellingOrNull(json['billerName'] as String?),
         categoryName: json['categoryName'] as String?,
         utilityType: json['utilityType']?.toString(),
         billerItemId: json['billerItemId']?.toString(),
-        itemName: json['itemName'] as String?,
+        itemName: fixBrandSpellingOrNull(json['itemName'] as String?),
         customerId: json['customerId'] as String?,
         amount: _toDouble(json['amount']),
         status: json['status']?.toString(),

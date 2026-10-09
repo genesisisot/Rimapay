@@ -9,6 +9,7 @@ import '../../../../shared/widgets/noise_painter.dart';
 
 import '../../../../core/localization/l10n.dart';
 import '../../../../core/theme/app_theme_colors.dart';
+import '../../../../shared/widgets/coming_soon_pill.dart';
 class BillService {
   final String id;
   final String title;
@@ -180,27 +181,31 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
-            GestureDetector(
-              onTap: () {
-                Navigator.pop(context);
-                context.push('/tiers');
-              },
-              child: Container(
-                width: double.infinity,
-                height: 54,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFff6b35),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Center(
-                  child: Text(
-                    context.l10n.upgradeAccount,
-                    style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white),
+            // Account upgrades have no backend yet.
+            Container(
+              width: double.infinity,
+              height: 54,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      context.l10n.upgradeAccount,
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.45)),
+                    ),
                   ),
-                ),
+                  const ComingSoonPill(),
+                ],
               ),
             ),
           ],

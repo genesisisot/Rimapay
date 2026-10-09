@@ -712,7 +712,7 @@ abstract class AppL10n {
   /// No description provided for @cableProviders.
   ///
   /// In en, this message translates to:
-  /// **'DSTV, GOtv, etc.'**
+  /// **'DStv, GOtv, etc.'**
   String get cableProviders;
 
   /// No description provided for @cableTV.
@@ -5877,6 +5877,84 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Best for WhatsApp and photos'**
   String get receiptImageHint;
+
+  /// No description provided for @promoNewTag.
+  ///
+  /// In en, this message translates to:
+  /// **'NEW'**
+  String get promoNewTag;
+
+  /// No description provided for @promoHausaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'RimaPay now speaks Hausa'**
+  String get promoHausaTitle;
+
+  /// No description provided for @promoHausaBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Use every screen of the app in Hausa.'**
+  String get promoHausaBody;
+
+  /// No description provided for @promoHausaCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to Hausa'**
+  String get promoHausaCta;
+
+  /// No description provided for @promoTransferTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send money to any bank'**
+  String get promoTransferTitle;
+
+  /// No description provided for @promoTransferBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Fast transfers to all Nigerian banks, with the name checked first.'**
+  String get promoTransferBody;
+
+  /// No description provided for @promoTransferCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Send money'**
+  String get promoTransferCta;
+
+  /// No description provided for @promoAirtimeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Airtime & data in seconds'**
+  String get promoAirtimeTitle;
+
+  /// No description provided for @promoAirtimeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Top up MTN, Airtel, Glo and 9mobile anytime.'**
+  String get promoAirtimeBody;
+
+  /// No description provided for @promoAirtimeCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy now'**
+  String get promoAirtimeCta;
+
+  /// No description provided for @promoReceiptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share your receipts'**
+  String get promoReceiptTitle;
+
+  /// No description provided for @promoReceiptBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Save or share any receipt as a PDF or image.'**
+  String get promoReceiptBody;
+
+  /// No description provided for @promoReceiptCta.
+  ///
+  /// In en, this message translates to:
+  /// **'View history'**
+  String get promoReceiptCta;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

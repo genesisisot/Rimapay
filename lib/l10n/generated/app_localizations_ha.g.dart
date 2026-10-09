@@ -345,7 +345,7 @@ class AppL10nHa extends AppL10n {
   String get ca => 'CA';
 
   @override
-  String get cableProviders => 'DSTV, GOtv, da sauransu';
+  String get cableProviders => 'DStv, GOtv, da sauransu';
 
   @override
   String get cableTV => 'Talabijin';
@@ -3194,4 +3194,47 @@ class AppL10nHa extends AppL10n {
 
   @override
   String get receiptImageHint => 'Mafi kyau don WhatsApp da hotuna';
+
+  @override
+  String get promoNewTag => 'SABO';
+
+  @override
+  String get promoHausaTitle => 'RimaPay yanzu da Hausa';
+
+  @override
+  String get promoHausaBody =>
+      'Yi amfani da kowane shafi na manhajar da Hausa.';
+
+  @override
+  String get promoHausaCta => 'Koma zuwa Turanci';
+
+  @override
+  String get promoTransferTitle => 'Tura kuɗi zuwa kowane banki';
+
+  @override
+  String get promoTransferBody =>
+      'Saurin tura kuɗi zuwa duk bankunan Najeriya, tare da tabbatar da suna.';
+
+  @override
+  String get promoTransferCta => 'Tura kuɗi';
+
+  @override
+  String get promoAirtimeTitle => 'Kati da data cikin daƙiƙa';
+
+  @override
+  String get promoAirtimeBody =>
+      'Saka katin MTN, Airtel, Glo da 9mobile a kowane lokaci.';
+
+  @override
+  String get promoAirtimeCta => 'Saya yanzu';
+
+  @override
+  String get promoReceiptTitle => 'Raba rasit ɗinka';
+
+  @override
+  String get promoReceiptBody =>
+      'Ajiye ko raba kowane rasit a matsayin PDF ko hoto.';
+
+  @override
+  String get promoReceiptCta => 'Duba tarihi';
 }

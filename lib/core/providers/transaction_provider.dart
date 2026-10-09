@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../services/storage_service.dart';
+import '../Utils/brand_names.dart';
 import '../../features/profile/data/accounts_api_service.dart';
 import '../../features/profile/data/profile_api_service.dart';
 import '../../features/profile/data/profile_dtos.dart';
@@ -276,7 +277,8 @@ String prettifyStatementDescription(String description, {bool isCredit = false})
             ? w.toUpperCase()
             : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}')
         .join(' ');
-    return bill.group(1) != null ? 'Refund · $name' : name;
+    final label = fixBrandSpelling(name);
+    return bill.group(1) != null ? 'Refund · $label' : label;
   }
 
   final trf = RegExp(r'^trf:\s*trf/\w+/(.+?)/to/(.+)$', caseSensitive: false)
@@ -287,8 +289,8 @@ String prettifyStatementDescription(String description, {bool isCredit = false})
   return description;
 }
 
-/// Short all-caps words (AEDC, DSTV, GOTV) stay upper case; words like
-/// PREPAID become Prepaid.
+/// Short all-caps words (AEDC, IKEDC) stay upper case; words like PREPAID
+/// become Prepaid. Brands such as GOtv/DStv are fixed by [fixBrandSpelling].
 bool _isAcronym(String w) =>
     w.length <= 5 && !RegExp(r'^(prepaid|postpaid|power)$', caseSensitive: false).hasMatch(w);
 

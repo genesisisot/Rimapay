@@ -102,7 +102,7 @@
   "bvnGetbvnlabel": "BVN {_getBvnLabel}",
   "bvnVerification": "Tabbatar da BVN",
   "ca": "CA",
-  "cableProviders": "DSTV, GOtv, da sauransu",
+  "cableProviders": "DStv, GOtv, da sauransu",
   "cableTV": "Talabijin",
   "cableTVDesc": "Biyan kuɗin watanni",
   "calculateAndPayYourZakat": "Lissafa kuma biya zakka",
@@ -963,5 +963,18 @@
   "saveAsImage": "Ajiye a matsayin Hoto",
   "shareReceiptAs": "Raba rasidi a matsayin",
   "receiptPdfHint": "Mafi kyau don imel da bugawa",
-  "receiptImageHint": "Mafi kyau don WhatsApp da hotuna"
+  "receiptImageHint": "Mafi kyau don WhatsApp da hotuna",
+  "promoNewTag": "SABO",
+  "promoHausaTitle": "RimaPay yanzu da Hausa",
+  "promoHausaBody": "Yi amfani da kowane shafi na manhajar da Hausa.",
+  "promoHausaCta": "Koma zuwa Turanci",
+  "promoTransferTitle": "Tura kuɗi zuwa kowane banki",
+  "promoTransferBody": "Saurin tura kuɗi zuwa duk bankunan Najeriya, tare da tabbatar da suna.",
+  "promoTransferCta": "Tura kuɗi",
+  "promoAirtimeTitle": "Kati da data cikin daƙiƙa",
+  "promoAirtimeBody": "Saka katin MTN, Airtel, Glo da 9mobile a kowane lokaci.",
+  "promoAirtimeCta": "Saya yanzu",
+  "promoReceiptTitle": "Raba rasit ɗinka",
+  "promoReceiptBody": "Ajiye ko raba kowane rasit a matsayin PDF ko hoto.",
+  "promoReceiptCta": "Duba tarihi"
 }

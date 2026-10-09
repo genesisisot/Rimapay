@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rimapay/core/providers/auth_provider.dart';
+import 'package:rimapay/core/providers/transaction_provider.dart';
+import 'package:rimapay/core/Utils/brand_names.dart';
 import 'package:rimapay/core/services/storage_service.dart';
 import 'package:rimapay/features/bills/presentation/widgets/bill_purchase_flow.dart';
 import 'package:rimapay/features/bills/data/bills_dtos.dart';
@@ -92,6 +94,22 @@ void main() {
     test('international form is brought back to local form', () {
       expect(localMobileNumber('2348137954069'), '08137954069');
       expect(localMobileNumber('+234 813 795 4069'), '08137954069');
+    });
+  });
+
+  group('brand spelling (UAT: "GOTV" misspelt)', () {
+    test('biller names get the official GOtv/DStv casing', () {
+      expect(fixBrandSpelling('GOTV'), 'GOtv');
+      expect(fixBrandSpelling('Gotv Max'), 'GOtv Max');
+      expect(fixBrandSpelling('DSTV Compact'), 'DStv Compact');
+      expect(fixBrandSpelling('Startimes'), 'Startimes');
+    });
+
+    test('biller DTOs and statement labels are corrected', () {
+      final b = BillerDto.fromJson({'billerId': 1, 'name': 'GOTV', 'shortName': 'GOTV'});
+      expect(b.displayName, 'GOtv');
+      expect(prettifyStatementDescription('QTService:GOTV_II'), 'GOtv');
+      expect(prettifyStatementDescription('Rev QTService:DSTV'), 'Refund · DStv');
     });
   });
 }

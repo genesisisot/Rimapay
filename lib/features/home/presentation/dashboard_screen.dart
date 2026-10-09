@@ -426,176 +426,271 @@ class _BalanceCardState extends State<_BalanceCard> {
     final user = auth.user;
     final formattedBalance = user?.formattedBalance ?? '₦0.00';
     final accountNumber = user?.accountNumber ?? '';
-    final displayAccount = accountNumber.isNotEmpty
-        ? '${accountNumber.substring(0, 4)} ${accountNumber.substring(4, 8)} ${accountNumber.substring(8)}'
-        : '';
+    // NUBAN reads best as 3-3-4: "110 023 4567".
+    final displayAccount = accountNumber.length == 10
+        ? '${accountNumber.substring(0, 3)} ${accountNumber.substring(3, 6)} ${accountNumber.substring(6)}'
+        : accountNumber;
     final tierName = user?.tierName ?? 'Basic Tier';
+
+    // "₦12,345.67" → big "₦12,345" + small ".67".
+    final dot = formattedBalance.lastIndexOf('.');
+    final whole = dot > 0 ? formattedBalance.substring(0, dot) : formattedBalance;
+    final kobo = dot > 0 ? formattedBalance.substring(dot) : '';
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
-        height: 200,
         decoration: BoxDecoration(
-          color: brandGreen,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(24),
+          gradient: const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF17773F), Color(0xFF0B4426)],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF0B4426).withOpacity(0.25),
+              blurRadius: 18,
+              offset: const Offset(0, 8),
+            ),
+          ],
         ),
-        padding: const EdgeInsets.all(20),
+        clipBehavior: Clip.antiAlias,
         child: Stack(
+          alignment: Alignment.center,
           children: [
-            Positioned(
-              top: -8,
-              right: -8,
-              child: Opacity(
-                opacity: 0.25,
-                child: RimapayLogo(width: 80, height: 80),
+            // Rima logo watermark: upright, centred behind the balance,
+            // white tone-on-tone so it never fights the figures.
+            Positioned.fill(
+              child: Center(
+                child: Opacity(
+                  opacity: 0.07,
+                  child: ColorFiltered(
+                    colorFilter:
+                        const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                    child: RimapayLogo(width: 210, height: 210),
+                  ),
+                ),
               ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      _GlassChip(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.verified_rounded,
+                                size: 13, color: Color(0xFFF5D06F)),
+                            const SizedBox(width: 4),
+                            Text(tierName,
+                                style: const TextStyle(
+                                    fontFamily: 'Effra',
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white)),
+                          ],
+                        ),
+                      ),
+                      const Spacer(),
+                      _GlassIconButton(
+                        icon: _balanceVisible
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                        onTap: () {
+                          Haptics.tap();
+                          setState(() => _balanceVisible = !_balanceVisible);
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(context.l10n.availableBalance,
+                      style: TextStyle(
+                          fontFamily: 'Effra',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white.withOpacity(0.75))),
+                  const SizedBox(height: 2),
+                  SizedBox(
+                    height: 46,
+                    child: auth.isFetchingBalance && _balanceVisible
+                        ? Center(child: _skeleton(170, 34))
+                        : AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 200),
+                            child: FittedBox(
+                              key: ValueKey(_balanceVisible),
+                              fit: BoxFit.scaleDown,
+                              child: _balanceVisible
+                                  ? Text.rich(
+                                      TextSpan(children: [
+                                        TextSpan(text: whole),
+                                        TextSpan(
+                                          text: kobo,
+                                          style: TextStyle(
+                                            fontSize: 22,
+                                            color:
+                                                Colors.white.withOpacity(0.7),
+                                          ),
+                                        ),
+                                      ]),
+                                      style: const TextStyle(
+                                        fontSize: 36,
+                                        fontWeight: FontWeight.w800,
+                                        letterSpacing: -0.5,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : const Text('₦ • • • • • •',
+                                      style: TextStyle(
+                                        fontSize: 30,
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.white,
+                                      )),
+                            ),
+                          ),
+                  ),
+                  const SizedBox(height: 12),
+                  // Account number (full, never truncated) + details, centred.
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(context.l10n.availableBalance,
-                            style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w400,
-                                color: Color(0xFFAAAAAA))),
-                        const SizedBox(width: 6),
+                        if (accountNumber.isNotEmpty) ...[
+                          GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {
+                              Haptics.tap();
+                              Clipboard.setData(
+                                  ClipboardData(text: accountNumber));
+                              ScaffoldMessenger.of(context)
+                                ..hideCurrentSnackBar()
+                                ..showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                        context.l10n.accountNumberCopied),
+                                    behavior: SnackBarBehavior.floating,
+                                    duration: const Duration(seconds: 2),
+                                    backgroundColor: const Color(0xFF155C2C),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                  ),
+                                );
+                            },
+                            child: _GlassChip(
+                              padding: const EdgeInsets.fromLTRB(14, 8, 12, 8),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(displayAccount,
+                                      maxLines: 1,
+                                      softWrap: false,
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                          letterSpacing: 0.8,
+                                          color: Colors.white)),
+                                  const SizedBox(width: 8),
+                                  Icon(Icons.copy_rounded,
+                                      color: Colors.white.withOpacity(0.85),
+                                      size: 15),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                        ],
                         GestureDetector(
-                          onTap: () => setState(
-                              () => _balanceVisible = !_balanceVisible),
-                          child: Icon(
-                            _balanceVisible
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
-                            color: Colors.white54,
-                            size: 16,
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            Haptics.tap();
+                            context.push('/account-details');
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.fromLTRB(14, 8, 10, 8),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(99),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(context.l10n.accountDetails,
+                                    maxLines: 1,
+                                    softWrap: false,
+                                    style: const TextStyle(
+                                        fontFamily: 'Effra',
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF0E5530))),
+                                const SizedBox(width: 2),
+                                const Icon(Icons.chevron_right_rounded,
+                                    color: Color(0xFF0E5530), size: 18),
+                              ],
+                            ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 6),
-                    if (auth.isFetchingBalance && _balanceVisible)
-                      _skeleton(180, 36)
-                    else
-                      Text(
-                        _balanceVisible ? formattedBalance : '••••••',
-                        style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
-                    const SizedBox(height: 4),
-                    if (accountNumber.isNotEmpty)
-                      GestureDetector(
-                        onTap: () {
-                          Clipboard.setData(ClipboardData(text: accountNumber));
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(context.l10n.accountNumberCopied),
-                              behavior: SnackBarBehavior.floating,
-                              duration: const Duration(seconds: 2),
-                              backgroundColor: const Color(0xFF155C2C),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10)),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(context.l10n.accountNoPrefix(displayAccount),
-                                  style: const TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white)),
-                              const SizedBox(width: 8),
-                              const Icon(Icons.copy_rounded,
-                                  color: Colors.white70, size: 16),
-                            ],
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: const Color.fromRGBO(255, 255, 255, 0.15),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        children: [
-                          const Text('⭐', style: TextStyle(fontSize: 12)),
-                          const SizedBox(width: 4),
-                          Text(tierName,
-                              style: const TextStyle(
-                                  fontFamily: 'Effra',
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white)),
-                        ],
-                      ),
-                    ),
-                    GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () {
-                        Haptics.tap();
-                        context.push('/account-details');
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).cardColor,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          children: [
-                            Text(context.l10n.accountDetails,
-                                style: TextStyle(
-                                    fontFamily: 'Effra',
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurface)),
-                            const SizedBox(width: 2),
-                            Icon(Icons.chevron_right,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurface
-                                    .withOpacity(0.5),
-                                size: 16),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),
       ),
     );
   }
+}
+
+/// Frosted white chip used on the balance card.
+class _GlassChip extends StatelessWidget {
+  final Widget child;
+  final EdgeInsets padding;
+
+  const _GlassChip({
+    required this.child,
+    this.padding = const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+  });
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: padding,
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.13),
+          borderRadius: BorderRadius.circular(99),
+          border: Border.all(color: Colors.white.withOpacity(0.18)),
+        ),
+        child: child,
+      );
+}
+
+class _GlassIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _GlassIconButton({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) => GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white.withOpacity(0.13),
+          ),
+          child: Icon(icon, color: Colors.white, size: 15),
+        ),
+      );
 }
 
 // ── Action Buttons ────────────────────────────────────────────────────────────
@@ -935,26 +1030,48 @@ class _QuickServiceTile extends StatelessWidget {
 
 // ── Banner Carousel ───────────────────────────────────────────────────────────
 
-class _BannerCarousel extends StatefulWidget {
+class _BannerCarousel extends ConsumerStatefulWidget {
   const _BannerCarousel();
 
   @override
-  State<_BannerCarousel> createState() => _BannerCarouselState();
+  ConsumerState<_BannerCarousel> createState() => _BannerCarouselState();
 }
 
-class _BannerCarouselState extends State<_BannerCarousel> {
+/// One promo slide. Only features that work end-to-end today belong here
+/// (UAT: Hausa, bank transfers, airtime/data, receipts) — no upgrades/loans.
+class _PromoSlide {
+  final String title;
+  final String body;
+  final String cta;
+  final IconData icon;
+  final List<Color> colors;
+  final bool isNew;
+  final VoidCallback onTap;
+
+  const _PromoSlide({
+    required this.title,
+    required this.body,
+    required this.cta,
+    required this.icon,
+    required this.colors,
+    required this.onTap,
+    this.isNew = false,
+  });
+}
+
+class _BannerCarouselState extends ConsumerState<_BannerCarousel> {
   final _controller = PageController();
   int _current = 0;
+  int _count = 0;
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(const Duration(seconds: 4), (_) {
-      if (!mounted) return;
-      final next = (_current + 1) % 2;
-      _controller.animateToPage(next,
-          duration: const Duration(milliseconds: 400), curve: Curves.easeInOut);
+    _timer = Timer.periodic(const Duration(seconds: 5), (_) {
+      if (!mounted || _count < 2 || !_controller.hasClients) return;
+      _controller.animateToPage((_current + 1) % _count,
+          duration: const Duration(milliseconds: 450), curve: Curves.easeOutCubic);
     });
   }
 
@@ -965,35 +1082,78 @@ class _BannerCarouselState extends State<_BannerCarousel> {
     super.dispose();
   }
 
+  List<_PromoSlide> _slides(BuildContext context) {
+    final l10n = context.l10n;
+    final isHausa = ref.watch(languageProvider).languageCode == 'ha';
+    return [
+      _PromoSlide(
+        title: l10n.promoHausaTitle,
+        body: l10n.promoHausaBody,
+        cta: l10n.promoHausaCta,
+        icon: Icons.translate_rounded,
+        colors: const [Color(0xFF0E5B33), Color(0xFF1A8A4F)],
+        isNew: true,
+        onTap: () => ref
+            .read(languageProvider.notifier)
+            .setLanguage(isHausa ? 'en' : 'ha'),
+      ),
+      _PromoSlide(
+        title: l10n.promoTransferTitle,
+        body: l10n.promoTransferBody,
+        cta: l10n.promoTransferCta,
+        icon: Icons.send_rounded,
+        colors: const [Color(0xFF1B3A8C), Color(0xFF3563E9)],
+        onTap: () => context.push('/transfer'),
+      ),
+      _PromoSlide(
+        title: l10n.promoAirtimeTitle,
+        body: l10n.promoAirtimeBody,
+        cta: l10n.promoAirtimeCta,
+        icon: Icons.phone_iphone_rounded,
+        colors: const [Color(0xFF5B21B6), Color(0xFF8B5CF6)],
+        onTap: () => context.push('/bills/airtime'),
+      ),
+      _PromoSlide(
+        title: l10n.promoReceiptTitle,
+        body: l10n.promoReceiptBody,
+        cta: l10n.promoReceiptCta,
+        icon: Icons.receipt_long_rounded,
+        colors: const [Color(0xFFB4541A), Color(0xFFEA8A2E)],
+        onTap: () => context.push('/transactions'),
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
+    final slides = _slides(context);
+    _count = slides.length;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      padding: const EdgeInsets.fromLTRB(16, 18, 16, 0),
       child: Column(
         children: [
           SizedBox(
-            height: 160,
-            child: PageView(
+            height: 166,
+            child: PageView.builder(
               controller: _controller,
+              itemCount: slides.length,
               onPageChanged: (i) => setState(() => _current = i),
-              children: [
-                _buildUpgradeBanner(context),
-                _buildLoansBanner(context),
-              ],
+              itemBuilder: (context, i) => _PromoCard(slide: slides[i]),
             ),
           ),
           const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(2, (i) {
+            children: List.generate(slides.length, (i) {
+              final active = _current == i;
               return AnimatedContainer(
                 duration: const Duration(milliseconds: 250),
                 margin: const EdgeInsets.symmetric(horizontal: 3),
-                width: _current == i ? 18 : 6,
+                width: active ? 18 : 6,
                 height: 6,
                 decoration: BoxDecoration(
-                  color: _current == i
-                      ? brandGreen
+                  color: active
+                      ? slides[i].colors.last
                       : Theme.of(context).dividerColor,
                   borderRadius: BorderRadius.circular(99),
                 ),
@@ -1004,163 +1164,160 @@ class _BannerCarouselState extends State<_BannerCarousel> {
       ),
     );
   }
+}
 
-  Widget _buildUpgradeBanner(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark
-            ? const Color(0xFF0B2417)
-            : context.bgBrandSubtle,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            flex: 6,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
+class _PromoCard extends StatelessWidget {
+  final _PromoSlide slide;
+
+  const _PromoCard({required this.slide});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(20),
+        clipBehavior: Clip.antiAlias,
+        child: Ink(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: slide.colors,
+            ),
+          ),
+          child: InkWell(
+            onTap: () {
+              Haptics.tap();
+              slide.onTap();
+            },
+            child: Stack(
               children: [
-                Text(
-                  context.l10n.upgradeToTier2,
-                  style: const TextStyle(
-                    fontFamily: 'Effra',
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: brandGreen,
-                  ),
+                // Soft decorative rings, top-right.
+                Positioned(
+                  right: -40,
+                  top: -50,
+                  child: _ring(170, 0.08),
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  context.l10n.unlockHigherLimitsLong,
-                  style: TextStyle(
-                    fontFamily: 'Effra',
-                    fontSize: 13,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withOpacity(0.55),
-                    height: 1.4,
-                  ),
+                Positioned(
+                  right: 30,
+                  bottom: -70,
+                  child: _ring(130, 0.06),
                 ),
-                const SizedBox(height: 12),
-                GestureDetector(
-                  onTap: () => context.push('/tiers'),
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
-                    decoration: BoxDecoration(
-                      color: brandGreen,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(context.l10n.upgradeAccountNow,
-                            style: const TextStyle(
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(18, 16, 16, 16),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (slide.isNew) ...[
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(99),
+                                ),
+                                child: Text(
+                                  context.l10n.promoNewTag,
+                                  style: const TextStyle(
+                                    fontFamily: 'Effra',
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 0.8,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                            ],
+                            Text(
+                              slide.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
                                 fontFamily: 'Effra',
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white)),
-                        SizedBox(width: 4),
-                        const Icon(Icons.chevron_right,
-                            color: Colors.white, size: 16),
-                      ],
-                    ),
+                                fontSize: 17,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                                height: 1.2,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              slide.body,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontFamily: 'Effra',
+                                fontSize: 12.5,
+                                color: Colors.white.withOpacity(0.82),
+                                height: 1.35,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Container(
+                              padding: const EdgeInsets.fromLTRB(12, 6, 8, 6),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(99),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    slide.cta,
+                                    style: TextStyle(
+                                      fontFamily: 'Effra',
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: slide.colors.first,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 2),
+                                  Icon(Icons.arrow_forward_rounded,
+                                      size: 15, color: slide.colors.first),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Container(
+                        width: 62,
+                        height: 62,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.16),
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(
+                              color: Colors.white.withOpacity(0.25)),
+                        ),
+                        child: Icon(slide.icon, color: Colors.white, size: 30),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
-          Expanded(
-            flex: 4,
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: CustomPaint(
-                size: const Size(90, 90),
-                painter: WalletIllustrationPainter(),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildLoansBanner(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF1A3A6B), Color(0xFF0D2149)],
+  Widget _ring(double size, double opacity) => Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.white.withOpacity(opacity),
         ),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          const Text('💰', style: TextStyle(fontSize: 36)),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  context.l10n.needALoan,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  context.l10n.loanPitch('₦500,000'),
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.75),
-                    fontSize: 12,
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                GestureDetector(
-                  onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(context.l10n.loanComingSoon),
-                      behavior: SnackBarBehavior.floating,
-                      backgroundColor: const Color(0xFF1A3A6B),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                    ),
-                  ),
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFD4AF37),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      context.l10n.applyNow,
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+      );
 }
 
 // ── Recent Transactions ───────────────────────────────────────────────────────
@@ -1546,55 +1703,4 @@ class _RecentSkeleton extends StatelessWidget {
       ),
     );
   }
-}
-
-// ── Wallet illustration painter ───────────────────────────────────────────────
-
-class WalletIllustrationPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final walletPaint = Paint()
-      ..color = brandGreen
-      ..style = PaintingStyle.fill;
-
-    final darkGreenPaint = Paint()
-      ..color = darkGreen
-      ..style = PaintingStyle.fill;
-
-    final goldPaint = Paint()
-      ..color = goldAccent
-      ..style = PaintingStyle.fill;
-
-    final walletBody = RRect.fromRectAndRadius(
-      const Rect.fromLTWH(10, 25, 65, 45),
-      const Radius.circular(10),
-    );
-    canvas.drawRRect(walletBody, walletPaint);
-
-    final walletFlap = RRect.fromRectAndRadius(
-      const Rect.fromLTWH(10, 25, 65, 16),
-      const Radius.circular(10),
-    );
-    canvas.drawRRect(walletFlap, darkGreenPaint);
-
-    final clasp = RRect.fromRectAndRadius(
-      Rect.fromLTWH(42 - 7, 25 - 4, 14, 8),
-      const Radius.circular(4),
-    );
-    canvas.drawRRect(clasp, goldPaint);
-
-    canvas.drawCircle(const Offset(12, 16), 8, goldPaint);
-    canvas.drawCircle(const Offset(70, 12), 6, goldPaint);
-    canvas.drawCircle(const Offset(78, 30), 5, goldPaint);
-    canvas.drawCircle(const Offset(8, 40), 4, goldPaint);
-
-    final lightLinePaint = Paint()
-      ..color = const Color.fromRGBO(255, 255, 255, 0.3)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-    canvas.drawLine(const Offset(20, 35), const Offset(55, 35), lightLinePaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

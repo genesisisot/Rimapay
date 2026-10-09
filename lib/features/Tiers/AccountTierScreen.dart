@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:rimapay/shared/widgets/bill_screen_widgets.dart';
 
 import '../../core/localization/l10n.dart';
+import '../../shared/widgets/coming_soon_pill.dart';
 // ─────────────────────────────────────────────────────────────────────────────
 // Models
 // ─────────────────────────────────────────────────────────────────────────────
@@ -102,6 +103,9 @@ class _AccountTiersScreenState extends State<AccountTiersScreen> {
     }
   }
 
+  // The backend has no tier-upgrade endpoint yet, so the upgrade screens below
+  // can't send a real verification code (UAT: "Tier 2 code not received").
+  // _TierCard shows "Coming soon" until [upgradeAvailable] is flipped.
   void _startUpgrade(TierLevel target) {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -292,6 +296,9 @@ class _TierStepper extends StatelessWidget {
 // Tier Card
 // ─────────────────────────────────────────────────────────────────────────────
 
+/// Flip to true once the backend exposes a tier-upgrade endpoint.
+const upgradeAvailable = false;
+
 class _TierCard extends StatelessWidget {
   final TierInfo info;
   final bool isCurrent;
@@ -460,6 +467,32 @@ class _TierCard extends StatelessWidget {
                           fontFamily: 'Effra',
                         ),
                       ),
+                    ),
+                  )
+                else if (canUpgrade && !upgradeAvailable)
+                  Container(
+                    width: double.infinity,
+                    height: 46,
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.07),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: color.withOpacity(0.2)),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(context.l10n.upgradeToInfo(info.name),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: color.withOpacity(0.6),
+                              fontFamily: 'Effra',
+                            ),
+                          ),
+                        ),
+                        const ComingSoonPill(),
+                      ],
                     ),
                   )
                 else if (canUpgrade)

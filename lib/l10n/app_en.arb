@@ -164,7 +164,7 @@
   },
   "bvnVerification": "BVN Verification",
   "ca": "CA",
-  "cableProviders": "DSTV, GOtv, etc.",
+  "cableProviders": "DStv, GOtv, etc.",
   "cableTV": "Cable TV",
   "cableTVDesc": "Subscriptions",
   "calculateAndPayYourZakat": "Calculate and pay your Zakat",
@@ -1566,5 +1566,18 @@
   "saveAsImage": "Save as Image",
   "shareReceiptAs": "Share receipt as",
   "receiptPdfHint": "Best for email and printing",
-  "receiptImageHint": "Best for WhatsApp and photos"
+  "receiptImageHint": "Best for WhatsApp and photos",
+  "promoNewTag": "NEW",
+  "promoHausaTitle": "RimaPay now speaks Hausa",
+  "promoHausaBody": "Use every screen of the app in Hausa.",
+  "promoHausaCta": "Switch to Hausa",
+  "promoTransferTitle": "Send money to any bank",
+  "promoTransferBody": "Fast transfers to all Nigerian banks, with the name checked first.",
+  "promoTransferCta": "Send money",
+  "promoAirtimeTitle": "Airtime & data in seconds",
+  "promoAirtimeBody": "Top up MTN, Airtel, Glo and 9mobile anytime.",
+  "promoAirtimeCta": "Buy now",
+  "promoReceiptTitle": "Share your receipts",
+  "promoReceiptBody": "Save or share any receipt as a PDF or image.",
+  "promoReceiptCta": "View history"
 }

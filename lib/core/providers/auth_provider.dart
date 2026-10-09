@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../services/storage_service.dart';
@@ -519,7 +520,20 @@ class AuthProvider extends ChangeNotifier {
     _pinCreated = true;
   }
 
+  /// Signs out. The session is revoked on the server and the tokens wiped,
+  /// unless biometric login is on (mobile only): fingerprint login works by
+  /// reusing the saved refresh token, so that session has to survive.
   Future<void> logout() async {
+    final keepForBiometrics =
+        !kIsWeb && await SecureStore.isBiometricLoginEnabled();
+    if (!keepForBiometrics) {
+      try {
+        await AuthApiService().logout().timeout(const Duration(seconds: 5));
+      } catch (_) {
+        // Best effort: the local tokens are wiped either way.
+      }
+      await StorageService.clearTokens();
+    }
     _user = null;
     _error = null;
     _errorMessage = null; // ADDED: Clear biometric errors

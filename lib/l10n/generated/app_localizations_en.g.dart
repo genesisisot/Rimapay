@@ -343,7 +343,7 @@ class AppL10nEn extends AppL10n {
   String get ca => 'CA';
 
   @override
-  String get cableProviders => 'DSTV, GOtv, etc.';
+  String get cableProviders => 'DStv, GOtv, etc.';
 
   @override
   String get cableTV => 'Cable TV';
@@ -3191,4 +3191,44 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get receiptImageHint => 'Best for WhatsApp and photos';
+
+  @override
+  String get promoNewTag => 'NEW';
+
+  @override
+  String get promoHausaTitle => 'RimaPay now speaks Hausa';
+
+  @override
+  String get promoHausaBody => 'Use every screen of the app in Hausa.';
+
+  @override
+  String get promoHausaCta => 'Switch to Hausa';
+
+  @override
+  String get promoTransferTitle => 'Send money to any bank';
+
+  @override
+  String get promoTransferBody =>
+      'Fast transfers to all Nigerian banks, with the name checked first.';
+
+  @override
+  String get promoTransferCta => 'Send money';
+
+  @override
+  String get promoAirtimeTitle => 'Airtime & data in seconds';
+
+  @override
+  String get promoAirtimeBody => 'Top up MTN, Airtel, Glo and 9mobile anytime.';
+
+  @override
+  String get promoAirtimeCta => 'Buy now';
+
+  @override
+  String get promoReceiptTitle => 'Share your receipts';
+
+  @override
+  String get promoReceiptBody => 'Save or share any receipt as a PDF or image.';
+
+  @override
+  String get promoReceiptCta => 'View history';
 }

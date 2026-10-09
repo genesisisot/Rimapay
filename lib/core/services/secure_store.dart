@@ -74,6 +74,19 @@ class SecureStore {
     }
   }
 
+  // ── Generic secrets (session tokens) ────────────────────────────────────
+
+  static Future<String?> readSecret(String key) => _read(key);
+
+  static Future<void> writeSecret(String key, String value) =>
+      _storage.write(key: key, value: value);
+
+  static Future<void> deleteSecret(String key) async {
+    try {
+      await _storage.delete(key: key);
+    } catch (_) {}
+  }
+
   static Future<String?> _read(String key) async {
     try {
       return await _storage.read(key: key);
