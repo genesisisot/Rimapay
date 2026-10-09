@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -628,8 +630,10 @@ class _SummaryStrip extends StatelessWidget {
     final localIncome = todayTx
         .where((tx) => tx.type == TransactionType.addMoney)
         .fold(0.0, (t, tx) => t + tx.amount);
-    final spent = serverSpending ?? localSpent;
-    final income = serverIncome ?? localIncome;
+    // The statement's own totals lag with it (₦0 right after a transfer), so
+    // never let them hide money we know moved today.
+    final spent = math.max(serverSpending ?? 0, localSpent);
+    final income = math.max(serverIncome ?? 0, localIncome);
 
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),

@@ -315,6 +315,38 @@ DateTime? parseStatementDate(String? raw) {
   return null;
 }
 
+/// Local (just-made) entries the statement doesn't show yet.
+///
+/// A local entry is settled when a statement row has its reference, or when
+/// a row moving money the same way, of the same amount and kind, is dated on
+/// or after the local entry's day. Each row settles at most one entry.
+///
+/// This used to match "same amount within 10 minutes", which, while
+/// statement rows were wrongly stamped "now", let an old ₦1,000 bill row
+/// swallow a brand-new ₦1,000 transfer, deleting it from History. Rows
+/// dated before the local entry can't be it, because the statement only lags.
+List<Transaction> unsettledLocalTransactions(
+  List<Transaction> local,
+  List<Transaction> statement,
+) {
+  final refs =
+      statement.map((t) => t.reference).where((r) => r.isNotEmpty).toSet();
+  final unmatched = List<Transaction>.of(statement);
+  return local.where((p) {
+    if (p.reference.isNotEmpty && refs.contains(p.reference)) return false;
+    final day = DateTime(p.timestamp.year, p.timestamp.month, p.timestamp.day);
+    final idx = unmatched.indexWhere((s) =>
+        (s.amount - p.amount).abs() < 0.001 &&
+        s.isIncoming == p.isIncoming &&
+        s.type == p.type &&
+        !s.dateUnknown &&
+        !s.timestamp.isBefore(day));
+    if (idx == -1) return true;
+    unmatched.removeAt(idx);
+    return false;
+  }).toList();
+}
+
 class TransactionNotifier extends StateNotifier<TransactionState> {
   TransactionNotifier(this._api)
       : super(const TransactionState(
@@ -398,31 +430,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
       }
 
       final serverTxs = res.statementList.map(_mapStatementItem).toList();
-      final serverRefs = serverTxs
-          .map((t) => t.reference)
-          .where((r) => r.isNotEmpty)
-          .toSet();
-
-      // Drop any optimistic entry the statement now reflects — matched by
-      // reference, or by same amount within a 10-minute window (the statement
-      // often assigns its own entry reference). Each server row can absorb at
-      // most ONE optimistic entry, otherwise two transfers of the same amount
-      // made minutes apart would both be swallowed by a single settled row.
-      final unmatchedServer = List<Transaction>.of(serverTxs);
-      final stillPending = pending.where((p) {
-        if (p.reference.isNotEmpty && serverRefs.contains(p.reference)) {
-          return false;
-        }
-        final idx = unmatchedServer.indexWhere((s) =>
-            (s.amount - p.amount).abs() < 0.001 &&
-            s.timestamp.difference(p.timestamp).abs() <
-                const Duration(minutes: 10));
-        if (idx != -1) {
-          unmatchedServer.removeAt(idx);
-          return false;
-        }
-        return true;
-      }).toList();
+      final stillPending = unsettledLocalTransactions(pending, serverTxs);
 
       final merged = [...stillPending, ...serverTxs]
         ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
@@ -448,8 +456,11 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
 
   /// Reads optimistic transactions saved locally by [processTransfer] /
   /// [processTransaction], keeping only recent, de-duplicated entries.
+  ///
+  /// Kept for two weeks: the bank statement has been seen lagging by a week,
+  /// and an entry dropped before the statement shows it is simply lost.
   Future<List<Transaction>> _loadPendingTransactions() async {
-    final cutoff = DateTime.now().subtract(const Duration(days: 2));
+    final cutoff = DateTime.now().subtract(const Duration(days: 14));
     final seen = <String>{};
     final pending = <Transaction>[];
     try {
@@ -535,7 +546,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
         transactions: [tx, ...state.transactions],
         isLoading: false,
       );
-      unawaited(_persist());
+      unawaited(_rememberLocal(tx));
 
       return tx.id;
     } catch (e) {
@@ -603,7 +614,7 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
           transactions: [tx, ...state.transactions],
           isLoading: false,
         );
-        unawaited(_persist());
+        unawaited(_rememberLocal(tx));
 
         return res.transactionReference ?? '';
       }
@@ -622,9 +633,17 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
     }
   }
 
-  Future<void> _persist() async {
-    final jsonList = state.transactions.map((tx) => tx.toJson()).toList();
-    await StorageService.saveTransactions(jsonList);
+  /// Adds [tx] to the locally saved, not-yet-on-the-statement entries.
+  ///
+  /// Only local entries are stored: this used to save the whole list, bank
+  /// rows included, which then came back as "pending" duplicates.
+  Future<void> _rememberLocal(Transaction tx) async {
+    final existing = await _loadPendingTransactions();
+    await StorageService.saveTransactions(
+      [tx, ...existing.where((t) => t.id != tx.id)]
+          .map((t) => t.toJson())
+          .toList(),
+    );
   }
 
   double _calculateFee(double amount) {
