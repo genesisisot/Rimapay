@@ -12,6 +12,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../features/success/presentation/screens/success_screen.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../shared/widgets/transaction_visuals.dart';
 class PinVerificationScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic> transactionData;
 
@@ -225,20 +226,6 @@ class _PinVerificationScreenState extends ConsumerState<PinVerificationScreen>
     return '₦$cleanAmount';
   }
 
-  String _getTransactionIcon(String type) {
-    final lowerType = type.toLowerCase();
-    if (lowerType.contains('airtime')) return '📱';
-    if (lowerType.contains('data')) return '📡';
-    if (lowerType.contains('cable')) return '📺';
-    if (lowerType.contains('electricity')) return '⚡';
-    if (lowerType.contains('education')) return '🎓';
-    if (lowerType.contains('betting')) return '🎲';
-    if (lowerType.contains('transport')) return '🚗';
-    if (lowerType.contains('flight')) return '✈️';
-    if (lowerType.contains('government')) return '🏛️';
-    if (lowerType.contains('transfer')) return '💸';
-    return '💳';
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -374,9 +361,11 @@ class _PinVerificationScreenState extends ConsumerState<PinVerificationScreen>
                 borderRadius: BorderRadius.circular(16),
                 ),
                 child: Center(
-                  child: Text(
-                    _getTransactionIcon(type),
-                    style: TextStyle(fontSize: 20),
+                  child: Icon(
+                    transactionVisualForLabel(type).$1,
+                    size: 22,
+                    color: transactionGlyphColor(
+                        context, transactionVisualForLabel(type).$2),
                   ),
                 ),
               ),

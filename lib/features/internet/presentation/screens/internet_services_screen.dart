@@ -151,7 +151,8 @@ class _InternetServicesScreenState extends ConsumerState<InternetServicesScreen>
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Text('📡', style: TextStyle(fontSize: 24)),
+                                  const Icon(Icons.router_outlined,
+                                      size: 24, color: Color(0xFF3949AB)),
                                   const SizedBox(height: 6),
                                   Text(p.displayName,
                                       maxLines: 1,

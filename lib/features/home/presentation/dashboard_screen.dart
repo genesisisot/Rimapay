@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +11,7 @@ import '../../../core/providers/language_provider.dart';
 import '../../../core/providers/transaction_provider.dart';
 import '../../../core/Utils/haptics.dart';
 import '../../../shared/widgets/rimapay_logo.dart';
+import '../../../shared/widgets/transaction_visuals.dart';
 import '../../../shared/widgets/user_avatar.dart';
 import '../../receipt/presentation/screens/receipt_screen.dart';
 import '../../notification/presentation/providers/notification_provider.dart';
@@ -313,7 +313,10 @@ class _HeaderSectionState extends ConsumerState<_HeaderSection> {
                   Text(
                     // greeting is already localized above.
                     '$greeting 👋',
-                    style: GoogleFonts.dmSans(fontSize: 13, color: textGray),
+                    // Bundled Effra: DM Sans came from Google at runtime
+                    // (slow, and a fallback font offline).
+                    style: TextStyle(
+                        fontFamily: 'Effra', fontSize: 13, color: textGray),
                   ),
                   Text(
                     user?.firstName ?? 'User',
@@ -1532,37 +1535,6 @@ class _RecentTransactionsState extends ConsumerState<_RecentTransactions> {
   }
 }
 
-/// Glyph and accent per kind of transaction, so a row is recognisable at a
-/// glance (instead of every row being an up or down arrow).
-(IconData, Color) _txVisual(Transaction tx) {
-  switch (tx.type) {
-    case TransactionType.addMoney:
-      return (Icons.south_west_rounded, const Color(0xFF16A34A));
-    case TransactionType.reversal:
-      return (Icons.replay_rounded, const Color(0xFF0D9488));
-    case TransactionType.transfer:
-      return (Icons.north_east_rounded, const Color(0xFF2563EB));
-    case TransactionType.electricity:
-      return (Icons.bolt_rounded, const Color(0xFFD97706));
-    case TransactionType.cable:
-      return (Icons.live_tv_rounded, const Color(0xFF7C3AED));
-    case TransactionType.airtime:
-      return (Icons.phone_android_rounded, const Color(0xFF16A34A));
-    case TransactionType.data:
-      return (Icons.wifi_rounded, const Color(0xFF0284C7));
-    case TransactionType.education:
-      return (Icons.school_rounded, const Color(0xFF4F46E5));
-    case TransactionType.government:
-      return (Icons.account_balance_rounded, const Color(0xFF475569));
-    case TransactionType.transport:
-      return (Icons.directions_bus_rounded, const Color(0xFFEA580C));
-    case TransactionType.betting:
-      return (Icons.casino_rounded, const Color(0xFFDB2777));
-    case TransactionType.loan:
-      return (Icons.request_quote_rounded, const Color(0xFFCA8A04));
-  }
-}
-
 class _TransactionTile extends StatelessWidget {
   final Transaction tx;
   final String amount;
@@ -1584,7 +1556,7 @@ class _TransactionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final onSurface = Theme.of(context).colorScheme.onSurface;
     final dark = Theme.of(context).brightness == Brightness.dark;
-    final (icon, accent) = _txVisual(tx);
+    final (icon, accent) = transactionVisual(tx.type);
     // Brighter accents on dark surfaces so the glyphs keep their contrast.
     final glyph = dark ? Color.lerp(accent, Colors.white, 0.35)! : accent;
     final incoming = tx.isIncoming;

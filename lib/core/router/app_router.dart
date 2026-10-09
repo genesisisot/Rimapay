@@ -503,7 +503,7 @@ class ComingSoonScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('🚧', style: TextStyle(fontSize: 64)),
+                  Icon(Icons.construction_rounded, size: 64, color: Color(0xFFD4AF37)),
                   SizedBox(height: 20),
                   Text(context.l10n.comingSoon,
                     style: TextStyle(

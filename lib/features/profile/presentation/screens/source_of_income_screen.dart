@@ -226,14 +226,8 @@ class _SourceOfIncomeScreenState extends ConsumerState<SourceOfIncomeScreen> {
                     ),
                   ),
                   const Spacer(),
-                  Text(
-                    '11/12',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.black.withOpacity(0.4),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+                  // Opened from Profile, not onboarding: no step counter.
+                  const SizedBox(width: 40),
                 ],
               ),
             ),

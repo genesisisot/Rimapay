@@ -16,7 +16,7 @@ class _EduProvider {
   final int billerId;
   final String name;
   final String description;
-  final String icon;
+  final IconData icon;
 
   const _EduProvider({
     required this.id,
@@ -26,7 +26,12 @@ class _EduProvider {
     required this.icon,
   });
 
-  static const _icons = ['🎓', '📚', '📝', '🔧'];
+  static const _icons = [
+    Icons.school_rounded,
+    Icons.menu_book_rounded,
+    Icons.edit_note_rounded,
+    Icons.build_rounded,
+  ];
 
   factory _EduProvider.fromBiller(BillerDto b, int index) => _EduProvider(
         id: '${b.billerId}',
@@ -434,7 +439,7 @@ class _ProviderSheet extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Text(p.icon, style: TextStyle(fontSize: 28)),
+                  Icon(p.icon, size: 28, color: const Color(0xFF4F46E5)),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(

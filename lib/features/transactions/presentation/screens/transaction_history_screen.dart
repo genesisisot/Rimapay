@@ -8,6 +8,7 @@ import 'package:rimapay/features/receipt/presentation/screens/receipt_screen.dar
 import '../../../../core/providers/transaction_provider.dart';
 import '../../../bills/presentation/providers/bills_providers.dart';
 import '../../../bills/presentation/widgets/bill_history_list.dart';
+import '../../../../shared/widgets/transaction_visuals.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -812,35 +813,6 @@ class _TxCard extends StatelessWidget {
     }
   }
 
-  String get _icon {
-    switch (tx.type) {
-      case TransactionType.airtime:
-        return '📱';
-      case TransactionType.reversal:
-        return '↩️';
-      case TransactionType.data:
-        return '📶';
-      case TransactionType.electricity:
-        return '⚡';
-      case TransactionType.cable:
-        return '📺';
-      case TransactionType.transfer:
-        return '💸';
-      case TransactionType.addMoney:
-        return '💰';
-      case TransactionType.loan:
-        return '🏦';
-      case TransactionType.education:
-        return '🎓';
-      case TransactionType.betting:
-        return '🎰';
-      case TransactionType.transport:
-        return '🚌';
-      case TransactionType.government:
-        return '🏛️';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final isIncoming = tx.isIncoming;
@@ -887,8 +859,12 @@ class _TxCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
-                  child: Text(_icon,
-                      style: TextStyle(fontSize: 20)),
+                  child: Builder(builder: (context) {
+                    final (icon, accent) = transactionVisual(tx.type);
+                    return Icon(icon,
+                        size: 22,
+                        color: transactionGlyphColor(context, accent));
+                  }),
                 ),
               ),
             ),

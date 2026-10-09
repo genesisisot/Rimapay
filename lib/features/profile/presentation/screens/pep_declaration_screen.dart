@@ -103,14 +103,8 @@ class _PepDeclarationScreenState extends ConsumerState<PepDeclarationScreen> {
                         ),
                       ),
                   const Spacer(),
-                  Text(
-                    '10/12',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+                  // Opened from Profile, not onboarding: no step counter.
+                  const SizedBox(width: 40),
                 ],
               ),
             ),

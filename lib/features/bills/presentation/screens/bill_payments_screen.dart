@@ -14,7 +14,7 @@ class BillService {
   final String id;
   final String title;
   final String description;
-  final String icon;
+  final IconData icon;
   final Color color;
   final Color bgColor;
   final String route;
@@ -75,7 +75,7 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
         id: 'airtime',
         title: context.l10n.airtime,
         description: context.l10n.allNetworks,
-        icon: '📱',
+        icon: Icons.phone_android,
         color: const Color(0xFF8B5CF6),
         bgColor: context.adapt(const Color(0xFFF5F3FF), const Color(0xFF1E1633)),
         route: '/bills/airtime',
@@ -84,7 +84,7 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
         id: 'data',
         title: context.l10n.data,
         description: context.l10n.dataBundles,
-        icon: '📶',
+        icon: Icons.wifi,
         color: const Color(0xFFF97316),
         bgColor: context.bgWarningSubtle,
         route: '/bills/data',
@@ -93,7 +93,7 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
         id: 'electricity',
         title: context.l10n.electricity,
         description: context.l10n.discoPayments,
-        icon: '⚡',
+        icon: Icons.bolt,
         color: const Color(0xFFEAB308),
         bgColor: context.adapt(const Color(0xFFFEFCE8), const Color(0xFF2A1A08)),
         route: '/bills/electricity',
@@ -102,7 +102,7 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
         id: 'cable',
         title: context.l10n.cableTV,
         description: context.l10n.cableProviders,
-        icon: '📺',
+        icon: Icons.tv,
         color: const Color(0xFFEC4899),
         bgColor: context.adapt(const Color(0xFFFDF2F8), const Color(0xFF2A0F1F)),
         route: '/bills/cable',
@@ -111,10 +111,19 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
         id: 'education',
         title: context.l10n.education,
         description: context.l10n.examBodies,
-        icon: '🎓',
+        icon: Icons.school,
         color: const Color(0xFF3B82F6),
         bgColor: context.adapt(const Color(0xFFEFF6FF), const Color(0xFF0F1E3A)),
         route: '/education-bills',
+      ),
+      BillService(
+        id: 'internet',
+        title: context.l10n.internet,
+        description: context.l10n.internetProviders,
+        icon: Icons.router_outlined,
+        color: const Color(0xFF3949AB),
+        bgColor: context.adapt(const Color(0xFFE8EAF6), const Color(0xFF1A1D3A)),
+        route: '/bills/internet',
       ),
     ];
   }
@@ -163,7 +172,7 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
                 borderRadius: BorderRadius.circular(999),
               ),
             ),
-            Text(service.icon, style: TextStyle(fontSize: 40)),
+            Icon(service.icon, size: 40, color: service.color),
             const SizedBox(height: 12),
             Text(
               context.l10n.upgradeToUnlockService(service.title),
@@ -429,12 +438,12 @@ class _ServiceCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Center(
-                      child: Text(
+                      child: Icon(
                         service.icon,
-                        style: TextStyle(
-                          fontSize: 22,
-                          color: service.isLocked ? null : null,
-                        ),
+                        size: 24,
+                        color: service.isLocked
+                            ? Theme.of(context).colorScheme.onSurface.withOpacity(0.4)
+                            : service.color,
                       ),
                     ),
                   ),

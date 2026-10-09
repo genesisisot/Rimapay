@@ -41,7 +41,8 @@ class AccountLimitsScreen extends StatelessWidget {
                             shape: BoxShape.circle,
                           ),
                           child: const Center(
-                            child: Text('⭐', style: TextStyle(fontSize: 22)),
+                            child: Icon(Icons.star_rounded,
+                                color: Colors.white, size: 24),
                           ),
                         ),
                         const SizedBox(width: 14),
@@ -163,15 +164,16 @@ class AccountLimitsScreen extends StatelessWidget {
                           fontSize: 13,
                           color: Theme.of(context).colorScheme.onSurface)),
                 ),
+                // Same marks and colours as the Account Tiers screen.
                 ...[
-                  ('T1', '⭐'),
-                  ('T2', '🥈'),
-                  ('T3', '🥇'),
+                  ('T1', Icons.star_rounded, const Color(0xFF166C46)),
+                  ('T2', Icons.verified_rounded, const Color(0xFF3B82F6)),
+                  ('T3', Icons.workspace_premium_rounded, const Color(0xFF8B5CF6)),
                 ].map((t) => Expanded(
                       flex: 2,
                       child: Column(
                         children: [
-                          Text(t.$2, style: TextStyle(fontSize: 12)),
+                          Icon(t.$2, size: 15, color: t.$3),
                           Text(t.$1,
                               style: TextStyle(
                                   fontWeight: FontWeight.w700,

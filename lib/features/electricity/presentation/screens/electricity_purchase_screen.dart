@@ -389,7 +389,7 @@ class _ElectricityPurchaseScreenState
                   children: [
                     _MeterTypeBtn(
                       label: context.l10n.prepaid,
-                      icon: '🔋',
+                      icon: Icons.battery_charging_full_rounded,
                       selected: _meterType == MeterType.prepaid,
                       onTap: () {
                         setState(() => _meterType = MeterType.prepaid);
@@ -399,7 +399,7 @@ class _ElectricityPurchaseScreenState
                     const SizedBox(width: 10),
                     _MeterTypeBtn(
                       label: context.l10n.postpaid,
-                      icon: '📄',
+                      icon: Icons.receipt_long_rounded,
                       selected: _meterType == MeterType.postpaid,
                       onTap: () {
                         setState(() => _meterType = MeterType.postpaid);
@@ -808,7 +808,7 @@ class _DropdownField extends StatelessWidget {
 
 class _MeterTypeBtn extends StatelessWidget {
   final String label;
-  final String icon;
+  final IconData icon;
   final bool selected;
   final VoidCallback onTap;
 
@@ -842,7 +842,13 @@ class _MeterTypeBtn extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(icon, style: TextStyle(fontSize: 14)),
+              Icon(
+                icon,
+                size: 16,
+                color: selected
+                    ? AppColors.goldPrimary
+                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
+              ),
               const SizedBox(width: 6),
               Text(
                 label,

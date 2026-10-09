@@ -16,7 +16,7 @@ class NotificationModel {
   final String time;
   final NotificationType type;
   bool isRead;
-  final String? icon;
+  final IconData? icon;
 
   NotificationModel({
     required this.id,
@@ -88,22 +88,22 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
     }
   }
 
-  String _iconFor(NotificationCategory c) {
+  IconData _iconFor(NotificationCategory c) {
     switch (c) {
       case NotificationCategory.payment:
-        return '✅';
+        return Icons.check_circle_rounded;
       case NotificationCategory.moneyReceived:
-        return '💰';
+        return Icons.south_west_rounded;
       case NotificationCategory.promotion:
-        return '🎉';
+        return Icons.local_offer_rounded;
       case NotificationCategory.security:
-        return '🔒';
+        return Icons.lock_rounded;
       case NotificationCategory.cashback:
-        return '🎁';
+        return Icons.card_giftcard_rounded;
       case NotificationCategory.system:
-        return '⚙️';
+        return Icons.settings_rounded;
       case NotificationCategory.general:
-        return '📢';
+        return Icons.campaign_rounded;
     }
   }
 
@@ -193,8 +193,8 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
-                                child: Text(n.icon ?? '📢',
-                                    style: const TextStyle(fontSize: 21)),
+                                child: Icon(n.icon ?? Icons.campaign_rounded,
+                                    size: 22, color: accent),
                               ),
                             ),
                             const SizedBox(width: 14),
@@ -570,9 +570,10 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                 shape: BoxShape.circle,
               ),
               child: Center(
-                child: Text(
-                  n.icon ?? '📢',
-                  style: TextStyle(fontSize: 19),
+                child: Icon(
+                  n.icon ?? Icons.campaign_rounded,
+                  size: 20,
+                  color: accent,
                 ),
               ),
             ),

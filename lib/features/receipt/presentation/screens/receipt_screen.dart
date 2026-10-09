@@ -13,6 +13,7 @@ import '../../../../shared/receipt/receipt_format_sheet.dart';
 
 import '../../../../core/localization/l10n.dart';
 import '../../../../core/providers/transaction_provider.dart';
+import '../../../../shared/widgets/transaction_visuals.dart';
 
 /// Builds the receipt for a transaction, so every entry point (home, history)
 /// shows the same details rather than each screen assembling its own map.
@@ -138,20 +139,6 @@ class _ReceiptScreenState extends State<ReceiptScreen> with TickerProviderStateM
     return '₦$cleanAmount';
   }
 
-  String _getTransactionIcon(String type) {
-    final lowerType = type.toLowerCase();
-    if (lowerType.contains('airtime')) return '📱';
-    if (lowerType.contains('data')) return '📡';
-    if (lowerType.contains('cable')) return '📺';
-    if (lowerType.contains('electricity')) return '⚡';
-    if (lowerType.contains('education')) return '🎓';
-    if (lowerType.contains('betting')) return '🎲';
-    if (lowerType.contains('transport')) return '🚗';
-    if (lowerType.contains('flight')) return '✈️';
-    if (lowerType.contains('government')) return '🏛️';
-    if (lowerType.contains('transfer')) return '💸';
-    return '💳';
-  }
 
   Map<String, dynamic> _getStatusConfig(String status) {
     final isDark = context.isDark;
@@ -406,11 +393,11 @@ class _ReceiptScreenState extends State<ReceiptScreen> with TickerProviderStateM
                                                   color: statusConfig['icon'],
                                                   size: isSmallScreen ? 24 : 32,
                                                 )
-                                              : Text(
-                                                  _getTransactionIcon(widget.receiptData.type),
-                                                  style: TextStyle(
-                                                    fontSize: isSmallScreen ? 18 : 24,
-                                                  ),
+                                              : Icon(
+                                                  transactionVisualForLabel(widget.receiptData.type).$1,
+                                                  color: transactionGlyphColor(context,
+                                                      transactionVisualForLabel(widget.receiptData.type).$2),
+                                                  size: isSmallScreen ? 22 : 28,
                                                 ),
                                         ),
                                       ),
