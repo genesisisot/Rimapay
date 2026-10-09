@@ -30,7 +30,7 @@ class _RemitaScreenState extends State<RemitaScreen> {
   ];
 
   static const _popularServices = [
-    _PopularService('Tax Payment', 'FIRS', Icons.receipt_long, Color(0xFF1A6B35)),
+    _PopularService('Tax Payment', 'FIRS', Icons.receipt_long, Color(0xFF166C46)),
     _PopularService('JAMB', 'Registration', Icons.school, Color(0xFF1565C0)),
     _PopularService('Immigration', 'NIS Passport', Icons.flight, Color(0xFF7B1FA2)),
     _PopularService('Police Clearance', 'NPF', Icons.verified_user, Color(0xFF0277BD)),
@@ -98,12 +98,12 @@ class _RemitaScreenState extends State<RemitaScreen> {
                                 horizontal: 14, vertical: 10),
                             decoration: BoxDecoration(
                               color: active
-                                  ? const Color(0xFF1A6B35)
+                                  ? const Color(0xFF166C46)
                                   : Theme.of(context).colorScheme.surface,
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(
                                 color: active
-                                    ? const Color(0xFF1A6B35)
+                                    ? const Color(0xFF166C46)
                                     : Theme.of(context).dividerColor,
                               ),
                             ),
@@ -153,7 +153,7 @@ class _RemitaScreenState extends State<RemitaScreen> {
                             SnackBar(
                               content: Text(context.l10n.enterYourRrnForS(s.name)),
                               behavior: SnackBarBehavior.floating,
-                              backgroundColor: const Color(0xFF1A6B35),
+                              backgroundColor: const Color(0xFF166C46),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10)),
                             ),
@@ -282,7 +282,7 @@ class _RemitaScreenState extends State<RemitaScreen> {
                                     ? _verifyRRN
                                     : null,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF1A6B35),
+                                  backgroundColor: const Color(0xFF166C46),
                                   disabledBackgroundColor: Theme.of(context).dividerColor,
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12)),
@@ -316,7 +316,7 @@ class _RemitaScreenState extends State<RemitaScreen> {
                         color: Theme.of(context).colorScheme.primaryContainer,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                            color: const Color(0xFF1A6B35).withOpacity(0.3)),
+                            color: const Color(0xFF166C46).withOpacity(0.3)),
                       ),
                       child: Row(
                         children: [
@@ -324,7 +324,7 @@ class _RemitaScreenState extends State<RemitaScreen> {
                             width: 36,
                             height: 36,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF1A6B35).withOpacity(0.15),
+                              color: const Color(0xFF166C46).withOpacity(0.15),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(Icons.check_circle,
@@ -381,7 +381,7 @@ class _RemitaScreenState extends State<RemitaScreen> {
                                 })
                             : null,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF1A6B35),
+                          backgroundColor: const Color(0xFF166C46),
                           disabledBackgroundColor: Theme.of(context).dividerColor,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
@@ -458,7 +458,7 @@ class _RemitaScreenState extends State<RemitaScreen> {
           width: 22,
           height: 22,
           decoration: BoxDecoration(
-            color: const Color(0xFF1A6B35).withOpacity(0.12),
+            color: const Color(0xFF166C46).withOpacity(0.12),
             shape: BoxShape.circle,
           ),
           child: Center(

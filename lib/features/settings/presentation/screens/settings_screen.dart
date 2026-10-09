@@ -12,12 +12,12 @@ import '../../../../core/providers/theme_provider.dart';
 import '../../../../core/providers/auth_provider.dart';
 import '../../../../core/providers/language_provider.dart';
 import '../../../../shared/widgets/custom_app_bar.dart';
-import '../../../../shared/widgets/rimapay_logo.dart';
 import '../../../auth/data/auth_api_service.dart';
 import '../../../auth/data/auth_dtos.dart';
 
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../shared/widgets/bill_screen_widgets.dart';
 enum SettingsModal {
   changePassword,
   changePin,
@@ -90,14 +90,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Header
-            _buildHeader(),
-            
-            // Content
-            Expanded(
+      body: Column(
+        children: [
+          BillGreenHeader(
+            title: context.l10n.settings,
+            showAccountCard: false,
+          ),
+          Expanded(
+            child: SafeArea(
+              top: false,
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
                 child: Column(
@@ -109,74 +110,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        border: Border(
-          bottom: BorderSide(
-            color: Theme.of(context).dividerColor.withOpacity(0.1),
-            width: 1,
-          ),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            GestureDetector(
-              onTap: () => context.go('/home'),
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
-                ),
-                child: Icon(
-                  Icons.arrow_back_ios_new,
-                  size: 20,
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                ),
-              ),
-            ).animate().scale(delay: 50.ms),
-            
-            const SizedBox(width: 12),
-          const RimapayLogo(height: 30, width: 30),
-            const SizedBox(width: 12),
-            
-            Text(context.l10n.settings,
-              style: AppTextStyles.titleLarge.copyWith(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            
-            const Spacer(),
-            
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                Icons.settings,
-                size: 20,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
-              ),
-            ),
-          ],
-        ),
-      ),
-    ).animate().slideY(begin: -0.2).fadeIn();
   }
 
   List<Widget> _buildSettingsSections() {
@@ -1223,7 +1160,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
     required bool isSelected,
     required VoidCallback onTap,
   }) {
-    final accent = const Color(0xFF1A6B35);
+    final accent = const Color(0xFF166C46);
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -1316,7 +1253,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
             const SizedBox(height: 24),
             _careOption(Icons.phone_outlined, 'Call Us',
-                '0800-RIMAPAY (0800-7462729)', const Color(0xFF1A6B35)),
+                '0800-RIMAPAY (0800-7462729)', const Color(0xFF166C46)),
             const SizedBox(height: 12),
             _careOption(Icons.chat_bubble_outline, 'WhatsApp',
                 '+234 800 746 2729', const Color(0xFF25D366)),
@@ -1421,14 +1358,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                       SnackBar(
                         content: Text(context.l10n.otpSentToYourRegisteredNumber),
                         behavior: SnackBarBehavior.floating,
-                        backgroundColor: const Color(0xFF1A6B35),
+                        backgroundColor: const Color(0xFF166C46),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10)),
                       ),
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1A6B35),
+                    backgroundColor: const Color(0xFF166C46),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)),
                   ),

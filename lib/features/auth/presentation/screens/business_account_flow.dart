@@ -2294,7 +2294,7 @@ class _CParticle {
   final double wobbleSpeed;
 
   static const _colors = [
-    Color(0xFF1A6B35),
+    Color(0xFF166C46),
     Color(0xFFD4AF37),
     Color(0xFFFBBF24),
     Color(0xFF60A5FA),

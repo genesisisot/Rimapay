@@ -6,6 +6,9 @@ import '../../data/profile_dtos.dart';
 import '../providers/profile_provider.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../shared/widgets/app_buttons.dart';
+import '../../../../shared/widgets/bill_screen_widgets.dart';
+
 class PepDeclarationScreen extends ConsumerStatefulWidget {
   const PepDeclarationScreen({super.key});
 
@@ -32,9 +35,8 @@ class _PepDeclarationScreenState extends ConsumerState<PepDeclarationScreen> {
     setState(() => _saving = true);
 
     final request = PepCompletionRequest(isPep: _isPep!);
-    final success = await ref
-        .read(profileProvider.notifier)
-        .completePep(request);
+    final success =
+        await ref.read(profileProvider.notifier).completePep(request);
 
     setState(() => _saving = false);
 
@@ -51,8 +53,7 @@ class _PepDeclarationScreenState extends ConsumerState<PepDeclarationScreen> {
               context.pop(true);
             },
           ),
-          transitionsBuilder:
-              (context, animation, secondaryAnimation, child) {
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },
           transitionDuration: const Duration(milliseconds: 300),
@@ -73,130 +74,118 @@ class _PepDeclarationScreenState extends ConsumerState<PepDeclarationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+      body: Column(
+        children: [
+          BillGreenHeader(
+            title: context.l10n.pepDeclaration,
+            showAccountCard: false,
+          ),
+          Expanded(
+            child: SafeArea(
+              top: false,
+              child: Column(
                 children: [
-                  GestureDetector(
-                    onTap: () => context.pop(),
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).scaffoldBackgroundColor,
-                        borderRadius: BorderRadius.circular(12),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 32),
+                          Container(
+                            width: 120,
+                            height: 120,
+                            decoration: BoxDecoration(
+                                color: Theme.of(context).cardColor,
+                                shape: BoxShape.circle),
+                            child: const Icon(Icons.group,
+                                color: Color(0xFF16A34A), size: 60),
+                          ),
+                          const SizedBox(height: 28),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 28),
+                            child: Text(
+                              context.l10n.areYouAPoliticallyExposedPerson2,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                  height: 1.4),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 28),
+                            child: Text(
+                              context.l10n.aPepPoliticallyExposedPersonIs2,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 13,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withOpacity(0.55),
+                                  height: 1.5),
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            child: Row(
+                              children: ['Yes', 'No'].map((label) {
+                                final val = label == 'Yes';
+                                final selected = _isPep == val;
+                                return Expanded(
+                                  child: GestureDetector(
+                                    onTap: () => setState(() => _isPep = val),
+                                    child: AnimatedContainer(
+                                      duration: const Duration(milliseconds: 180),
+                                      margin:
+                                          const EdgeInsets.symmetric(horizontal: 6),
+                                      padding:
+                                          const EdgeInsets.symmetric(vertical: 18),
+                                      decoration: BoxDecoration(
+                                        color: selected
+                                            ? const Color(0xFF16A34A)
+                                            : Theme.of(context).colorScheme.surface,
+                                        borderRadius: BorderRadius.circular(14),
+                                        border: Border.all(
+                                          color: selected
+                                              ? const Color(0xFF16A34A)
+                                              : Theme.of(context).dividerColor,
+                                          width: 1.5,
+                                        ),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          label,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w700,
+                                            color: selected
+                                                ? Colors.white
+                                                : Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurface
+                                                    .withOpacity(0.85),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        ],
                       ),
-                      child: Icon(Icons.arrow_back_ios_new,
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55), size: 18),
                     ),
                   ),
-                  const Spacer(),
-                      Text(context.l10n.pepDeclaration,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                      ),
-                  const Spacer(),
-                  // Opened from Profile, not onboarding: no step counter.
-                  const SizedBox(width: 40),
+                  _buildCTA(),
                 ],
               ),
             ),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 32),
-                    Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                          color: Theme.of(context).cardColor, shape: BoxShape.circle),
-                      child: const Icon(Icons.group,
-                          color: Color(0xFF16A34A), size: 60),
-                    ),
-                    const SizedBox(height: 28),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 28),
-                        child: Text(context.l10n.areYouAPoliticallyExposedPerson2,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w800,
-                              color: Theme.of(context).colorScheme.onSurface,
-                              height: 1.4),
-                        ),
-                      ),
-                    const SizedBox(height: 16),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 28),
-                      child: Text(context.l10n.aPepPoliticallyExposedPersonIs2,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 13,
-                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
-                            height: 1.5),
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Row(
-                        children: ['Yes', 'No'].map((label) {
-                          final val = label == 'Yes';
-                          final selected = _isPep == val;
-                          return Expanded(
-                            child: GestureDetector(
-                              onTap: () => setState(() => _isPep = val),
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 180),
-                                margin:
-                                    const EdgeInsets.symmetric(horizontal: 6),
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 18),
-                                decoration: BoxDecoration(
-                                  color: selected
-                                      ? const Color(0xFF16A34A)
-                                      : Theme.of(context).colorScheme.surface,
-                                  borderRadius: BorderRadius.circular(14),
-                                  border: Border.all(
-                                    color: selected
-                                        ? const Color(0xFF16A34A)
-                                        : Theme.of(context).dividerColor,
-                                    width: 1.5,
-                                  ),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    label,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
-                                      color: selected
-                                          ? Colors.white
-                                          : Theme.of(context).colorScheme.onSurface.withOpacity(0.85),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            _buildCTA(),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -204,37 +193,10 @@ class _PepDeclarationScreenState extends ConsumerState<PepDeclarationScreen> {
   Widget _buildCTA() {
     return Padding(
       padding: const EdgeInsets.all(20),
-      child: GestureDetector(
-          onTap: _saving ? null : _saveAndShowSuccess,
-          child: Container(
-            width: double.infinity,
-            height: 54,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF166C46), Color(0xFF0B4F2F)],
-              ),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Center(
-              child: _saving
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.5,
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
-                  : Text(context.l10n.continueArrow,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-            ),
-          ),
+      child: AppPrimaryButton(
+        label: context.l10n.continueArrow,
+        loading: _saving,
+        onPressed: _saveAndShowSuccess,
       ),
     );
   }
@@ -283,8 +245,7 @@ class _CompletionSuccessScreenState extends State<_CompletionSuccessScreen> {
                   color: Colors.white.withOpacity(0.2),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.check_circle,
-                    color: Colors.white, size: 60),
+                child: Icon(Icons.check_circle, color: Colors.white, size: 60),
               ),
             ),
             const SizedBox(height: 24),

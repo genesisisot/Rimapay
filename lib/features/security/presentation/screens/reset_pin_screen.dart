@@ -9,6 +9,8 @@ import '../../../../core/Utils/haptics.dart';
 import '../../data/pin_dtos.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../shared/widgets/app_buttons.dart';
+import '../../../../shared/widgets/bill_screen_widgets.dart';
 /// Two-step transaction-PIN reset backed by the RIMA Identity API:
 ///  step 0 → choose new PIN, POST /api/security/pin/reset/initiate (sends OTP)
 ///  step 1 → enter OTP, POST /api/security/pin/reset/validate
@@ -109,22 +111,24 @@ class _ResetPinScreenState extends State<ResetPinScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        foregroundColor: Theme.of(context).colorScheme.onSurface,
-        title: Text(context.l10n.resetTransactionPin,
-            style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w800,
-                color: Theme.of(context).colorScheme.onSurface)),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-          child: _step == 2
-              ? _buildDone()
-              : (_step == 0 ? _buildPinStep() : _buildOtpStep()),
-        ),
+      body: Column(
+        children: [
+          BillGreenHeader(
+            title: context.l10n.resetTransactionPin,
+            showAccountCard: false,
+          ),
+          Expanded(
+            child: SafeArea(
+              top: false,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+                child: _step == 2
+                    ? _buildDone()
+                    : (_step == 0 ? _buildPinStep() : _buildOtpStep()),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -245,30 +249,6 @@ class _ResetPinScreenState extends State<ResetPinScreen> {
   }
 
   Widget _button(String label, bool loading, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: loading ? null : onTap,
-      child: Container(
-        width: double.infinity,
-        height: 54,
-        decoration: BoxDecoration(
-          color: _green,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Center(
-          child: loading
-              ? const SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
-              : Text(label,
-                  style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white)),
-        ),
-      ),
-    );
+    return AppPrimaryButton(label: label, loading: loading, onPressed: onTap);
   }
 }

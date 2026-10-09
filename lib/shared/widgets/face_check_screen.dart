@@ -8,6 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../core/Utils/haptics.dart';
 import '../../core/localization/l10n.dart';
 import '../../features/onboarding/data/onboarding_api_service.dart';
+import 'app_buttons.dart';
 
 /// Step-up face check for sensitive actions (large transfers).
 ///
@@ -208,40 +209,15 @@ class _FaceCheckScreenState extends State<_FaceCheckScreen> {
                       ),
               ),
               const Spacer(),
-              SizedBox(
-                width: double.infinity,
-                height: 54,
-                child: ElevatedButton(
-                  onPressed: _verifying
-                      ? null
-                      : (ready ? _capture : _startCamera),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF16A34A),
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor: const Color(0xFF166534),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14)),
-                  ),
-                  child: _verifying
-                      ? const SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: CircularProgressIndicator(
-                              strokeWidth: 2.5, color: Colors.white),
-                        )
-                      : Text(
-                          ready
-                              ? (_error != null
-                                  ? context.l10n.faceCheckRetry
-                                  : context.l10n.faceCheckTake)
-                              : context.l10n.faceCheckStartCamera,
-                          style: const TextStyle(
-                            fontFamily: 'Effra',
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                ),
+              AppPrimaryButton(
+                label: ready
+                    ? (_error != null
+                        ? context.l10n.faceCheckRetry
+                        : context.l10n.faceCheckTake)
+                    : context.l10n.faceCheckStartCamera,
+                loading: _verifying,
+                leadingIcon: ready ? Icons.camera_alt_rounded : null,
+                onPressed: ready ? _capture : _startCamera,
               ),
             ],
           ),

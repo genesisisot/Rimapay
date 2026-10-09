@@ -35,6 +35,7 @@ import '../../../../shared/widgets/noise_painter.dart';
 import '../../../../shared/widgets/rimapay_logo.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../shared/widgets/app_buttons.dart';
 enum AuthMode { signup, login }
 
 enum Flow { start, personal, underbanking, business, login, success }
@@ -659,44 +660,10 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                       const SizedBox(height: 8),
 
                       // Sign In button
-                      GestureDetector(
-                        onTap: canSubmit ? _handleLoginSubmit : null,
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 150),
-                          width: double.infinity,
-                          height: 54,
-                          decoration: BoxDecoration(
-                            gradient: canSubmit
-                                ? const LinearGradient(
-                                    colors: [
-                                        Color(0xFF166C46),
-                                        Color(0xFF166C46)
-                                      ],
-                                    begin: Alignment.centerLeft,
-                                    end: Alignment.centerRight)
-                                : null,
-                            color: canSubmit ? null : Theme.of(context).dividerColor,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Center(
-                            child: _isLoading
-                                ? const SizedBox(
-                                    width: 22,
-                                    height: 22,
-                                    child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                                Colors.white)))
-                                : Text(context.l10n.signIn,
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w700,
-                                        color: canSubmit
-                                            ? Colors.white
-                                            : Theme.of(context).colorScheme.onSurface.withOpacity(0.4))),
-                          ),
-                        ),
+                      AppPrimaryButton(
+                        label: context.l10n.signIn,
+                        loading: _isLoading,
+                        onPressed: canSubmit ? _handleLoginSubmit : null,
                       ),
                       const SizedBox(height: 12),
 
@@ -1428,31 +1395,10 @@ class _DeviceLinkingSheetState extends ConsumerState<_DeviceLinkingSheet> {
               style: const TextStyle(color: Colors.red, fontSize: 12)),
         ],
         const SizedBox(height: 20),
-        GestureDetector(
-          onTap: _onInitiateDeviceRegistration,
-          child: Container(
-            width: double.infinity,
-            height: 52,
-            decoration: BoxDecoration(
-              color: const Color(0xFF166C46),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Center(
-              child: _loading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white)))
-                  : Text(context.l10n.continueArrow,
-                      style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white)),
-            ),
-          ),
+        AppPrimaryButton(
+          label: context.l10n.continueArrow,
+          loading: _loading,
+          onPressed: _onInitiateDeviceRegistration,
         ),
       ],
     );
@@ -1589,33 +1535,10 @@ class _DeviceLinkingSheetState extends ConsumerState<_DeviceLinkingSheet> {
             ))
         ).toList(),
         const SizedBox(height: 12),
-        GestureDetector(
-          onTap: filled == 6 ? _onConfirmOtp : null,
-          child: Container(
-            width: double.infinity,
-            height: 52,
-            decoration: BoxDecoration(
-              color: filled == 6
-                  ? const Color(0xFF166C46)
-                  : context.adapt(const Color(0xFFD1D5DB), const Color(0xFF3D4456)),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Center(
-              child: _verifyingOtp
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white)))
-                  : Text(context.l10n.verifyArrow,
-                      style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white)),
-            ),
-          ),
+        AppPrimaryButton(
+          label: context.l10n.verifyArrow,
+          loading: _verifyingOtp,
+          onPressed: filled == 6 ? _onConfirmOtp : null,
         ),
         const SizedBox(height: 8),
         if (_resendCountdown > 0)
@@ -1678,23 +1601,9 @@ class _DeviceLinkingSheetState extends ConsumerState<_DeviceLinkingSheet> {
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6))),
           const SizedBox(height: 24),
-          GestureDetector(
-            onTap: () => Navigator.of(context).pop('success'),
-            child: Container(
-              width: double.infinity,
-              height: 52,
-              decoration: BoxDecoration(
-                color: const Color(0xFF166C46),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Center(
-                child: Text(context.l10n.done,
-                    style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white)),
-              ),
-            ),
+          AppPrimaryButton(
+            label: context.l10n.done,
+            onPressed: () => Navigator.of(context).pop('success'),
           ),
         ],
       ),
@@ -2319,31 +2228,10 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
           Text(_error!, style: const TextStyle(color: Colors.red, fontSize: 12)),
         ],
         const SizedBox(height: 20),
-        GestureDetector(
-          onTap: _onSendVerification,
-          child: Container(
-            width: double.infinity,
-            height: 52,
-            decoration: BoxDecoration(
-              color: const Color(0xFF166C46),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Center(
-              child: _loading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white)))
-                  : Text(context.l10n.sendVerificationCode,
-                      style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white)),
-            ),
-          ),
+        AppPrimaryButton(
+          label: context.l10n.sendVerificationCode,
+          loading: _loading,
+          onPressed: _onSendVerification,
         ),
       ],
     );
@@ -2594,33 +2482,10 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
           )
         ).toList()),
         const SizedBox(height: 8),
-        GestureDetector(
-          onTap: _onLinkAccount,
-          child: Container(
-            width: double.infinity,
-            height: 52,
-            decoration: BoxDecoration(
-              color: filled == 6 ? const Color(0xFF166C46) : Theme.of(context).dividerColor,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Center(
-              child: _loading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white)))
-                  : Text(context.l10n.linkAccount,
-                      style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: filled == 6
-                              ? Colors.white
-                              : Theme.of(context).colorScheme.onSurface.withOpacity(0.4))),
-            ),
-          ),
+        AppPrimaryButton(
+          label: context.l10n.linkAccount,
+          loading: _loading,
+          onPressed: _onLinkAccount,
         ),
       ],
     );
@@ -3700,30 +3565,10 @@ class _ContinueLinkingPageState
               )
             ).toList()),
             const SizedBox(height: 20),
-            GestureDetector(
-              onTap: filled == 4 ? _onPinComplete : null,
-              child: Container(
-                width: double.infinity,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: filled == 4 ? const Color(0xFF166C46) : context.adapt(const Color(0xFFD1D5DB), const Color(0xFF3D4456)),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Center(
-                  child: _creatingPin
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
-                      : Text(context.l10n.proceedArrow,
-                          style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white)),
-                ),
-              ),
+            AppPrimaryButton(
+              label: context.l10n.proceedArrow,
+              loading: _creatingPin,
+              onPressed: filled == 4 ? _onPinComplete : null,
             ),
             if (_error != null) ...[
               const SizedBox(height: 8),

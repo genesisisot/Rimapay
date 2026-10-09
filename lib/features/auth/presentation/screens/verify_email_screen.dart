@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/providers/auth_provider.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../shared/widgets/app_buttons.dart';
 /// Email verification via the RIMA Identity API
 /// (GET /api/auth/verify-email?token=&email=). The user pastes the token from
 /// the verification email they received after registering.
@@ -172,30 +173,6 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   }
 
   Widget _button(String label, bool loading, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: loading ? null : onTap,
-      child: Container(
-        width: double.infinity,
-        height: 54,
-        decoration: BoxDecoration(
-          color: _green,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Center(
-          child: loading
-              ? const SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
-              : Text(label,
-                  style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white)),
-        ),
-      ),
-    );
+    return AppPrimaryButton(label: label, loading: loading, onPressed: onTap);
   }
 }

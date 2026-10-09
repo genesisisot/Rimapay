@@ -7,6 +7,9 @@ import '../providers/profile_provider.dart';
 
 import '../../../../core/localization/l10n.dart';
 import '../../../../core/theme/app_theme_colors.dart';
+import '../../../../shared/widgets/app_buttons.dart';
+import '../../../../shared/widgets/bill_screen_widgets.dart';
+
 class ResidentialAddressScreen extends ConsumerStatefulWidget {
   const ResidentialAddressScreen({super.key});
 
@@ -69,7 +72,10 @@ class _ResidentialAddressScreenState
     return InputDecoration(
       hintText: hint,
       hintStyle: TextStyle(
-          color: context.adapt(const Color(0xFFD1D5DB), const Color(0xFF3D4456)), fontSize: 14, fontFamily: 'Effra'),
+          color:
+              context.adapt(const Color(0xFFD1D5DB), const Color(0xFF3D4456)),
+          fontSize: 14,
+          fontFamily: 'Effra'),
       suffixIcon: suffix,
       filled: true,
       fillColor: Theme.of(context).cardColor,
@@ -153,8 +159,7 @@ class _ResidentialAddressScreenState
               context.pop(true);
             },
           ),
-          transitionsBuilder:
-              (context, animation, secondaryAnimation, child) {
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },
           transitionDuration: const Duration(milliseconds: 300),
@@ -185,137 +190,122 @@ class _ResidentialAddressScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+      body: Column(
+        children: [
+          BillGreenHeader(
+            title: context.l10n.residentialAddress,
+            showAccountCard: false,
+          ),
+          Expanded(
+            child: SafeArea(
+              top: false,
+              child: Column(
                 children: [
-                  GestureDetector(
-                    onTap: () => context.pop(),
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).scaffoldBackgroundColor,
-                        borderRadius: BorderRadius.circular(12),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(context.l10n.whereDoYouLive,
+                              style: TextStyle(
+                                  fontSize: 13,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withOpacity(0.55),
+                                  height: 1.5)),
+                          const SizedBox(height: 20),
+                          _sectionLabel('Address'),
+                          const SizedBox(height: 8),
+                          TextField(
+                            controller: _addressController,
+                            style: TextStyle(fontSize: 14),
+                            decoration: _inputDec(
+                              hint: 'e.g. 15, Adeola Odeku Street',
+                              suffix: IconButton(
+                                onPressed: () {},
+                                icon: const Icon(Icons.my_location,
+                                    color: Color(0xFF16A34A), size: 20),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    _sectionLabel('House No.'),
+                                    const SizedBox(height: 8),
+                                    TextField(
+                                      controller: _houseNoController,
+                                      style: TextStyle(fontSize: 14),
+                                      decoration: _inputDec(hint: 'No.'),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    _sectionLabel('Area / Landmark'),
+                                    const SizedBox(height: 8),
+                                    TextField(
+                                      controller: _areaController,
+                                      style: TextStyle(fontSize: 14),
+                                      decoration:
+                                          _inputDec(hint: 'e.g. Victoria Island'),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 14),
+                          _sectionLabel('State'),
+                          const SizedBox(height: 8),
+                          GestureDetector(
+                            onTap: () => _showStatePicker(context),
+                            child: AbsorbPointer(
+                              child: TextField(
+                                controller: _stateController,
+                                style: TextStyle(fontSize: 14),
+                                decoration: _inputDec(
+                                  hint: 'Select state',
+                                  suffix: Padding(
+                                    padding: EdgeInsets.only(right: 12),
+                                    child: Icon(Icons.keyboard_arrow_down,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withOpacity(0.55)),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          _sectionLabel('LGA'),
+                          const SizedBox(height: 8),
+                          TextField(
+                            controller: _lgaController,
+                            style: const TextStyle(fontSize: 14),
+                            decoration: _inputDec(hint: 'e.g. Ikeja'),
+                          ),
+                          const SizedBox(height: 20),
+                        ],
                       ),
-                      child: Icon(Icons.arrow_back_ios_new,
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55), size: 18),
                     ),
                   ),
-                  const Spacer(),
-                  Text(context.l10n.residentialAddress,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)),
-                    ),
-                  ),
-                  const Spacer(),
-                  // Opened from Profile, not onboarding: no step counter.
-                  const SizedBox(width: 40),
+                  _buildCTA(),
                 ],
               ),
             ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(context.l10n.whereDoYouLive,
-                        style: TextStyle(
-                            fontSize: 13,
-                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
-                            height: 1.5)),
-                    const SizedBox(height: 20),
-                    _sectionLabel('Address'),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: _addressController,
-                      style: TextStyle(fontSize: 14),
-                      decoration: _inputDec(
-                        hint: 'e.g. 15, Adeola Odeku Street',
-                        suffix: IconButton(
-                          onPressed: () {},
-                          icon: const Icon(Icons.my_location,
-                              color: Color(0xFF16A34A), size: 20),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _sectionLabel('House No.'),
-                              const SizedBox(height: 8),
-                              TextField(
-                                controller: _houseNoController,
-                                style: TextStyle(fontSize: 14),
-                                decoration: _inputDec(hint: 'No.'),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _sectionLabel('Area / Landmark'),
-                              const SizedBox(height: 8),
-                              TextField(
-                                controller: _areaController,
-                                style: TextStyle(fontSize: 14),
-                                decoration:
-                                    _inputDec(hint: 'e.g. Victoria Island'),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    _sectionLabel('State'),
-                    const SizedBox(height: 8),
-                    GestureDetector(
-                      onTap: () => _showStatePicker(context),
-                      child: AbsorbPointer(
-                        child: TextField(
-                          controller: _stateController,
-                          style: TextStyle(fontSize: 14),
-                          decoration: _inputDec(
-                            hint: 'Select state',
-                            suffix: Padding(
-                              padding: EdgeInsets.only(right: 12),
-                              child: Icon(Icons.keyboard_arrow_down,
-                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55)),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    _sectionLabel('LGA'),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: _lgaController,
-                      style: const TextStyle(fontSize: 14),
-                      decoration: _inputDec(hint: 'e.g. Ikeja'),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
-              ),
-            ),
-            _buildCTA(),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -342,7 +332,8 @@ class _ResidentialAddressScreenState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(context.l10n.selectState,
+            Text(
+              context.l10n.selectState,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -358,7 +349,8 @@ class _ResidentialAddressScreenState
                   return ListTile(
                     title: Text(state,
                         style: TextStyle(
-                            fontSize: 15, color: Theme.of(context).colorScheme.onSurface)),
+                            fontSize: 15,
+                            color: Theme.of(context).colorScheme.onSurface)),
                     onTap: () {
                       setState(() {
                         _selectedState = state;
@@ -379,37 +371,10 @@ class _ResidentialAddressScreenState
   Widget _buildCTA() {
     return Padding(
       padding: const EdgeInsets.all(20),
-      child: GestureDetector(
-        onTap: _saving ? null : _saveAndShowSuccess,
-        child: Container(
-          width: double.infinity,
-          height: 54,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF166C46), Color(0xFF0B4F2F)],
-            ),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Center(
-            child: _saving
-                ? const SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.5,
-                      valueColor:
-                          AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                : Text(context.l10n.continueArrow,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-          ),
-        ),
+      child: AppPrimaryButton(
+        label: context.l10n.continueArrow,
+        loading: _saving,
+        onPressed: _saveAndShowSuccess,
       ),
     );
   }
@@ -458,8 +423,7 @@ class _CompletionSuccessScreenState extends State<_CompletionSuccessScreen> {
                   color: Colors.white.withOpacity(0.2),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.check_circle,
-                    color: Colors.white, size: 60),
+                child: Icon(Icons.check_circle, color: Colors.white, size: 60),
               ),
             ),
             const SizedBox(height: 24),

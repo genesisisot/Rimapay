@@ -64,7 +64,7 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF1A6B35).withOpacity(0.2)),
+                      border: Border.all(color: const Color(0xFF166C46).withOpacity(0.2)),
                     ),
                     child: Row(
                       children: [
@@ -73,7 +73,7 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
                         Expanded(
                           child: Text(context.l10n.yourFundsAreInsuredByNdic,
                             style: TextStyle(
-                              color: const Color(0xFF1A6B35).withOpacity(0.85),
+                              color: const Color(0xFF166C46).withOpacity(0.85),
                               fontSize: 12.5,
                               height: 1.4,
                             ),
@@ -214,7 +214,7 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
                         Switch(
                           value: _autoRollover,
                           onChanged: (v) => setState(() => _autoRollover = v),
-                          activeColor: const Color(0xFF1A6B35),
+                          activeColor: const Color(0xFF166C46),
                         ),
                       ],
                     ),
@@ -233,7 +233,7 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
                               })
                           : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1A6B35),
+                        backgroundColor: const Color(0xFF166C46),
                         disabledBackgroundColor: Theme.of(context).dividerColor,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),

@@ -59,7 +59,7 @@ extension AppThemeColors on BuildContext {
   /// Brand green for text and icons; brighter in dark mode, where the
   /// standard green (#1A6B35) is too dark to read.
   Color get brandInk =>
-      isDark ? const Color(0xFF4D9A6E) : const Color(0xFF1A6B35);
+      isDark ? const Color(0xFF4D9A6E) : const Color(0xFF166C46);
 
   // ── Status bar icon brightness ─────────────────────────────────────────────
   Brightness get statusBarIconBrightness =>

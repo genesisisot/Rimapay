@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import 'app_buttons.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -45,7 +47,7 @@ class CommaFormatter extends TextInputFormatter {
 /// Shared green gradient header for all bill payment screens.
 class BillGreenHeader extends StatelessWidget {
   final String title;
-  final String subtitle;
+  final String? subtitle;
   final List<String>? tabs;
   final int selectedTab;
   final ValueChanged<int>? onTabChanged;
@@ -58,7 +60,7 @@ class BillGreenHeader extends StatelessWidget {
   const BillGreenHeader({
     super.key,
     required this.title,
-    required this.subtitle,
+    this.subtitle,
     this.tabs,
     this.selectedTab = 0,
     this.onTabChanged,
@@ -103,7 +105,9 @@ class BillGreenHeader extends StatelessWidget {
                   children: [
                     GestureDetector(
                       behavior: HitTestBehavior.opaque,
-                      onTap: () => context.pop(),
+                      onTap: () => context.canPop()
+                          ? context.pop()
+                          : context.go('/home'),
                       child: Container(
                         width: 38,
                         height: 38,
@@ -130,13 +134,14 @@ class BillGreenHeader extends StatelessWidget {
                             fontWeight: FontWeight.w800,
                           ),
                         ),
-                        Text(
-                          subtitle,
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.6),
-                            fontSize: 12,
+                        if ((subtitle ?? '').isNotEmpty)
+                          Text(
+                            subtitle!,
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.6),
+                              fontSize: 12,
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   ],
@@ -343,7 +348,7 @@ class BillAccountCard extends StatelessWidget {
                                         Text(context.l10n.accountNumberCopied),
                                     behavior: SnackBarBehavior.floating,
                                     duration: const Duration(seconds: 2),
-                                    backgroundColor: const Color(0xFF155C2C),
+                                    backgroundColor: const Color(0xFF0E5C37),
                                   ),
                                 );
                               },
@@ -603,32 +608,10 @@ class BillOrangeCTA extends StatelessWidget {
         MediaQuery.of(context).padding.bottom + 16,
       ),
       color: Theme.of(context).cardColor,
-      child: GestureDetector(
-        onTap: enabled ? onTap : null,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          width: double.infinity,
-          height: 54,
-          decoration: BoxDecoration(
-            gradient: enabled
-                ? const LinearGradient(
-                    colors: [Color(0xFF166C46), Color(0xFF166C46)],
-                  )
-                : null,
-            color: enabled ? null : Theme.of(context).colorScheme.onSurface.withOpacity(0.12),
-            borderRadius: BorderRadius.circular(999),
-          ),
-          child: Center(
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: enabled ? Colors.white : Theme.of(context).colorScheme.onSurface.withOpacity(0.4),
-              ),
-            ),
-          ),
-        ),
+      // The app-wide main button (gold) — see AppPrimaryButton.
+      child: AppPrimaryButton(
+        label: label,
+        onPressed: enabled ? onTap : null,
       ),
     );
   }

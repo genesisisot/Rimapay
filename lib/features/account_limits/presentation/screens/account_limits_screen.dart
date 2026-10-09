@@ -25,7 +25,7 @@ class AccountLimitsScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFF1A6B35), Color(0xFF0B4F2F)],
+                        colors: [Color(0xFF166C46), Color(0xFF0B4F2F)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -107,7 +107,7 @@ class AccountLimitsScreen extends StatelessWidget {
                       color: Theme.of(context).colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                          color: const Color(0xFF1A6B35).withOpacity(0.2)),
+                          color: const Color(0xFF166C46).withOpacity(0.2)),
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,7 +118,7 @@ class AccountLimitsScreen extends StatelessWidget {
                         Expanded(
                           child: Text(context.l10n.limitsAreSetInAccordanceWith,
                             style: TextStyle(
-                              color: const Color(0xFF1A6B35).withOpacity(0.85),
+                              color: const Color(0xFF166C46).withOpacity(0.85),
                               fontSize: 12,
                               height: 1.5,
                             ),

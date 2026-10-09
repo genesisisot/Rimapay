@@ -9,6 +9,7 @@ import '../../../bills/presentation/widgets/bill_purchase_flow.dart';
 
 import '../../../../core/localization/l10n.dart';
 import '../../../../core/theme/app_theme_colors.dart';
+import '../../../../shared/widgets/app_buttons.dart';
 class InternetServicesScreen extends ConsumerStatefulWidget {
   const InternetServicesScreen({super.key});
 
@@ -266,19 +267,9 @@ class _InternetServicesScreenState extends ConsumerState<InternetServicesScreen>
                   ],
 
                   const SizedBox(height: 32),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton(
-                      onPressed: _canProceed ? _pay : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1A6B35),
-                        disabledBackgroundColor: Theme.of(context).dividerColor,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                      ),
-                      child: Text(context.l10n.proceed,
-                          style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
-                    ),
+                  AppPrimaryButton(
+                    label: context.l10n.proceed,
+                    onPressed: _canProceed ? _pay : null,
                   ),
                   const SizedBox(height: 20),
                 ],

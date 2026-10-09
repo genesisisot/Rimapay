@@ -122,7 +122,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: _aboveNisab
-                            ? const Color(0xFF1A6B35).withOpacity(0.3)
+                            ? const Color(0xFF166C46).withOpacity(0.3)
                             : Theme.of(context).dividerColor,
                       ),
                     ),
@@ -155,7 +155,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
                                     fontWeight: FontWeight.w800,
                                     fontSize: 16,
                                     color: _aboveNisab
-                                        ? const Color(0xFF1A6B35)
+                                        ? const Color(0xFF166C46)
                                         : Theme.of(context).colorScheme.onSurface.withOpacity(0.4))),
                           ],
                         ),
@@ -188,7 +188,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: active
-                                  ? const Color(0xFF1A6B35)
+                                  ? const Color(0xFF166C46)
                                   : Theme.of(context).dividerColor,
                               width: active ? 2 : 1,
                             ),
@@ -232,7 +232,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
                           'recipient': _institutions[_selectedInstitution].name,
                         }),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF1A6B35),
+                          backgroundColor: const Color(0xFF166C46),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14)),
                         ),

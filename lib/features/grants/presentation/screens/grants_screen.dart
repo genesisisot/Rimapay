@@ -162,7 +162,7 @@ class _GrantsScreenState extends State<GrantsScreen> {
                               })
                           : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1A6B35),
+                        backgroundColor: const Color(0xFF166C46),
                         disabledBackgroundColor: Theme.of(context).dividerColor,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),

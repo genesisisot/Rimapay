@@ -13,6 +13,7 @@ import '../../../../core/theme/app_colors.dart';
 
 import '../../../../core/localization/l10n.dart';
 import '../../../../core/theme/app_theme_colors.dart';
+import '../../../../shared/widgets/app_buttons.dart';
 /// Forgot / reset password flow backed by the RIMA Identity API:
 ///  step 0 → POST /api/auth/forgot-password (email/phone)
 ///  step 1 → POST /api/auth/verify-face-reset (face verification)
@@ -675,27 +676,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     required bool loading,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
-      onTap: loading ? null : onTap,
-      child: Container(
-        width: double.infinity,
-        height: 54,
-        decoration: BoxDecoration(
-          color: _green,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Center(
-          child: loading
-              ? const SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(
-                      strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
-              : Text(label,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
-        ),
-      ),
-    );
+    return AppPrimaryButton(label: label, loading: loading, onPressed: onTap);
   }
 }
 

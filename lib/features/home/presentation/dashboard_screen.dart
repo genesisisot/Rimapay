@@ -20,8 +20,9 @@ import '../../../core/localization/l10n.dart';
 import '../../../core/localization/tier_labels.dart';
 import '../../../core/theme/app_theme_colors.dart';
 
-const Color brandGreen = Color(0xFF1A6B35);
-const Color darkGreen = Color(0xFF155C2C);
+/// Brand green — same value as AppColors.primary500.
+const Color brandGreen = Color(0xFF166C46);
+const Color darkGreen = Color(0xFF0E5C37);
 const Color goldAccent = Color(0xFFC9A84C);
 const Color lightGreenBg = Color(0xFFE8F5ED);
 const Color redDebit = Color(0xFFE53935);
@@ -166,7 +167,7 @@ void _showCustomerCare(BuildContext context) {
                     ),
                     const SizedBox(height: 20),
                     _careRow(context, Icons.phone_outlined, context.l10n.callUs,
-                        '0800-RIMAPAY (0800-7462729)', const Color(0xFF1A6B35)),
+                        '0800-RIMAPAY (0800-7462729)', const Color(0xFF166C46)),
                     const SizedBox(height: 10),
                     _careRow(
                         context,
@@ -603,7 +604,7 @@ class _BalanceCardState extends State<_BalanceCard> {
                                         context.l10n.accountNumberCopied),
                                     behavior: SnackBarBehavior.floating,
                                     duration: const Duration(seconds: 2),
-                                    backgroundColor: const Color(0xFF155C2C),
+                                    backgroundColor: const Color(0xFF0E5C37),
                                     shape: RoundedRectangleBorder(
                                         borderRadius:
                                             BorderRadius.circular(10)),

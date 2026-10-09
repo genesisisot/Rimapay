@@ -19,7 +19,7 @@ class _CardsScreenState extends State<CardsScreen> {
       network: 'Verve',
       fee: '₦1,000',
       deliveryDays: '5-7',
-      color1: Color(0xFF1A6B35),
+      color1: Color(0xFF166C46),
       color2: Color(0xFF0B4F2F),
     ),
     _CardType(
@@ -188,7 +188,7 @@ class _CardsScreenState extends State<CardsScreen> {
                           ? () => _showConfirmSheet(context)
                           : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1A6B35),
+                        backgroundColor: const Color(0xFF166C46),
                         disabledBackgroundColor: Theme.of(context).dividerColor,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14)),
@@ -253,14 +253,14 @@ class _CardsScreenState extends State<CardsScreen> {
                     SnackBar(
                       content: Text(context.l10n.cardRequestSubmittedSuccessfully),
                       behavior: SnackBarBehavior.floating,
-                      backgroundColor: const Color(0xFF1A6B35),
+                      backgroundColor: const Color(0xFF166C46),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10)),
                     ),
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1A6B35),
+                  backgroundColor: const Color(0xFF166C46),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                 ),

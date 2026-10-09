@@ -7,6 +7,9 @@ import '../providers/profile_provider.dart';
 
 import '../../../../core/localization/l10n.dart';
 import '../../../../core/theme/app_theme_colors.dart';
+import '../../../../shared/widgets/app_buttons.dart';
+import '../../../../shared/widgets/bill_screen_widgets.dart';
+
 class SourceOfIncomeScreen extends ConsumerStatefulWidget {
   const SourceOfIncomeScreen({super.key});
 
@@ -67,13 +70,17 @@ class _SourceOfIncomeScreenState extends ConsumerState<SourceOfIncomeScreen> {
                 style: TextStyle(
                   fontSize: 14,
                   color: value != null
-                      ? context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0))
-                      : context.adapt(const Color(0xFFD1D5DB), const Color(0xFF3D4456)),
+                      ? context.adapt(
+                          const Color(0xFF111827), const Color(0xFFE8EAF0))
+                      : context.adapt(
+                          const Color(0xFFD1D5DB), const Color(0xFF3D4456)),
                 ),
               ),
             ),
             Icon(Icons.keyboard_arrow_down,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55), size: 20),
+                color:
+                    Theme.of(context).colorScheme.onSurface.withOpacity(0.55),
+                size: 20),
           ],
         ),
       ),
@@ -116,8 +123,7 @@ class _SourceOfIncomeScreenState extends ConsumerState<SourceOfIncomeScreen> {
               context.pop(true);
             },
           ),
-          transitionsBuilder:
-              (context, animation, secondaryAnimation, child) {
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },
           transitionDuration: const Duration(milliseconds: 300),
@@ -177,7 +183,8 @@ class _SourceOfIncomeScreenState extends ConsumerState<SourceOfIncomeScreen> {
                   return ListTile(
                     title: Text(option,
                         style: TextStyle(
-                            fontSize: 15, color: Theme.of(context).colorScheme.onSurface)),
+                            fontSize: 15,
+                            color: Theme.of(context).colorScheme.onSurface)),
                     onTap: () {
                       onSelect(option);
                       Navigator.pop(ctx);
@@ -196,77 +203,60 @@ class _SourceOfIncomeScreenState extends ConsumerState<SourceOfIncomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+      body: Column(
+        children: [
+          BillGreenHeader(
+            title: context.l10n.sourceOfIncome,
+            showAccountCard: false,
+          ),
+          Expanded(
+            child: SafeArea(
+              top: false,
+              child: Column(
                 children: [
-                  GestureDetector(
-                    onTap: () => context.pop(),
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).scaffoldBackgroundColor,
-                        borderRadius: BorderRadius.circular(12),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(context.l10n.provideDetailsOfYourSourceOf,
+                              style: TextStyle(
+                                  fontSize: 13,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withOpacity(0.55))),
+                          const SizedBox(height: 24),
+                          _sectionLabel('Occupation'),
+                          const SizedBox(height: 8),
+                          GestureDetector(
+                            onTap: () => _showOptionsSheet('Occupation', _occupations,
+                                (v) => setState(() => _occupation = v)),
+                            child: _dropdownField(
+                                value: _occupation, hint: 'Select your occupation'),
+                          ),
+                          const SizedBox(height: 20),
+                          _sectionLabel('Annual Income'),
+                          const SizedBox(height: 8),
+                          GestureDetector(
+                            onTap: () => _showOptionsSheet('Annual Income', _incomes,
+                                (v) => setState(() => _annualIncome = v)),
+                            child: _dropdownField(
+                                value: _annualIncome,
+                                hint: 'Select your annual income'),
+                          ),
+                          const SizedBox(height: 20),
+                        ],
                       ),
-                      child: Icon(Icons.arrow_back_ios_new,
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55), size: 18),
                     ),
                   ),
-                  const Spacer(),
-                  Text(context.l10n.sourceOfIncome,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)),
-                    ),
-                  ),
-                  const Spacer(),
-                  // Opened from Profile, not onboarding: no step counter.
-                  const SizedBox(width: 40),
+                  _buildCTA(),
                 ],
               ),
             ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(context.l10n.provideDetailsOfYourSourceOf,
-                        style:
-                            TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55))),
-                    const SizedBox(height: 24),
-                    _sectionLabel('Occupation'),
-                    const SizedBox(height: 8),
-                    GestureDetector(
-                      onTap: () => _showOptionsSheet('Occupation', _occupations,
-                          (v) => setState(() => _occupation = v)),
-                      child: _dropdownField(
-                          value: _occupation, hint: 'Select your occupation'),
-                    ),
-                    const SizedBox(height: 20),
-                    _sectionLabel('Annual Income'),
-                    const SizedBox(height: 8),
-                    GestureDetector(
-                      onTap: () => _showOptionsSheet('Annual Income', _incomes,
-                          (v) => setState(() => _annualIncome = v)),
-                      child: _dropdownField(
-                          value: _annualIncome,
-                          hint: 'Select your annual income'),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
-              ),
-            ),
-            _buildCTA(),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -274,37 +264,10 @@ class _SourceOfIncomeScreenState extends ConsumerState<SourceOfIncomeScreen> {
   Widget _buildCTA() {
     return Padding(
       padding: const EdgeInsets.all(20),
-      child: GestureDetector(
-        onTap: _saving ? null : _saveAndShowSuccess,
-        child: Container(
-          width: double.infinity,
-          height: 54,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF166C46), Color(0xFF0B4F2F)],
-            ),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Center(
-            child: _saving
-                ? const SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.5,
-                      valueColor:
-                          AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                : Text(context.l10n.continueArrow,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-          ),
-        ),
+      child: AppPrimaryButton(
+        label: context.l10n.continueArrow,
+        loading: _saving,
+        onPressed: _saveAndShowSuccess,
       ),
     );
   }
@@ -353,8 +316,7 @@ class _CompletionSuccessScreenState extends State<_CompletionSuccessScreen> {
                   color: Colors.white.withOpacity(0.2),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.check_circle,
-                    color: Colors.white, size: 60),
+                child: Icon(Icons.check_circle, color: Colors.white, size: 60),
               ),
             ),
             const SizedBox(height: 24),
