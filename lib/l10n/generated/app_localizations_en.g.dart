@@ -3173,4 +3173,13 @@ class AppL10nEn extends AppL10n {
   @override
   String get searchSmartcardOrReference =>
       'Search smartcard number or reference';
+
+  @override
+  String get receiptPdf => 'PDF Receipt';
+
+  @override
+  String get receiptImage => 'Image Receipt';
+
+  @override
+  String get saveAsImage => 'Save as Image';
 }

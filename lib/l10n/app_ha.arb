@@ -957,5 +957,8 @@
   "noCablePurchasesYet": "Babu biyan Cable TV tukuna",
   "cableHistoryEmptyHint": "Duk biyan kuɗin da kuka yi ana ajiye su a nan, don ku sabunta da taɓawa ɗaya.",
   "payCableTv": "Biya Cable TV",
-  "searchSmartcardOrReference": "Nemi lambar smartcard ko lambar shaida"
+  "searchSmartcardOrReference": "Nemi lambar smartcard ko lambar shaida",
+  "receiptPdf": "Rasidin PDF",
+  "receiptImage": "Rasidin Hoto",
+  "saveAsImage": "Ajiye a matsayin Hoto"
 }

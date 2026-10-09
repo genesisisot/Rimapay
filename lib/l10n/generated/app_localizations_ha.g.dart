@@ -3176,4 +3176,13 @@ class AppL10nHa extends AppL10n {
   @override
   String get searchSmartcardOrReference =>
       'Nemi lambar smartcard ko lambar shaida';
+
+  @override
+  String get receiptPdf => 'Rasidin PDF';
+
+  @override
+  String get receiptImage => 'Rasidin Hoto';
+
+  @override
+  String get saveAsImage => 'Ajiye a matsayin Hoto';
 }

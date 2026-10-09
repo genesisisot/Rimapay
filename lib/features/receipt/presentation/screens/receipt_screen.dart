@@ -242,9 +242,9 @@ www.rimapay.com
     ''';
   }
 
-  /// Styled PDF via the share sheet (Save to Files/Downloads, WhatsApp…);
-  /// downloads on web. Replaces the old save into the hidden app folder.
-  Future<void> _downloadReceipt() async {
+  /// Styled PDF, or a PNG of the same page, via the share sheet (Files,
+  /// Photos, WhatsApp…); a download on web.
+  Future<void> _downloadReceipt({bool asImage = false}) async {
     final d = widget.receiptData;
     final status = _getStatusConfig(d.status)['label']?.toString() ?? 'Successful';
     final user = context.read<AuthProvider>().user;
@@ -252,7 +252,7 @@ www.rimapay.com
     final senderAccount = user?.accountNumber ?? '';
     try {
       final l10n = context.l10n;
-      await shareReceiptPdf(l10n: l10n, ReceiptPdfData(
+      final data = ReceiptPdfData(
         title: d.type,
         amount: d.amount,
         isCredit: d.isCredit,
@@ -287,7 +287,12 @@ www.rimapay.com
             ReceiptRow('Description', d.description!),
           ReceiptRow('Payment Type', d.type),
         ],
-      ));
+      );
+      if (asImage) {
+        await shareReceiptImage(data, l10n: l10n);
+      } else {
+        await shareReceiptPdf(data, l10n: l10n);
+      }
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -710,34 +715,51 @@ www.rimapay.com
                               opacity: _fadeAnimation.value,
                               child: Column(
                                 children: [
-                                  // Download PDF Button
-                                  SizedBox(
-                                    width: double.infinity,
-                                    height: 48,
-                                    child: ElevatedButton.icon(
-                                      onPressed: _downloadReceipt,
-                                      icon: const Icon(Icons.download, size: 16),
-                                      label: Text(context.l10n.downloadPdfReceipt,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .labelLarge!
-                                            .copyWith(
-                                          fontSize: isSmallScreen ? 14 : 16,
-                                          // labelLarge carries the theme's own
-                                          // (dark) colour, which overrode the
-                                          // button's white foreground.
-                                          color: Colors.white,
+                                  // Receipt as PDF or image
+                                  Row(
+                                    children: [
+                                      for (final asImage in const [false, true]) ...[
+                                        if (asImage) const SizedBox(width: 10),
+                                        Expanded(
+                                          child: SizedBox(
+                                            height: 48,
+                                            child: ElevatedButton.icon(
+                                              onPressed: () =>
+                                                  _downloadReceipt(asImage: asImage),
+                                              icon: Icon(
+                                                  asImage
+                                                      ? Icons.image_outlined
+                                                      : Icons.picture_as_pdf_outlined,
+                                                  size: 16),
+                                              label: Text(
+                                                asImage
+                                                    ? context.l10n.receiptImage
+                                                    : context.l10n.receiptPdf,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .labelLarge!
+                                                    .copyWith(
+                                                  fontSize: isSmallScreen ? 13 : 15,
+                                                  // labelLarge carries the theme's
+                                                  // own (dark) colour, which
+                                                  // overrode the white foreground.
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: AppColors.primary500,
+                                                foregroundColor: Colors.white,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                                elevation: 0,
+                                              ),
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.primary500,
-                                        foregroundColor: Colors.white,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(12),
-                                        ),
-                                        elevation: 0,
-                                      ),
-                                    ),
+                                      ],
+                                    ],
                                   ),
 
                                   const SizedBox(height: 12),

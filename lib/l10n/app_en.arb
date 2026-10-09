@@ -1560,5 +1560,8 @@
   "noCablePurchasesYet": "No Cable TV payments yet",
   "cableHistoryEmptyHint": "Every subscription you pay for is saved here, so you can renew in one tap.",
   "payCableTv": "Pay Cable TV",
-  "searchSmartcardOrReference": "Search smartcard number or reference"
+  "searchSmartcardOrReference": "Search smartcard number or reference",
+  "receiptPdf": "PDF Receipt",
+  "receiptImage": "Image Receipt",
+  "saveAsImage": "Save as Image"
 }

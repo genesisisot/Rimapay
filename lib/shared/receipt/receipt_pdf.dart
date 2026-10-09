@@ -7,6 +7,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
 import '../../core/localization/l10n.dart';
+import 'save_file.dart';
 
 /// Formats any amount string as naira, e.g. `"5000"`, `"5,000"` or
 /// `"₦5000.00"` → `"₦5,000.00"`. Unparseable input is returned with a ₦ prefix.
@@ -321,8 +322,24 @@ Future<Uint8List> buildReceiptPdf(ReceiptPdfData r,
 /// (Save to Files/Downloads, WhatsApp, email…), a file download on web.
 Future<void> shareReceiptPdf(ReceiptPdfData r, {required AppL10n l10n}) async {
   final bytes = await buildReceiptPdf(r, l10n: l10n);
+  await Printing.sharePdf(
+      bytes: bytes, filename: 'RimaPay-Receipt-${_fileStem(r)}.pdf');
+}
+
+/// The same receipt as a PNG (for WhatsApp, the gallery…): the PDF page is
+/// rasterised, so the image always matches the PDF exactly.
+Future<void> shareReceiptImage(ReceiptPdfData r, {required AppL10n l10n}) async {
+  final pdf = await buildReceiptPdf(r, l10n: l10n);
+  final page = await Printing.raster(pdf, pages: const [0], dpi: 200).first;
+  final png = await page.toPng();
+  await saveOrShareFile(
+    png,
+    fileName: 'RimaPay-Receipt-${_fileStem(r)}.png',
+    mimeType: 'image/png',
+  );
+}
+
+String _fileStem(ReceiptPdfData r) {
   final safeRef = r.reference.replaceAll(RegExp(r'[^A-Za-z0-9_-]'), '');
-  final name =
-      safeRef.isEmpty ? '${DateTime.now().millisecondsSinceEpoch}' : safeRef;
-  await Printing.sharePdf(bytes: bytes, filename: 'RimaPay-Receipt-$name.pdf');
+  return safeRef.isEmpty ? '${DateTime.now().millisecondsSinceEpoch}' : safeRef;
 }

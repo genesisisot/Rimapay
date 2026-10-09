@@ -15,7 +15,6 @@ import '../../../../shared/widgets/rimapay_logo.dart';
 import '../../../../shared/receipt/receipt_pdf.dart';
 import '../../../../core/Utils/haptics.dart';
 import 'dart:math' show Random;
-import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/localization/l10n.dart';
@@ -56,24 +55,6 @@ class BeneficiaryData {
   });
 }
 
-class SavedBeneficiaryData {
-  final String name;
-  final String accountNumber;
-  final String bank;
-  final String nickname;
-  final bool isFavorite;
-  final String dateAdded;
-
-  SavedBeneficiaryData({
-    required this.name,
-    required this.accountNumber,
-    required this.bank,
-    required this.nickname,
-    required this.isFavorite,
-    required this.dateAdded,
-  });
-}
-
 class SuccessScreen extends ConsumerStatefulWidget {
   final SuccessScreenProps props;
 
@@ -98,10 +79,6 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
 
   late AnimationController _confettiController;
   late List<_ConfettiParticle> _particles;
-
-  bool _showSaveBeneficiary = false;
-  String _beneficiaryNickname = '';
-  bool _markAsFavorite = false;
 
   @override
   void initState() {
@@ -187,16 +164,11 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
     context.go('/home');
   }
 
-  void _handleShare() {
-    final shareText = "${widget.props.transactionType} of ${formatNaira(widget.props.amount)} successful. Transaction ID: ${widget.props.transactionId}";
-    Share.share(shareText, subject: 'RimaPay Transaction Receipt');
-  }
-
   bool _receiptBusy = false;
 
-  /// Builds a styled PDF receipt and opens the share sheet (Android/iOS) so it
-  /// can be saved to Files/Downloads or sent on; downloads the file on web.
-  Future<void> _handleDownload() async {
+  /// Saves the receipt as a styled PDF or as a PNG of the same page: share
+  /// sheet on Android/iOS (Files, Photos, WhatsApp…), a download on web.
+  Future<void> _saveReceipt({required bool asImage}) async {
     if (_receiptBusy) return;
     Haptics.press();
     setState(() => _receiptBusy = true);
@@ -206,7 +178,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
       final user = context.read<AuthProvider>().user;
       final senderName = user?.displayName ?? '';
       final senderAccount = user?.accountNumber ?? '';
-      await shareReceiptPdf(l10n: l10n, ReceiptPdfData(
+      final data = ReceiptPdfData(
         title: p.transactionType,
         amount: p.amount,
         reference: p.transactionId,
@@ -230,7 +202,12 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
             ),
           ReceiptRow('Payment Type', p.transactionType),
         ],
-      ));
+      );
+      if (asImage) {
+        await shareReceiptImage(data, l10n: l10n);
+      } else {
+        await shareReceiptPdf(data, l10n: l10n);
+      }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -245,51 +222,25 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
     }
   }
 
-  void _onRepeatTransaction() {
+  /// Screen that repeats this payment, or null when there isn't one (the
+  /// Repeat button is hidden rather than dropping the user on Home).
+  (String, Object?)? get _repeatTarget {
     final type = widget.props.transactionType.toLowerCase();
-    if (type.contains('airtime')) {
-      context.go('/bills/airtime');
-    } else if (type.contains('data')) {
-      context.go('/bills/data');
-    } else if (type.contains('electricity')) {
-      context.go('/bills/electricity');
-    } else if (type.contains('cable')) {
-      context.go('/bills/cable');
-    } else {
-      context.go('/home');
-    }
+    if (type.contains('airtime to cash')) return null;
+    if (type == 'transfer') return ('/transfer', null);
+    if (type.contains('airtime')) return ('/bills/airtime', 0);
+    if (type.contains('data')) return ('/bills/airtime', 1); // Data tab
+    if (type.contains('electricity')) return ('/bills/electricity', null);
+    if (type.contains('cable')) return ('/bills/cable', null);
+    if (type == 'internet') return ('/bills/internet', null);
+    return null;
   }
 
-  void _onSaveBeneficiary(SavedBeneficiaryData beneficiaryData) {
-    // Implement save beneficiary functionality
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(context.l10n.beneficiarySaved),
-        backgroundColor: Colors.green,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-
-  void _handleSaveBeneficiary() {
-    if (widget.props.beneficiaryData != null) {
-      final savedData = SavedBeneficiaryData(
-        name: widget.props.beneficiaryData!.name,
-        accountNumber: widget.props.beneficiaryData!.accountNumber,
-        bank: widget.props.beneficiaryData!.bank,
-        nickname: _beneficiaryNickname.isEmpty 
-            ? widget.props.beneficiaryData!.name.split(' ')[0]
-            : _beneficiaryNickname,
-        isFavorite: _markAsFavorite,
-        dateAdded: DateTime.now().toIso8601String(),
-      );
-      _onSaveBeneficiary(savedData);
-    }
-    setState(() {
-      _showSaveBeneficiary = false;
-      _beneficiaryNickname = '';
-      _markAsFavorite = false;
-    });
+  void _onRepeatTransaction() {
+    final target = _repeatTarget;
+    if (target == null) return;
+    Haptics.press();
+    context.go(target.$1, extra: target.$2);
   }
 
   @override
@@ -383,8 +334,6 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
             },
           ),
 
-          // Save Beneficiary Modal
-          if (_showSaveBeneficiary) _buildSaveBeneficiaryModal(),
         ],
       ),
     );
@@ -618,22 +567,22 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
             offset: Offset(0, _slideUpAnimation.value),
             child: Column(
               children: [
-                // Repeat Transaction + Download Receipt row
+                // Receipt as PDF or image
                 Row(
                   children: [
                     Expanded(
                       child: _outlineBtn(
-                        icon: Icons.refresh,
-                        label: context.l10n.repeat,
-                        onTap: _onRepeatTransaction,
+                        icon: Icons.picture_as_pdf_outlined,
+                        label: context.l10n.receiptPdf,
+                        onTap: () => _saveReceipt(asImage: false),
                       ),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: _outlineBtn(
-                        icon: Icons.download_rounded,
-                        label: context.l10n.receipt,
-                        onTap: _handleDownload,
+                        icon: Icons.image_outlined,
+                        label: context.l10n.receiptImage,
+                        onTap: () => _saveReceipt(asImage: true),
                       ),
                     ),
                   ],
@@ -641,18 +590,19 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
 
                 const SizedBox(height: 10),
 
-                // Dispute + Close row
+                // Repeat (when there's a screen for it) + Close
                 Row(
                   children: [
-                    Expanded(
-                      child: _outlineBtn(
-                        icon: Icons.flag_outlined,
-                        label: context.l10n.dispute,
-                        onTap: _handleDispute,
-                        color: const Color(0xFFDC2626),
+                    if (_repeatTarget != null) ...[
+                      Expanded(
+                        child: _outlineBtn(
+                          icon: Icons.refresh,
+                          label: context.l10n.repeat,
+                          onTap: _onRepeatTransaction,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 10),
+                      const SizedBox(width: 10),
+                    ],
                     Expanded(
                       child: ElevatedButton.icon(
                         onPressed: _onHome,
@@ -700,16 +650,6 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
     );
   }
 
-  void _handleDispute() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(context.l10n.disputeSubmitted),
-        backgroundColor: Color(0xFFDC2626),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-
   Widget _buildFooter() {
     return AnimatedBuilder(
       animation: _fadeInAnimation,
@@ -732,266 +672,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
   }
 
   String _formatDateTime() {
-    final now = DateTime.now();
-    final time = TimeOfDay.fromDateTime(now);
-    return "${now.day}/${now.month}/${now.year} ${time.format(context)}";
-  }
-
-  // Save Beneficiary Modal
-  Widget _buildSaveBeneficiaryModal() {
-    if (!_showSaveBeneficiary) return const SizedBox.shrink();
-    
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _showSaveBeneficiary = false;
-        });
-      },
-      child: Container(
-        color: Colors.black.withOpacity(0.5),
-        child: Center(
-          child: GestureDetector(
-            onTap: () {}, // Prevent dismissal when tapping on modal
-            child: Container(
-              margin: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(context.l10n.saveBeneficiary,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          setState(() {
-                            _showSaveBeneficiary = false;
-                          });
-                        },
-                        icon: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).scaffoldBackgroundColor, // neutral-100
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Icon(
-                            Icons.close,
-                            size: 16,
-                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  
-                  const SizedBox(height: 16),
-                  
-                  // Beneficiary Info
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).scaffoldBackgroundColor, // neutral-50
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.props.beneficiaryData?.name ?? '',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(context.l10n.accountnumberBank(
-                            widget.props.beneficiaryData?.accountNumber ?? '',
-                            widget.props.beneficiaryData?.bank ?? ''),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 16),
-                  
-                  // Nickname Input
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(context.l10n.nicknameOptional,
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85), // neutral-700
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        onChanged: (value) {
-                          setState(() {
-                            _beneficiaryNickname = value;
-                          });
-                        },
-                        decoration: InputDecoration(
-                          hintText: widget.props.beneficiaryData?.name.split(' ')[0] ?? 'Enter nickname',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Theme.of(context).dividerColor), // neutral-200
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFF166C46)), // green-500
-                          ),
-                          contentPadding: const EdgeInsets.all(12),
-                        ),
-                        style: TextStyle(fontSize: 14),
-                        maxLength: 20,
-                      ),
-                    ],
-                  ),
-                  
-                  const SizedBox(height: 16),
-                  
-                  // Mark as Favorite
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _markAsFavorite = !_markAsFavorite;
-                      });
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: _markAsFavorite 
-                              ? const Color(0xFFF59E0B) // yellow-500
-                              : Theme.of(context).dividerColor, // neutral-200
-                          width: 2,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                        color: _markAsFavorite 
-                            ? const Color(0xFFFEF3C7) // yellow-50
-                            : Colors.transparent,
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            _markAsFavorite ? Icons.star : Icons.star_border,
-                            color: _markAsFavorite 
-                                ? const Color(0xFFF59E0B) // yellow-500
-                                : Theme.of(context).colorScheme.onSurface.withOpacity(0.4), // neutral-400
-                            size: 20,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(context.l10n.markAsFavorite,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w500,
-                                    color: _markAsFavorite 
-                                        ? const Color(0xFFA16207) // yellow-700
-                                        : Theme.of(context).colorScheme.onSurface.withOpacity(0.85), // neutral-700
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(context.l10n.quickAccessFutureTransfers,
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.55), // neutral-500
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 24),
-                  
-                  // Action Buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () {
-                            setState(() {
-                              _showSaveBeneficiary = false;
-                            });
-                          },
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            side: BorderSide(color: Theme.of(context).dividerColor), // neutral-200
-                          ),
-                          child: Text(context.l10n.cancel,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.85), // neutral-700
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: _handleSaveBeneficiary,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF166C46), // green-500
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: Text(context.l10n.save,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context).cardColor,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
+    return DateFormat('d MMM yyyy, h:mm a').format(DateTime.now());
   }
 
 }

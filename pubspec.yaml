@@ -80,6 +80,8 @@ dependencies:
   phone_numbers_parser: ^9.0.3
   flutter_secure_storage: ^10.3.4
   printing: ^5.14.3
+  # Browser download of receipt images (lib/shared/receipt/save_file_web.dart).
+  web: ^1.1.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

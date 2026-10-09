@@ -5841,6 +5841,24 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Search smartcard number or reference'**
   String get searchSmartcardOrReference;
+
+  /// No description provided for @receiptPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF Receipt'**
+  String get receiptPdf;
+
+  /// No description provided for @receiptImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Image Receipt'**
+  String get receiptImage;
+
+  /// No description provided for @saveAsImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as Image'**
+  String get saveAsImage;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {
