@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rimapay/features/receipt/presentation/screens/receipt_screen.dart';
 import '../../../../core/providers/transaction_provider.dart';
+import '../../../bills/presentation/providers/bills_providers.dart';
+import '../../../bills/presentation/widgets/bill_history_list.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -36,6 +38,8 @@ class _TransactionHistoryScreenState
     _FilterOption('all', 'All', Icons.list_rounded),
     _FilterOption('income', 'Income', Icons.arrow_downward_rounded),
     _FilterOption('expense', 'Expenses', Icons.arrow_upward_rounded),
+    _FilterOption('electricity', 'Electricity', Icons.bolt_rounded),
+    _FilterOption('cable', 'Cable TV', Icons.live_tv_rounded),
     _FilterOption('today', 'Today', Icons.today_rounded),
     _FilterOption('yesterday', 'Yesterday', Icons.history_rounded),
     _FilterOption('range', 'Date range', Icons.date_range_rounded),
@@ -67,6 +71,15 @@ class _TransactionHistoryScreenState
     _searchController.dispose();
     super.dispose();
   }
+
+  /// Electricity / Cable TV chips switch the list to `bills/history`, filtered
+  /// server-side by utilityType: the statement can't be filtered by category,
+  /// and bill records carry the real biller, meter, token and exact time.
+  BillHistoryKind? get _billKind => switch (_selectedFilter) {
+        'electricity' => BillHistoryKind.electricity,
+        'cable' => BillHistoryKind.cableTv,
+        _ => null,
+      };
 
   /// Picking "Date range" opens the picker; every other chip just applies.
   /// Cancelling the picker leaves the previous filter in place rather than
@@ -177,9 +190,21 @@ class _TransactionHistoryScreenState
     return '$whole.${s[1]}';
   }
 
-  double _dayTotal(List<Transaction> list) => list.fold(0.0, (t, tx) {
-        return tx.isIncoming ? t - tx.amount : t + tx.amount;
-      });
+  /// Money that actually left the account that day: purchases and transfers,
+  /// minus any of them that were refunded. Money coming in isn't "spent".
+  double _dayTotal(List<Transaction> list) {
+    var out = 0.0;
+    var refunded = 0.0;
+    for (final tx in list) {
+      if (tx.type == TransactionType.reversal) {
+        refunded += tx.amount;
+      } else if (!tx.isIncoming) {
+        out += tx.amount;
+      }
+    }
+    final spent = out - refunded;
+    return spent > 0 ? spent : 0;
+  }
 
   Map<String, List<Transaction>> _grouped(List<Transaction> list) {
     final map = <String, List<Transaction>>{};
@@ -187,6 +212,10 @@ class _TransactionHistoryScreenState
         DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
     final yesterday = today.subtract(const Duration(days: 1));
     for (final tx in list) {
+      if (tx.dateUnknown) {
+        map.putIfAbsent('Unknown date', () => []).add(tx);
+        continue;
+      }
       final d = DateTime(
           tx.timestamp.year, tx.timestamp.month, tx.timestamp.day);
       final key = d == today
@@ -207,6 +236,20 @@ class _TransactionHistoryScreenState
     final grouped = _grouped(filtered);
     final showLoading = state.isLoading && all.isEmpty;
     final showError = !state.isLoading && state.error != null && all.isEmpty;
+    final billKind = _billKind;
+    final header = _Header(
+      searchController: _searchController,
+      selectedFilter: _selectedFilter,
+      filterOptions: [
+        for (final o in _filterOptions)
+          o.id == 'range' ? _FilterOption(o.id, _rangeLabel, o.icon) : o,
+      ],
+      onFilterTap: _onFilterSelected,
+      onFilterModalTap: () {
+        HapticFeedback.lightImpact();
+        setState(() => _showFilter = true);
+      },
+    );
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -214,33 +257,47 @@ class _TransactionHistoryScreenState
         children: [
           FadeTransition(
             opacity: _fadeAnimation,
-            child: RefreshIndicator(
+            child: billKind != null
+                ? Column(
+                    children: [
+                      header,
+                      Expanded(
+                        child: BillHistoryList(
+                          kind: billKind,
+                          showSearch: false,
+                          query: _searchQuery,
+                          onRepeat: (row) => context.push(
+                            billKind == BillHistoryKind.electricity
+                                ? '/bills/electricity'
+                                : '/bills/cable',
+                            extra: row,
+                          ),
+                          onBuyNew: () => context.push(
+                            billKind == BillHistoryKind.electricity
+                                ? '/bills/electricity'
+                                : '/bills/cable',
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : RefreshIndicator(
               onRefresh: () =>
                   ref.read(transactionProviders.notifier).fetchTransactions(),
               child: CustomScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               slivers: [
                 // ── Header ──
-                SliverToBoxAdapter(child: _Header(
-                  searchController: _searchController,
-                  selectedFilter: _selectedFilter,
-                  filterOptions: [
-                    for (final o in _filterOptions)
-                      o.id == 'range'
-                          ? _FilterOption(o.id, _rangeLabel, o.icon)
-                          : o,
-                  ],
-                  onFilterTap: _onFilterSelected,
-                  onFilterModalTap: () {
-                    HapticFeedback.lightImpact();
-                    setState(() => _showFilter = true);
-                  },
-                )),
+                SliverToBoxAdapter(child: header),
 
                 // ── Summary strip ──
                 if (all.isNotEmpty)
                   SliverToBoxAdapter(
-                    child: _SummaryStrip(transactions: all),
+                    child: _SummaryStrip(
+                      transactions: all,
+                      serverSpending: state.todaysSpending,
+                      serverIncome: state.todaysIncome,
+                    ),
                   ),
 
                 // ── List ──
@@ -295,6 +352,7 @@ class _TransactionHistoryScreenState
                                         letterSpacing: 0.2,
                                       ),
                                     ),
+                                    if (total > 0)
                                     Text(context.l10n.totalSpent(_fmtAmount(total)),
                                       style: TextStyle(
                                         fontSize: 11,
@@ -535,7 +593,16 @@ class _Header extends StatelessWidget {
 
 class _SummaryStrip extends StatelessWidget {
   final List<Transaction> transactions;
-  const _SummaryStrip({required this.transactions});
+
+  /// Totals computed by the statement API; preferred when present.
+  final double? serverSpending;
+  final double? serverIncome;
+
+  const _SummaryStrip({
+    required this.transactions,
+    this.serverSpending,
+    this.serverIncome,
+  });
 
   String _fmt(double v) {
     final s = v.toStringAsFixed(0).replaceAllMapped(
@@ -550,12 +617,19 @@ class _SummaryStrip extends StatelessWidget {
         tx.timestamp.year == today.year &&
         tx.timestamp.month == today.month &&
         tx.timestamp.day == today.day);
-    final spent = todayTx
+    // Refunds cancel the purchase they reverse; they aren't income.
+    final out = todayTx
         .where((tx) => !tx.isIncoming)
         .fold(0.0, (t, tx) => t + tx.amount);
-    final income = todayTx
-        .where((tx) => tx.isIncoming)
+    final refunded = todayTx
+        .where((tx) => tx.type == TransactionType.reversal)
         .fold(0.0, (t, tx) => t + tx.amount);
+    final localSpent = out - refunded > 0 ? out - refunded : 0.0;
+    final localIncome = todayTx
+        .where((tx) => tx.type == TransactionType.addMoney)
+        .fold(0.0, (t, tx) => t + tx.amount);
+    final spent = serverSpending ?? localSpent;
+    final income = serverIncome ?? localIncome;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -814,7 +888,7 @@ class _TxCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          fmtTime(tx.timestamp),
+                          tx.timeKnown ? fmtTime(tx.timestamp) : '',
                           style: TextStyle(
                             fontSize: 11,
                             color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4),

@@ -1187,7 +1187,9 @@ class _RecentTransactionsState extends ConsumerState<_RecentTransactions> {
     return '$whole.${s[1]}';
   }
 
-  String _fmtTime(DateTime dt) {
+  String _fmtTime(Transaction tx) {
+    final dt = tx.timestamp;
+    if (tx.dateUnknown) return '';
     final now = DateTime.now();
     final d = DateTime(dt.year, dt.month, dt.day);
     final today = DateTime(now.year, now.month, now.day);
@@ -1200,6 +1202,7 @@ class _RecentTransactionsState extends ConsumerState<_RecentTransactions> {
     final h = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
     final m = dt.minute.toString().padLeft(2, '0');
     final p = dt.hour >= 12 ? 'PM' : 'AM';
+    if (!tx.timeKnown) return dayLabel;
     return '$dayLabel, ${h.toString().padLeft(2, '0')}:$m $p';
   }
 
@@ -1269,7 +1272,7 @@ class _RecentTransactionsState extends ConsumerState<_RecentTransactions> {
                 title: tx.typeDisplayName,
                 subtitle: tx.recipient,
                 amount: '${isCredit ? '+' : '-'} ₦${_fmtAmount(tx.amount)}',
-                time: _fmtTime(tx.timestamp),
+                time: _fmtTime(tx),
                 isCredit: isCredit,
                 onTap: () {
                   Haptics.tap();

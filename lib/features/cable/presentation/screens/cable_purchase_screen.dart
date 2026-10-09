@@ -75,7 +75,10 @@ class CablePackage {
 // ── Screen ────────────────────────────────────────────────────────────────────
 
 class CablePurchaseScreen extends ConsumerStatefulWidget {
-  const CablePurchaseScreen({super.key});
+  const CablePurchaseScreen({super.key, this.initialRepeat});
+
+  /// Past payment to prefill on open ("Buy again" / "Renew" from History).
+  final BillPaymentHistoryDto? initialRepeat;
 
   @override
   ConsumerState<CablePurchaseScreen> createState() =>
@@ -105,6 +108,8 @@ class _CablePurchaseScreenState extends ConsumerState<CablePurchaseScreen>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _maybeApplyInitialRepeat());
     _processingController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
@@ -137,6 +142,17 @@ class _CablePurchaseScreenState extends ConsumerState<CablePurchaseScreen>
       billerItemId: items.first.billerItemId,
       paymentCode: items.first.paymentCode,
     ));
+  }
+
+  bool _initialRepeatApplied = false;
+
+  /// Applies [CablePurchaseScreen.initialRepeat] once, as soon as the billers it needs
+  /// to match the provider are loaded.
+  void _maybeApplyInitialRepeat() {
+    final row = widget.initialRepeat;
+    if (row == null || _initialRepeatApplied || _providers.isEmpty) return;
+    _initialRepeatApplied = true;
+    _renew(row);
   }
 
   void _switchTab(int tab) {
@@ -300,6 +316,11 @@ class _CablePurchaseScreenState extends ConsumerState<CablePurchaseScreen>
   Widget build(BuildContext context) {
     final billersAsync =
         ref.watch(billersByKindProvider(BillCategoryKind.cable));
+    if (widget.initialRepeat != null && !_initialRepeatApplied) {
+      ref.listen(billersByKindProvider(BillCategoryKind.cable), (_, next) {
+        if (next.hasValue) _maybeApplyInitialRepeat();
+      });
+    }
     final categoryId = billersAsync.valueOrNull?.categoryId;
     final limit = categoryId == null
         ? null

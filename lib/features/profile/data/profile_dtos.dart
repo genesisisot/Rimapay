@@ -490,6 +490,10 @@ class AccountStatementResponse {
   final int totalCount;
   final List<StatementItem> statementList;
 
+  /// Server-computed totals for the current day (null when not returned).
+  final double? todaysSpending;
+  final double? todaysIncome;
+
   const AccountStatementResponse({
     this.responseCode,
     this.responseDesc,
@@ -499,6 +503,8 @@ class AccountStatementResponse {
     this.pageSize = 0,
     this.totalCount = 0,
     this.statementList = const [],
+    this.todaysSpending,
+    this.todaysIncome,
   });
 
   factory AccountStatementResponse.fromJson(Map<String, dynamic> json) {
@@ -512,6 +518,8 @@ class AccountStatementResponse {
       pageNumber: int.tryParse(json['pageNumber']?.toString() ?? '1') ?? 1,
       pageSize: int.tryParse(json['pageSize']?.toString() ?? '0') ?? 0,
       totalCount: int.tryParse(json['totalCount']?.toString() ?? '0') ?? 0,
+      todaysSpending: double.tryParse(json['todaysSpending']?.toString() ?? ''),
+      todaysIncome: double.tryParse(json['todaysIncome']?.toString() ?? ''),
       statementList: list is List
           ? list
               .whereType<Map<String, dynamic>>()

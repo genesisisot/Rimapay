@@ -20,14 +20,19 @@ ReceiptData receiptDataForTransaction(Transaction tx) {
   final h = tx.timestamp.hour > 12
       ? tx.timestamp.hour - 12
       : (tx.timestamp.hour == 0 ? 12 : tx.timestamp.hour);
-  final time = '$h:${tx.timestamp.minute.toString().padLeft(2, '0')} '
-      '${tx.timestamp.hour >= 12 ? 'PM' : 'AM'}';
+  // Statement rows carry a date only; don't print midnight as their time.
+  final time = tx.timeKnown
+      ? '$h:${tx.timestamp.minute.toString().padLeft(2, '0')} '
+          '${tx.timestamp.hour >= 12 ? 'PM' : 'AM'}'
+      : '—';
   return ReceiptData(
     id: tx.id,
     type: tx.typeDisplayName,
     amount: tx.formattedAmount,
     recipient: tx.recipient,
-    date: '${tx.timestamp.day}/${tx.timestamp.month}/${tx.timestamp.year}',
+    date: tx.dateUnknown
+        ? '—'
+        : '${tx.timestamp.day}/${tx.timestamp.month}/${tx.timestamp.year}',
     time: time,
     status: tx.status.name,
     reference: tx.reference.isNotEmpty

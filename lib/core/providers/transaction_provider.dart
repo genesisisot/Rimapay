@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../services/storage_service.dart';
 import '../../features/profile/data/accounts_api_service.dart';
@@ -45,6 +46,10 @@ class Transaction {
   final double? fee;
   final String reference;
 
+  /// False when the source only gave a date (the bank statement has no time
+  /// of day), so screens must not print a clock time for it.
+  final bool timeKnown;
+
   Transaction({
     required this.id,
     required this.type,
@@ -60,7 +65,11 @@ class Transaction {
     this.bank,
     this.fee,
     required this.reference,
+    this.timeKnown = true,
   });
+
+  /// The statement row had no parseable date at all.
+  bool get dateUnknown => timestamp.year <= 1970;
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -77,6 +86,7 @@ class Transaction {
         'bank': bank,
         'fee': fee,
         'reference': reference,
+        'timeKnown': timeKnown,
       };
 
   factory Transaction.fromJson(Map<String, dynamic> json) => Transaction(
@@ -94,6 +104,7 @@ class Transaction {
         bank: json['bank'] as String?,
         fee: (json['fee'] as num?)?.toDouble(),
         reference: json['reference'] as String,
+        timeKnown: json['timeKnown'] as bool? ?? true,
       );
 
   /// Money coming in: funds added, or a purchase refunded after it failed.
@@ -162,21 +173,31 @@ class TransactionState {
   final bool isLoading;
   final String? error;
 
+  /// Today's totals as computed by the statement API, when it sent them.
+  final double? todaysSpending;
+  final double? todaysIncome;
+
   const TransactionState({
     required this.transactions,
     required this.isLoading,
     this.error,
+    this.todaysSpending,
+    this.todaysIncome,
   });
 
   TransactionState copyWith({
     List<Transaction>? transactions,
     bool? isLoading,
     String? error,
+    double? todaysSpending,
+    double? todaysIncome,
   }) {
     return TransactionState(
       transactions: transactions ?? this.transactions,
       isLoading: isLoading ?? this.isLoading,
       error: error,
+      todaysSpending: todaysSpending ?? this.todaysSpending,
+      todaysIncome: todaysIncome ?? this.todaysIncome,
     );
   }
 }
@@ -197,12 +218,17 @@ TransactionType inferTransactionType(String description, bool isCredit) {
     return TransactionType.airtime;
   }
   if (d.contains('data') || d.contains('bundle')) return TransactionType.data;
-  if (d.contains('electric') || d.contains('power') || d.contains('disco')) {
+  // QuickTeller bill payments arrive as `QTService:AEDC PREPAID_II`.
+  if (d.contains('electric') || d.contains('power') || d.contains('disco') ||
+      _discoPattern.hasMatch(d)) {
     return TransactionType.electricity;
   }
   if (d.contains('cable') || d.contains('tv') || d.contains('gotv') ||
-      d.contains('dstv') || d.contains('startimes')) {
+      d.contains('dstv') || d.contains('startimes') || d.contains('showmax')) {
     return TransactionType.cable;
+  }
+  if (d.contains('prepaid') || d.contains('postpaid')) {
+    return TransactionType.electricity;
   }
   if (d.contains('school') || d.contains('educat') || d.contains('waec') ||
       d.contains('jamb')) {
@@ -217,16 +243,76 @@ TransactionType inferTransactionType(String description, bool isCredit) {
   return isCredit ? TransactionType.addMoney : TransactionType.transfer;
 }
 
-/// `Topup:2347062746869` is the provider's wording, not something to show a
-/// customer. Pull the phone number out and present it in local form.
-String prettifyStatementDescription(String description) {
-  final m = RegExp(r'^(?:rev\s+)?(?:topup|top up|vtu)\s*[:\-]?\s*(\d{10,14})$',
+final _discoPattern = RegExp(
+    r'\b(aedc|ekedc|ikedc|eedc|ibedc|phed|jed|kaedco|kedco|bedc|yedc)\b');
+
+/// Statement descriptions are the bank's wording, not something to show a
+/// customer:
+/// - `Topup:2347062746869` → `07062746869`
+/// - `QTService:AEDC PREPAID_II` → `AEDC Prepaid` (refunds: `Refund · AEDC Prepaid`)
+/// - `TRF:TRF/INTRA/Al-Amin Abdul/TO/AYOMIDE` → `From Al-Amin Abdul` / `To AYOMIDE`
+String prettifyStatementDescription(String description, {bool isCredit = false}) {
+  final text = description.trim();
+
+  final topup = RegExp(r'^(?:rev\s+)?(?:topup|top up|vtu)\s*[:\-]?\s*(\d{10,14})$',
           caseSensitive: false)
-      .firstMatch(description.trim());
-  if (m == null) return description;
-  var number = m.group(1)!;
-  if (number.startsWith('234')) number = '0${number.substring(3)}';
-  return number;
+      .firstMatch(text);
+  if (topup != null) {
+    var number = topup.group(1)!;
+    if (number.startsWith('234')) number = '0${number.substring(3)}';
+    return number;
+  }
+
+  final bill = RegExp(r'^(rev\s+)?qtservice\s*:\s*(.+)$', caseSensitive: false)
+      .firstMatch(text);
+  if (bill != null) {
+    final name = bill
+        .group(2)!
+        .replaceAll(RegExp(r'_[IVX]+$', caseSensitive: false), '')
+        .replaceAll('_', ' ')
+        .trim()
+        .split(RegExp(r'\s+'))
+        .map((w) => _isAcronym(w)
+            ? w.toUpperCase()
+            : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}')
+        .join(' ');
+    return bill.group(1) != null ? 'Refund · $name' : name;
+  }
+
+  final trf = RegExp(r'^trf:\s*trf/\w+/(.+?)/to/(.+)$', caseSensitive: false)
+      .firstMatch(text);
+  if (trf != null) {
+    return isCredit ? 'From ${trf.group(1)!.trim()}' : 'To ${trf.group(2)!.trim()}';
+  }
+  return description;
+}
+
+/// Short all-caps words (AEDC, DSTV, GOTV) stay upper case; words like
+/// PREPAID become Prepaid.
+bool _isAcronym(String w) =>
+    w.length <= 5 && !RegExp(r'^(prepaid|postpaid|power)$', caseSensitive: false).hasMatch(w);
+
+final _statementDateFormats = [
+  DateFormat('M/d/yyyy h:mm:ss a', 'en_US'),
+  DateFormat('M/d/yyyy H:mm:ss', 'en_US'),
+  DateFormat('M/d/yyyy', 'en_US'),
+  DateFormat('d-MMM-yyyy', 'en_US'),
+];
+
+/// Parses a statement date. The live API sends `tranDate: null` and
+/// `operationDate: "9/28/2026 12:00:00 AM"` (US order, date only), which
+/// `DateTime.tryParse` can't read. Returns null when nothing parses.
+DateTime? parseStatementDate(String? raw) {
+  final s = raw?.trim() ?? '';
+  if (s.isEmpty) return null;
+  final iso = DateTime.tryParse(s);
+  if (iso != null) return iso.isUtc ? iso.toLocal() : iso;
+  for (final f in _statementDateFormats) {
+    try {
+      return f.parseStrict(s);
+    } catch (_) {}
+  }
+  return null;
 }
 
 class TransactionNotifier extends StateNotifier<TransactionState> {
@@ -340,7 +426,12 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
 
       final merged = [...stillPending, ...serverTxs]
         ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
-      state = state.copyWith(transactions: merged, isLoading: false);
+      state = state.copyWith(
+        transactions: merged,
+        isLoading: false,
+        todaysSpending: res.todaysSpending,
+        todaysIncome: res.todaysIncome,
+      );
 
       // Prune storage to only the entries still not reflected server-side, so
       // it self-cleans and can't grow unbounded.
@@ -377,16 +468,20 @@ class TransactionNotifier extends StateNotifier<TransactionState> {
 
   Transaction _mapStatementItem(StatementItem item) {
     final ref = item.entryReference ?? item.batchReference ?? '';
-    final ts = DateTime.tryParse(item.tranDate ?? '') ??
-        DateTime.tryParse(item.operationDate ?? '') ??
-        DateTime.now();
+    // Never fall back to "now": that stamped every row "Today, <current time>".
+    final parsed = parseStatementDate(item.tranDate) ??
+        parseStatementDate(item.operationDate);
+    final ts = parsed ?? DateTime(1970);
+    final timeKnown = parsed != null &&
+        (parsed.hour != 0 || parsed.minute != 0 || parsed.second != 0);
     final desc = (item.description ?? '').trim();
     return Transaction(
-      id: ref.isNotEmpty ? ref : 'stmt_${ts.microsecondsSinceEpoch}',
+      id: ref.isNotEmpty ? ref : 'stmt_${desc.hashCode}_${item.tranAmount}',
       type: inferTransactionType(desc, item.isCredit),
       amount: item.amount,
+      timeKnown: timeKnown,
       recipient: desc.isNotEmpty
-          ? prettifyStatementDescription(desc)
+          ? prettifyStatementDescription(desc, isCredit: item.isCredit)
           : (item.isCredit ? 'Credit' : 'Debit'),
       description: desc.isNotEmpty ? desc : null,
       status: TransactionStatus.success,

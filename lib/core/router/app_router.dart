@@ -16,6 +16,7 @@ import 'package:rimapay/features/airtime_cash/presentation/screens/airtime_cash_
 import 'package:rimapay/features/auth/presentation/screens/business_account_flow.dart';
 import 'package:rimapay/features/auth/presentation/screens/forgot_password_screen.dart';
 import 'package:rimapay/features/auth/presentation/screens/personal_account_flow.dart';
+import 'package:rimapay/features/bills/data/bills_dtos.dart';
 import 'package:rimapay/features/bills/presentation/screens/bill_payments_screen.dart';
 import 'package:rimapay/features/cable/presentation/screens/cable_purchase_screen.dart';
 import 'package:rimapay/features/education/presentation/screens/education_bills_screen.dart';
@@ -194,13 +195,27 @@ class AppRouter {
         path: '/bills/cable',
         name: 'cable',
         pageBuilder: (context, state) =>
-            _fadePage(state, const CablePurchaseScreen()),
+            _fadePage(
+              state,
+              CablePurchaseScreen(
+                initialRepeat: state.extra is BillPaymentHistoryDto
+                    ? state.extra as BillPaymentHistoryDto
+                    : null,
+              ),
+            ),
       ),
       GoRoute(
         path: '/bills/electricity',
         name: 'electricity',
         pageBuilder: (context, state) =>
-            _fadePage(state, const ElectricityPurchaseScreen()),
+            _fadePage(
+              state,
+              ElectricityPurchaseScreen(
+                initialRepeat: state.extra is BillPaymentHistoryDto
+                    ? state.extra as BillPaymentHistoryDto
+                    : null,
+              ),
+            ),
       ),
 
       // Settings (outside main navigation)

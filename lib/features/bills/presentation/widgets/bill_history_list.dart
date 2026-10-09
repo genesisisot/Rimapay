@@ -110,11 +110,18 @@ class BillHistoryList extends ConsumerStatefulWidget {
   /// Jump to the Buy tab (empty state CTA).
   final VoidCallback onBuyNew;
 
+  /// Hide the built-in search when the host screen has its own; pass its text
+  /// as [query] instead.
+  final bool showSearch;
+  final String query;
+
   const BillHistoryList({
     super.key,
     required this.kind,
     required this.onRepeat,
     required this.onBuyNew,
+    this.showSearch = true,
+    this.query = '',
   });
 
   @override
@@ -144,8 +151,9 @@ class _BillHistoryListState extends ConsumerState<BillHistoryList> {
   }
 
   bool _matches(BillPaymentHistoryDto r) {
-    if (_query.isEmpty) return true;
-    final q = _query.toLowerCase();
+    final query = widget.showSearch ? _query : widget.query.trim();
+    if (query.isEmpty) return true;
+    final q = query.toLowerCase();
     final digits = q.replaceAll(RegExp(r'\D'), '');
     return [r.customerId, r.transactionReference, r.billerName, r.itemName]
             .any((f) => (f ?? '').toLowerCase().contains(q)) ||
@@ -228,6 +236,7 @@ class _BillHistoryListState extends ConsumerState<BillHistoryList> {
         itemCount: entries.length + 2,
         itemBuilder: (context, i) {
           if (i == 0) {
+            if (!widget.showSearch) return const SizedBox.shrink();
             return Padding(
               padding: const EdgeInsets.only(bottom: 4),
               child: _SearchField(
