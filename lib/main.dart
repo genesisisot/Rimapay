@@ -14,6 +14,7 @@ import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/services/storage_service.dart';
 import 'core/localization/l10n.dart';
+import 'core/session/session_timeout.dart';
 
 //flutter run -t lib/mainStaging.dart --flavor staging --debug
 //flutter run -t lib/mainProduction.dart --flavor production --debug
@@ -106,6 +107,17 @@ class _RimaPayAppState extends ConsumerState<RimaPayApp> {
           // Routing
           routerConfig: AppRouter.router,
 
+          // Session timer: sign out after 5 minutes without interaction.
+          builder: (context, child) => SessionTimeout(
+            isSessionActive: () =>
+                context.read<AuthProvider>().user != null &&
+                !_isPublicRoute(),
+            navigatorContext: () =>
+                AppRouter.router.routerDelegate.navigatorKey.currentContext,
+            onExpire: () => _expireSession(context.read<AuthProvider>()),
+            child: child ?? const SizedBox.shrink(),
+          ),
+
           // Localization — driven by languageProvider. Changing the locale
           // here rebuilds every route, because MaterialApp.router sits above
           // the Navigator, so the switch takes effect app-wide with no restart.
@@ -116,4 +128,34 @@ class _RimaPayAppState extends ConsumerState<RimaPayApp> {
       ),
     );
   }
+}
+
+/// Screens where nobody is signed in yet — the session timer stays idle.
+const _publicRoutes = [
+  '/splash',
+  '/welcome',
+  '/auth',
+  '/personal-account',
+  '/business-account',
+  '/forgot-password',
+];
+
+bool _isPublicRoute() {
+  final path =
+      AppRouter.router.routerDelegate.currentConfiguration.uri.path;
+  return _publicRoutes.any((r) => path == r || path.startsWith('$r/'));
+}
+
+/// Session timed out: normal logout, back to login, say why.
+Future<void> _expireSession(AuthProvider auth) async {
+  await auth.logout();
+  AppRouter.router.go('/auth?mode=login');
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    final ctx = AppRouter.router.routerDelegate.navigatorKey.currentContext;
+    if (ctx == null) return;
+    ScaffoldMessenger.maybeOf(ctx)?.showSnackBar(SnackBar(
+      content: Text(ctx.l10n.sessionExpired),
+      behavior: SnackBarBehavior.floating,
+    ));
+  });
 }

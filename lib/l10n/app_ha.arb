@@ -1010,5 +1010,9 @@
   "faceCheckStartCamera": "Kunna kyamara",
   "faceCheckNoMatch": "Fuskarka ba ta yi daidai da hoton asusunka ba. Sake gwadawa a wuri mai haske.",
   "faceCheckServiceError": "Ba mu iya duba fuskarka yanzu ba. Da fatan za a sake gwadawa.",
-  "faceCheckNoCamera": "Ba a samu kyamara ba. Ba da izinin kyamara don ci gaba."
+  "faceCheckNoCamera": "Ba a samu kyamara ba. Ba da izinin kyamara don ci gaba.",
+  "sessionExpiringTitle": "Kana nan har yanzu?",
+  "sessionExpiringBody": "Don tsaronka, za a fitar da kai cikin daƙiƙa {seconds}.",
+  "staySignedIn": "Ci gaba da kasancewa",
+  "sessionExpired": "An fitar da kai bayan minti 5 ba tare da amfani ba."
 }

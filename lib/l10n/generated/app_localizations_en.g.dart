@@ -3348,4 +3348,19 @@ class AppL10nEn extends AppL10n {
   @override
   String get faceCheckNoCamera =>
       'Camera unavailable. Allow camera access to continue.';
+
+  @override
+  String get sessionExpiringTitle => 'Still there?';
+
+  @override
+  String sessionExpiringBody(int seconds) {
+    return 'For your security, you\'ll be signed out in $seconds seconds.';
+  }
+
+  @override
+  String get staySignedIn => 'Stay signed in';
+
+  @override
+  String get sessionExpired =>
+      'You were signed out after 5 minutes of inactivity.';
 }

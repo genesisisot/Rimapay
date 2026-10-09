@@ -1614,5 +1614,10 @@
   "faceCheckStartCamera": "Start camera",
   "faceCheckNoMatch": "Your face didn't match your account photo. Try again in better light.",
   "faceCheckServiceError": "We couldn't check your face right now. Please try again.",
-  "faceCheckNoCamera": "Camera unavailable. Allow camera access to continue."
+  "faceCheckNoCamera": "Camera unavailable. Allow camera access to continue.",
+  "sessionExpiringTitle": "Still there?",
+  "sessionExpiringBody": "For your security, you'll be signed out in {seconds} seconds.",
+  "@sessionExpiringBody": {"placeholders": {"seconds": {"type": "int"}}},
+  "staySignedIn": "Stay signed in",
+  "sessionExpired": "You were signed out after 5 minutes of inactivity."
 }

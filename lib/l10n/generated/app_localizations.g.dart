@@ -6159,6 +6159,30 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Camera unavailable. Allow camera access to continue.'**
   String get faceCheckNoCamera;
+
+  /// No description provided for @sessionExpiringTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Still there?'**
+  String get sessionExpiringTitle;
+
+  /// No description provided for @sessionExpiringBody.
+  ///
+  /// In en, this message translates to:
+  /// **'For your security, you\'ll be signed out in {seconds} seconds.'**
+  String sessionExpiringBody(int seconds);
+
+  /// No description provided for @staySignedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay signed in'**
+  String get staySignedIn;
+
+  /// No description provided for @sessionExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'You were signed out after 5 minutes of inactivity.'**
+  String get sessionExpired;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

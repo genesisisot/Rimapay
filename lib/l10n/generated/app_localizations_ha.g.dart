@@ -3354,4 +3354,19 @@ class AppL10nHa extends AppL10n {
   @override
   String get faceCheckNoCamera =>
       'Ba a samu kyamara ba. Ba da izinin kyamara don ci gaba.';
+
+  @override
+  String get sessionExpiringTitle => 'Kana nan har yanzu?';
+
+  @override
+  String sessionExpiringBody(int seconds) {
+    return 'Don tsaronka, za a fitar da kai cikin daƙiƙa $seconds.';
+  }
+
+  @override
+  String get staySignedIn => 'Ci gaba da kasancewa';
+
+  @override
+  String get sessionExpired =>
+      'An fitar da kai bayan minti 5 ba tare da amfani ba.';
 }
