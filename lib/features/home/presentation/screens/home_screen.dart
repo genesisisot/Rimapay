@@ -727,7 +727,7 @@ class _TierUpgradeCard extends StatelessWidget {
                         child: Text(
                           'Go',
                           style: TextStyle(
-                            color: Theme.of(context).cardColor,
+                            color: Colors.white,
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                           ),
@@ -776,7 +776,7 @@ class _ReferralCard extends StatelessWidget {
                 Text(
                   'Invite a friend,\nearn ₦500!',
                   style: TextStyle(
-                    color: Theme.of(context).cardColor,
+                    color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
                     height: 1.3,

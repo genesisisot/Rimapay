@@ -133,6 +133,22 @@ class CompletionResponse {
         errorMessage: json['errorMessage'] as String?,
         errorCode: json['errorCode'] as String?,
       );
+
+  /// The completion endpoints answer 200 with the updated
+  /// `ProfileCompletionStatusDto` itself — no `isSuccess` envelope — so a 2xx
+  /// without an envelope is a success. Reading only `isSuccess` reported every
+  /// successful save as "Failed to save".
+  factory CompletionResponse.fromHttp(
+      int? statusCode, Map<String, dynamic> json) {
+    if (json.containsKey('isSuccess')) return CompletionResponse.fromJson(json);
+    final ok = statusCode != null && statusCode >= 200 && statusCode < 300;
+    return CompletionResponse(
+      isSuccess: ok,
+      errorMessage: ok
+          ? null
+          : (json['message'] ?? json['title'] ?? json['detail']) as String?,
+    );
+  }
 }
 
 class ProfileCompletionStatusDto {

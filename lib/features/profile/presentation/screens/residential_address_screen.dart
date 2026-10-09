@@ -411,7 +411,7 @@ class _ResidentialAddressScreenState
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Theme.of(context).cardColor,
+                      color: Colors.white,
                     ),
                   ),
           ),
@@ -465,7 +465,7 @@ class _CompletionSuccessScreenState extends State<_CompletionSuccessScreen> {
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.check_circle,
-                    color: Theme.of(context).cardColor, size: 60),
+                    color: Colors.white, size: 60),
               ),
             ),
             const SizedBox(height: 24),
@@ -474,7 +474,7 @@ class _CompletionSuccessScreenState extends State<_CompletionSuccessScreen> {
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
-                color: Theme.of(context).cardColor,
+                color: Colors.white,
               ),
               textAlign: TextAlign.center,
             ),

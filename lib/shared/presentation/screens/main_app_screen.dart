@@ -330,7 +330,7 @@ import '../../../core/localization/l10n.dart';
 //               Text(
 //                 'RimaPay',
 //                 style: TextStyle(
-//                   color: Theme.of(context).cardColor,
+//                   color: Colors.white,
 //                   fontWeight: FontWeight.bold,
 //                   fontSize: isSmallScreen ? 12 : 14,
 //                 ),
@@ -341,7 +341,7 @@ import '../../../core/localization/l10n.dart';
 //           Text(
 //             _cardData.cardNumber,
 //             style: TextStyle(
-//               color: Theme.of(context).cardColor,
+//               color: Colors.white,
 //               fontFamily: 'monospace',
 //               fontSize: isSmallScreen ? 16 : 18,
 //               letterSpacing: 2,
@@ -365,7 +365,7 @@ import '../../../core/localization/l10n.dart';
 //                   Text(
 //                     _cardData.holderName,
 //                     style: TextStyle(
-//                       color: Theme.of(context).cardColor,
+//                       color: Colors.white,
 //                       fontWeight: FontWeight.w600,
 //                       fontSize: isSmallScreen ? 10 : 12,
 //                     ),
@@ -386,7 +386,7 @@ import '../../../core/localization/l10n.dart';
 //                   Text(
 //                     _cardData.expiryDate,
 //                     style: TextStyle(
-//                       color: Theme.of(context).cardColor,
+//                       color: Colors.white,
 //                       fontWeight: FontWeight.w600,
 //                       fontSize: isSmallScreen ? 10 : 12,
 //                     ),
@@ -396,7 +396,7 @@ import '../../../core/localization/l10n.dart';
 //               Text(
 //                 _cardData.cardType,
 //                 style: TextStyle(
-//                   color: Theme.of(context).cardColor,
+//                   color: Colors.white,
 //                   fontWeight: FontWeight.bold,
 //                   fontSize: isSmallScreen ? 10 : 12,
 //                 ),
@@ -438,7 +438,7 @@ import '../../../core/localization/l10n.dart';
 //                       Text(
 //                         _cardData.fullNumber,
 //                         style: TextStyle(
-//                           color: Theme.of(context).cardColor,
+//                           color: Colors.white,
 //                           fontFamily: 'monospace',
 //                           fontSize: isSmallScreen ? 10 : 12,
 //                         ),
@@ -465,7 +465,7 @@ import '../../../core/localization/l10n.dart';
 //                       Text(
 //                         _cardData.cvv,
 //                         style: TextStyle(
-//                           color: Theme.of(context).cardColor,
+//                           color: Colors.white,
 //                           fontFamily: 'monospace',
 //                           fontSize: isSmallScreen ? 10 : 12,
 //                         ),
@@ -571,7 +571,7 @@ import '../../../core/localization/l10n.dart';
 //                   ),
 //                   child: Icon(
 //                     action.icon,
-//                     color: Theme.of(context).cardColor,
+//                     color: Colors.white,
 //                     size: 20,
 //                   ),
 //                 ),
@@ -845,7 +845,7 @@ import '../../../core/localization/l10n.dart';
 //                       ),
 //                       child: Icon(
 //                         Icons.fingerprint,
-//                         color: Theme.of(context).cardColor,
+//                         color: Colors.white,
 //                         size: 32,
 //                       ),
 //                     ),

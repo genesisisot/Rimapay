@@ -174,7 +174,7 @@ class _AccountTiersScreenState extends State<AccountTiersScreen> {
                       children: [
                         Text(context.l10n.accountTiers,
                           style: TextStyle(
-                            color: Theme.of(context).cardColor,
+                            color: Colors.white,
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
                             fontFamily: 'Effra',
@@ -533,7 +533,7 @@ class _TierCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
-                            color: Theme.of(context).cardColor,
+                            color: Colors.white,
                             fontFamily: 'Effra',
                           ),
                         ),
@@ -704,7 +704,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
                   children: [
                     Text(context.l10n.upgradeToStandard,
                       style: TextStyle(
-                        color: Theme.of(context).cardColor,
+                        color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
                         fontFamily: 'Effra',
@@ -862,7 +862,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: Theme.of(context).cardColor,
+                        color: Colors.white,
                         fontFamily: 'Effra',
                       ),
                     ),
@@ -963,7 +963,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: Theme.of(context).cardColor,
+                        color: Colors.white,
                         fontFamily: 'Effra',
                       ),
                     ),
@@ -1027,7 +1027,7 @@ class _StandardUpgradeScreenState extends State<_StandardUpgradeScreen> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: Theme.of(context).cardColor,
+                  color: Colors.white,
                   fontFamily: 'Effra',
                 ),
               ),
@@ -1149,7 +1149,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
                   children: [
                     Text(context.l10n.upgradeToPremium,
                       style: TextStyle(
-                        color: Theme.of(context).cardColor,
+                        color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
                         fontFamily: 'Effra',
@@ -1537,7 +1537,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: Theme.of(context).cardColor,
+                        color: Colors.white,
                         fontFamily: 'Effra',
                       ),
                     ),
@@ -1601,7 +1601,7 @@ class _PremiumUpgradeScreenState extends State<_PremiumUpgradeScreen> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: Theme.of(context).cardColor,
+                  color: Colors.white,
                   fontFamily: 'Effra',
                 ),
               ),

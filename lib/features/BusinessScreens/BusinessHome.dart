@@ -454,7 +454,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                 child: Center(
                   child: Text(context.l10n.length(todoItems.length),
                     style: TextStyle(
-                      color: Theme.of(context).cardColor,
+                      color: Colors.white,
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
                     ),
@@ -489,7 +489,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
               color: Colors.orange,
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.warning, color: Theme.of(context).cardColor, size: 12),
+            child: Icon(Icons.warning, color: Colors.white, size: 12),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -824,7 +824,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                       _hideBalance ? '••••••••' : '₦$businessBalance',
                       key: ValueKey(_hideBalance),
                       style: TextStyle(
-                        color: Theme.of(context).cardColor,
+                        color: Colors.white,
                         fontSize: 24,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -0.5,
@@ -882,7 +882,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                 gradient: AppColors.goldGradient,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: Theme.of(context).cardColor, size: 14),
+              child: Icon(icon, color: Colors.white, size: 14),
             ),
             const SizedBox(height: 4),
             Text(
@@ -974,7 +974,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                         gradient: action.gradient,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(action.icon, color: Theme.of(context).cardColor, size: 18),
+                      child: Icon(action.icon, color: Colors.white, size: 18),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
@@ -1094,7 +1094,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                             color: service.color,
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(service.icon, color: Theme.of(context).cardColor, size: 18),
+                          child: Icon(service.icon, color: Colors.white, size: 18),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
@@ -1140,7 +1140,7 @@ class _BusinessHomeState extends State<BusinessHome> with TickerProviderStateMix
                         ),
                         child: Text(context.l10n.newLabel,
                           style: TextStyle(
-                            color: Theme.of(context).cardColor,
+                            color: Colors.white,
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
                           ),

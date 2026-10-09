@@ -199,7 +199,8 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
     if (status != null) {
       state = state.copyWith(
         addressCompleted: status.residentialAddressProvided,
-        pepCompleted: status.isPepDeclared == true,
+        // null = not answered yet; false = answered "No" (still complete).
+        pepCompleted: status.isPepDeclared != null,
         sourceOfIncomeCompleted: status.sourceOfIncomeProvided,
       );
     }

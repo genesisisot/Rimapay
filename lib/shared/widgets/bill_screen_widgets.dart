@@ -169,9 +169,9 @@ class BillGreenHeader extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 20, vertical: 8),
                             decoration: BoxDecoration(
-                              color: active
-                                  ? Theme.of(context).cardColor
-                                  : Colors.transparent,
+                              // Always on the green header: white, not
+                              // cardColor (dark grey in dark mode).
+                              color: active ? Colors.white : Colors.transparent,
                               borderRadius: BorderRadius.circular(999),
                             ),
                             child: Text(

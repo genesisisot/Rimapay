@@ -238,7 +238,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
                         ),
                         child: Text(context.l10n.payZakatZakatdue(_fmt(_zakatDue)),
                           style: TextStyle(
-                              color: Theme.of(context).cardColor,
+                              color: Colors.white,
                               fontSize: 16,
                               fontWeight: FontWeight.w700),
                         ),
@@ -314,7 +314,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
                 color: Colors.white.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(Icons.arrow_back_ios_new, color: Theme.of(context).cardColor, size: 16),
+              child: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 16),
             ),
           ),
           const SizedBox(width: 14),
@@ -322,7 +322,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(context.l10n.zakatReligious,
-                  style: TextStyle(color: Theme.of(context).cardColor, fontSize: 17, fontWeight: FontWeight.w800)),
+                  style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w800)),
               Text(context.l10n.calculateAndPayYourZakat,
                   style: TextStyle(color: Colors.white60, fontSize: 12)),
             ],

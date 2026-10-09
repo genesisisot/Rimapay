@@ -101,7 +101,7 @@ class _PensionScreenState extends State<PensionScreen> {
                               width: 40, height: 40,
                               decoration: BoxDecoration(color: pfa.color, borderRadius: BorderRadius.circular(10)),
                               child: Center(child: Text(pfa.shortName[0],
-                                  style: TextStyle(color: Theme.of(context).cardColor, fontWeight: FontWeight.w800, fontSize: 16))),
+                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 16))),
                             ),
                             const SizedBox(width: 12),
                             Expanded(

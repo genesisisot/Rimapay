@@ -51,7 +51,7 @@ class AccountLimitsScreen extends StatelessWidget {
                             children: [
                               Text(context.l10n.yourCurrentTierBasic,
                                   style: TextStyle(
-                                      color: Theme.of(context).cardColor,
+                                      color: Colors.white,
                                       fontSize: 15,
                                       fontWeight: FontWeight.w800)),
                               SizedBox(height: 2),
@@ -261,7 +261,7 @@ class AccountLimitsScreen extends StatelessWidget {
                 color: Colors.white.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(Icons.arrow_back_ios_new, color: Theme.of(context).cardColor, size: 16),
+              child: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 16),
             ),
           ),
           const SizedBox(width: 14),
@@ -269,7 +269,7 @@ class AccountLimitsScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(context.l10n.accountLimits,
-                  style: TextStyle(color: Theme.of(context).cardColor, fontSize: 17, fontWeight: FontWeight.w800)),
+                  style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w800)),
               Text(context.l10n.cbnRegulatedTransactionLimits,
                   style: TextStyle(color: Colors.white60, fontSize: 12)),
             ],

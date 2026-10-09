@@ -195,7 +195,7 @@ class _CardsScreenState extends State<CardsScreen> {
                       ),
                       child: Text(context.l10n.requestCard,
                           style: TextStyle(
-                              color: Theme.of(context).cardColor,
+                              color: Colors.white,
                               fontSize: 16,
                               fontWeight: FontWeight.w700)),
                     ),
@@ -265,7 +265,7 @@ class _CardsScreenState extends State<CardsScreen> {
                       borderRadius: BorderRadius.circular(12)),
                 ),
                 child: Text(context.l10n.confirmRequest,
-                    style: TextStyle(color: Theme.of(context).cardColor, fontWeight: FontWeight.w700)),
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
               ),
             ),
           ],
@@ -301,7 +301,7 @@ class _CardsScreenState extends State<CardsScreen> {
                 color: Colors.white.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(Icons.arrow_back_ios_new, color: Theme.of(context).cardColor, size: 16),
+              child: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 16),
             ),
           ),
           const SizedBox(width: 14),
@@ -310,7 +310,7 @@ class _CardsScreenState extends State<CardsScreen> {
             children: [
               Text(context.l10n.myCard,
                   style: TextStyle(
-                      color: Theme.of(context).cardColor, fontSize: 17, fontWeight: FontWeight.w800)),
+                      color: Colors.white, fontSize: 17, fontWeight: FontWeight.w800)),
               Text(context.l10n.requestAPhysicalDebitCard,
                   style: TextStyle(color: Colors.white60, fontSize: 12)),
             ],

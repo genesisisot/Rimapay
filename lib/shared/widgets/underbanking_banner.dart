@@ -36,7 +36,7 @@ class UnderbankingBanner extends StatelessWidget {
             ),
             child: Icon(
               Icons.info_outline,
-              color: Theme.of(context).cardColor,
+              color: Colors.white,
               size: 20,
             ),
           ),

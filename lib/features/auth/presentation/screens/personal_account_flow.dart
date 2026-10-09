@@ -550,7 +550,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                       margin: const EdgeInsets.only(bottom: 14),
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.adapt(Colors.white, const Color(0xFF1A1F2E)),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: selected ? color : context.adapt(const Color(0xFFE5E7EB), const Color(0xFF2D3348)),
@@ -838,7 +838,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   height: 44,
                   margin: const EdgeInsets.symmetric(horizontal: 2),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.adapt(Colors.white, const Color(0xFF1A1F2E)),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                       color: isActive
@@ -872,7 +872,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.adapt(Colors.white, const Color(0xFF1A1F2E)),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: _phoneDigits.isNotEmpty
@@ -1275,7 +1275,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                       height: 52,
                       margin: const EdgeInsets.symmetric(horizontal: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.adapt(Colors.white, const Color(0xFF1A1F2E)),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: isActive
@@ -1731,7 +1731,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   width: double.infinity,
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.adapt(Colors.white, const Color(0xFF1A1F2E)),
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
@@ -2235,7 +2235,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                           height: 44,
                           margin: const EdgeInsets.symmetric(horizontal: 2),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: context.adapt(Colors.white, const Color(0xFF1A1F2E)),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
                               color: isActive
@@ -2745,8 +2745,10 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     }
 
     final saves = <Future<bool> Function()>[
+      // addressLine, state and lga are all required (minLength 1).
       if (_personalInfo.residentialAddress.trim().isNotEmpty &&
-          _personalInfo.state.trim().isNotEmpty)
+          _personalInfo.state.trim().isNotEmpty &&
+          _personalInfo.lga.trim().isNotEmpty)
         () => profile.completeAddress(AddressCompletionRequest(
               addressLine: _personalInfo.residentialAddress.trim(),
               state: _personalInfo.state.trim(),
@@ -2919,7 +2921,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.adapt(Colors.white, const Color(0xFF1A1F2E)),
                     borderRadius: BorderRadius.circular(14),
                     boxShadow: [
                       BoxShadow(
@@ -2985,7 +2987,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.adapt(Colors.white, const Color(0xFF1A1F2E)),
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -3065,7 +3067,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           margin: const EdgeInsets.symmetric(horizontal: 40),
           padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.adapt(Colors.white, const Color(0xFF1A1F2E)),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
@@ -3194,7 +3196,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   width: double.infinity,
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.adapt(Colors.white, const Color(0xFF1A1F2E)),
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
@@ -3305,7 +3307,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
       padding: EdgeInsets.fromLTRB(
           20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.adapt(Colors.white, const Color(0xFF1A1F2E)),
         border: Border(top: BorderSide(color: context.adapt(const Color(0xFFF3F4F6), const Color(0xFF242938)))),
       ),
       child: Column(
@@ -3373,7 +3375,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                           margin: const EdgeInsets.all(6),
                           height: 56,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: context.adapt(Colors.white, const Color(0xFF1A1F2E)),
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
@@ -4368,7 +4370,7 @@ class _OFloatingFieldState extends State<_OFloatingField> {
       duration: const Duration(milliseconds: 150),
       height: 60,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.adapt(Colors.white, const Color(0xFF1A1F2E)),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: _focused
@@ -4476,7 +4478,7 @@ class _OFloatingFieldStatic extends StatelessWidget {
       duration: const Duration(milliseconds: 150),
       height: 60,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.adapt(Colors.white, const Color(0xFF1A1F2E)),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: hasValue

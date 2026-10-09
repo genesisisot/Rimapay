@@ -458,7 +458,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.adapt(Colors.white, const Color(0xFF1A1F2E)),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
                       color: _phoneDigits.isNotEmpty
@@ -603,7 +603,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                       height: 52,
                       margin: const EdgeInsets.symmetric(horizontal: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.adapt(Colors.white, const Color(0xFF1A1F2E)),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: isActive
@@ -1154,7 +1154,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                         height: 44,
                         margin: const EdgeInsets.symmetric(horizontal: 2),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.adapt(Colors.white, const Color(0xFF1A1F2E)),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: isActive
@@ -1754,7 +1754,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 14),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.adapt(Colors.white, const Color(0xFF1A1F2E)),
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
                           color: isSelected
@@ -1931,7 +1931,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                   width: double.infinity,
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.adapt(Colors.white, const Color(0xFF1A1F2E)),
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
@@ -2129,7 +2129,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                           margin: const EdgeInsets.all(6),
                           height: 56,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: context.adapt(Colors.white, const Color(0xFF1A1F2E)),
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(

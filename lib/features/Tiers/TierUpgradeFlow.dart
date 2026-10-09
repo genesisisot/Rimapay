@@ -566,7 +566,7 @@ import '../../core/localization/l10n.dart';
 //             ),
 //             child: Icon(
 //               Icons.check,
-//               color: Theme.of(context).cardColor,
+//               color: Colors.white,
 //               size: 12,
 //             ),
 //           ),
@@ -821,7 +821,7 @@ import '../../core/localization/l10n.dart';
 //             ),
 //             child: Icon(
 //               Icons.shield,
-//               color: Theme.of(context).cardColor,
+//               color: Colors.white,
 //               size: 32,
 //             ),
 //           ),
@@ -956,7 +956,7 @@ import '../../core/localization/l10n.dart';
 //             ),
 //             child: Icon(
 //               Icons.check,
-//               color: Theme.of(context).cardColor,
+//               color: Colors.white,
 //               size: 40,
 //             ),
 //           ).animate().scale(delay: 200.ms),

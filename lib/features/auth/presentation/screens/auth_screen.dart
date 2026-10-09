@@ -1185,7 +1185,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
         width: double.infinity,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.adapt(Colors.white, const Color(0xFF1A1F2E)),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
@@ -1935,7 +1935,7 @@ class _DeviceFaceCapturePageState
                           padding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 12),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: context.adapt(Colors.white, const Color(0xFF1A1F2E)),
                             borderRadius: BorderRadius.circular(14),
                             boxShadow: [
                               BoxShadow(
@@ -2045,7 +2045,7 @@ class _DeviceFaceCapturePageState
           padding: const EdgeInsets.symmetric(
               horizontal: 24, vertical: 28),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.adapt(Colors.white, const Color(0xFF1A1F2E)),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
@@ -3159,7 +3159,7 @@ class _ContinueLinkingPageState
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 12),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.adapt(Colors.white, const Color(0xFF1A1F2E)),
                         borderRadius: BorderRadius.circular(14),
                         boxShadow: [
                           BoxShadow(
@@ -3266,7 +3266,7 @@ class _ContinueLinkingPageState
           padding: const EdgeInsets.symmetric(
               horizontal: 28, vertical: 32),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.adapt(Colors.white, const Color(0xFF1A1F2E)),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Column(

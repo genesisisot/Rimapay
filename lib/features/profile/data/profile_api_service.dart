@@ -453,7 +453,7 @@ class ProfileApiService {
       final res = await _dio.post(path, data: body);
       final data = res.data;
       if (data is Map<String, dynamic>) {
-        return CompletionResponse.fromJson(data);
+        return CompletionResponse.fromHttp(res.statusCode, data);
       }
       return CompletionResponse(
         isSuccess: false,

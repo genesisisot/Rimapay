@@ -163,7 +163,7 @@ class _TransportScreenState extends State<TransportScreen> {
                 child: Row(
                   children: [
                     Container(width: 40, height: 40, decoration: BoxDecoration(color: op.color, borderRadius: BorderRadius.circular(10)),
-                        child: Center(child: Text(op.name[0], style: TextStyle(color: Theme.of(context).cardColor, fontWeight: FontWeight.w800, fontSize: 18)))),
+                        child: Center(child: Text(op.name[0], style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 18)))),
                     const SizedBox(width: 12),
                     Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                       Text(op.name, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Theme.of(context).colorScheme.onSurface)),

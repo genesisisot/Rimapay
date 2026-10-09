@@ -350,7 +350,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                 border: Border.all(color: Colors.white.withOpacity(0.2)),
               ),
               child: Icon(Icons.arrow_back_ios_new,
-                  color: Theme.of(context).cardColor, size: 17),
+                  color: Colors.white, size: 17),
             ),
           ),
           const SizedBox(width: 14),
@@ -360,7 +360,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
               children: [
                 Text(context.l10n.notifications,
                   style: TextStyle(
-                    color: Theme.of(context).cardColor,
+                    color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
                     fontFamily: 'Effra',
@@ -390,7 +390,7 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
                 ),
                 child: Text(context.l10n.markAllRead,
                   style: TextStyle(
-                    color: Theme.of(context).cardColor,
+                    color: Colors.white,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),

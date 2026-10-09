@@ -101,7 +101,7 @@ class _MethodListView extends StatelessWidget {
                             width: 160,
                             height: 28,
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: context.adapt(Colors.white, const Color(0xFF1A1F2E)),
                               borderRadius: BorderRadius.circular(6),
                             ),
                           ),
@@ -291,7 +291,7 @@ class _BankTransferView extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(children: [
-          Icon(Icons.check_circle_outline, color: Theme.of(context).cardColor, size: 18),
+          Icon(Icons.check_circle_outline, color: Colors.white, size: 18),
           SizedBox(width: 8),
           Text(context.l10n.weLlNotifyYouWhenFunds),
         ]),
@@ -340,9 +340,9 @@ class _BankTransferView extends StatelessWidget {
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.account_balance_outlined, color: Theme.of(context).cardColor, size: 18),
+                            Icon(Icons.account_balance_outlined, color: Colors.white, size: 18),
                             SizedBox(width: 8),
-                            Text(context.l10n.yourDedicatedAccount, style: TextStyle(color: Theme.of(context).cardColor, fontSize: 13, fontWeight: FontWeight.w600)),
+                            Text(context.l10n.yourDedicatedAccount, style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
                           ],
                         ),
                       ),
@@ -431,7 +431,7 @@ class _BankTransferView extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.check_circle_outline, color: Theme.of(context).cardColor, size: 18),
+                  Icon(Icons.check_circle_outline, color: Colors.white, size: 18),
                   SizedBox(width: 8),
                   Text(context.l10n.iVeSentTheMoney, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)),
                 ],

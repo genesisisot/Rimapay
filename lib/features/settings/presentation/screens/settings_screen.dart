@@ -1434,7 +1434,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                   ),
                   child: Text(context.l10n.sendOtp,
                       style: TextStyle(
-                          color: Theme.of(context).cardColor, fontWeight: FontWeight.w700)),
+                          color: Colors.white, fontWeight: FontWeight.w700)),
                 ),
               ),
             ],

@@ -659,7 +659,7 @@ class _PinVerificationScreenState extends ConsumerState<PinVerificationScreen>
                   child: Icon(
                     Icons.info,
                     size: 8,
-                    color: Theme.of(context).cardColor,
+                    color: Colors.white,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -739,7 +739,7 @@ class _PinVerificationScreenState extends ConsumerState<PinVerificationScreen>
                               width: 16,
                               height: 16,
                               decoration: BoxDecoration(
-                                color: Theme.of(context).cardColor,
+                                color: Colors.white,
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -749,7 +749,7 @@ class _PinVerificationScreenState extends ConsumerState<PinVerificationScreen>
                       const SizedBox(width: 8),
                       Text(context.l10n.processing,
                         style: TextStyle(
-                          color: Theme.of(context).cardColor,
+                          color: Colors.white,
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
                         ),
@@ -762,7 +762,7 @@ class _PinVerificationScreenState extends ConsumerState<PinVerificationScreen>
                       context.l10n.confirmAndPay(_formatAmount(
                           widget.transactionData['amount']?.toString() ?? '0')),
                       style: TextStyle(
-                        color: Theme.of(context).cardColor,
+                        color: Colors.white,
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
                       ),

@@ -872,7 +872,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                   child: Text(
                     _rimaRecipientName[0],
                     style: TextStyle(
-                      color: Theme.of(context).cardColor,
+                      color: Colors.white,
                       fontWeight: FontWeight.w700,
                       fontFamily: 'Effra',
                     ),
@@ -1125,7 +1125,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
                   child: Text(
                     _recipientName[0],
                     style: TextStyle(
-                      color: Theme.of(context).cardColor,
+                      color: Colors.white,
                       fontWeight: FontWeight.w700,
                       fontFamily: 'Effra',
                     ),

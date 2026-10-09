@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../bills/data/bills_dtos.dart';
 import '../../../bills/presentation/providers/bills_providers.dart';
+import '../../../bills/presentation/widgets/bill_history_list.dart';
 import '../../../bills/presentation/widgets/bill_purchase_flow.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/Utils/haptics.dart';
@@ -152,6 +153,9 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
 
   // ── Shared state ─────────────────────────────────────────────────────────
   late int _selectedTab; // 0 = Airtime, 1 = Data
+
+  /// Buy (false) or History (true) for the selected Airtime/Data tab.
+  bool _showHistory = false;
   NetworkProvider? _selectedNetwork;
 
   // ── Airtime state ─────────────────────────────────────────────────────────
@@ -415,7 +419,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
                       children: [
                         Text(context.l10n.mobileTopUp,
                             style: TextStyle(
-                                color: Theme.of(context).cardColor,
+                                color: Colors.white,
                                 fontSize: 18,
                                 fontWeight: FontWeight.w800,
                                 fontFamily: 'Effra')),
@@ -426,6 +430,8 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
                                 fontFamily: 'Effra')),
                       ],
                     ),
+                    const Spacer(),
+                    _historyToggle(),
                   ],
                 ),
                 const SizedBox(height: 20),
@@ -440,14 +446,27 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      _pillTab('Airtime', 0),
-                      _pillTab('Data', 1),
+                      _pillTab(context.l10n.airtime, 0),
+                      _pillTab(context.l10n.data, 1),
                     ],
                   ),
                 ),
               ],
             ),
           ),
+          if (_showHistory)
+            Expanded(
+              child: BillHistoryList(
+                // Keyed so switching Airtime/Data rebuilds with the right list.
+                key: ValueKey(_selectedTab),
+                kind: _selectedTab == 0
+                    ? BillHistoryKind.airtime
+                    : BillHistoryKind.data,
+                onRepeat: _buyAgain,
+                onBuyNew: () => setState(() => _showHistory = false),
+              ),
+            )
+          else
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
@@ -471,10 +490,83 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
               ),
             ),
           ),
-          _buildCTA(),
+          if (!_showHistory) _buildCTA(),
         ],
       ),
     );
+  }
+
+  /// Header button that flips between the buy form and past purchases.
+  Widget _historyToggle() {
+    final label =
+        _showHistory ? context.l10n.buyTab : context.l10n.historyTab;
+    return Semantics(
+      button: true,
+      label: label,
+      excludeSemantics: true,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          Haptics.tap();
+          setState(() => _showHistory = !_showHistory);
+        },
+        child: Container(
+          height: 38,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.12),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: Colors.white.withOpacity(0.18)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                _showHistory
+                    ? Icons.shopping_bag_outlined
+                    : Icons.history_rounded,
+                size: 16,
+                color: Colors.white,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: 'Effra',
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// "Buy again" from History: back to the form with the same number and
+  /// network filled in.
+  void _buyAgain(BillPaymentHistoryDto row) {
+    final network = (row.billerName ?? '').toUpperCase();
+    NetworkProvider? match;
+    for (final n in _networks) {
+      if (network.contains(n.name.toUpperCase()) ||
+          (n.name == '9MOBILE' && network.contains('ETISALAT'))) {
+        match = n;
+        break;
+      }
+    }
+    setState(() {
+      _showHistory = false;
+      if ((row.customerId ?? '').isNotEmpty) {
+        _phoneController.text = localMobileNumber(row.customerId!);
+      }
+      if (match != null) _selectedNetwork = match;
+      if (_selectedTab == 0 && row.amount > 0) {
+        _amountController.text = row.amount.toStringAsFixed(0);
+      }
+    });
   }
 
   Widget _pillTab(String label, int index) {
@@ -488,7 +580,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         decoration: BoxDecoration(
-          color: active ? Theme.of(context).cardColor : Colors.transparent,
+          color: active ? Colors.white : Colors.transparent,
           borderRadius: BorderRadius.circular(999),
         ),
         child: Text(
@@ -600,7 +692,7 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
                         backgroundColor: colors[i % colors.length],
                         child: Text(b.initial,
                             style: TextStyle(
-                                color: Theme.of(context).cardColor,
+                                color: Colors.white,
                                 fontWeight: FontWeight.w700,
                                 fontSize: 18)),
                       ),
@@ -1059,11 +1151,11 @@ class _AirtimePurchaseScreenState extends ConsumerState<AirtimePurchaseScreen>
     final enabled = isAirtime ? _airtimeValid : _dataValid;
     final label = isAirtime
         ? (_amountController.text.isNotEmpty
-            ? 'Buy Airtime — ₦${_amountController.text}'
-            : 'Buy Airtime')
+            ? '${context.l10n.buyAirtimeAction} — ₦${_amountController.text}'
+            : context.l10n.buyAirtimeAction)
         : (_selectedPlan != null
-            ? 'Buy ${_selectedPlan!.data} — ₦${_selectedPlan!.price}'
-            : 'Select a Plan');
+            ? '${context.l10n.buyDataAction} ${_selectedPlan!.data} — ₦${_selectedPlan!.price}'
+            : context.l10n.selectPlan);
 
     return Container(
       padding: EdgeInsets.fromLTRB(

@@ -278,13 +278,13 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
                                       color: Colors.white.withOpacity(0.18)),
                                 ),
                                 child: Icon(Icons.arrow_back_ios_new,
-                                    color: Theme.of(context).cardColor, size: 16),
+                                    color: Colors.white, size: 16),
                               ),
                             ),
                             Text(
                               context.l10n.services,
                               style: TextStyle(
-                                color: Theme.of(context).cardColor,
+                                color: Colors.white,
                                 fontSize: 22,
                                 fontWeight: FontWeight.w800,
                               ),
@@ -312,7 +312,7 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
                                 onChanged: (v) =>
                                     setState(() => _searchQuery = v),
                                 style: TextStyle(
-                                    color: Theme.of(context).cardColor, fontSize: 14),
+                                    color: Colors.white, fontSize: 14),
                                 decoration: InputDecoration(
                                   hintText: context.l10n.searchServices,
                                   hintStyle: TextStyle(

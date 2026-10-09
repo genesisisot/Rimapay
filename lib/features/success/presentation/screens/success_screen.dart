@@ -375,7 +375,7 @@ class _SuccessScreenState extends ConsumerState<SuccessScreen>
                     ),
                     child: Icon(
                       Icons.check,
-                      color: Theme.of(context).cardColor,
+                      color: Colors.white,
                       size: 40,
                     ),
                   ),

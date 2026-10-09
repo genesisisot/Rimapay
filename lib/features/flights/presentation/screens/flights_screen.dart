@@ -168,7 +168,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Center(child: Text(ap.code,
-                                  style: TextStyle(color: Theme.of(context).cardColor, fontWeight: FontWeight.w800, fontSize: 12))),
+                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 12))),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
@@ -471,7 +471,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
                                     width: 36, height: 36,
                                     decoration: BoxDecoration(color: flight.airline.color, borderRadius: BorderRadius.circular(8)),
                                     child: Center(child: Text(flight.airline.shortName[0],
-                                        style: TextStyle(color: Theme.of(context).cardColor, fontWeight: FontWeight.w800, fontSize: 14))),
+                                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 14))),
                                   ),
                                   const SizedBox(width: 10),
                                   Expanded(
