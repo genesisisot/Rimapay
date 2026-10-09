@@ -649,3 +649,26 @@ class UserProfileDetails {
             : null,
       );
 }
+
+/// GET/POST /api/v1/profile/biometrics* → `BiometricSettingsResponseDto`.
+class BiometricSettings {
+  final bool login;
+  final bool transactions;
+
+  const BiometricSettings({required this.login, required this.transactions});
+
+  factory BiometricSettings.fromJson(Map<String, dynamic> json) =>
+      BiometricSettings(
+        login: json['isBiometricForLoginEnabled'] == true,
+        transactions: json['isBiometricForTransactionEnabled'] == true,
+      );
+}
+
+class BiometricToggleResult {
+  final bool isSuccess;
+  final String? message;
+  final BiometricSettings? settings;
+
+  const BiometricToggleResult(
+      {required this.isSuccess, this.message, this.settings});
+}

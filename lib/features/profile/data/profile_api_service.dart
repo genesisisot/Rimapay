@@ -399,6 +399,44 @@ class ProfileApiService {
     }
   }
 
+  // ── Biometric settings (server copy) ──────────────────────────────────
+
+  /// GET /api/v1/profile/biometrics — null when it couldn't be read.
+  Future<BiometricSettings?> getBiometricSettings() async {
+    try {
+      final res = await _dio.get('/api/v1/profile/biometrics');
+      return _unwrapData(res.data, BiometricSettings.fromJson);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// POST /api/v1/profile/biometrics/login or /transactions — turns one
+  /// setting on/off. The server checks the transaction [pin] itself.
+  Future<BiometricToggleResult> toggleBiometric({
+    required bool forLogin,
+    required bool enable,
+    required String pin,
+  }) async {
+    final path = forLogin
+        ? '/api/v1/profile/biometrics/login'
+        : '/api/v1/profile/biometrics/transactions';
+    try {
+      final res = await _dio.post(path, data: {'enable': enable, 'pin': pin});
+      final body = res.data;
+      final ok = body is Map<String, dynamic> && body['isSuccess'] == true;
+      return BiometricToggleResult(
+        isSuccess: ok,
+        message: body is Map<String, dynamic> ? body['message'] as String? : null,
+        settings: ok ? _unwrapData(body, BiometricSettings.fromJson) : null,
+      );
+    } on DioException catch (e) {
+      return BiometricToggleResult(isSuccess: false, message: _dioMessage(e));
+    } catch (_) {
+      return const BiometricToggleResult(isSuccess: false);
+    }
+  }
+
   T? _unwrapData<T>(
     dynamic responseBody,
     T Function(Map<String, dynamic>) fromJson,

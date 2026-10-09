@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../services/storage_service.dart';
+import '../../l10n/generated/app_localizations.g.dart' show AppL10n, lookupAppL10n;
+import 'language_provider.dart';
 import '../services/biometric_service.dart';
 import '../network/dio_client.dart';
 import '../services/secure_store.dart';
@@ -98,9 +100,9 @@ class User {
       case TierLevel.tier1:
         return 'Basic Tier';
       case TierLevel.tier2:
-        return 'Premium Tier';
+        return 'Standard Tier';
       case TierLevel.tier3:
-        return 'Elite Tier';
+        return 'Premium Tier';
     }
   }
   
@@ -182,6 +184,15 @@ class User {
 }
 
 class AuthProvider extends ChangeNotifier {
+  /// User-facing strings in the language the user picked. Providers have no
+  /// BuildContext, so look the saved language up directly.
+  static Future<AppL10n> _t() async =>
+      lookupAppL10n(Locale(await LanguageNotifier.readSavedLanguageCode()));
+
+  /// When the balance was last confirmed by the server (shown on Home).
+  DateTime? _lastBalanceUpdate;
+  DateTime? get lastBalanceUpdate => _lastBalanceUpdate;
+
   User? _user;
   bool _isLoading = false;
   String? _error;
@@ -212,7 +223,8 @@ class AuthProvider extends ChangeNotifier {
         unawaited(fetchAccounts());
       }
     } catch (e) {
-      _error = e.toString();
+      debugPrint('AuthProvider: $e');
+      _error = (await _t()).errGeneric;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -246,7 +258,8 @@ class AuthProvider extends ChangeNotifier {
       await StorageService.saveUser(_user!);
       return true;
     } catch (e) {
-      _error = e.toString();
+      debugPrint('AuthProvider: $e');
+      _error = (await _t()).errGeneric;
       return false;
     } finally {
       _isLoading = false;
@@ -302,7 +315,8 @@ class AuthProvider extends ChangeNotifier {
       _error = res.errorMessage ?? 'Login failed. Please try again.';
       return false;
     } catch (e) {
-      _error = e.toString();
+      debugPrint('AuthProvider: $e');
+      _error = (await _t()).errGeneric;
       return false;
     } finally {
       _isLoading = false;
@@ -331,6 +345,7 @@ class AuthProvider extends ChangeNotifier {
           accountNumber: acct.accountNumber,
         );
         await StorageService.saveUser(_user!);
+        _lastBalanceUpdate = DateTime.now();
         if (silent && changed) notifyListeners();
       }
     } finally {
@@ -356,7 +371,8 @@ class AuthProvider extends ChangeNotifier {
       _error = res.errorMessage;
       return null;
     } catch (e) {
-      _error = e.toString();
+      debugPrint('AuthProvider: $e');
+      _error = (await _t()).errGeneric;
       return null;
     } finally {
       _isLoading = false;
@@ -381,7 +397,8 @@ class AuthProvider extends ChangeNotifier {
       _error = res.errorMessage;
       return null;
     } catch (e) {
-      _error = e.toString();
+      debugPrint('AuthProvider: $e');
+      _error = (await _t()).errGeneric;
       return null;
     } finally {
       _isLoading = false;
@@ -410,7 +427,8 @@ class AuthProvider extends ChangeNotifier {
       _error = res.errorMessage ?? 'Could not reset password.';
       return false;
     } catch (e) {
-      _error = e.toString();
+      debugPrint('AuthProvider: $e');
+      _error = (await _t()).errGeneric;
       return false;
     } finally {
       _isLoading = false;
@@ -432,7 +450,8 @@ class AuthProvider extends ChangeNotifier {
       _error = res.errorMessage ?? 'Could not verify email.';
       return false;
     } catch (e) {
-      _error = e.toString();
+      debugPrint('AuthProvider: $e');
+      _error = (await _t()).errGeneric;
       return false;
     } finally {
       _isLoading = false;
@@ -466,7 +485,8 @@ class AuthProvider extends ChangeNotifier {
       await StorageService.saveUser(_user!);
       return true;
     } catch (e) {
-      _error = e.toString();
+      debugPrint('AuthProvider: $e');
+      _error = (await _t()).errGeneric;
       return false;
     } finally {
       _isLoading = false;
@@ -549,7 +569,7 @@ class AuthProvider extends ChangeNotifier {
     final snapshot = await SecureStore.getBiometricUser();
     final refresh = await StorageService.getRefreshToken();
     if (snapshot == null || refresh == null || refresh.isEmpty) {
-      _error = 'Sign in with your password once to use biometric login.';
+      _error = (await _t()).errBioNeedsPassword;
       return false;
     }
 
@@ -558,7 +578,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       final ok = await DioClient.instance.refreshSession();
       if (!ok) {
-        _error = 'Your session has expired. Please sign in with your password.';
+        _error = (await _t()).errSessionExpired;
         return false;
       }
       _user = User.fromJson(snapshot);
@@ -567,7 +587,7 @@ class AuthProvider extends ChangeNotifier {
       unawaited(fetchAccounts());
       return true;
     } catch (_) {
-      _error = 'Biometric login failed. Please sign in with your password.';
+      _error = (await _t()).errBioLoginFailed;
       return false;
     } finally {
       _isLoading = false;
@@ -643,7 +663,7 @@ class AuthProvider extends ChangeNotifier {
   // ADDED: Enable biometric authentication
   Future<bool> enableBiometric() async {
     if (_user == null) {
-      _errorMessage = 'No user logged in';
+      _errorMessage = (await _t()).errSessionExpired;
       return false;
     }
 
@@ -654,7 +674,7 @@ class AuthProvider extends ChangeNotifier {
       // Check if biometric is available
       final isAvailable = await BiometricService.isAvailable();
       if (!isAvailable) {
-        _errorMessage = 'Biometric authentication is not available on this device';
+        _errorMessage = (await _t()).errBioUnavailable;
         notifyListeners();
         return false;
       }
@@ -662,7 +682,7 @@ class AuthProvider extends ChangeNotifier {
       // Check if biometric is enabled/enrolled
       final isEnabled = await BiometricService.isEnabled();
       if (!isEnabled) {
-        _errorMessage = 'Please set up biometric authentication in your device settings first';
+        _errorMessage = (await _t()).errBioNotEnrolled;
         notifyListeners();
         return false;
       }
@@ -681,7 +701,8 @@ class AuthProvider extends ChangeNotifier {
         return false;
       }
     } catch (e) {
-      _errorMessage = 'Failed to enable biometric authentication: ${e.toString()}';
+      debugPrint('enableBiometric: $e');
+      _errorMessage = (await _t()).errBioToggleFailed;
       notifyListeners();
       return false;
     }
@@ -690,7 +711,7 @@ class AuthProvider extends ChangeNotifier {
   // ADDED: Disable biometric authentication
   Future<bool> disableBiometric() async {
     if (_user == null) {
-      _errorMessage = 'No user logged in';
+      _errorMessage = (await _t()).errSessionExpired;
       return false;
     }
 
@@ -700,7 +721,8 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _errorMessage = 'Failed to disable biometric authentication: ${e.toString()}';
+      debugPrint('disableBiometric: $e');
+      _errorMessage = (await _t()).errBioToggleFailed;
       notifyListeners();
       return false;
     }
@@ -733,7 +755,7 @@ class AuthProvider extends ChangeNotifier {
   // ADDED: Biometric login
   Future<bool> biometricLogin() async {
     if (!await canUseBiometricLogin()) {
-      _errorMessage = 'Biometric login is not available';
+      _errorMessage = (await _t()).errBioUnavailable;
       notifyListeners();
       return false;
     }
@@ -750,7 +772,8 @@ class AuthProvider extends ChangeNotifier {
         return false;
       }
     } catch (e) {
-      _errorMessage = 'Biometric login failed: ${e.toString()}';
+      debugPrint('biometricLogin: $e');
+      _errorMessage = (await _t()).errBioLoginFailed;
       notifyListeners();
       return false;
     }

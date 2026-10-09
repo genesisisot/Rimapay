@@ -3231,4 +3231,121 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get promoReceiptCta => 'View history';
+
+  @override
+  String get tierBasic => 'Basic Tier';
+
+  @override
+  String get tierStandard => 'Standard Tier';
+
+  @override
+  String get tierPremium => 'Premium Tier';
+
+  @override
+  String get accountTier => 'Account Tier';
+
+  @override
+  String get errGeneric =>
+      'Something went wrong. Check your connection and try again.';
+
+  @override
+  String get errSessionExpired =>
+      'Your session has expired. Please sign in with your password.';
+
+  @override
+  String get errBioNeedsPassword =>
+      'Sign in with your password once to use biometric login.';
+
+  @override
+  String get errBioLoginFailed =>
+      'Biometric login failed. Please sign in with your password.';
+
+  @override
+  String get errBioUnavailable =>
+      'Biometric login isn\'t available on this device.';
+
+  @override
+  String get errBioNotEnrolled =>
+      'Set up fingerprint or Face ID in your device settings first.';
+
+  @override
+  String get errBioToggleFailed =>
+      'Couldn\'t update biometric settings. Please try again.';
+
+  @override
+  String balanceUpdatedAt(String time) {
+    return 'Updated $time';
+  }
+
+  @override
+  String get historyDelayNote =>
+      'New transactions can take a little while to appear here.';
+
+  @override
+  String get hideBalance => 'Hide balance';
+
+  @override
+  String get showBalance => 'Show balance';
+
+  @override
+  String get copyAccountNumber => 'Copy account number';
+
+  @override
+  String get filterAll => 'All';
+
+  @override
+  String get filterIncome => 'Income';
+
+  @override
+  String get filterExpenses => 'Expenses';
+
+  @override
+  String get filterDateRange => 'Date range';
+
+  @override
+  String get noAirtimePurchasesYet => 'No airtime purchases yet';
+
+  @override
+  String get noDataPurchasesYet => 'No data purchases yet';
+
+  @override
+  String get mobileHistoryEmptyHint =>
+      'Every top-up you make is saved here, so you can buy again in one tap.';
+
+  @override
+  String get buyAirtimeAction => 'Buy Airtime';
+
+  @override
+  String get buyDataAction => 'Buy Data';
+
+  @override
+  String get searchPhoneOrReference => 'Search phone number or reference';
+
+  @override
+  String get faceCheckTitle => 'Confirm it\'s you';
+
+  @override
+  String get faceCheckBody =>
+      'For large transfers we check your face against your account photo. Look straight at the camera in good light.';
+
+  @override
+  String get faceCheckTake => 'Take selfie';
+
+  @override
+  String get faceCheckRetry => 'Try again';
+
+  @override
+  String get faceCheckStartCamera => 'Start camera';
+
+  @override
+  String get faceCheckNoMatch =>
+      'Your face didn\'t match your account photo. Try again in better light.';
+
+  @override
+  String get faceCheckServiceError =>
+      'We couldn\'t check your face right now. Please try again.';
+
+  @override
+  String get faceCheckNoCamera =>
+      'Camera unavailable. Allow camera access to continue.';
 }

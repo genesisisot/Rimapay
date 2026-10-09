@@ -5955,6 +5955,210 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'View history'**
   String get promoReceiptCta;
+
+  /// No description provided for @tierBasic.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic Tier'**
+  String get tierBasic;
+
+  /// No description provided for @tierStandard.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard Tier'**
+  String get tierStandard;
+
+  /// No description provided for @tierPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Tier'**
+  String get tierPremium;
+
+  /// No description provided for @accountTier.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Tier'**
+  String get accountTier;
+
+  /// No description provided for @errGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Check your connection and try again.'**
+  String get errGeneric;
+
+  /// No description provided for @errSessionExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session has expired. Please sign in with your password.'**
+  String get errSessionExpired;
+
+  /// No description provided for @errBioNeedsPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with your password once to use biometric login.'**
+  String get errBioNeedsPassword;
+
+  /// No description provided for @errBioLoginFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Biometric login failed. Please sign in with your password.'**
+  String get errBioLoginFailed;
+
+  /// No description provided for @errBioUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Biometric login isn\'t available on this device.'**
+  String get errBioUnavailable;
+
+  /// No description provided for @errBioNotEnrolled.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up fingerprint or Face ID in your device settings first.'**
+  String get errBioNotEnrolled;
+
+  /// No description provided for @errBioToggleFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t update biometric settings. Please try again.'**
+  String get errBioToggleFailed;
+
+  /// No description provided for @balanceUpdatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated {time}'**
+  String balanceUpdatedAt(String time);
+
+  /// No description provided for @historyDelayNote.
+  ///
+  /// In en, this message translates to:
+  /// **'New transactions can take a little while to appear here.'**
+  String get historyDelayNote;
+
+  /// No description provided for @hideBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide balance'**
+  String get hideBalance;
+
+  /// No description provided for @showBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Show balance'**
+  String get showBalance;
+
+  /// No description provided for @copyAccountNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy account number'**
+  String get copyAccountNumber;
+
+  /// No description provided for @filterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filterAll;
+
+  /// No description provided for @filterIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get filterIncome;
+
+  /// No description provided for @filterExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get filterExpenses;
+
+  /// No description provided for @filterDateRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Date range'**
+  String get filterDateRange;
+
+  /// No description provided for @noAirtimePurchasesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No airtime purchases yet'**
+  String get noAirtimePurchasesYet;
+
+  /// No description provided for @noDataPurchasesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No data purchases yet'**
+  String get noDataPurchasesYet;
+
+  /// No description provided for @mobileHistoryEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Every top-up you make is saved here, so you can buy again in one tap.'**
+  String get mobileHistoryEmptyHint;
+
+  /// No description provided for @buyAirtimeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy Airtime'**
+  String get buyAirtimeAction;
+
+  /// No description provided for @buyDataAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy Data'**
+  String get buyDataAction;
+
+  /// No description provided for @searchPhoneOrReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Search phone number or reference'**
+  String get searchPhoneOrReference;
+
+  /// No description provided for @faceCheckTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm it\'s you'**
+  String get faceCheckTitle;
+
+  /// No description provided for @faceCheckBody.
+  ///
+  /// In en, this message translates to:
+  /// **'For large transfers we check your face against your account photo. Look straight at the camera in good light.'**
+  String get faceCheckBody;
+
+  /// No description provided for @faceCheckTake.
+  ///
+  /// In en, this message translates to:
+  /// **'Take selfie'**
+  String get faceCheckTake;
+
+  /// No description provided for @faceCheckRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get faceCheckRetry;
+
+  /// No description provided for @faceCheckStartCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Start camera'**
+  String get faceCheckStartCamera;
+
+  /// No description provided for @faceCheckNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Your face didn\'t match your account photo. Try again in better light.'**
+  String get faceCheckNoMatch;
+
+  /// No description provided for @faceCheckServiceError.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t check your face right now. Please try again.'**
+  String get faceCheckServiceError;
+
+  /// No description provided for @faceCheckNoCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera unavailable. Allow camera access to continue.'**
+  String get faceCheckNoCamera;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

@@ -36,16 +36,24 @@ class _TransactionHistoryScreenState
   /// the dates it is currently using.
   DateTimeRange? _range;
 
-  final List<_FilterOption> _filterOptions = [
-    _FilterOption('all', 'All', Icons.list_rounded),
-    _FilterOption('income', 'Income', Icons.arrow_downward_rounded),
-    _FilterOption('expense', 'Expenses', Icons.arrow_upward_rounded),
-    _FilterOption('electricity', 'Electricity', Icons.bolt_rounded),
-    _FilterOption('cable', 'Cable TV', Icons.live_tv_rounded),
-    _FilterOption('today', 'Today', Icons.today_rounded),
-    _FilterOption('yesterday', 'Yesterday', Icons.history_rounded),
-    _FilterOption('range', 'Date range', Icons.date_range_rounded),
-  ];
+  List<_FilterOption> get _filterOptions => [
+        _FilterOption('all', context.l10n.filterAll, Icons.list_rounded),
+        _FilterOption(
+            'income', context.l10n.filterIncome, Icons.arrow_downward_rounded),
+        _FilterOption(
+            'expense', context.l10n.filterExpenses, Icons.arrow_upward_rounded),
+        _FilterOption(
+            'airtime', context.l10n.airtime, Icons.phone_iphone_rounded),
+        _FilterOption('data', context.l10n.data, Icons.wifi_rounded),
+        _FilterOption(
+            'electricity', context.l10n.electricity, Icons.bolt_rounded),
+        _FilterOption('cable', context.l10n.cableTV, Icons.live_tv_rounded),
+        _FilterOption('today', context.l10n.today, Icons.today_rounded),
+        _FilterOption(
+            'yesterday', context.l10n.yesterday, Icons.history_rounded),
+        _FilterOption(
+            'range', context.l10n.filterDateRange, Icons.date_range_rounded),
+      ];
 
   @override
   void initState() {
@@ -74,14 +82,32 @@ class _TransactionHistoryScreenState
     super.dispose();
   }
 
-  /// Electricity / Cable TV chips switch the list to `bills/history`, filtered
-  /// server-side by utilityType: the statement can't be filtered by category,
-  /// and bill records carry the real biller, meter, token and exact time.
+  /// Airtime / Data / Electricity / Cable TV chips switch the list to the
+  /// bills purchase history (airtime/data have endpoints of their own): the
+  /// statement can't be filtered by category, and purchase records carry the
+  /// real network/biller, phone/meter, token and exact time.
   BillHistoryKind? get _billKind => switch (_selectedFilter) {
+        'airtime' => BillHistoryKind.airtime,
+        'data' => BillHistoryKind.data,
         'electricity' => BillHistoryKind.electricity,
         'cable' => BillHistoryKind.cableTv,
         _ => null,
       };
+
+  /// Where "Buy again" / the empty-state button goes for each kind. Airtime
+  /// and Data share one screen (Data is its second tab).
+  void _openPurchase(BillHistoryKind kind, {Object? row}) {
+    switch (kind) {
+      case BillHistoryKind.airtime:
+        context.push('/bills/airtime');
+      case BillHistoryKind.data:
+        context.push('/bills/airtime', extra: 1);
+      case BillHistoryKind.electricity:
+        context.push('/bills/electricity', extra: row);
+      case BillHistoryKind.cableTv:
+        context.push('/bills/cable', extra: row);
+    }
+  }
 
   /// Picking "Date range" opens the picker; every other chip just applies.
   /// Cancelling the picker leaves the previous filter in place rather than
@@ -120,7 +146,7 @@ class _TransactionHistoryScreenState
   /// reopening the picker.
   String get _rangeLabel {
     final r = _range;
-    if (r == null) return 'Date range';
+    if (r == null) return context.l10n.filterDateRange;
     String d(DateTime t) => '${t.day}/${t.month}';
     return '${d(r.start)} - ${d(r.end)}';
   }
@@ -268,17 +294,9 @@ class _TransactionHistoryScreenState
                           kind: billKind,
                           showSearch: false,
                           query: _searchQuery,
-                          onRepeat: (row) => context.push(
-                            billKind == BillHistoryKind.electricity
-                                ? '/bills/electricity'
-                                : '/bills/cable',
-                            extra: row,
-                          ),
-                          onBuyNew: () => context.push(
-                            billKind == BillHistoryKind.electricity
-                                ? '/bills/electricity'
-                                : '/bills/cable',
-                          ),
+                          onRepeat: (row) =>
+                              _openPurchase(billKind, row: row),
+                          onBuyNew: () => _openPurchase(billKind),
                         ),
                       ),
                     ],
@@ -301,6 +319,38 @@ class _TransactionHistoryScreenState
                       serverIncome: state.todaysIncome,
                     ),
                   ),
+
+                // ── Statement delay note (UAT: "history incomplete") ──
+                // The bank statement lags behind real time; say so instead of
+                // letting users think money went missing.
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+                    child: Row(
+                      children: [
+                        Icon(Icons.info_outline_rounded,
+                            size: 15,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.45)),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            context.l10n.historyDelayNote,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withOpacity(0.55),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
 
                 // ── List ──
                 if (showLoading)

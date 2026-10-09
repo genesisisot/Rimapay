@@ -8,6 +8,7 @@ import '../../../../core/Utils/haptics.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../core/localization/tier_labels.dart';
 /// Account details the user shares to receive money: name, number, bank.
 class AccountDetailsScreen extends StatelessWidget {
   const AccountDetailsScreen({super.key});
@@ -41,12 +42,13 @@ class AccountDetailsScreen extends StatelessWidget {
     final onSurface = Theme.of(context).colorScheme.onSurface;
 
     final rows = <_DetailRow>[
-      _DetailRow('Account Name', name, copyable: true),
-      _DetailRow('Account Number', acct, display: _formatAccountNumber(acct), copyable: true),
-      const _DetailRow('Bank', _bankName),
-      _DetailRow('Account Tier', user?.tierName ?? 'Basic Tier'),
-      if ((user?.phoneNumber ?? '').isNotEmpty) _DetailRow('Phone Number', user!.phoneNumber!),
-      if ((user?.email ?? '').isNotEmpty) _DetailRow('Email', user!.email),
+      _DetailRow(context.l10n.accountName, name, copyable: true),
+      _DetailRow(context.l10n.accountNumber, acct, display: _formatAccountNumber(acct), copyable: true),
+      _DetailRow(context.l10n.bank, _bankName),
+      _DetailRow(context.l10n.accountTier,
+          (user?.tierLevel ?? TierLevel.tier1).label(context.l10n)),
+      if ((user?.phoneNumber ?? '').isNotEmpty) _DetailRow(context.l10n.phoneNumber, user!.phoneNumber!),
+      if ((user?.email ?? '').isNotEmpty) _DetailRow(context.l10n.email, user!.email),
     ];
 
     return Scaffold(

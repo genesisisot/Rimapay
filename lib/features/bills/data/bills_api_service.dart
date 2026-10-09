@@ -164,29 +164,55 @@ class BillsApiService {
     int page = 1,
     int pageSize = 20,
     String? utilityType,
-  }) async {
-    final Response<dynamic> res;
-    try {
-      res = await _dio.get(
+  }) =>
+      _history(
         '/api/v1/bills/history',
-        queryParameters: {
+        {
           'pageNumber': page,
           'pageSize': pageSize,
           if (utilityType != null) 'utilityType': utilityType,
         },
+        BillPaymentHistoryDto.fromJson,
       );
+
+  /// GET /api/v1/bills/airtime/history?pageNumber=&pageSize= — airtime top-ups.
+  Future<List<BillPaymentHistoryDto>> getAirtimeHistory(
+          {int page = 1, int pageSize = 20}) =>
+      _history(
+        '/api/v1/bills/airtime/history',
+        {'pageNumber': page, 'pageSize': pageSize},
+        BillPaymentHistoryDto.fromAirtimeJson,
+      );
+
+  /// GET /api/v1/bills/data/history?pageNumber=&pageSize= — data bundles.
+  Future<List<BillPaymentHistoryDto>> getDataHistory(
+          {int page = 1, int pageSize = 20}) =>
+      _history(
+        '/api/v1/bills/data/history',
+        {'pageNumber': page, 'pageSize': pageSize},
+        BillPaymentHistoryDto.fromDataJson,
+      );
+
+  Future<List<BillPaymentHistoryDto>> _history(
+    String path,
+    Map<String, dynamic> query,
+    BillPaymentHistoryDto Function(Map<String, dynamic>) fromJson,
+  ) async {
+    final Response<dynamic> res;
+    try {
+      res = await _dio.get(path, queryParameters: query);
     } on DioException catch (e) {
       throw Exception(_dioMessage(e));
     }
     final body = res.data;
     if (body is Map<String, dynamic> && body['data'] is List) {
       final rows = (body['data'] as List).whereType<Map<String, dynamic>>();
-      // The token has no field of its own; log raw rows so a live call shows
-      // where QuickTeller actually put it.
-      if (kDebugMode && page == 1 && rows.isNotEmpty) {
-        debugPrint('bills/history sample row: ${rows.first}');
+      // Some fields (e.g. the meter token) have no field of their own; log a
+      // raw row so a live call shows the real shape.
+      if (kDebugMode && query['pageNumber'] == 1 && rows.isNotEmpty) {
+        debugPrint('$path sample row: ${rows.first}');
       }
-      return rows.map(BillPaymentHistoryDto.fromJson).toList();
+      return rows.map(fromJson).toList();
     }
     if (body is Map<String, dynamic> && body['isSuccess'] == true) {
       return const []; // success with null data → no history

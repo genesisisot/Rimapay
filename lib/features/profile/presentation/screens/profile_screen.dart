@@ -9,11 +9,10 @@ import 'package:provider/provider.dart' hide Consumer;
 import '../../../../core/providers/theme_provider.dart';
 import '../../../../shared/widgets/noise_painter.dart';
 import '../providers/profile_provider.dart';
+import '../../data/profile_api_service.dart';
 import '../../../../core/providers/auth_provider.dart';
 import '../../../auth/data/auth_api_service.dart';
 import '../../../auth/data/auth_dtos.dart';
-import '../../../security/data/pin_api_service.dart';
-import '../../../security/data/pin_dtos.dart' as pindto;
 import '../../../../core/services/biometric_service.dart';
 import '../../../../core/services/secure_store.dart';
 import '../../../../core/Utils/haptics.dart';
@@ -85,9 +84,23 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     });
   }
 
+  /// A setting is on only if this phone is set up for it AND the server
+  /// agrees. If it was turned off elsewhere (another phone), it is switched
+  /// off here too; "on" elsewhere still needs this phone's own setup.
   Future<void> _loadBiometricPrefs() async {
-    final login = await SecureStore.isBiometricLoginEnabled();
-    final txn = await SecureStore.isBiometricTxnEnabled();
+    var login = await SecureStore.isBiometricLoginEnabled();
+    var txn = await SecureStore.isBiometricTxnEnabled();
+    final server = await ProfileApiService().getBiometricSettings();
+    if (server != null) {
+      if (login && !server.login) {
+        await SecureStore.setBiometricLogin(false);
+        login = false;
+      }
+      if (txn && !server.transactions) {
+        await SecureStore.setBiometricTxn(false);
+        txn = false;
+      }
+    }
     if (mounted) {
       setState(() {
         _bioLogin = login;
@@ -1204,51 +1217,53 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     ));
   }
 
-  /// Turning off is immediate. Turning on needs: biometrics set up on the
-  /// phone → transaction PIN verified by the API → a fingerprint check.
+  /// Both directions confirm the transaction PIN, because the server's
+  /// `profile/biometrics/*` toggles require it (and verify it themselves).
+  /// Turning on also needs biometrics set up on the phone and a fingerprint
+  /// check *before* the server is told, so a failed scan never leaves the
+  /// server saying "on" while this phone isn't set up.
   Future<void> _toggleBiometric({required bool forLogin, required bool enable}) async {
     Haptics.tap();
     if (_bioBusy) return;
 
-    if (!enable) {
-      if (forLogin) {
-        await SecureStore.setBiometricLogin(false);
-      } else {
-        await SecureStore.setBiometricTxn(false);
-      }
-      if (!mounted) return;
-      setState(() {
-        if (forLogin) {
-          _bioLogin = false;
-        } else {
-          _bioTxn = false;
-        }
-      });
-      return;
-    }
-
-    if (!await BiometricService.isAvailable() || !await BiometricService.isEnabled()) {
+    if (enable &&
+        (!await BiometricService.isAvailable() ||
+            !await BiometricService.isEnabled())) {
       _bioSnack('Set up fingerprint or face unlock on this phone first.', error: true);
       return;
     }
     if (!mounted) return;
 
+    final action = enable
+        ? (forLogin ? 'Log in with biometrics' : 'Approve payments with biometrics')
+        : (forLogin ? 'Stop biometric login' : 'Stop biometric payments');
     showPinConfirmSheet(
       context: context,
-      title: forLogin ? 'Enable Biometric Login' : 'Enable Biometric Payments',
+      title: enable
+          ? (forLogin ? 'Enable Biometric Login' : 'Enable Biometric Payments')
+          : (forLogin ? 'Disable Biometric Login' : 'Disable Biometric Payments'),
       allowBiometric: false,
       summary: [
-        {
-          'label': 'Action',
-          'value': forLogin ? 'Log in with biometrics' : 'Approve payments with biometrics',
-        },
+        {'label': 'Action', 'value': action},
       ],
       onConfirmed: (enteredPin) async {
         Navigator.pop(context); // close PIN sheet
         setState(() => _bioBusy = true);
 
-        final res = await PinApiService()
-            .verifyPin(pindto.VerifyPinRequest(pin: enteredPin));
+        if (enable) {
+          final bio = await BiometricService.authenticateWithResult(forLogin
+              ? 'Confirm to enable biometric login'
+              : 'Confirm to enable biometric payments');
+          if (!mounted) return;
+          if (bio != AuthResult.success) {
+            setState(() => _bioBusy = false);
+            _bioSnack(BiometricService.getAuthResultMessage(bio), error: true);
+            return;
+          }
+        }
+
+        final res = await ProfileApiService().toggleBiometric(
+            forLogin: forLogin, enable: enable, pin: enteredPin);
         if (!mounted) return;
         if (!res.isSuccess) {
           setState(() => _bioBusy = false);
@@ -1257,33 +1272,25 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           return;
         }
 
-        final bio = await BiometricService.authenticateWithResult(forLogin
-            ? 'Confirm to enable biometric login'
-            : 'Confirm to enable biometric payments');
-        if (!mounted) return;
-        if (bio != AuthResult.success) {
-          setState(() => _bioBusy = false);
-          _bioSnack(BiometricService.getAuthResultMessage(bio), error: true);
-          return;
-        }
-
         if (forLogin) {
           final user = context.read<AuthProvider>().user;
-          await SecureStore.setBiometricLogin(true, user: user?.toJson());
+          await SecureStore.setBiometricLogin(enable, user: user?.toJson());
         } else {
-          await SecureStore.setBiometricTxn(true, pin: enteredPin);
+          await SecureStore.setBiometricTxn(enable, pin: enable ? enteredPin : null);
         }
         if (!mounted) return;
         Haptics.success();
         setState(() {
           _bioBusy = false;
           if (forLogin) {
-            _bioLogin = true;
+            _bioLogin = enable;
           } else {
-            _bioTxn = true;
+            _bioTxn = enable;
           }
         });
-        _bioSnack(forLogin ? 'Biometric login enabled' : 'Biometric payments enabled');
+        _bioSnack(enable
+            ? (forLogin ? 'Biometric login enabled' : 'Biometric payments enabled')
+            : (forLogin ? 'Biometric login turned off' : 'Biometric payments turned off'));
       },
     );
   }
@@ -1611,9 +1618,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                   child: SizedBox(
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
+                        // Used to only navigate away — the session, tokens
+                        // and saved user all survived "logging out".
+                        final auth = context.read<AuthProvider>();
+                        final router = GoRouter.of(context);
                         Navigator.pop(context);
-                        context.go('/welcome');
+                        await auth.logout();
+                        router.go('/welcome');
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFDC2626),

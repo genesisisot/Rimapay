@@ -3237,4 +3237,121 @@ class AppL10nHa extends AppL10n {
 
   @override
   String get promoReceiptCta => 'Duba tarihi';
+
+  @override
+  String get tierBasic => 'Matakin Asali';
+
+  @override
+  String get tierStandard => 'Matakin Matsakaici';
+
+  @override
+  String get tierPremium => 'Matakin Ƙoli';
+
+  @override
+  String get accountTier => 'Matakin Asusu';
+
+  @override
+  String get errGeneric =>
+      'An samu matsala. Duba haɗin intanet ɗinka sannan ka sake gwadawa.';
+
+  @override
+  String get errSessionExpired =>
+      'Zaman shigarka ya ƙare. Da fatan za a shiga da kalmar sirrinka.';
+
+  @override
+  String get errBioNeedsPassword =>
+      'Shiga da kalmar sirrinka sau ɗaya kafin ka yi amfani da shiga ta zanen yatsa.';
+
+  @override
+  String get errBioLoginFailed =>
+      'Shiga ta zanen yatsa ya kasa. Da fatan za a shiga da kalmar sirrinka.';
+
+  @override
+  String get errBioUnavailable =>
+      'Ba a samun shiga ta zanen yatsa a wannan na\'urar.';
+
+  @override
+  String get errBioNotEnrolled =>
+      'Ka fara saita zanen yatsa ko Face ID a saitunan na\'urarka.';
+
+  @override
+  String get errBioToggleFailed =>
+      'Ba a iya sabunta saitin zanen yatsa ba. Da fatan za a sake gwadawa.';
+
+  @override
+  String balanceUpdatedAt(String time) {
+    return 'An sabunta $time';
+  }
+
+  @override
+  String get historyDelayNote =>
+      'Sabbin ma\'amaloli na iya ɗaukar ɗan lokaci kafin su bayyana a nan.';
+
+  @override
+  String get hideBalance => 'Ɓoye kuɗi';
+
+  @override
+  String get showBalance => 'Nuna kuɗi';
+
+  @override
+  String get copyAccountNumber => 'Kwafi lambar asusu';
+
+  @override
+  String get filterAll => 'Duka';
+
+  @override
+  String get filterIncome => 'Shiga';
+
+  @override
+  String get filterExpenses => 'Kashe-kashe';
+
+  @override
+  String get filterDateRange => 'Tsakanin kwanaki';
+
+  @override
+  String get noAirtimePurchasesYet => 'Ba ka sayi kati ba tukuna';
+
+  @override
+  String get noDataPurchasesYet => 'Ba ka sayi data ba tukuna';
+
+  @override
+  String get mobileHistoryEmptyHint =>
+      'Duk katin da ka saya ana ajiye shi a nan, don ka sake saya da taɓawa ɗaya.';
+
+  @override
+  String get buyAirtimeAction => 'Sayi Kati';
+
+  @override
+  String get buyDataAction => 'Sayi Data';
+
+  @override
+  String get searchPhoneOrReference => 'Nemo lambar waya ko lambar ma\'amala';
+
+  @override
+  String get faceCheckTitle => 'Tabbatar cewa kai ne';
+
+  @override
+  String get faceCheckBody =>
+      'Don manyan tura kuɗi muna kwatanta fuskarka da hoton asusunka. Kalli kyamara kai tsaye a wuri mai haske.';
+
+  @override
+  String get faceCheckTake => 'Ɗauki hoto';
+
+  @override
+  String get faceCheckRetry => 'Sake gwadawa';
+
+  @override
+  String get faceCheckStartCamera => 'Kunna kyamara';
+
+  @override
+  String get faceCheckNoMatch =>
+      'Fuskarka ba ta yi daidai da hoton asusunka ba. Sake gwadawa a wuri mai haske.';
+
+  @override
+  String get faceCheckServiceError =>
+      'Ba mu iya duba fuskarka yanzu ba. Da fatan za a sake gwadawa.';
+
+  @override
+  String get faceCheckNoCamera =>
+      'Ba a samu kyamara ba. Ba da izinin kyamara don ci gaba.';
 }

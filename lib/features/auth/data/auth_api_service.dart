@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
@@ -53,10 +52,10 @@ class AuthApiService {
     if (phoneNumber != null) {
       body['phoneNumber'] = phoneNumber;
     }
-    log('━━━ Auth API ━━━\n▶ POST /api/auth/forgot-password\n  Body: ${jsonEncode(body)}');
+    log('━━━ Auth API ━━━\n▶ POST /api/auth/forgot-password');
     try {
       final res = await _dio.post('/api/auth/forgot-password', data: body);
-      log('◀ ${res.statusCode} /api/auth/forgot-password\n  Response: ${jsonEncode(res.data)}');
+      log('◀ ${res.statusCode} /api/auth/forgot-password');
       final data = res.data;
       if (data is Map<String, dynamic>) {
         return ApiResponse<String>.fromJson(
@@ -152,7 +151,7 @@ class AuthApiService {
         '/api/auth/check-account-exists',
         queryParameters: {'phoneNumber': phoneNumber},
       );
-      log('◀ ${res.statusCode} /api/auth/check-account-exists\n  Response: ${jsonEncode(res.data)}');
+      log('◀ ${res.statusCode} /api/auth/check-account-exists');
       final data = res.data;
       if (data is Map<String, dynamic>) {
         final isSuccess = data['isSuccess'] == true;
@@ -228,10 +227,10 @@ class AuthApiService {
   }
 
   Future<ApiResponse<void>> _postVoid(String path, Object? body) async {
-    log('━━━ Auth API ━━━\n▶ POST $path\n  Body: ${jsonEncode(body)}');
+    log('━━━ Auth API ━━━\n▶ POST $path');
     try {
       final res = await _dio.post(path, data: body);
-      log('◀ ${res.statusCode} $path\n  Response: ${jsonEncode(res.data)}');
+      log('◀ ${res.statusCode} $path');
       return _parseVoid(res);
     } on DioException catch (e) {
       return ApiResponse<void>.failure(_dioMessage(e));
@@ -241,10 +240,10 @@ class AuthApiService {
   }
 
   Future<ApiResponse<String>> _postString(String path, Object? body) async {
-    log('━━━ Auth API ━━━\n▶ POST $path\n  Body: ${jsonEncode(body)}');
+    log('━━━ Auth API ━━━\n▶ POST $path');
     try {
       final res = await _dio.post(path, data: body);
-      log('◀ ${res.statusCode} $path\n  Response: ${jsonEncode(res.data)}');
+      log('◀ ${res.statusCode} $path');
       final data = res.data;
       if (data is Map<String, dynamic>) {
         final isSuccess = data['isSuccess'] == true;

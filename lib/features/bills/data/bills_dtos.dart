@@ -449,6 +449,51 @@ class BillPaymentHistoryDto {
             DateTime.tryParse(json['createdAt']?.toString() ?? '')?.toLocal(),
       );
 
+  /// GET bills/airtime/history row → shared history row (phone number as
+  /// the customer, network as the biller).
+  factory BillPaymentHistoryDto.fromAirtimeJson(Map<String, dynamic> json) =>
+      BillPaymentHistoryDto(
+        id: json['transactionReference']?.toString() ?? '',
+        transactionReference: json['transactionReference'] as String?,
+        gatewayTransactionRef: json['gatewayTransactionRef'] as String?,
+        sourceAccount: json['sourceAccount'] as String?,
+        billerName: json['serviceProvider'] as String?,
+        utilityType: 'Airtime',
+        customerId: json['mobileNo'] as String?,
+        amount: _toDouble(json['amount']),
+        status: json['status']?.toString(),
+        isReversed: json['isReversed'] == true,
+        responseCode: json['responseCode']?.toString(),
+        responseDesc: json['responseDesc'] as String?,
+        reversalDescription: json['reversalDescription'] as String?,
+        createdAt: DateTime.tryParse(json['transactionDate']?.toString() ?? '')
+            ?.toLocal(),
+      );
+
+  /// GET bills/data/history row → shared history row (plan as the item).
+  factory BillPaymentHistoryDto.fromDataJson(Map<String, dynamic> json) {
+    final plan = (json['planName'] as String?)?.trim();
+    final allowance = (json['dataAllowance'] as String?)?.trim();
+    return BillPaymentHistoryDto(
+      id: json['id']?.toString() ?? '',
+      transactionReference: json['transactionReference'] as String?,
+      gatewayTransactionRef: json['gatewayTransactionRef'] as String?,
+      sourceAccount: json['sourceAccount'] as String?,
+      billerName: json['networkProvider'] as String?,
+      utilityType: 'Data',
+      itemName: (plan?.isNotEmpty ?? false) ? plan : allowance,
+      customerId: json['mobileNo'] as String?,
+      amount: _toDouble(json['amount']),
+      status: json['status']?.toString(),
+      isReversed: json['isReversed'] == true,
+      responseCode: json['responseCode']?.toString(),
+      responseDesc: json['responseDesc'] as String?,
+      reversalDescription: json['reversalDescription'] as String?,
+      createdAt:
+          DateTime.tryParse(json['createdAt']?.toString() ?? '')?.toLocal(),
+    );
+  }
+
   static const _digits = r'\d(?:[\s-]?\d){15,19}';
   static final _labelledToken =
       RegExp('(?:token|pin)\\D{0,12}($_digits)', caseSensitive: false);

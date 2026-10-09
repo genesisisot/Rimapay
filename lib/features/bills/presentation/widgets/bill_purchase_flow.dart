@@ -39,6 +39,12 @@ const _knownBillerAssets = <String, String>{
   'GOTV': 'assets/images/Gotv.jpeg',
   'STARTIMES': 'assets/images/Startimes.jpeg',
   'SHOWMAX': 'assets/images/Showmax.png',
+  // Mobile networks (airtime/data history).
+  ' MTN': 'assets/images/Mtn.png',
+  'AIRTEL': 'assets/images/Airtel.png',
+  ' GLO ': 'assets/images/Glo.png',
+  '9MOBILE': 'assets/images/9mobile.png',
+  'ETISALAT': 'assets/images/9mobile.png',
 };
 
 /// Bundled brand asset for a biller, matched on its short/full name.

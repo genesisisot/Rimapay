@@ -2691,57 +2691,85 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     );
   }
 
-  /// Final profile-completion step: submit the collected KYC profile to the
-  /// Profile API (`/api/v1/profile/create`) using the identityUserId produced
-  /// during onboarding, then show the completed screen.
+  /// Final profile-completion step. Saves what the user entered on the
+  /// Address, PEP and Occupation steps through the same endpoints the Profile
+  /// page uses (`/api/v1/profile/completion/{address,pep,source-of-income}`),
+  /// so the Profile checklist shows them as done. These answers used to be
+  /// collected and then dropped — only `profile/create` was called.
   void _onCompleteProfile() async {
     final st = ref.read(onboardingProvider);
-    final identityUserId = st.identityUserId;
-    if (identityUserId == null || identityUserId.isEmpty) {
-      // Account is already created during onboarding; nothing to submit here.
-      _animateTo(AccountStep.profileCompletedSuccess);
-      return;
-    }
-    final idNumber = _personalInfo.bvn.isNotEmpty
-        ? _personalInfo.bvn
-        : (_personalInfo.nin.isNotEmpty ? _personalInfo.nin : null);
-    final docType = _personalInfo.bvn.isNotEmpty
-        ? 'BVN'
-        : (_personalInfo.nin.isNotEmpty ? 'NIN' : null);
-    final address = [
-      _personalInfo.residentialAddress,
-      _personalInfo.lga,
-      _personalInfo.state,
-    ].where((p) => p.trim().isNotEmpty).join(', ');
+    final profile = ref.read(profileProvider.notifier);
     setState(() => _isLoading = true);
-    final ok = await ref.read(profileProvider.notifier).createProfile(
-          CreateProfileRequest(
-            identityUserId: identityUserId,
-            firstName: _personalInfo.firstname.isNotEmpty
-                ? _personalInfo.firstname
-                : null,
-            lastName: _personalInfo.lastname.isNotEmpty
-                ? _personalInfo.lastname
-                : null,
-            email: _personalInfo.emailAddress.isNotEmpty
-                ? _personalInfo.emailAddress
-                : null,
-            phoneNumber: _personalInfo.phoneNumber.isNotEmpty
-                ? _personalInfo.phoneNumber
-                : null,
-            dateOfBirth: _personalInfo.dateOfBirth.isNotEmpty
-                ? _personalInfo.dateOfBirth
-                : null,
-            gender:
-                _personalInfo.gender.isNotEmpty ? _personalInfo.gender : null,
-            address: address.isNotEmpty ? address : null,
-            identityNumber: idNumber,
-            documentType: docType,
-          ),
-        );
+
+    // Best effort: the account (and usually the profile) already exists after
+    // onboarding, so a failure here must not block the completion steps.
+    final identityUserId = st.identityUserId;
+    if (identityUserId != null && identityUserId.isNotEmpty) {
+      final idNumber = _personalInfo.bvn.isNotEmpty
+          ? _personalInfo.bvn
+          : (_personalInfo.nin.isNotEmpty ? _personalInfo.nin : null);
+      final docType = _personalInfo.bvn.isNotEmpty
+          ? 'BVN'
+          : (_personalInfo.nin.isNotEmpty ? 'NIN' : null);
+      final address = [
+        _personalInfo.residentialAddress,
+        _personalInfo.lga,
+        _personalInfo.state,
+      ].where((p) => p.trim().isNotEmpty).join(', ');
+      final created = await profile.createProfile(
+        CreateProfileRequest(
+          identityUserId: identityUserId,
+          firstName:
+              _personalInfo.firstname.isNotEmpty ? _personalInfo.firstname : null,
+          lastName:
+              _personalInfo.lastname.isNotEmpty ? _personalInfo.lastname : null,
+          email: _personalInfo.emailAddress.isNotEmpty
+              ? _personalInfo.emailAddress
+              : null,
+          phoneNumber: _personalInfo.phoneNumber.isNotEmpty
+              ? _personalInfo.phoneNumber
+              : null,
+          dateOfBirth: _personalInfo.dateOfBirth.isNotEmpty
+              ? _personalInfo.dateOfBirth
+              : null,
+          gender: _personalInfo.gender.isNotEmpty ? _personalInfo.gender : null,
+          address: address.isNotEmpty ? address : null,
+          identityNumber: idNumber,
+          documentType: docType,
+        ),
+      );
+      if (!created) {
+        debugPrint('profile/create failed (non-blocking): '
+            '${ref.read(profileProvider).error}');
+      }
+    }
+
+    final saves = <Future<bool> Function()>[
+      if (_personalInfo.residentialAddress.trim().isNotEmpty &&
+          _personalInfo.state.trim().isNotEmpty)
+        () => profile.completeAddress(AddressCompletionRequest(
+              addressLine: _personalInfo.residentialAddress.trim(),
+              state: _personalInfo.state.trim(),
+              lga: _personalInfo.lga.trim(),
+            )),
+      if (_isPep != null)
+        () => profile.completePep(PepCompletionRequest(isPep: _isPep!)),
+      if (_occupation != null && _annualIncome != null)
+        () => profile.completeSourceOfIncome(SourceOfIncomeRequest(
+              occupation: _occupation!,
+              annualIncome: _annualIncome!,
+            )),
+    ];
+    var allSaved = true;
+    for (final save in saves) {
+      if (!await save()) {
+        allSaved = false;
+        break;
+      }
+    }
     if (!mounted) return;
     setState(() => _isLoading = false);
-    if (ok) {
+    if (allSaved) {
       _animateTo(AccountStep.profileCompletedSuccess);
     } else {
       _snack(

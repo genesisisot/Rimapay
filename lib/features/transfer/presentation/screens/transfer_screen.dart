@@ -12,6 +12,7 @@ import 'package:rimapay/features/profile/presentation/providers/profile_provider
 import 'package:rimapay/features/success/presentation/screens/success_screen.dart';
 import 'package:rimapay/shared/widgets/bill_screen_widgets.dart';
 import '../../../../shared/widgets/bank_logo_assets.dart';
+import '../../../../shared/widgets/face_check_screen.dart';
 
 import '../../../../core/localization/l10n.dart';
 import '../../../../core/theme/app_theme_colors.dart';
@@ -305,7 +306,10 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
   double _parseAmount(String text) =>
       double.tryParse(text.replaceAll(',', '')) ?? 0;
 
-  void _startTransfer() {
+  /// Single transfers at or above this need a face check before the PIN.
+  static const _faceCheckThreshold = 1000000.0;
+
+  Future<void> _startTransfer() async {
     final auth = context.read<AuthProvider>();
     final senderAccount = auth.user?.accountNumber ?? '';
     final isRimaLocal = _transferType == 'rimapay';
@@ -330,6 +334,14 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
         : _bankAccountController.text;
     final amount = _parseAmount(_amountController.text);
     final note = _noteController.text.trim();
+
+    // Step-up check for large transfers. A mismatch, a cancelled check or a
+    // face-service error all block the transfer (the screen offers a retry).
+    if (amount >= _faceCheckThreshold) {
+      final ok = await confirmWithFace(context,
+          identityUserId: auth.user?.id ?? '');
+      if (!ok || !mounted) return;
+    }
 
     showPinConfirmSheet(
       context: context,

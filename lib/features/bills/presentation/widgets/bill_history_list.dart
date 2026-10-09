@@ -41,37 +41,71 @@ String _when(BuildContext context, DateTime? d) {
 extension _KindUi on BillHistoryKind {
   bool get hasTokens => this == BillHistoryKind.electricity;
 
+  /// Airtime/data rows name the network directly; no biller list to match.
+  bool get isMobile =>
+      this == BillHistoryKind.airtime || this == BillHistoryKind.data;
+
   BillCategoryKind get category => this == BillHistoryKind.electricity
       ? BillCategoryKind.electricity
       : BillCategoryKind.cable;
 
-  String customerLabel(BuildContext context) =>
-      this == BillHistoryKind.electricity
-          ? context.l10n.meterNumber
-          : context.l10n.smartCardNumber;
+  String customerLabel(BuildContext context) => switch (this) {
+        BillHistoryKind.electricity => context.l10n.meterNumber,
+        BillHistoryKind.cableTv => context.l10n.smartCardNumber,
+        _ => context.l10n.phoneNumber,
+      };
 
-  String itemLabel(BuildContext context) => this == BillHistoryKind.electricity
-      ? context.l10n.meterType
-      : context.l10n.package;
+  String itemLabel(BuildContext context) => switch (this) {
+        BillHistoryKind.electricity => context.l10n.meterType,
+        BillHistoryKind.cableTv => context.l10n.package,
+        _ => context.l10n.plan,
+      };
 
-  String searchHint(BuildContext context) => this == BillHistoryKind.electricity
-      ? context.l10n.searchMeterOrReference
-      : context.l10n.searchSmartcardOrReference;
+  String searchHint(BuildContext context) => switch (this) {
+        BillHistoryKind.electricity => context.l10n.searchMeterOrReference,
+        BillHistoryKind.cableTv => context.l10n.searchSmartcardOrReference,
+        _ => context.l10n.searchPhoneOrReference,
+      };
 
-  String repeatLabel(BuildContext context) =>
-      this == BillHistoryKind.electricity
-          ? context.l10n.buyAgain
-          : context.l10n.renew;
+  String repeatLabel(BuildContext context) => this == BillHistoryKind.cableTv
+      ? context.l10n.renew
+      : context.l10n.buyAgain;
 
-  IconData get icon => this == BillHistoryKind.electricity
-      ? Icons.bolt_rounded
-      : Icons.live_tv_rounded;
+  IconData get icon => switch (this) {
+        BillHistoryKind.electricity => Icons.bolt_rounded,
+        BillHistoryKind.cableTv => Icons.live_tv_rounded,
+        BillHistoryKind.airtime => Icons.phone_iphone_rounded,
+        BillHistoryKind.data => Icons.wifi_rounded,
+      };
+
+  String emptyTitle(BuildContext context) => switch (this) {
+        BillHistoryKind.electricity => context.l10n.noElectricityPurchasesYet,
+        BillHistoryKind.cableTv => context.l10n.noCablePurchasesYet,
+        BillHistoryKind.airtime => context.l10n.noAirtimePurchasesYet,
+        BillHistoryKind.data => context.l10n.noDataPurchasesYet,
+      };
+
+  String emptyHint(BuildContext context) => switch (this) {
+        BillHistoryKind.electricity => context.l10n.electricityHistoryEmptyHint,
+        BillHistoryKind.cableTv => context.l10n.cableHistoryEmptyHint,
+        _ => context.l10n.mobileHistoryEmptyHint,
+      };
+
+  String emptyAction(BuildContext context) => switch (this) {
+        BillHistoryKind.electricity => context.l10n.buyElectricity,
+        BillHistoryKind.cableTv => context.l10n.payCableTv,
+        BillHistoryKind.airtime => context.l10n.buyAirtimeAction,
+        BillHistoryKind.data => context.l10n.buyDataAction,
+      };
 }
 
 /// Biller for a history row: the live biller when we have it, else a stand-in
 /// built from the name on the row (still resolves the bundled logo).
 BillerDto _billerFor(
     WidgetRef ref, BillHistoryKind kind, BillPaymentHistoryDto row) {
+  if (kind.isMobile) {
+    return BillerDto(billerId: 0, name: row.billerName ?? '');
+  }
   final billers =
       ref.watch(billersByKindProvider(kind.category)).valueOrNull?.billers ??
           const <BillerDto>[];
@@ -182,7 +216,6 @@ class _BillHistoryListState extends ConsumerState<BillHistoryList> {
     }
 
     if (state.items.isEmpty) {
-      final electricity = kind == BillHistoryKind.electricity;
       return RefreshIndicator(
         color: AppColors.primary500,
         onRefresh: notifier.refresh,
@@ -194,15 +227,9 @@ class _BillHistoryListState extends ConsumerState<BillHistoryList> {
               child: _CenteredMessage(
                 icon: kind.icon,
                 iconColor: AppColors.goldPrimary,
-                title: electricity
-                    ? context.l10n.noElectricityPurchasesYet
-                    : context.l10n.noCablePurchasesYet,
-                message: electricity
-                    ? context.l10n.electricityHistoryEmptyHint
-                    : context.l10n.cableHistoryEmptyHint,
-                actionLabel: electricity
-                    ? context.l10n.buyElectricity
-                    : context.l10n.payCableTv,
+                title: kind.emptyTitle(context),
+                message: kind.emptyHint(context),
+                actionLabel: kind.emptyAction(context),
                 onAction: widget.onBuyNew,
               ),
             ),

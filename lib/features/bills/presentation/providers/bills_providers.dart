@@ -129,11 +129,16 @@ void refreshBillers(WidgetRef ref, BillCategoryKind kind) {
 // ── Bill history ──────────────────────────────────────────────────────────────
 
 /// Bill screens with a History tab, mapped to the backend `UtilityType` filter.
-enum BillHistoryKind { electricity, cableTv }
+enum BillHistoryKind { electricity, cableTv, airtime, data }
 
 extension BillHistoryKindApi on BillHistoryKind {
-  String get utilityType =>
-      this == BillHistoryKind.electricity ? 'Electricity' : 'CableTv';
+  /// `bills/history` filter; airtime and data have endpoints of their own.
+  String get utilityType => switch (this) {
+        BillHistoryKind.electricity => 'Electricity',
+        BillHistoryKind.cableTv => 'CableTv',
+        BillHistoryKind.airtime => 'Airtime',
+        BillHistoryKind.data => 'Data',
+      };
 }
 
 class BillHistoryState {
@@ -188,11 +193,18 @@ class BillHistoryNotifier extends StateNotifier<BillHistoryState> {
     if (state.isLoading || !state.hasMore) return;
     state = state.copyWith(isLoading: true);
     try {
-      final page = await _ref.read(billsApiServiceProvider).getBillHistory(
+      final api = _ref.read(billsApiServiceProvider);
+      final page = await switch (kind) {
+        BillHistoryKind.airtime =>
+          api.getAirtimeHistory(page: _nextPage, pageSize: _pageSize),
+        BillHistoryKind.data =>
+          api.getDataHistory(page: _nextPage, pageSize: _pageSize),
+        _ => api.getBillHistory(
             page: _nextPage,
             pageSize: _pageSize,
             utilityType: kind.utilityType,
-          );
+          ),
+      };
       if (!mounted) return;
       _nextPage++;
       final seen = state.items.map((e) => e.id).toSet();

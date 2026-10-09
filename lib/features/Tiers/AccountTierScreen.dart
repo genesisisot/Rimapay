@@ -3,7 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rimapay/shared/widgets/bill_screen_widgets.dart';
 
+import 'package:provider/provider.dart';
+
 import '../../core/localization/l10n.dart';
+import '../../core/providers/auth_provider.dart' as auth;
 import '../../shared/widgets/coming_soon_pill.dart';
 // ─────────────────────────────────────────────────────────────────────────────
 // Models
@@ -39,8 +42,16 @@ class AccountTiersScreen extends StatefulWidget {
 }
 
 class _AccountTiersScreenState extends State<AccountTiersScreen> {
-  // Mock: user is on Basic, and BVN was provided at onboarding
-  final TierLevel currentTier = TierLevel.tier1;
+  /// The signed-in user's tier (this screen has no tier below Basic, so the
+  /// pre-KYC tier0 account is shown as Basic).
+  TierLevel get currentTier =>
+      switch (context.watch<auth.AuthProvider>().user?.tierLevel) {
+        auth.TierLevel.tier2 => TierLevel.tier2,
+        auth.TierLevel.tier3 => TierLevel.tier3,
+        _ => TierLevel.tier1,
+      };
+
+  // Mock: BVN was provided at onboarding
   final bool onboardingProvidedBvn = true; // → Standard needs NIN
 
   static const tiers = [

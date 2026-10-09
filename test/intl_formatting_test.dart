@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter/widgets.dart';
@@ -72,5 +74,24 @@ void main() {
     expect(ha.dailyLimit('₦50,000'), contains('₦50,000'));
     expect(ha.comingSoonFeature('Cards'), contains('Cards'));
     expect(ha.loanPitch('₦500,000'), contains('₦500,000'));
+  });
+
+  test('no code feeds the app language into intl formatters', () {
+    // Regression: the balance card's "Updated hh:mm" used
+    // DateFormat.jm(Localizations.localeOf(context).toString()), which is
+    // 'ha' in Hausa mode — it threw and blanked the whole Home body.
+    final offenders = <String>[];
+    final bad = RegExp(
+        r'(DateFormat|NumberFormat)[\s\S]{0,80}?(Localizations\.localeOf|languageCode|languageProvider)');
+    for (final f in Directory('lib').listSync(recursive: true)) {
+      if (f is! File || !f.path.endsWith('.dart')) continue;
+      if (f.path.contains('generated')) continue;
+      final src = f.readAsStringSync();
+      for (final m in bad.allMatches(src)) {
+        final line = src.substring(0, m.start).split('\n').length;
+        offenders.add('${f.path}:$line');
+      }
+    }
+    expect(offenders, isEmpty);
   });
 }

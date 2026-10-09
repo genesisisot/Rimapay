@@ -1,4 +1,5 @@
-import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 
 import 'package:dio/dio.dart';
 
@@ -56,6 +57,18 @@ class OnboardingApiService {
         fromData: (d) => FacialValidationResponse.fromJson(d));
   }
 
+  /// POST /api/v1/onboarding/verify-face — compares a selfie with the
+  /// user's saved profile picture (step-up check for large transfers).
+  Future<ApiResponse<VerifyFaceResult>> verifyFace({
+    required String identityUserId,
+    required String faceImageBase64,
+  }) {
+    return _post(
+        '/api/v1/onboarding/verify-face',
+        {'identityUserId': identityUserId, 'faceImageBase64': faceImageBase64},
+        fromData: (d) => VerifyFaceResult.fromJson(d));
+  }
+
   /// POST /api/v1/onboarding/create-password
   Future<ApiResponse<CreatePasswordResponse>> createPassword(
       CreatePasswordRequest request) {
@@ -110,12 +123,10 @@ class OnboardingApiService {
     required T Function(Map<String, dynamic> d) fromData,
   }) async {
     try {
-      print('━━━ Onboarding API ━━━');
-      print('▶ POST $path');
-      print('  Body: ${jsonEncode(body)}');
+      // Never log bodies: they carry passwords, PINs and face photos, and
+      // print() reaches the browser console in release web builds.
       final res = await _dio.post(path, data: body);
-      print('◀ ${res.statusCode} $path');
-      print('  Response: ${jsonEncode(res.data)}');
+      if (kDebugMode) debugPrint('Onboarding API ${res.statusCode} POST $path');
       final data = res.data;
       if (data is Map<String, dynamic>) {
         return ApiResponse<T>.fromJson(

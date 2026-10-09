@@ -809,3 +809,20 @@ class AccountSummary {
         onboardedAt: DateTime.parse(json['onboardedAt'] as String),
       );
 }
+
+/// POST /api/v1/onboarding/verify-face → `VerifyFaceResponseDto`.
+class VerifyFaceResult {
+  final bool isMatch;
+  final double confidence;
+  final String? message;
+
+  const VerifyFaceResult(
+      {required this.isMatch, this.confidence = 0, this.message});
+
+  factory VerifyFaceResult.fromJson(Map<String, dynamic> json) =>
+      VerifyFaceResult(
+        isMatch: json['isMatch'] == true,
+        confidence: (json['confidence'] as num?)?.toDouble() ?? 0,
+        message: json['message'] as String?,
+      );
+}

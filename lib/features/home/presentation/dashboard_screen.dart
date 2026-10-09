@@ -17,6 +17,7 @@ import '../../receipt/presentation/screens/receipt_screen.dart';
 import '../../notification/presentation/providers/notification_provider.dart';
 
 import '../../../core/localization/l10n.dart';
+import '../../../core/localization/tier_labels.dart';
 import '../../../core/theme/app_theme_colors.dart';
 
 const Color brandGreen = Color(0xFF1A6B35);
@@ -341,7 +342,9 @@ class _HeaderSectionState extends ConsumerState<_HeaderSection> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(Icons.headset_mic_outlined,
-                      size: 20, color: textDark),
+                      size: 20,
+                      color: textDark,
+                      semanticLabel: context.l10n.customerCare),
                 ),
               ),
               const SizedBox(width: 8),
@@ -358,7 +361,9 @@ class _HeaderSectionState extends ConsumerState<_HeaderSection> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(Icons.notifications_outlined,
-                          size: 20, color: textDark),
+                          size: 20,
+                          color: textDark,
+                          semanticLabel: context.l10n.notifications),
                     ),
                     // Only when there is something to read; the number used to
                     // be a hardcoded 3 and showed even with an empty feed.
@@ -430,7 +435,8 @@ class _BalanceCardState extends State<_BalanceCard> {
     final displayAccount = accountNumber.length == 10
         ? '${accountNumber.substring(0, 3)} ${accountNumber.substring(3, 6)} ${accountNumber.substring(6)}'
         : accountNumber;
-    final tierName = user?.tierName ?? 'Basic Tier';
+    final tierName = (user?.tierLevel ?? TierLevel.tier1).label(context.l10n);
+    final updatedAt = auth.lastBalanceUpdate;
 
     // "₦12,345.67" → big "₦12,345" + small ".67".
     final dot = formattedBalance.lastIndexOf('.');
@@ -474,12 +480,13 @@ class _BalanceCardState extends State<_BalanceCard> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+              padding: const EdgeInsets.fromLTRB(12, 6, 12, 16),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(
                     children: [
+                      const SizedBox(width: 4),
                       _GlassChip(
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -501,6 +508,9 @@ class _BalanceCardState extends State<_BalanceCard> {
                         icon: _balanceVisible
                             ? Icons.visibility_outlined
                             : Icons.visibility_off_outlined,
+                        label: _balanceVisible
+                            ? context.l10n.hideBalance
+                            : context.l10n.showBalance,
                         onTap: () {
                           Haptics.tap();
                           setState(() => _balanceVisible = !_balanceVisible);
@@ -554,6 +564,17 @@ class _BalanceCardState extends State<_BalanceCard> {
                             ),
                           ),
                   ),
+                  if (updatedAt != null && _balanceVisible)
+                    Text(
+                      // Default intl locale on purpose: intl has no Hausa
+                      // data and DateFormat(..., 'ha') throws, blanking Home.
+                      context.l10n
+                          .balanceUpdatedAt(DateFormat.jm().format(updatedAt)),
+                      style: TextStyle(
+                          fontFamily: 'Effra',
+                          fontSize: 11,
+                          color: Colors.white.withOpacity(0.6)),
+                    ),
                   const SizedBox(height: 12),
                   // Account number (full, never truncated) + details, centred.
                   FittedBox(
@@ -562,7 +583,10 @@ class _BalanceCardState extends State<_BalanceCard> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         if (accountNumber.isNotEmpty) ...[
-                          GestureDetector(
+                          Semantics(
+                            button: true,
+                            label: context.l10n.copyAccountNumber,
+                            child: GestureDetector(
                             behavior: HitTestBehavior.opaque,
                             onTap: () {
                               Haptics.tap();
@@ -603,6 +627,7 @@ class _BalanceCardState extends State<_BalanceCard> {
                                 ],
                               ),
                             ),
+                          ),
                           ),
                           const SizedBox(width: 8),
                         ],
@@ -673,22 +698,36 @@ class _GlassChip extends StatelessWidget {
 
 class _GlassIconButton extends StatelessWidget {
   final IconData icon;
+  final String label;
   final VoidCallback onTap;
 
-  const _GlassIconButton({required this.icon, required this.onTap});
+  const _GlassIconButton(
+      {required this.icon, required this.label, required this.onTap});
 
+  // 32px visual circle inside a 44px hit area (minimum comfortable tap size).
   @override
-  Widget build(BuildContext context) => GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
-        child: Container(
-          width: 28,
-          height: 28,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.white.withOpacity(0.13),
+  Widget build(BuildContext context) => Semantics(
+        button: true,
+        label: label,
+        excludeSemantics: true,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: SizedBox(
+            width: 44,
+            height: 44,
+            child: Center(
+              child: Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.13),
+                ),
+                child: Icon(icon, color: Colors.white, size: 16),
+              ),
+            ),
           ),
-          child: Icon(icon, color: Colors.white, size: 15),
         ),
       );
 }
@@ -919,7 +958,7 @@ class _QuickServices extends StatelessWidget {
               _QuickServiceTile(
                 icon: Icons.tv,
                 label: context.l10n.cableTV,
-                iconBgColor: const Color(0xFFF3E5F5),
+                iconBgColor: context.adapt(const Color(0xFFF3E5F5), const Color(0xFF2A1433)),
                 iconColor: const Color(0xFF7B1FA2),
                 route: '/bills/cable',
               ),
@@ -930,13 +969,13 @@ class _QuickServices extends StatelessWidget {
                 iconColor: const Color(0xFF1565C0),
                 route: '/education-bills',
               ),
+              // Was "My Card" (coming soon) — a dead end in a prime slot.
               _QuickServiceTile(
-                icon: Icons.credit_card_outlined,
-                label: context.l10n.myCard,
-                iconBgColor: const Color(0xFFE8EAF6),
+                icon: Icons.router_outlined,
+                label: context.l10n.internet,
+                iconBgColor: context.adapt(const Color(0xFFE8EAF6), const Color(0xFF1A1D3A)),
                 iconColor: const Color(0xFF3949AB),
-                route: '/cards',
-                comingSoon: true,
+                route: '/bills/internet',
               ),
             ],
           ),
@@ -953,16 +992,12 @@ class _QuickServiceTile extends StatelessWidget {
   final Color iconColor;
   final String route;
 
-  /// Shows a "coming soon" message instead of opening [route].
-  final bool comingSoon;
-
   const _QuickServiceTile({
     required this.icon,
     required this.label,
     required this.iconBgColor,
     required this.iconColor,
     required this.route,
-    this.comingSoon = false,
   });
 
   @override
@@ -976,18 +1011,6 @@ class _QuickServiceTile extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         Haptics.tap();
-        if (comingSoon) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(context.l10n.comingSoonFeature(label)),
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: const Color(0xFF1A3A6B),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-            ),
-          );
-          return;
-        }
         context.push(route);
       },
       behavior: HitTestBehavior.opaque,
