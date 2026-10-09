@@ -8,6 +8,7 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../../shared/widgets/noise_painter.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 class BillService {
   final String id;
   final String title;
@@ -75,7 +76,7 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
         description: context.l10n.allNetworks,
         icon: '📱',
         color: const Color(0xFF8B5CF6),
-        bgColor: const Color(0xFFf5f3ff),
+        bgColor: context.adapt(const Color(0xFFF5F3FF), const Color(0xFF1E1633)),
         route: '/bills/airtime',
       ),
       BillService(
@@ -84,7 +85,7 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
         description: context.l10n.dataBundles,
         icon: '📶',
         color: const Color(0xFFF97316),
-        bgColor: const Color(0xFFfff7ed),
+        bgColor: context.bgWarningSubtle,
         route: '/bills/data',
       ),
       BillService(
@@ -93,7 +94,7 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
         description: context.l10n.discoPayments,
         icon: '⚡',
         color: const Color(0xFFEAB308),
-        bgColor: const Color(0xFFfefce8),
+        bgColor: context.adapt(const Color(0xFFFEFCE8), const Color(0xFF2A1A08)),
         route: '/bills/electricity',
       ),
       BillService(
@@ -102,7 +103,7 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
         description: context.l10n.cableProviders,
         icon: '📺',
         color: const Color(0xFFEC4899),
-        bgColor: const Color(0xFFfdf2f8),
+        bgColor: context.adapt(const Color(0xFFFDF2F8), const Color(0xFF2A0F1F)),
         route: '/bills/cable',
       ),
       BillService(
@@ -111,7 +112,7 @@ class _BillPaymentsScreenState extends State<BillPaymentsScreen>
         description: context.l10n.examBodies,
         icon: '🎓',
         color: const Color(0xFF3B82F6),
-        bgColor: const Color(0xFFeff6ff),
+        bgColor: context.adapt(const Color(0xFFEFF6FF), const Color(0xFF0F1E3A)),
         route: '/education-bills',
       ),
     ];

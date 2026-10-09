@@ -21,6 +21,7 @@ import '../../../../shared/widgets/bill_screen_widgets.dart' show showPinConfirm
 import '../../../../shared/widgets/user_avatar.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
@@ -339,7 +340,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           _buildInfoCard(
             icon: Icons.phone_outlined,
             iconColor: const Color(0xFF166C46),
-            bgColor: const Color(0xFFF2F7F3),
+            bgColor: context.adapt(const Color(0xFFF2F7F3), const Color(0xFF0B2417)),
             label: context.l10n.phoneNumber2,
             value: _data['phone']!,
             subtitle: context.l10n.registeredNumberCanTBeChanged,
@@ -348,7 +349,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           _buildInfoCard(
             icon: Icons.email_outlined,
             iconColor: const Color(0xFF8B5CF6),
-            bgColor: const Color(0xFFF5F3FF),
+            bgColor: context.adapt(const Color(0xFFF5F3FF), const Color(0xFF1E1633)),
             label: context.l10n.emailAddress,
             value: _isEditing ? _emailController.text : _data['email']!,
             editable: true,
@@ -358,7 +359,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           _buildInfoCard(
             icon: Icons.person_outline,
             iconColor: const Color(0xFF3B82F6),
-            bgColor: const Color(0xFFEFF6FF),
+            bgColor: context.adapt(const Color(0xFFEFF6FF), const Color(0xFF0F1E3A)),
             label: context.l10n.gender2,
             value: _data['gender']!.isNotEmpty ? _data['gender']! : 'Not set',
           ),
@@ -366,7 +367,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           _buildInfoCard(
             icon: Icons.calendar_today_outlined,
             iconColor: const Color(0xFFEC4899),
-            bgColor: const Color(0xFFFDF2F8),
+            bgColor: context.adapt(const Color(0xFFFDF2F8), const Color(0xFF2A0F1F)),
             label: context.l10n.dateOfBirth2,
             value: _data['dateOfBirth']!.isNotEmpty ? _data['dateOfBirth']! : 'Not set',
           ),
@@ -588,7 +589,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color:
-              isCompleted ? Color(0xFFF0FDF4) : Theme.of(context).scaffoldBackgroundColor,
+              isCompleted ? context.adapt(const Color(0xFFF0FDF4), const Color(0xFF0B2417)) : Theme.of(context).scaffoldBackgroundColor,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color:
@@ -698,7 +699,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               width: 60,
               height: 60,
               decoration: BoxDecoration(
-                color: const Color(0xFFF0FDF4),
+                color: context.adapt(const Color(0xFFF0FDF4), const Color(0xFF0B2417)),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.check_circle,
@@ -1524,12 +1525,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               fontSize: 15, fontWeight: FontWeight.w700, fontFamily: 'Effra'),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFFEF2F2),
+          backgroundColor: context.bgErrorSubtle,
           foregroundColor: const Color(0xFFDC2626),
           elevation: 0,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          side: const BorderSide(color: Color(0xFFFECACA)),
+          side: BorderSide(color: context.adapt(const Color(0xFFFECACA), const Color(0xFF5C1A16))),
         ),
       ),
     );
@@ -1561,7 +1562,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               width: 60,
               height: 60,
               decoration: BoxDecoration(
-                color: const Color(0xFFFEF2F2),
+                color: context.bgErrorSubtle,
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.logout_rounded,
@@ -1652,12 +1653,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               fontSize: 15, fontWeight: FontWeight.w700, fontFamily: 'Effra'),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFFEF2F2),
+          backgroundColor: context.bgErrorSubtle,
           foregroundColor: const Color(0xFFDC2626),
           elevation: 0,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          side: const BorderSide(color: Color(0xFFFECACA)),
+          side: BorderSide(color: context.adapt(const Color(0xFFFECACA), const Color(0xFF5C1A16))),
         ),
       ),
     );
@@ -1689,7 +1690,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               width: 60,
               height: 60,
               decoration: BoxDecoration(
-                color: const Color(0xFFFEF2F2),
+                color: context.bgErrorSubtle,
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.delete_forever_rounded,
@@ -1864,7 +1865,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
         ),
         style: TextButton.styleFrom(
           backgroundColor:
-              destructive ? Color(0xFFFEF2F2) : Theme.of(context).scaffoldBackgroundColor,
+              destructive ? context.bgErrorSubtle : Theme.of(context).scaffoldBackgroundColor,
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

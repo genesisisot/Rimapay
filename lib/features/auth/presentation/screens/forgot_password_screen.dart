@@ -12,6 +12,7 @@ import '../../../../core/providers/auth_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 /// Forgot / reset password flow backed by the RIMA Identity API:
 ///  step 0 → POST /api/auth/forgot-password (email/phone)
 ///  step 1 → POST /api/auth/verify-face-reset (face verification)
@@ -388,7 +389,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(context.l10n.faceVerification,
-                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF111827))),
+                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)))),
                           ),
                         ],
                       ),
@@ -408,7 +409,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       child: Column(
                         children: [
                           Text(context.l10n.positionYourFaceInTheOval,
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF111827)),
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0))),
                           ),
                           const SizedBox(height: 4),
                           Text(context.l10n.ensureGoodLighting,
@@ -477,12 +478,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               _FaceScanLoader(),
               SizedBox(height: 22),
               Text(context.l10n.verifyingYourFacePlain,
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFF111827)),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0))),
               ),
               SizedBox(height: 8),
               Text(context.l10n.holdOnAMomentU2014This,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 13, color: Color(0xFF6B7280), height: 1.5),
+                style: TextStyle(fontSize: 13, color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)), height: 1.5),
               ),
             ],
           ),
@@ -529,7 +530,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(context.l10n.didnTReceiveCode,
-                  style: TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
+                  style: TextStyle(fontSize: 13, color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)))),
               GestureDetector(
                 onTap: (_resendCountdown > 0 || _isResending)
                     ? null
@@ -550,7 +551,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: _resendCountdown > 0
-                              ? const Color(0xFF6B7280)
+                              ? context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4))
                               : _green,
                         ),
                       ),

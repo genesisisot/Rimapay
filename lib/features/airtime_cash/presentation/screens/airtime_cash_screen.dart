@@ -6,6 +6,7 @@ import '../../../../shared/widgets/bill_screen_widgets.dart';
 import '../../../success/presentation/screens/success_screen.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 class _Network {
   final String id;
   final String name;
@@ -34,7 +35,7 @@ class _AirtimeCashScreenState extends State<AirtimeCashScreen> {
     _Network(id: 'mtn', name: 'MTN', color: Color(0xFFFFCC02), bgColor: Color(0xFFFFF8E1), emoji: '📶'),
     _Network(id: 'airtel', name: 'Airtel', color: Color(0xFFFF0000), bgColor: Color(0xFFFFEBEE), emoji: '📡'),
     _Network(id: 'glo', name: 'Glo', color: Color(0xFF166C46), bgColor: Color(0xFFF2F7F3), emoji: '🌐'),
-    _Network(id: '9mobile', name: '9mobile', color: Color(0xFF00A86B), bgColor: Color(0xFFE8F6F3), emoji: '📱'),
+    _Network(id: 'mtn', name: 'MTN', color: Color(0xFFFFCC02), bgColor: Color(0xFFFFF8E1), emoji: '📶'),
   ];
 
   static const double _conversionRate = 0.80;

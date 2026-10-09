@@ -307,7 +307,7 @@ class BillAccountCard extends StatelessWidget {
                     width: 38,
                     height: 38,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF4B5563),
+                      color: context.adapt(const Color(0xFF4B5563), const Color(0xFF8892A4)),
                       shape: BoxShape.circle,
                     ),
                     child: Center(

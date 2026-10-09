@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 class CardsScreen extends StatefulWidget {
   const CardsScreen({super.key});
 
@@ -230,7 +231,7 @@ class _CardsScreenState extends State<CardsScreen> {
                   color: Theme.of(context).dividerColor,
                   borderRadius: BorderRadius.circular(999)),
             ),
-            const Icon(Icons.credit_card, size: 48, color: Color(0xFF1A6B35)),
+            Icon(Icons.credit_card, size: 48, color: context.brandInk),
             const SizedBox(height: 12),
             Text(context.l10n.requestSelectedcard(_cardTypes[_selectedCard].name),
               style: TextStyle(
@@ -339,7 +340,7 @@ class _CardsScreenState extends State<CardsScreen> {
             borderSide: BorderSide(color: Theme.of(context).dividerColor)),
         focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFF1A6B35), width: 2)),
+            borderSide: BorderSide(color: context.brandInk, width: 2)),
       ),
     );
   }

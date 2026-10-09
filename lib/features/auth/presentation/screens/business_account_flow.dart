@@ -9,6 +9,7 @@ import 'package:rimapay/shared/widgets/rimapay_logo.dart';
 import 'package:rimapay/core/theme/app_colors.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 // ─── Step enum ───────────────────────────────────────────────────────────────
 
 enum BusinessAccountStep {
@@ -280,7 +281,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
         return false;
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFFF1F8F3),
+        backgroundColor: context.adapt(const Color(0xFFF1F8F3), const Color(0xFF0B2417)),
         body: Column(
           children: [
             if (_showHeader) _buildHeader(),
@@ -445,7 +446,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                 Text(context.l10n.whatIsYourPhoneNumber,
                   style: TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF6B7280),
+                    color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)),
                     height: 1.5,
                     fontFamily: 'Effra',
                   ),
@@ -462,7 +463,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                     border: Border.all(
                       color: _phoneDigits.isNotEmpty
                           ? const Color(0xFF166C46)
-                          : const Color(0xFFE4E7EC),
+                          : context.border,
                     ),
                   ),
                   child: Row(
@@ -471,15 +472,15 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF3F4F6),
+                          color: context.adapt(const Color(0xFFF3F4F6), const Color(0xFF242938)),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Text(
+                        child: Text(
                           '+234',
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF374151),
+                            color: context.adapt(const Color(0xFF374151), const Color(0xFFC5CAD6)),
                             fontFamily: 'Effra',
                           ),
                         ),
@@ -493,8 +494,8 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: _phoneDigits.isEmpty
-                              ? const Color(0xFFD1D5DB)
-                              : const Color(0xFF111827),
+                              ? context.adapt(const Color(0xFFD1D5DB), const Color(0xFF3D4456))
+                              : context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)),
                           fontFamily: 'Effra',
                         ),
                       ),
@@ -577,15 +578,15 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF111827),
+                    color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)),
                     fontFamily: 'Effra',
                   ),
                 ),
                 const SizedBox(height: 6),
                 Text(context.l10n.weSentACodeTo234(_phoneDigits),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF6B7280),
+                    color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)),
                     fontFamily: 'Effra',
                   ),
                 ),
@@ -609,17 +610,17 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                               ? const Color(0xFF16A34A)
                               : hasDigit
                                   ? const Color(0xFF16A34A).withOpacity(0.5)
-                                  : const Color(0xFFE5E7EB),
+                                  : context.adapt(const Color(0xFFE5E7EB), const Color(0xFF2D3348)),
                           width: isActive ? 2 : 1.5,
                         ),
                       ),
                       child: Center(
                         child: Text(
                           hasDigit ? '•' : '',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w900,
-                            color: Color(0xFF111827),
+                            color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)),
                           ),
                         ),
                       ),
@@ -634,7 +635,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                     Text(context.l10n.didnTReceiveCode,
                         style: TextStyle(
                           fontSize: 14,
-                          color: Color(0xFF6B7280),
+                          color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)),
                           fontFamily: 'Effra',
                         )),
                     GestureDetector(
@@ -661,7 +662,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                                 fontWeight: FontWeight.w600,
                                 fontFamily: 'Effra',
                                 color: _resendCountdown > 0
-                                    ? const Color(0xFF6B7280)
+                                    ? context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4))
                                     : const Color(0xFF16A34A),
                               ),
                             ),
@@ -706,7 +707,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                 Text(context.l10n.enterYourBusinessEmailAddress,
                   style: TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF6B7280),
+                    color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)),
                     height: 1.5,
                     fontFamily: 'Effra',
                   ),
@@ -717,9 +718,9 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                 TextField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF111827),
+                    color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)),
                     fontFamily: 'Effra',
                   ),
                   decoration: _inputDec(hint: 'e.g. business@company.com'),
@@ -762,7 +763,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                 Text(context.l10n.createPasswordToSecure,
                   style: TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF6B7280),
+                    color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)),
                     height: 1.5,
                     fontFamily: 'Effra',
                   ),
@@ -773,9 +774,9 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                 TextField(
                   controller: _passwordController,
                   obscureText: !_showPassword,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF111827),
+                    color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)),
                     fontFamily: 'Effra',
                   ),
                   decoration: _inputDec(hint: 'Min 8 characters').copyWith(
@@ -785,7 +786,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                       child: Icon(
                         _showPassword ? Icons.visibility_off : Icons.visibility,
                         size: 18,
-                        color: const Color(0xFF9CA3AF),
+                        color: context.adapt(const Color(0xFF9CA3AF), const Color(0xFF5A6478)),
                       ),
                     ),
                   ),
@@ -802,7 +803,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                           child: LinearProgressIndicator(
                             value: strength,
                             minHeight: 4,
-                            backgroundColor: const Color(0xFFE5E7EB),
+                            backgroundColor: context.adapt(const Color(0xFFE5E7EB), const Color(0xFF2D3348)),
                             valueColor: AlwaysStoppedAnimation(
                                 _getStrengthColor(strength)),
                           ),
@@ -827,7 +828,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                   child: Text(context.l10n.passwordRequirements,
                     style: TextStyle(
                       fontSize: 11,
-                      color: Color(0xFF9CA3AF),
+                      color: context.adapt(const Color(0xFF9CA3AF), const Color(0xFF5A6478)),
                       fontFamily: 'Effra',
                     ),
                   ),
@@ -838,9 +839,9 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                 TextField(
                   controller: _confirmPasswordController,
                   obscureText: !_showConfirmPassword,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF111827),
+                    color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)),
                     fontFamily: 'Effra',
                   ),
                   decoration:
@@ -853,7 +854,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                             ? Icons.visibility_off
                             : Icons.visibility,
                         size: 18,
-                        color: const Color(0xFF9CA3AF),
+                        color: context.adapt(const Color(0xFF9CA3AF), const Color(0xFF5A6478)),
                       ),
                     ),
                   ),
@@ -999,19 +1000,19 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                 const SizedBox(height: 20),
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF111827),
+                    color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)),
                     fontFamily: 'Effra',
                   ),
                 ),
                 const SizedBox(height: 6),
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF6B7280),
+                    color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)),
                     fontFamily: 'Effra',
                   ),
                 ),
@@ -1034,7 +1035,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                         border: Border.all(
                           color: hasDot
                               ? const Color(0xFF16A34A)
-                              : const Color(0xFFD1D5DB),
+                              : context.adapt(const Color(0xFFD1D5DB), const Color(0xFF3D4456)),
                           width: 2,
                         ),
                       ),
@@ -1073,7 +1074,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                 Text(context.l10n.verifyYourIdentityWithYourNin,
                   style: TextStyle(
                     fontSize: 13,
-                    color: Color(0xFF6B7280),
+                    color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)),
                     height: 1.5,
                     fontFamily: 'Effra',
                   ),
@@ -1083,7 +1084,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                 Container(
                   height: 48,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF3F4F6),
+                    color: context.adapt(const Color(0xFFF3F4F6), const Color(0xFF242938)),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -1113,7 +1114,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                                   fontFamily: 'Effra',
                                   color: selected
                                       ? Colors.white
-                                      : const Color(0xFF6B7280),
+                                      : context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)),
                                 ),
                               ),
                             ),
@@ -1132,10 +1133,10 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                       _idType == 'bvn'
                           ? 'Bank Verification Number (BVN)'
                           : 'National Identification Number (NIN)',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF374151),
+                        color: context.adapt(const Color(0xFF374151), const Color(0xFFC5CAD6)),
                         fontFamily: 'Effra',
                       ),
                     ),
@@ -1160,17 +1161,17 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                                 ? const Color(0xFF16A34A)
                                 : hasDigit
                                     ? const Color(0xFF16A34A).withOpacity(0.4)
-                                    : const Color(0xFFE5E7EB),
+                                    : context.adapt(const Color(0xFFE5E7EB), const Color(0xFF2D3348)),
                             width: isActive ? 2 : 1,
                           ),
                         ),
                         child: Center(
                             child: Text(
                               hasDigit ? (_obscureId ? '*' : _idDigits[i]) : '',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w700,
-                                color: Color(0xFF111827),
+                                color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)),
                               ),
                             ),
                           ),
@@ -1187,7 +1188,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                         child: Icon(
                           _obscureId ? Icons.visibility_off_outlined : Icons.visibility_outlined,
                           size: 18,
-                          color: Color(0xFF6B7280),
+                          color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)),
                         ),
                       ),
                     ],
@@ -1197,9 +1198,9 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                   _idType == 'bvn'
                       ? 'Dial *565*0# on any network to retrieve your BVN'
                       : 'Dial *346# to retrieve your NIN',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
-                    color: Color(0xFF9CA3AF),
+                    color: context.adapt(const Color(0xFF9CA3AF), const Color(0xFF5A6478)),
                     fontFamily: 'Effra',
                   ),
                 ),
@@ -1256,7 +1257,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF0FAF4),
+                    color: context.bgBrandSubtle,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                         color: const Color(0xFF166C46).withOpacity(0.2)),
@@ -1350,13 +1351,13 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFFF3F4F6),
+        color: context.adapt(const Color(0xFFF3F4F6), const Color(0xFF242938)),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
-            color: Color(0xFF6B7280),
+            color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)),
             fontFamily: 'Effra',
           )),
     );
@@ -1379,7 +1380,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                 Text(context.l10n.tellUsAboutYourBusiness,
                   style: TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF6B7280),
+                    color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)),
                     height: 1.5,
                     fontFamily: 'Effra',
                   ),
@@ -1389,9 +1390,9 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                 const SizedBox(height: 8),
                 TextField(
                   controller: _businessNameController,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF111827),
+                    color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)),
                     fontFamily: 'Effra',
                   ),
                   decoration: _inputDec(hint: 'e.g. Ayo Ventures Ltd'),
@@ -1423,9 +1424,9 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                 const SizedBox(height: 8),
                 TextField(
                   controller: _rcBnController,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF111827),
+                    color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)),
                     fontFamily: 'Effra',
                   ),
                   decoration:
@@ -1529,7 +1530,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                 Text(context.l10n.whereIsYourBusinessLocated,
                   style: TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF6B7280),
+                    color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)),
                     height: 1.5,
                     fontFamily: 'Effra',
                   ),
@@ -1539,9 +1540,9 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                 const SizedBox(height: 8),
                 TextField(
                   controller: _streetAddressController,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF111827),
+                    color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)),
                     fontFamily: 'Effra',
                   ),
                   decoration:
@@ -1621,7 +1622,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF111827),
+                      color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)),
                       height: 1.4,
                       fontFamily: 'Effra',
                     ),
@@ -1634,7 +1635,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 13,
-                      color: Color(0xFF6B7280),
+                      color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)),
                       height: 1.5,
                       fontFamily: 'Effra',
                     ),
@@ -1663,7 +1664,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                               border: Border.all(
                                 color: selected
                                     ? const Color(0xFF16A34A)
-                                    : const Color(0xFFE5E7EB),
+                                    : context.adapt(const Color(0xFFE5E7EB), const Color(0xFF2D3348)),
                                 width: 1.5,
                               ),
                             ),
@@ -1676,7 +1677,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                                   fontFamily: 'Effra',
                                   color: selected
                                       ? Colors.white
-                                      : const Color(0xFF374151),
+                                      : context.adapt(const Color(0xFF374151), const Color(0xFFC5CAD6)),
                                 ),
                               ),
                             ),
@@ -1730,7 +1731,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                 Text(context.l10n.selectAllSourcesOfRevenueFor,
                   style: TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF6B7280),
+                    color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)),
                     height: 1.5,
                     fontFamily: 'Effra',
                   ),
@@ -1758,7 +1759,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                         border: Border.all(
                           color: isSelected
                               ? const Color(0xFF166C46)
-                              : const Color(0xFFE4E7EC),
+                              : context.border,
                           width: isSelected ? 1.5 : 1,
                         ),
                       ),
@@ -1776,7 +1777,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                               border: Border.all(
                                 color: isSelected
                                     ? const Color(0xFF166C46)
-                                    : const Color(0xFFD1D5DB),
+                                    : context.adapt(const Color(0xFFD1D5DB), const Color(0xFF3D4456)),
                                 width: 1.5,
                               ),
                             ),
@@ -1788,10 +1789,10 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                           const SizedBox(width: 12),
                           Text(
                             source,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
-                              color: Color(0xFF374151),
+                              color: context.adapt(const Color(0xFF374151), const Color(0xFFC5CAD6)),
                               fontFamily: 'Effra',
                             ),
                           ),
@@ -1806,9 +1807,9 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                   const SizedBox(height: 8),
                   TextField(
                     controller: _otherRevenueController,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
-                      color: Color(0xFF111827),
+                      color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)),
                       fontFamily: 'Effra',
                     ),
                     decoration: _inputDec(hint: 'Describe other revenue source'),
@@ -1960,7 +1961,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: Color(0xFF6B7280),
+                              color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)),
                               fontFamily: 'Effra',
                             ),
                           ),
@@ -1969,10 +1970,10 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                       const SizedBox(height: 16),
                       Text(
                         accountNumber,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.w900,
-                          color: Color(0xFF111827),
+                          color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)),
                           letterSpacing: 2,
                           fontFamily: 'Effra',
                         ),
@@ -1982,7 +1983,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 14, vertical: 8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF0FDF4),
+                          color: context.adapt(const Color(0xFFF0FDF4), const Color(0xFF0B2417)),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(color: const Color(0xFFBBF7D0)),
                         ),
@@ -2057,9 +2058,9 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
     return Container(
       padding: EdgeInsets.fromLTRB(
           20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFF3F4F6))),
+        border: Border(top: BorderSide(color: context.adapt(const Color(0xFFF3F4F6), const Color(0xFF242938)))),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -2089,7 +2090,7 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                           fontWeight: FontWeight.w600,
                           fontFamily: 'Effra',
                           color:
-                              enabled ? Colors.white : const Color(0xFF9CA3AF),
+                              enabled ? Colors.white : context.adapt(const Color(0xFF9CA3AF), const Color(0xFF5A6478)),
                         ),
                       ),
               ),
@@ -2139,13 +2140,13 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                           ),
                           child: Center(
                             child: key == '⌫'
-                                ? const Icon(Icons.backspace_outlined,
-                                    size: 20, color: Color(0xFF374151))
+                                ? Icon(Icons.backspace_outlined,
+                                    size: 20, color: context.adapt(const Color(0xFF374151), const Color(0xFFC5CAD6)))
                                 : Text(key,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.w600,
-                                      color: Color(0xFF111827),
+                                      color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)),
                                       fontFamily: 'Effra',
                                     )),
                           ),
@@ -2162,18 +2163,18 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
   InputDecoration _inputDec({String hint = '', Widget? suffix}) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(
-          color: Color(0xFFD1D5DB), fontSize: 14, fontFamily: 'Effra'),
+      hintStyle: TextStyle(
+          color: context.adapt(const Color(0xFFD1D5DB), const Color(0xFF3D4456)), fontSize: 14, fontFamily: 'Effra'),
       suffixIcon: suffix,
       filled: true,
       fillColor: Colors.white,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFFE4E7EC))),
+          borderSide: BorderSide(color: context.border)),
       enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFFE4E7EC))),
+          borderSide: BorderSide(color: context.border)),
       focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: Color(0xFF166C46), width: 1.5)),
@@ -2182,10 +2183,10 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
 
   Widget _sectionLabel(String label) {
     return Text(label,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.w600,
-          color: Color(0xFF344054),
+          color: context.adapt(const Color(0xFF344054), const Color(0xFFC5CAD6)),
           fontFamily: 'Effra',
         ));
   }
@@ -2198,9 +2199,9 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: enabled ? Colors.white : const Color(0xFFF9FAFB),
+        color: enabled ? Colors.white : context.bgInput,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE4E7EC)),
+        border: Border.all(color: context.border),
       ),
       child: Row(
         children: [
@@ -2211,14 +2212,14 @@ class _BusinessAccountFlowState extends ConsumerState<BusinessAccountFlow>
                 fontSize: 14,
                 fontFamily: 'Effra',
                 color: value != null
-                    ? const Color(0xFF111827)
-                    : const Color(0xFFD1D5DB),
+                    ? context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0))
+                    : context.adapt(const Color(0xFFD1D5DB), const Color(0xFF3D4456)),
               ),
             ),
           ),
           Icon(Icons.keyboard_arrow_down,
               color:
-                  enabled ? const Color(0xFF6B7280) : const Color(0xFFD1D5DB),
+                  enabled ? context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)) : context.adapt(const Color(0xFFD1D5DB), const Color(0xFF3D4456)),
               size: 20),
         ],
       ),

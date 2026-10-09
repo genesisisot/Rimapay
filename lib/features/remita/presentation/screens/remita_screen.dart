@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 class RemitaScreen extends StatefulWidget {
   const RemitaScreen({super.key});
 
@@ -268,7 +269,7 @@ class _RemitaScreenState extends State<RemitaScreen> {
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(12),
-                                    borderSide: const BorderSide(color: Color(0xFF1A6B35), width: 2),
+                                    borderSide: BorderSide(color: context.brandInk, width: 2),
                                   ),
                                 ),
                               ),
@@ -326,8 +327,8 @@ class _RemitaScreenState extends State<RemitaScreen> {
                               color: const Color(0xFF1A6B35).withOpacity(0.15),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.check_circle,
-                                color: Color(0xFF1A6B35), size: 20),
+                            child: Icon(Icons.check_circle,
+                                color: context.brandInk, size: 20),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -338,7 +339,7 @@ class _RemitaScreenState extends State<RemitaScreen> {
                                     style: TextStyle(
                                       fontSize: 10,
                                       fontWeight: FontWeight.w600,
-                                      color: const Color(0xFF1A6B35),
+                                      color: context.brandInk,
                                       fontFamily: 'Effra',
                                     )),
                                 Text(_paymentTitle ?? '',
@@ -403,7 +404,7 @@ class _RemitaScreenState extends State<RemitaScreen> {
                       decoration: BoxDecoration(
                         color: isDark
                             ? const Color(0xFF1A1F2E)
-                            : const Color(0xFFF0FAF4),
+                            : context.bgBrandSubtle,
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
                           color: isDark
@@ -417,7 +418,7 @@ class _RemitaScreenState extends State<RemitaScreen> {
                           Row(
                             children: [
                               Icon(Icons.info_outline,
-                                  color: const Color(0xFF1A6B35), size: 18),
+                                  color: context.brandInk, size: 18),
                               const SizedBox(width: 8),
                               Text(context.l10n.aboutRemitaPayments,
                                   style: TextStyle(
@@ -462,10 +463,10 @@ class _RemitaScreenState extends State<RemitaScreen> {
           ),
           child: Center(
             child: Text(num,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF1A6B35),
+                  color: context.brandInk,
                 )),
           ),
         ),

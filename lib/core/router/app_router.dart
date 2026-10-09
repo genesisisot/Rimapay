@@ -48,6 +48,7 @@ import '../../features/settings/presentation/screens/settings_screen.dart';
 import '../../shared/presentation/screens/main_navigation_screen.dart';
 
 import '../../core/localization/l10n.dart';
+import '../../core/theme/app_theme_colors.dart';
 // Shared fade page builder
 Page<void> _fadePage(GoRouterState state, Widget child) {
   return CustomTransitionPage(
@@ -440,7 +441,7 @@ class ComingSoonScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
+      backgroundColor: context.bgInput,
       body: Column(
         children: [
           Container(
@@ -508,7 +509,7 @@ class ComingSoonScreen extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF101828),
+                      color: context.textPrimary,
                     ),
                   ),
                   SizedBox(height: 8),
@@ -516,7 +517,7 @@ class ComingSoonScreen extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14,
-                      color: Color(0xFF667085),
+                      color: context.textSecondary,
                       height: 1.5,
                     ),
                   ),

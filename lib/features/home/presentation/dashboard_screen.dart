@@ -17,6 +17,7 @@ import '../../receipt/presentation/screens/receipt_screen.dart';
 import '../../notification/presentation/providers/notification_provider.dart';
 
 import '../../../core/localization/l10n.dart';
+import '../../../core/theme/app_theme_colors.dart';
 
 const Color brandGreen = Color(0xFF1A6B35);
 const Color darkGreen = Color(0xFF155C2C);
@@ -802,21 +803,21 @@ class _QuickServices extends StatelessWidget {
               _QuickServiceTile(
                 icon: Icons.phone_android,
                 label: context.l10n.airtime,
-                iconBgColor: const Color(0xFFE8F5ED),
+                iconBgColor: context.adapt(const Color(0xFFE8F5ED), const Color(0xFF0B2417)),
                 iconColor: brandGreen,
                 route: '/bills/airtime',
               ),
               _QuickServiceTile(
                 icon: Icons.wifi,
                 label: context.l10n.data,
-                iconBgColor: const Color(0xFFE3F2FD),
+                iconBgColor: context.adapt(const Color(0xFFE3F2FD), const Color(0xFF0F1E3A)),
                 iconColor: const Color(0xFF1976D2),
                 route: '/bills/data',
               ),
               _QuickServiceTile(
                 icon: Icons.bolt,
                 label: context.l10n.electricity,
-                iconBgColor: const Color(0xFFFFFDE7),
+                iconBgColor: context.adapt(const Color(0xFFFFFDE7), const Color(0xFF2A1A08)),
                 iconColor: const Color(0xFFF9A825),
                 route: '/bills/electricity',
               ),
@@ -830,7 +831,7 @@ class _QuickServices extends StatelessWidget {
               _QuickServiceTile(
                 icon: Icons.school,
                 label: context.l10n.education,
-                iconBgColor: const Color(0xFFE3F2FD),
+                iconBgColor: context.adapt(const Color(0xFFE3F2FD), const Color(0xFF0F1E3A)),
                 iconColor: const Color(0xFF1565C0),
                 route: '/education-bills',
               ),
@@ -1010,7 +1011,7 @@ class _BannerCarouselState extends State<_BannerCarousel> {
       decoration: BoxDecoration(
         color: Theme.of(context).brightness == Brightness.dark
             ? const Color(0xFF0B2417)
-            : const Color(0xFFF0FAF4),
+            : context.bgBrandSubtle,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -1514,7 +1515,7 @@ class _RecentSkeleton extends StatelessWidget {
         );
     return Shimmer.fromColors(
       baseColor: dark ? Colors.white10 : const Color(0xFFEDEFF1),
-      highlightColor: dark ? Colors.white24 : const Color(0xFFF8F9FA),
+      highlightColor: dark ? Colors.white24 : context.adapt(const Color(0xFFF8F9FA), const Color(0xFF1A1F2E)),
       child: Column(
         children: [
           for (var i = 0; i < 3; i++)

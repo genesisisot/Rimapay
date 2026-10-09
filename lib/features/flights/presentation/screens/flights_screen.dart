@@ -5,6 +5,7 @@ import '../../../../shared/widgets/bill_screen_widgets.dart';
 import '../../../success/presentation/screens/success_screen.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 class _Airport {
   final String code;
   final String city;
@@ -154,7 +155,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
                         margin: const EdgeInsets.only(bottom: 10),
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFFF2F7F3) : const Color(0xFFFAFBFC),
+                          color: isSelected ? context.adapt(const Color(0xFFF2F7F3), const Color(0xFF0B2417)) : context.bgCardElevated,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: isSelected ? AppColors.goldPrimary.withOpacity(0.4) : Theme.of(context).dividerColor),
                         ),
@@ -269,7 +270,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
                             margin: EdgeInsets.only(right: type == 'One Way' ? 8 : 0),
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             decoration: BoxDecoration(
-                              color: isSelected ? Color(0xFFF2F7F3) : Theme.of(context).cardColor,
+                              color: isSelected ? context.adapt(const Color(0xFFF2F7F3), const Color(0xFF0B2417)) : Theme.of(context).cardColor,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(color: isSelected ? AppColors.goldPrimary : Theme.of(context).dividerColor, width: isSelected ? 2 : 1),
                             ),
@@ -366,14 +367,14 @@ class _FlightsScreenState extends State<FlightsScreen> {
                                   GestureDetector(
                                     onTap: () { if (_passengers > 1) setState(() => _passengers--); },
                                     child: Container(width: 28, height: 28,
-                                        decoration: BoxDecoration(color: _passengers > 1 ? Color(0xFFF2F7F3) : Theme.of(context).dividerColor, borderRadius: BorderRadius.circular(8)),
+                                        decoration: BoxDecoration(color: _passengers > 1 ? context.adapt(const Color(0xFFF2F7F3), const Color(0xFF0B2417)) : Theme.of(context).dividerColor, borderRadius: BorderRadius.circular(8)),
                                         child: Icon(Icons.remove, size: 14, color: _passengers > 1 ? AppColors.goldPrimary : Theme.of(context).dividerColor)),
                                   ),
                                   Expanded(child: Center(child: Text(context.l10n.passengers2(_passengers), style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)))),
                                   GestureDetector(
                                     onTap: () { if (_passengers < 9) setState(() => _passengers++); },
                                     child: Container(width: 28, height: 28,
-                                        decoration: BoxDecoration(color: const Color(0xFFF2F7F3), borderRadius: BorderRadius.circular(8)),
+                                        decoration: BoxDecoration(color: context.adapt(const Color(0xFFF2F7F3), const Color(0xFF0B2417)), borderRadius: BorderRadius.circular(8)),
                                         child: const Icon(Icons.add, size: 14, color: Color(0xFF166C46))),
                                   ),
                                 ],
@@ -395,7 +396,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
                                 margin: EdgeInsets.only(bottom: c == 'Economy' ? 8 : 0),
                                 padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
                                 decoration: BoxDecoration(
-                                  color: isSelected ? Color(0xFFF2F7F3) : Theme.of(context).cardColor,
+                                  color: isSelected ? context.adapt(const Color(0xFFF2F7F3), const Color(0xFF0B2417)) : Theme.of(context).cardColor,
                                   borderRadius: BorderRadius.circular(10),
                                   border: Border.all(color: isSelected ? AppColors.goldPrimary : Theme.of(context).dividerColor, width: isSelected ? 2 : 1),
                                 ),
@@ -455,7 +456,7 @@ class _FlightsScreenState extends State<FlightsScreen> {
                           margin: const EdgeInsets.only(bottom: 10),
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: isSelected ? Color(0xFFF2F7F3) : Theme.of(context).cardColor,
+                            color: isSelected ? context.adapt(const Color(0xFFF2F7F3), const Color(0xFF0B2417)) : Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(
                               color: isSelected ? AppColors.goldPrimary.withOpacity(0.5) : Theme.of(context).dividerColor,

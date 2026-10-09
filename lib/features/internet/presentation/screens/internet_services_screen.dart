@@ -8,6 +8,7 @@ import '../../../bills/presentation/providers/bills_providers.dart';
 import '../../../bills/presentation/widgets/bill_purchase_flow.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 class InternetServicesScreen extends ConsumerStatefulWidget {
   const InternetServicesScreen({super.key});
 
@@ -214,7 +215,7 @@ class _InternetServicesScreenState extends ConsumerState<InternetServicesScreen>
                             color: active ? Theme.of(context).colorScheme.surface.withOpacity(0.5) : Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: active ? Color(0xFF1A6B35) : Theme.of(context).dividerColor,
+                              color: active ? context.brandInk : Theme.of(context).dividerColor,
                               width: active ? 2 : 1,
                             ),
                           ),
@@ -228,7 +229,7 @@ class _InternetServicesScreenState extends ConsumerState<InternetServicesScreen>
                                   style: TextStyle(
                                     fontWeight: FontWeight.w800,
                                     fontSize: 14,
-                                    color: Color(0xFF1A6B35),
+                                    color: context.brandInk,
                                   )),
                               Text(plan.isAmountFixed && plan.amount > 0
                                       ? '₦${formatBillAmount(plan.amount)}'
@@ -376,7 +377,7 @@ class _InternetServicesScreenState extends ConsumerState<InternetServicesScreen>
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF1A6B35), width: 2),
+          borderSide: BorderSide(color: context.brandInk, width: 2),
         ),
       ),
     );

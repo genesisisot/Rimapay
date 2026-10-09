@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 class ZakatScreen extends StatefulWidget {
   const ZakatScreen({super.key});
 
@@ -212,8 +213,8 @@ class _ZakatScreenState extends State<ZakatScreen> {
                                 ),
                               ),
                               if (active)
-                                const Icon(Icons.check_circle,
-                                    color: Color(0xFF1A6B35), size: 20),
+                                Icon(Icons.check_circle,
+                                    color: context.brandInk, size: 20),
                             ],
                           ),
                         ),
@@ -283,7 +284,7 @@ class _ZakatScreenState extends State<ZakatScreen> {
                 borderSide: BorderSide(color: Theme.of(context).dividerColor)),
             focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFF1A6B35), width: 2)),
+                borderSide: BorderSide(color: context.brandInk, width: 2)),
           ),
         ),
       ],

@@ -7,6 +7,7 @@ import 'package:rimapay/core/theme/app_colors.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 enum _AddMoneyStep { methodList, bankTransfer }
 
 class AddMoneyScreen extends StatefulWidget {
@@ -110,7 +111,7 @@ class _MethodListView extends StatelessWidget {
                       const SizedBox(height: 14),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(color: const Color(0xFFF2F7F3), borderRadius: BorderRadius.circular(8)),
+                        decoration: BoxDecoration(color: context.adapt(const Color(0xFFF2F7F3), const Color(0xFF0B2417)), borderRadius: BorderRadius.circular(8)),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -130,49 +131,49 @@ class _MethodListView extends StatelessWidget {
 
                 _MethodCard(
                   icon: Icons.account_balance_outlined,
-                  iconBg: const Color(0xFFF2F7F3),
+                  iconBg: context.adapt(const Color(0xFFF2F7F3), const Color(0xFF0B2417)),
                   iconColor: const Color(0xFF166C46),
                   title: context.l10n.bankTransfer,
                   subtitle: context.l10n.transferFromAnyBank,
                   badge: 'Free · Instant',
                   badgeColor: const Color(0xFF166C46),
-                  badgeBg: const Color(0xFFF2F7F3),
+                  badgeBg: context.adapt(const Color(0xFFF2F7F3), const Color(0xFF0B2417)),
                   onTap: onBankTransfer,
                 ),
                 const SizedBox(height: 10),
                 _MethodCard(
                   icon: Icons.credit_card_outlined,
-                  iconBg: const Color(0xFFEFF6FF),
+                  iconBg: context.adapt(const Color(0xFFEFF6FF), const Color(0xFF0F1E3A)),
                   iconColor: const Color(0xFF3B82F6),
                   title: context.l10n.debitCreditCard,
                   subtitle: context.l10n.cardSchemes,
                   badge: 'Fee applies',
                   badgeColor: const Color(0xFF92400E),
-                  badgeBg: const Color(0xFFFFFBEB),
+                  badgeBg: context.adapt(const Color(0xFFFFFBEB), const Color(0xFF2A1A08)),
                   onTap: () => onComingSoon('Card payment'),
                 ),
                 const SizedBox(height: 10),
                 _MethodCard(
                   icon: Icons.dialpad_outlined,
-                  iconBg: const Color(0xFFF5F3FF),
+                  iconBg: context.adapt(const Color(0xFFF5F3FF), const Color(0xFF1E1633)),
                   iconColor: const Color(0xFF8B5CF6),
                   title: 'USSD',
                   subtitle: context.l10n.dialCodeFromPhone,
                   badge: 'Free · No internet',
                   badgeColor: const Color(0xFF7C3AED),
-                  badgeBg: const Color(0xFFF5F3FF),
+                  badgeBg: context.adapt(const Color(0xFFF5F3FF), const Color(0xFF1E1633)),
                   onTap: () => onComingSoon('USSD'),
                 ),
                 const SizedBox(height: 10),
                 _MethodCard(
                   icon: Icons.store_outlined,
-                  iconBg: const Color(0xFFFFF7ED),
+                  iconBg: context.bgWarningSubtle,
                   iconColor: const Color(0xFFF97316),
                   title: context.l10n.bankDeposit,
                   subtitle: context.l10n.depositCashAtBranch,
                   badge: 'Free · 1–3 hours',
                   badgeColor: const Color(0xFFC2410C),
-                  badgeBg: const Color(0xFFFFF7ED),
+                  badgeBg: context.bgWarningSubtle,
                   onTap: () => onComingSoon('Bank deposit'),
                 ),
               ],
@@ -393,7 +394,7 @@ class _BankTransferView extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFFBEB),
+                    color: context.adapt(const Color(0xFFFFFBEB), const Color(0xFF2A1A08)),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: const Color(0xFFF59E0B).withOpacity(0.3)),
                   ),

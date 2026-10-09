@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 class FixedDepositScreen extends StatefulWidget {
   const FixedDepositScreen({super.key});
 
@@ -67,7 +68,7 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.info_outline, color: Color(0xFF1A6B35), size: 20),
+                        Icon(Icons.info_outline, color: context.brandInk, size: 20),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(context.l10n.yourFundsAreInsuredByNdic,
@@ -110,7 +111,7 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
                       focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide:
-                              const BorderSide(color: Color(0xFF1A6B35), width: 2)),
+                              BorderSide(color: context.brandInk, width: 2)),
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -132,10 +133,10 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
                           duration: const Duration(milliseconds: 200),
                           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                           decoration: BoxDecoration(
-                            color: active ? Color(0xFF1A6B35) : Theme.of(context).cardColor,
+                            color: active ? context.brandInk : Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: active ? Color(0xFF1A6B35) : Theme.of(context).dividerColor,
+                              color: active ? context.brandInk : Theme.of(context).dividerColor,
                             ),
                           ),
                           child: Column(
@@ -264,7 +265,7 @@ class _FixedDepositScreenState extends State<FixedDepositScreen> {
             style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: highlight ? Color(0xFF1A6B35) : Theme.of(context).colorScheme.onSurface)),
+                color: highlight ? context.brandInk : Theme.of(context).colorScheme.onSurface)),
       ],
     );
   }

@@ -6,6 +6,7 @@ import '../../data/profile_dtos.dart';
 import '../providers/profile_provider.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 class ResidentialAddressScreen extends ConsumerStatefulWidget {
   const ResidentialAddressScreen({super.key});
 
@@ -68,7 +69,7 @@ class _ResidentialAddressScreenState
     return InputDecoration(
       hintText: hint,
       hintStyle: TextStyle(
-          color: Color(0xFFD1D5DB), fontSize: 14, fontFamily: 'Effra'),
+          color: context.adapt(const Color(0xFFD1D5DB), const Color(0xFF3D4456)), fontSize: 14, fontFamily: 'Effra'),
       suffixIcon: suffix,
       filled: true,
       fillColor: Theme.of(context).cardColor,
@@ -210,7 +211,7 @@ class _ResidentialAddressScreenState
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF111827),
+                      color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)),
                     ),
                   ),
                   const Spacer(),

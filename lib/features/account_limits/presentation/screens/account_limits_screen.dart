@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 class AccountLimitsScreen extends StatelessWidget {
   const AccountLimitsScreen({super.key});
 
@@ -123,8 +124,8 @@ class AccountLimitsScreen extends StatelessWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.info_outline,
-                            color: Color(0xFF1A6B35), size: 18),
+                        Icon(Icons.info_outline,
+                            color: context.brandInk, size: 18),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(context.l10n.limitsAreSetInAccordanceWith,
@@ -239,7 +240,7 @@ class AccountLimitsScreen extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF1A6B35))),
+                            color: context.brandInk)),
                   ),
                 ],
               ),

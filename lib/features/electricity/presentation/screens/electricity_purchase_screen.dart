@@ -11,6 +11,7 @@ import '../../../bills/presentation/widgets/bill_history_list.dart';
 import '../../../bills/presentation/widgets/customer_validation.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 
 class ElectricityProvider {
   final String id;
@@ -39,7 +40,7 @@ class ElectricityProvider {
     (Color(0xFF3B82F6), Color(0xFFEBF8FF)),
     (Color(0xFFF97316), Color(0xFFFFF7ED)),
     (Color(0xFFEAB308), Color(0xFFFEFCE8)),
-    (Color(0xFF166C46), Color(0xFFF2F7F3)),
+    (Color(0xFFF97316), Color(0xFFFFF7ED)),
     (Color(0xFF8B5CF6), Color(0xFFF3E8FF)),
     (Color(0xFFD33B31), Color(0xFFFEF2F2)),
   ];

@@ -9,6 +9,7 @@ import '../../../bills/presentation/providers/bills_providers.dart';
 import '../../../bills/presentation/widgets/bill_purchase_flow.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 class _GovService {
   final String id;
   final int billerId;
@@ -283,7 +284,7 @@ class _GovernmentScreenState extends ConsumerState<GovernmentScreen> {
                         Icon(Icons.verified_outlined, size: 16, color: Color(0xFF3B82F6)),
                         SizedBox(width: 8),
                         Expanded(child: Text(context.l10n.paymentsAreForwardedDirectlyToThe,
-                            style: TextStyle(fontSize: 12, color: Color(0xFF1D4ED8), fontWeight: FontWeight.w500))),
+                            style: TextStyle(fontSize: 12, color: context.adapt(const Color(0xFF1D4ED8), const Color(0xFF93C5FD)), fontWeight: FontWeight.w500))),
                       ],
                     ),
                   ),

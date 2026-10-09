@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../shared/widgets/bill_screen_widgets.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 class GrantsScreen extends StatefulWidget {
   const GrantsScreen({super.key});
 
@@ -62,10 +63,10 @@ class _GrantsScreenState extends State<GrantsScreen> {
                             margin: const EdgeInsets.only(right: 8),
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
                             decoration: BoxDecoration(
-                              color: active ? Color(0xFF1A6B35) : Theme.of(context).cardColor,
+                              color: active ? context.brandInk : Theme.of(context).cardColor,
                               borderRadius: BorderRadius.circular(999),
                               border: Border.all(
-                                color: active ? Color(0xFF1A6B35) : Theme.of(context).dividerColor,
+                                color: active ? context.brandInk : Theme.of(context).dividerColor,
                               ),
                             ),
                             child: Text(_categories[i],
@@ -93,10 +94,10 @@ class _GrantsScreenState extends State<GrantsScreen> {
                         margin: const EdgeInsets.only(bottom: 8),
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: active ? Color(0xFFE8F5ED) : Theme.of(context).cardColor,
+                          color: active ? context.adapt(const Color(0xFFE8F5ED), const Color(0xFF0B2417)) : Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: active ? Color(0xFF1A6B35) : Theme.of(context).dividerColor,
+                            color: active ? context.brandInk : Theme.of(context).dividerColor,
                             width: active ? 2 : 1,
                           ),
                         ),
@@ -120,8 +121,8 @@ class _GrantsScreenState extends State<GrantsScreen> {
                               ),
                             ),
                             if (active)
-                              const Icon(Icons.check_circle,
-                                  color: Color(0xFF1A6B35), size: 20),
+                              Icon(Icons.check_circle,
+                                  color: context.brandInk, size: 20),
                           ],
                         ),
                       ),
@@ -194,7 +195,7 @@ class _GrantsScreenState extends State<GrantsScreen> {
             borderSide: BorderSide(color: Theme.of(context).dividerColor)),
         focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFF1A6B35), width: 2)),
+            borderSide: BorderSide(color: context.brandInk, width: 2)),
       );
 
   Widget _buildHeader(BuildContext context) {

@@ -5,6 +5,7 @@ import '../../../../shared/widgets/bill_screen_widgets.dart';
 import '../../../success/presentation/screens/success_screen.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 class _Operator {
   final String id;
   final String name;
@@ -106,7 +107,7 @@ class _TransportScreenState extends State<TransportScreen> {
                         margin: const EdgeInsets.only(bottom: 8),
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFFF2F7F3) : Theme.of(context).colorScheme.surface,
+                          color: isSelected ? context.adapt(const Color(0xFFF2F7F3), const Color(0xFF0B2417)) : Theme.of(context).colorScheme.surface,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: isSelected ? AppColors.goldPrimary.withOpacity(0.4) : Theme.of(context).dividerColor),
                         ),
@@ -155,7 +156,7 @@ class _TransportScreenState extends State<TransportScreen> {
                 margin: const EdgeInsets.only(bottom: 10),
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: _selectedOperator?.id == op.id ? const Color(0xFFF2F7F3) : Theme.of(context).colorScheme.surface,
+                  color: _selectedOperator?.id == op.id ? context.adapt(const Color(0xFFF2F7F3), const Color(0xFF0B2417)) : Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: _selectedOperator?.id == op.id ? Color(0xFF166C46).withOpacity(0.4) : Theme.of(context).dividerColor),
                 ),
@@ -249,7 +250,7 @@ class _TransportScreenState extends State<TransportScreen> {
                             Container(
                               margin: const EdgeInsets.symmetric(horizontal: 12),
                               padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(color: const Color(0xFFF2F7F3), shape: BoxShape.circle),
+                              decoration: BoxDecoration(color: context.adapt(const Color(0xFFF2F7F3), const Color(0xFF0B2417)), shape: BoxShape.circle),
                               child: const Icon(Icons.swap_vert_rounded, color: Color(0xFF166C46), size: 16),
                             ),
                             Expanded(child: Divider(color: Theme.of(context).dividerColor)),
@@ -306,14 +307,14 @@ class _TransportScreenState extends State<TransportScreen> {
                           GestureDetector(
                             onTap: () { if (_passengers > 1) setState(() => _passengers--); },
                             child: Container(width: 32, height: 32,
-                                decoration: BoxDecoration(color: _passengers > 1 ? Color(0xFFF2F7F3) : Theme.of(context).dividerColor, borderRadius: BorderRadius.circular(8)),
+                                decoration: BoxDecoration(color: _passengers > 1 ? context.adapt(const Color(0xFFF2F7F3), const Color(0xFF0B2417)) : Theme.of(context).dividerColor, borderRadius: BorderRadius.circular(8)),
                                 child: Icon(Icons.remove, size: 16, color: _passengers > 1 ? AppColors.goldPrimary : Theme.of(context).dividerColor)),
                           ),
                           SizedBox(width: 20, child: Center(child: Text(context.l10n.passengers2(_passengers), style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)))),
                           GestureDetector(
                             onTap: () { if (_passengers < 4) setState(() => _passengers++); },
                             child: Container(width: 32, height: 32,
-                                decoration: BoxDecoration(color: const Color(0xFFF2F7F3), borderRadius: BorderRadius.circular(8)),
+                                decoration: BoxDecoration(color: context.adapt(const Color(0xFFF2F7F3), const Color(0xFF0B2417)), borderRadius: BorderRadius.circular(8)),
                                 child: const Icon(Icons.add, size: 16, color: Color(0xFF166C46))),
                           ),
                         ]),
@@ -326,7 +327,7 @@ class _TransportScreenState extends State<TransportScreen> {
                     const SizedBox(height: 12),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      decoration: BoxDecoration(color: const Color(0xFFF2F7F3), borderRadius: BorderRadius.circular(12),
+                      decoration: BoxDecoration(color: context.adapt(const Color(0xFFF2F7F3), const Color(0xFF0B2417)), borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: const Color(0xFF166C46).withOpacity(0.2))),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,

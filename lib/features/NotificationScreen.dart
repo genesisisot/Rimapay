@@ -7,6 +7,7 @@ import 'notification/data/notification_dtos.dart';
 import 'notification/presentation/providers/notification_provider.dart';
 
 import '../core/localization/l10n.dart';
+import '../core/theme/app_theme_colors.dart';
 // Notification model
 class NotificationModel {
   final String id;
@@ -460,8 +461,8 @@ class _NotificationScreenState extends ConsumerState<NotificationScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.cloud_off_rounded,
-                  size: 34, color: Color(0xFF9CA3AF)),
+              Icon(Icons.cloud_off_rounded,
+                  size: 34, color: context.adapt(const Color(0xFF9CA3AF), const Color(0xFF5A6478))),
               const SizedBox(height: 14),
               Text(
                 feed.error!,

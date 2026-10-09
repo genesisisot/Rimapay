@@ -51,6 +51,16 @@ extension AppThemeColors on BuildContext {
   Color get navBarUnselected =>
       isDark ? const Color(0xFF5A6478) : const Color(0xFF98A2B3);
 
+  // ── One-off colours ────────────────────────────────────────────────────────
+  /// [light] in light mode, [dark] in dark mode: for hand-picked colours
+  /// without a semantic token, so light mode stays exactly as designed.
+  Color adapt(Color light, Color dark) => isDark ? dark : light;
+
+  /// Brand green for text and icons; brighter in dark mode, where the
+  /// standard green (#1A6B35) is too dark to read.
+  Color get brandInk =>
+      isDark ? const Color(0xFF4D9A6E) : const Color(0xFF1A6B35);
+
   // ── Status bar icon brightness ─────────────────────────────────────────────
   Brightness get statusBarIconBrightness =>
       isDark ? Brightness.light : Brightness.dark;

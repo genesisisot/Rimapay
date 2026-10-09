@@ -13,6 +13,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../data/bills_dtos.dart';
 import '../providers/bills_providers.dart';
 import 'bill_purchase_flow.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 
 final _money = NumberFormat('#,##0.00');
 
@@ -1062,7 +1063,7 @@ class _HistorySkeleton extends StatelessWidget {
         );
     return Shimmer.fromColors(
       baseColor: dark ? Colors.white10 : const Color(0xFFEDEFF1),
-      highlightColor: dark ? Colors.white24 : const Color(0xFFF8F9FA),
+      highlightColor: dark ? Colors.white24 : context.adapt(const Color(0xFFF8F9FA), const Color(0xFF1A1F2E)),
       child: ListView.separated(
         physics: const NeverScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),

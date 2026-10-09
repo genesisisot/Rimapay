@@ -6,6 +6,7 @@ import '../../../../shared/widgets/bill_screen_widgets.dart';
 import '../../../success/presentation/screens/success_screen.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 class _PFA {
   final String id;
   final String name;
@@ -188,7 +189,7 @@ class _PensionScreenState extends State<PensionScreen> {
                         Icon(Icons.verified_user_outlined, size: 16, color: Color(0xFF3B82F6)),
                         SizedBox(width: 8),
                         Expanded(child: Text(context.l10n.regulatedByPencomContributionsAreTax,
-                            style: TextStyle(fontSize: 12, color: Color(0xFF1D4ED8), fontWeight: FontWeight.w500))),
+                            style: TextStyle(fontSize: 12, color: context.adapt(const Color(0xFF1D4ED8), const Color(0xFF93C5FD)), fontWeight: FontWeight.w500))),
                       ],
                     ),
                   ),

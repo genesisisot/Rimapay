@@ -14,6 +14,7 @@ import 'package:rimapay/shared/widgets/bill_screen_widgets.dart';
 import '../../../../shared/widgets/bank_logo_assets.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 class TransferScreen extends ConsumerStatefulWidget {
   const TransferScreen({super.key});
 
@@ -499,7 +500,7 @@ class _TransferScreenState extends ConsumerState<TransferScreen> {
             duration: const Duration(milliseconds: 150),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
             decoration: BoxDecoration(
-              color: isSelected ? const Color(0xFF166C46) : const Color(0xFFF0FAF4),
+              color: isSelected ? const Color(0xFF166C46) : context.bgBrandSubtle,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: isSelected
@@ -1247,7 +1248,7 @@ class _TransferTypeSheet extends StatelessWidget {
           const SizedBox(height: 28),
           _SheetOption(
             icon: Icons.account_balance_wallet_outlined,
-            iconBg: const Color(0xFFF2F7F3),
+            iconBg: context.adapt(const Color(0xFFF2F7F3), const Color(0xFF0B2417)),
             iconColor: const Color(0xFF166C46),
             title: context.l10n.toRimaPay,
             subtitle: context.l10n.toRimaPayDesc,
@@ -1256,7 +1257,7 @@ class _TransferTypeSheet extends StatelessWidget {
           const SizedBox(height: 12),
           _SheetOption(
             icon: Icons.account_balance_outlined,
-            iconBg: const Color(0xFFeff6ff),
+            iconBg: context.adapt(const Color(0xFFEFF6FF), const Color(0xFF0F1E3A)),
             iconColor: const Color(0xFF3B82F6),
             title: context.l10n.toOtherBanks,
             subtitle: context.l10n.toOtherBanksDesc,
@@ -1449,10 +1450,10 @@ class _SuccessRateBadge extends StatelessWidget {
             ? const Color(0xFFD4AF37)
             : const Color(0xFFD33B31);
     final Color bg = rate >= 97
-        ? const Color(0xFFF2F7F3)
+        ? context.adapt(const Color(0xFFF2F7F3), const Color(0xFF0B2417))
         : rate >= 94
-            ? const Color(0xFFFDF8E7)
-            : const Color(0xFFFEF2F2);
+            ? context.adapt(const Color(0xFFFDF8E7), const Color(0xFF2A1A08))
+            : context.bgErrorSubtle;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),

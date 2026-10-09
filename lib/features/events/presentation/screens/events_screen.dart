@@ -5,6 +5,7 @@ import '../../../../shared/widgets/bill_screen_widgets.dart';
 import '../../../success/presentation/screens/success_screen.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 class _Event {
   final String id;
   final String name;
@@ -227,7 +228,7 @@ class _EventsScreenState extends State<EventsScreen> {
                                 child: Container(
                                   width: 32, height: 32,
                                   decoration: BoxDecoration(
-                                    color: _quantity > 1 ? Color(0xFFF2F7F3) : Theme.of(context).dividerColor,
+                                    color: _quantity > 1 ? context.adapt(const Color(0xFFF2F7F3), const Color(0xFF0B2417)) : Theme.of(context).dividerColor,
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Icon(Icons.remove, size: 16, color: _quantity > 1 ? AppColors.goldPrimary : Theme.of(context).dividerColor),
@@ -238,7 +239,7 @@ class _EventsScreenState extends State<EventsScreen> {
                                 onTap: () { if (_quantity < 10) setState(() => _quantity++); },
                                 child: Container(
                                   width: 32, height: 32,
-                                  decoration: BoxDecoration(color: const Color(0xFFF2F7F3), borderRadius: BorderRadius.circular(8)),
+                                  decoration: BoxDecoration(color: context.adapt(const Color(0xFFF2F7F3), const Color(0xFF0B2417)), borderRadius: BorderRadius.circular(8)),
                                   child: const Icon(Icons.add, size: 16, color: Color(0xFF166C46)),
                                 ),
                               ),
@@ -251,7 +252,7 @@ class _EventsScreenState extends State<EventsScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF2F7F3),
+                        color: context.adapt(const Color(0xFFF2F7F3), const Color(0xFF0B2417)),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: const Color(0xFF166C46).withOpacity(0.2)),
                       ),

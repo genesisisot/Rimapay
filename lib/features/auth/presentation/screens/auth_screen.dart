@@ -854,7 +854,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.white,
-                    const Color(0xFFF0FDF4),
+                    context.adapt(const Color(0xFFF0FDF4), const Color(0xFF0B2417)),
                     const Color(0xFFDCFCE7),
                   ],
                 ),
@@ -1194,7 +1194,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
               width: 46,
               height: 46,
               decoration: BoxDecoration(
-                color: const Color(0xFFF2F7F3),
+                color: context.adapt(const Color(0xFFF2F7F3), const Color(0xFF0B2417)),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
@@ -1213,7 +1213,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF101828),
+                      color: context.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 3),
@@ -1221,7 +1221,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                     subtitle,
                     style: TextStyle(
                       fontSize: 12,
-                      color: const Color(0xFF667085),
+                      color: context.textSecondary,
                     ),
                   ),
                 ],
@@ -1230,7 +1230,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
             Icon(
               Icons.chevron_right,
               size: 20,
-              color: const Color(0xFF98A2B3),
+              color: context.textTertiary,
             ),
           ],
         ),
@@ -1325,7 +1325,7 @@ class _DeviceLinkingSheetState extends ConsumerState<_DeviceLinkingSheet> {
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: const Color(0xFFF0FAF4),
+                color: context.bgBrandSubtle,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(Icons.phone_android_rounded,
@@ -1356,7 +1356,7 @@ class _DeviceLinkingSheetState extends ConsumerState<_DeviceLinkingSheet> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: const Color(0xFFFFF7ED),
+            color: context.bgWarningSubtle,
             borderRadius: BorderRadius.circular(10),
             border:
                 Border.all(color: const Color(0xFFFB923C).withOpacity(0.4)),
@@ -1469,7 +1469,7 @@ class _DeviceLinkingSheetState extends ConsumerState<_DeviceLinkingSheet> {
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: const Color(0xFFF0FAF4),
+                color: context.bgBrandSubtle,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(Icons.sms_rounded,
@@ -1597,7 +1597,7 @@ class _DeviceLinkingSheetState extends ConsumerState<_DeviceLinkingSheet> {
             decoration: BoxDecoration(
               color: filled == 6
                   ? const Color(0xFF166C46)
-                  : const Color(0xFFD1D5DB),
+                  : context.adapt(const Color(0xFFD1D5DB), const Color(0xFF3D4456)),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
@@ -1964,7 +1964,7 @@ class _DeviceFaceCapturePageState
                                     style: TextStyle(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w700,
-                                        color: Color(0xFF111827))),
+                                        color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)))),
                               ),
                             ],
                           ),
@@ -2064,11 +2064,11 @@ class _DeviceFaceCapturePageState
                   style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF1F2937))),
+                      color: context.adapt(const Color(0xFF1F2937), const Color(0xFFE8EAF0)))),
               SizedBox(height: 4),
               Text(context.l10n.pleaseHoldStill,
                   style: TextStyle(
-                      fontSize: 13, color: Color(0xFF6B7280))),
+                      fontSize: 13, color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)))),
             ],
           ),
         ),
@@ -2223,7 +2223,7 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
                     width: 42,
                     height: 42,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF0FAF4),
+                      color: context.bgBrandSubtle,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(Icons.link_rounded,
@@ -2263,7 +2263,7 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: const Color(0xFFFFF7ED),
+            color: context.bgWarningSubtle,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(color: const Color(0xFFFB923C).withOpacity(0.4)),
           ),
@@ -2526,7 +2526,7 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(context.l10n.didnTReceiveCode,
-                style: TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
+                style: TextStyle(fontSize: 13, color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)))),
             GestureDetector(
               onTap: (_resendCountdown > 0 || _isResending)
                   ? null
@@ -2547,7 +2547,7 @@ class _LinkDeviceSheetState extends ConsumerState<_LinkDeviceSheet> {
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: _resendCountdown > 0
-                            ? const Color(0xFF6B7280)
+                            ? context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4))
                             : const Color(0xFF166C46),
                       ),
                     ),
@@ -3015,8 +3015,8 @@ class _ContinueLinkingPageState
                           const SizedBox(width: 9),
                           Expanded(
                             child: Text(_error!,
-                                style: const TextStyle(
-                                    color: Color(0xFFFFCDD2), fontSize: 12.5)),
+                                style: TextStyle(
+                                    color: context.adapt(const Color(0xFFFFCDD2), const Color(0xFF5C1A16)), fontSize: 12.5)),
                           ),
                         ],
                       ),
@@ -3188,7 +3188,7 @@ class _ContinueLinkingPageState
                                 style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w700,
-                                    color: Color(0xFF111827))),
+                                    color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)))),
                           ),
                         ],
                       ),
@@ -3286,11 +3286,11 @@ class _ContinueLinkingPageState
                   style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF111827))),
+                      color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)))),
               SizedBox(height: 8),
               Text(context.l10n.holdOnAMoment,
                   style: TextStyle(
-                      fontSize: 14, color: Color(0xFF6B7280))),
+                      fontSize: 14, color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)))),
             ],
           ),
         ),
@@ -3439,7 +3439,7 @@ class _ContinueLinkingPageState
                 labelText: context.l10n.password,
                 labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
                 hintText: context.l10n.minEightCharacters,
-                hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
+                hintStyle: TextStyle(color: context.adapt(const Color(0xFF9CA3AF), const Color(0xFF5A6478))),
                 suffixIcon: GestureDetector(
                   onTap: () =>
                       setState(() => _showPassword = !_showPassword),
@@ -3448,7 +3448,7 @@ class _ContinueLinkingPageState
                         ? Icons.visibility_off
                         : Icons.visibility,
                     size: 18,
-                    color: const Color(0xFF9CA3AF),
+                    color: context.adapt(const Color(0xFF9CA3AF), const Color(0xFF5A6478)),
                   ),
                 ),
                 filled: true,
@@ -3467,7 +3467,7 @@ class _ContinueLinkingPageState
               alignment: Alignment.centerLeft,
               child: Text(
                 context.l10n.passwordRequirements,
-                style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF)),
+                style: TextStyle(fontSize: 11, color: context.adapt(const Color(0xFF9CA3AF), const Color(0xFF5A6478))),
               ),
             ),
             const SizedBox(height: 16),
@@ -3479,7 +3479,7 @@ class _ContinueLinkingPageState
                 labelText: context.l10n.confirmPassword,
                 labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
                 hintText: context.l10n.reEnterPassword,
-                hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
+                hintStyle: TextStyle(color: context.adapt(const Color(0xFF9CA3AF), const Color(0xFF5A6478))),
                 suffixIcon: GestureDetector(
                   onTap: () => setState(
                       () => _showConfirmPassword = !_showConfirmPassword),
@@ -3488,7 +3488,7 @@ class _ContinueLinkingPageState
                         ? Icons.visibility_off
                         : Icons.visibility,
                     size: 18,
-                    color: const Color(0xFF9CA3AF),
+                    color: context.adapt(const Color(0xFF9CA3AF), const Color(0xFF5A6478)),
                   ),
                 ),
                 filled: true,
@@ -3651,7 +3651,7 @@ class _ContinueLinkingPageState
                     border: Border.all(
                       color: hasDot
                           ? const Color(0xFF166C46)
-                          : const Color(0xFFD1D5DB),
+                          : context.adapt(const Color(0xFFD1D5DB), const Color(0xFF3D4456)),
                       width: 2,
                     ),
                   ),
@@ -3706,7 +3706,7 @@ class _ContinueLinkingPageState
                 width: double.infinity,
                 height: 52,
                 decoration: BoxDecoration(
-                  color: filled == 4 ? const Color(0xFF166C46) : const Color(0xFFD1D5DB),
+                  color: filled == 4 ? const Color(0xFF166C46) : context.adapt(const Color(0xFFD1D5DB), const Color(0xFF3D4456)),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(

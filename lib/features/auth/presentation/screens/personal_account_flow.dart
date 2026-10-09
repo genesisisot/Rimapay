@@ -31,6 +31,7 @@ import 'package:rimapay/shared/widgets/rimapay_logo.dart';
 import 'package:rimapay/core/theme/app_colors.dart';
 
 import '../../../../core/localization/l10n.dart';
+import '../../../../core/theme/app_theme_colors.dart';
 /// Temporary build marker so we can confirm which deployment is actually
 /// running in the browser (shown tiny under the phone-step button).
 const String kBuildTag = 'build #12 · 2026-06-20';
@@ -328,7 +329,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
         return false;
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFFF1F8F3),
+        backgroundColor: context.adapt(const Color(0xFFF1F8F3), const Color(0xFF0B2417)),
         body: Column(
           children: [
             if (_showHeader) _buildHeader(),
@@ -534,7 +535,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(context.l10n.selectWhatBestDescribesYou,
-                  style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+                  style: TextStyle(fontSize: 14, color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4))),
                 ),
                 const SizedBox(height: 20),
                 ...types.map((t) {
@@ -552,7 +553,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: selected ? color : const Color(0xFFE5E7EB),
+                          color: selected ? color : context.adapt(const Color(0xFFE5E7EB), const Color(0xFF2D3348)),
                           width: selected ? 2 : 1,
                         ),
                         boxShadow: selected
@@ -587,10 +588,10 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                                   children: [
                                     Text(
                                       t['title'] as String,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w700,
-                                        color: Color(0xFF111827),
+                                        color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)),
                                       ),
                                     ),
                                     if ((t['badge'] as String).isNotEmpty) ...[
@@ -616,8 +617,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                                 ),
                                 Text(
                                   t['sub'] as String,
-                                  style: const TextStyle(
-                                      fontSize: 12, color: Color(0xFF6B7280)),
+                                  style: TextStyle(
+                                      fontSize: 12, color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4))),
                                 ),
                                 const SizedBox(height: 8),
                                 Wrap(
@@ -631,10 +632,10 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                                                   size: 6, color: color),
                                               const SizedBox(width: 4),
                                               Text(f,
-                                                  style: const TextStyle(
+                                                  style: TextStyle(
                                                       fontSize: 11,
                                                       color:
-                                                          Color(0xFF374151))),
+                                                          context.adapt(const Color(0xFF374151), const Color(0xFFC5CAD6)))),
                                             ],
                                           ))
                                       .toList(),
@@ -653,7 +654,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                               border: Border.all(
                                   color: selected
                                       ? color
-                                      : const Color(0xFFD1D5DB),
+                                      : context.adapt(const Color(0xFFD1D5DB), const Color(0xFF3D4456)),
                                   width: 2),
                             ),
                             child: selected
@@ -700,7 +701,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
               children: [
                 Text(context.l10n.whatIsYourPhoneNumber,
                   style: TextStyle(
-                      fontSize: 14, color: Color(0xFF6B7280), height: 1.5),
+                      fontSize: 14, color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)), height: 1.5),
                 ),
                 const SizedBox(height: 24),
                 _buildPhoneInput(),
@@ -844,17 +845,17 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                           ? const Color(0xFF16A34A)
                           : hasDigit
                               ? const Color(0xFF16A34A).withOpacity(0.4)
-                              : const Color(0xFFE5E7EB),
+                              : context.adapt(const Color(0xFFE5E7EB), const Color(0xFF2D3348)),
                       width: isActive ? 2 : 1,
                     ),
                   ),
                   child: Center(
                     child: Text(
                       hasDigit ? _idDigits[i] : '',
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF111827)),
+                          color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0))),
                     ),
                   ),
                 ),
@@ -876,7 +877,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
         border: Border.all(
           color: _phoneDigits.isNotEmpty
               ? const Color(0xFF166C46)
-              : const Color(0xFFE4E7EC),
+              : context.border,
         ),
       ),
       child: Row(
@@ -884,15 +885,15 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: const Color(0xFFF3F4F6),
+              color: context.adapt(const Color(0xFFF3F4F6), const Color(0xFF242938)),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Text(
+            child: Text(
               '+234',
               style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF374151)),
+                  color: context.adapt(const Color(0xFF374151), const Color(0xFFC5CAD6))),
             ),
           ),
           const SizedBox(width: 12),
@@ -904,8 +905,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: _phoneDigits.isEmpty
-                  ? const Color(0xFFD1D5DB)
-                  : const Color(0xFF111827),
+                  ? context.adapt(const Color(0xFFD1D5DB), const Color(0xFF3D4456))
+                  : context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)),
             ),
           ),
         ],
@@ -954,7 +955,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   width: 42,
                   height: 42,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF0FAF4),
+                    color: context.bgBrandSubtle,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(Icons.help_outline_rounded,
@@ -975,7 +976,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFF0FAF4),
+                color: context.bgBrandSubtle,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
                     color: const Color(0xFF166C46).withOpacity(0.2)),
@@ -1009,7 +1010,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFF7ED),
+                color: context.bgWarningSubtle,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Row(
@@ -1109,7 +1110,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
               width: 52,
               height: 52,
               decoration: BoxDecoration(
-                color: const Color(0xFFFFF7ED),
+                color: context.bgWarningSubtle,
                 borderRadius: BorderRadius.circular(14),
               ),
               child: const Icon(Icons.account_balance_wallet_outlined,
@@ -1254,12 +1255,12 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF111827)),
+                      color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0))),
                 ),
                 const SizedBox(height: 6),
                 Text(context.l10n.weSentACodeTo234(_phoneDigits),
                   style:
-                      const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+                      TextStyle(fontSize: 14, color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4))),
                 ),
                 const SizedBox(height: 20),
                 // 6 boxes
@@ -1281,17 +1282,17 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                               ? const Color(0xFF16A34A)
                               : hasDigit
                                   ? const Color(0xFF16A34A).withOpacity(0.5)
-                                  : const Color(0xFFE5E7EB),
+                                  : context.adapt(const Color(0xFFE5E7EB), const Color(0xFF2D3348)),
                           width: isActive ? 2 : 1.5,
                         ),
                       ),
                       child: Center(
                         child: Text(
                           hasDigit ? '•' : '',
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w900,
-                              color: Color(0xFF111827)),
+                              color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0))),
                         ),
                       ),
                     );
@@ -1304,7 +1305,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   children: [
                     Text(context.l10n.didnTReceiveCode,
                         style:
-                            TextStyle(fontSize: 14, color: Color(0xFF6B7280))),
+                            TextStyle(fontSize: 14, color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)))),
                     GestureDetector(
                       onTap: (_resendCountdown > 0 || _isResending)
                           ? null
@@ -1325,7 +1326,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                                 color: _resendCountdown > 0
-                                    ? const Color(0xFF6B7280)
+                                    ? context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4))
                                     : const Color(0xFF16A34A),
                               ),
                             ),
@@ -1373,7 +1374,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
               children: [
                 Text(context.l10n.createPasswordToSecure,
                   style: TextStyle(
-                      fontSize: 14, color: Color(0xFF6B7280), height: 1.5),
+                      fontSize: 14, color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)), height: 1.5),
                 ),
                 const SizedBox(height: 24),
                 _OFloatingField(
@@ -1388,7 +1389,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                     child: Icon(
                       _showPassword ? Icons.visibility_off : Icons.visibility,
                       size: 18,
-                      color: const Color(0xFF9CA3AF),
+                      color: context.adapt(const Color(0xFF9CA3AF), const Color(0xFF5A6478)),
                     ),
                   ),
                   onChanged: (v) => setState(() => _password = v),
@@ -1411,7 +1412,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                           ? Icons.visibility_off
                           : Icons.visibility,
                       size: 18,
-                      color: const Color(0xFF9CA3AF),
+                      color: context.adapt(const Color(0xFF9CA3AF), const Color(0xFF5A6478)),
                     ),
                   ),
                   onChanged: (v) => setState(() => _confirmPassword = v),
@@ -1493,11 +1494,11 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF111827)),
+                      color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0))),
                 ),
                 const SizedBox(height: 6),
                 Text(context.l10n.secureWithFourDigitPin,
-                  style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+                  style: TextStyle(fontSize: 14, color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4))),
                 ),
                 const SizedBox(height: 36),
                 // 4 dot indicators
@@ -1518,7 +1519,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                         border: Border.all(
                           color: hasDot
                               ? const Color(0xFF16A34A)
-                              : const Color(0xFFD1D5DB),
+                              : context.adapt(const Color(0xFFD1D5DB), const Color(0xFF3D4456)),
                           width: 2,
                         ),
                       ),
@@ -1578,11 +1579,11 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF111827)),
+                      color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0))),
                 ),
                 const SizedBox(height: 6),
                 Text(context.l10n.reEnterYour4DigitPin,
-                  style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+                  style: TextStyle(fontSize: 14, color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4))),
                 ),
                 const SizedBox(height: 36),
                 Row(
@@ -1602,7 +1603,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                         border: Border.all(
                           color: hasDot
                               ? const Color(0xFF16A34A)
-                              : const Color(0xFFD1D5DB),
+                              : context.adapt(const Color(0xFFD1D5DB), const Color(0xFF3D4456)),
                           width: 2,
                         ),
                       ),
@@ -1760,17 +1761,17 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                             style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
-                                color: Color(0xFF6B7280)),
+                                color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4))),
                           ),
                         ],
                       ),
                       const SizedBox(height: 16),
                       Text(
                         accountNumber,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.w900,
-                          color: Color(0xFF111827),
+                          color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)),
                           letterSpacing: 2,
                         ),
                       ),
@@ -1963,7 +1964,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(context.l10n.tellUsAboutYourself,
-                  style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+                  style: TextStyle(fontSize: 14, color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4))),
                 ),
                 const SizedBox(height: 20),
                 _OFloatingField(
@@ -1994,8 +1995,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                     label: context.l10n.dateOfBirth,
                     hint: 'DD-MM-YYYY',
                     readOnly: true,
-                    suffix: const Icon(Icons.calendar_today_outlined,
-                        size: 18, color: Color(0xFF9CA3AF)),
+                    suffix: Icon(Icons.calendar_today_outlined,
+                        size: 18, color: context.adapt(const Color(0xFF9CA3AF), const Color(0xFF5A6478))),
                     onChanged: (_) {},
                   ),
                 ),
@@ -2011,8 +2012,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                         ? null
                         : _personalInfo.gender,
                     hint: 'Select gender',
-                    suffix: const Icon(Icons.keyboard_arrow_down,
-                        size: 20, color: Color(0xFF9CA3AF)),
+                    suffix: Icon(Icons.keyboard_arrow_down,
+                        size: 20, color: context.adapt(const Color(0xFF9CA3AF), const Color(0xFF5A6478))),
                   ),
                 ),
                 const SizedBox(height: 14),
@@ -2050,8 +2051,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                           ? null
                           : _personalInfo.state,
                       hint: 'Select State',
-                      suffix: const Icon(Icons.keyboard_arrow_down,
-                          size: 20, color: Color(0xFF9CA3AF)),
+                      suffix: Icon(Icons.keyboard_arrow_down,
+                          size: 20, color: context.adapt(const Color(0xFF9CA3AF), const Color(0xFF5A6478))),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -2064,8 +2065,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                       hint: selectedState == null
                           ? 'Select state first'
                           : 'Select L.G.A',
-                      suffix: const Icon(Icons.keyboard_arrow_down,
-                          size: 20, color: Color(0xFF9CA3AF)),
+                      suffix: Icon(Icons.keyboard_arrow_down,
+                          size: 20, color: context.adapt(const Color(0xFF9CA3AF), const Color(0xFF5A6478))),
                     ),
                   ),
                 ],
@@ -2105,12 +2106,12 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                 if (!isUnderbanked) ...[
                   Text(context.l10n.pleaseProvideYourOwnBvnNin,
                     style: TextStyle(
-                        fontSize: 13, color: Color(0xFF6B7280), height: 1.5),
+                        fontSize: 13, color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)), height: 1.5),
                   ),
                 ] else ...[
                   Text(context.l10n.provideYourBvnOrNinIf,
                     style: TextStyle(
-                        fontSize: 13, color: Color(0xFF6B7280), height: 1.5),
+                        fontSize: 13, color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)), height: 1.5),
                   ),
                 ],
                 const SizedBox(height: 20),
@@ -2118,7 +2119,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                 Container(
                   height: 48,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF3F4F6),
+                    color: context.adapt(const Color(0xFFF3F4F6), const Color(0xFF242938)),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -2149,7 +2150,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                                   fontWeight: FontWeight.w700,
                                   color: selected
                                       ? Colors.white
-                                      : const Color(0xFF6B7280),
+                                      : context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)),
                                 ),
                               ),
                             ),
@@ -2166,7 +2167,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFF7ED),
+                      color: context.bgWarningSubtle,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                           color: const Color(0xFFFB923C).withOpacity(0.5)),
@@ -2206,10 +2207,10 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                         _idType == 'bvn'
                             ? 'Bank Verification Number (BVN)'
                             : 'National Identification Number (NIN)',
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF374151)),
+                            color: context.adapt(const Color(0xFF374151), const Color(0xFFC5CAD6))),
                       ),
                       GestureDetector(
                         onTap: _showForgotIdSheet,
@@ -2241,17 +2242,17 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                                   ? const Color(0xFF16A34A)
                                   : hasDigit
                                       ? const Color(0xFF16A34A).withOpacity(0.4)
-                                      : const Color(0xFFE5E7EB),
+                                      : context.adapt(const Color(0xFFE5E7EB), const Color(0xFF2D3348)),
                               width: isActive ? 2 : 1,
                             ),
                           ),
                           child: Center(
                             child: Text(
                               hasDigit ? (_obscureId ? '*' : _idDigits[i]) : '',
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w700,
-                                  color: Color(0xFF111827)),
+                                  color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0))),
                             ),
                           ),
                         ),
@@ -2267,7 +2268,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                         child: Icon(
                           _obscureId ? Icons.visibility_off_outlined : Icons.visibility_outlined,
                           size: 18,
-                          color: Color(0xFF6B7280),
+                          color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)),
                         ),
                       ),
                     ],
@@ -2359,7 +2360,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(context.l10n.whereDoYouLive,
-                    style: TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
+                    style: TextStyle(fontSize: 13, color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)))),
                 const SizedBox(height: 20),
                 _sectionLabel('Address'),
                 const SizedBox(height: 8),
@@ -2553,7 +2554,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF111827),
+                        color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)),
                         height: 1.4),
                   ),
                 ),
@@ -2563,7 +2564,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   child: Text(context.l10n.aPepPoliticallyExposedPersonIs2,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        fontSize: 13, color: Color(0xFF6B7280), height: 1.5),
+                        fontSize: 13, color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)), height: 1.5),
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -2588,7 +2589,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                               border: Border.all(
                                 color: selected
                                     ? const Color(0xFF16A34A)
-                                    : const Color(0xFFE5E7EB),
+                                    : context.adapt(const Color(0xFFE5E7EB), const Color(0xFF2D3348)),
                                 width: 1.5,
                               ),
                             ),
@@ -2600,7 +2601,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                                   fontWeight: FontWeight.w700,
                                   color: selected
                                       ? Colors.white
-                                      : const Color(0xFF374151),
+                                      : context.adapt(const Color(0xFF374151), const Color(0xFFC5CAD6)),
                                 ),
                               ),
                             ),
@@ -2651,7 +2652,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(context.l10n.provideDetailsOfYourSourceOf,
-                    style: TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
+                    style: TextStyle(fontSize: 13, color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)))),
                 const SizedBox(height: 24),
                 _sectionLabel('Occupation'),
                 const SizedBox(height: 8),
@@ -2770,7 +2771,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF0FAF4),
+                      color: context.bgBrandSubtle,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                           color: const Color(0xFF166C46).withOpacity(0.2)),
@@ -2841,7 +2842,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFEF2F2),
+                        color: context.bgErrorSubtle,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(_cameraError!,
@@ -2921,7 +2922,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                                     style: TextStyle(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w700,
-                                        color: Color(0xFF111827))),
+                                        color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)))),
                                 Text('10%',
                                     style: TextStyle(
                                         fontSize: 12,
@@ -2932,10 +2933,10 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                             const SizedBox(height: 4),
                             ClipRRect(
                               borderRadius: BorderRadius.circular(3),
-                              child: const LinearProgressIndicator(
+                              child: LinearProgressIndicator(
                                 value: 0.1,
                                 minHeight: 4,
-                                backgroundColor: Color(0xFFE5E7EB),
+                                backgroundColor: context.adapt(const Color(0xFFE5E7EB), const Color(0xFF2D3348)),
                                 valueColor: AlwaysStoppedAnimation(
                                     Color(0xFF16A34A)),
                               ),
@@ -2969,7 +2970,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFF111827)),
+                            color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0))),
                       ),
                       const SizedBox(height: 4),
                       Text(context.l10n.ensureGoodLighting,
@@ -3048,13 +3049,13 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                 style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF111827)),
+                    color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0))),
               ),
               SizedBox(height: 8),
               Text(context.l10n.holdOnAMomentThisCan,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                    fontSize: 13, color: Color(0xFF6B7280), height: 1.5),
+                    fontSize: 13, color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)), height: 1.5),
               ),
             ],
           ),
@@ -3067,11 +3068,11 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFFF3F4F6),
+        color: context.adapt(const Color(0xFFF3F4F6), const Color(0xFF242938)),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(label,
-          style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
+          style: TextStyle(fontSize: 12, color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)))),
     );
   }
 
@@ -3195,17 +3196,17 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                             style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
-                                color: Color(0xFF6B7280)),
+                                color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4))),
                           ),
                         ],
                       ),
                       const SizedBox(height: 16),
                       Text(
                         accountNumber,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.w900,
-                          color: Color(0xFF111827),
+                          color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)),
                           letterSpacing: 2,
                         ),
                       ),
@@ -3215,13 +3216,13 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                       Row(
                         children: [
                           Icon(Icons.info_outline,
-                              size: 14, color: Color(0xFF6B7280)),
+                              size: 14, color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4))),
                           SizedBox(width: 6),
                           Expanded(
                             child: Text(context.l10n.youCanReceiveTransfersUsingYour,
                               style: TextStyle(
                                   fontSize: 11,
-                                  color: Color(0xFF6B7280),
+                                  color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)),
                                   height: 1.4),
                             ),
                           ),
@@ -3275,9 +3276,9 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     return Container(
       padding: EdgeInsets.fromLTRB(
           20, 12, 20, MediaQuery.of(context).padding.bottom + 16),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFF3F4F6))),
+        border: Border(top: BorderSide(color: context.adapt(const Color(0xFFF3F4F6), const Color(0xFF242938)))),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -3306,7 +3307,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: enabled ? Colors.white : const Color(0xFF9CA3AF),
+                          color: enabled ? Colors.white : context.adapt(const Color(0xFF9CA3AF), const Color(0xFF5A6478)),
                         ),
                       ),
               ),
@@ -3355,13 +3356,13 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                           ),
                           child: Center(
                             child: key == '⌫'
-                                ? const Icon(Icons.backspace_outlined,
-                                    size: 20, color: Color(0xFF374151))
+                                ? Icon(Icons.backspace_outlined,
+                                    size: 20, color: context.adapt(const Color(0xFF374151), const Color(0xFFC5CAD6)))
                                 : Text(key,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.w600,
-                                        color: Color(0xFF111827))),
+                                        color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)))),
                           ),
                         ),
                       ),
@@ -3421,13 +3422,13 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           validator: validator,
           keyboardType: keyboard,
           textCapitalization: capitalize,
-          style: const TextStyle(
-              fontSize: 14, color: Color(0xFF111827), fontFamily: 'Effra'),
+          style: TextStyle(
+              fontSize: 14, color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)), fontFamily: 'Effra'),
           decoration: _inputDec(
               hint: hint,
               suffix: Padding(
                   padding: const EdgeInsets.only(right: 12),
-                  child: Icon(icon, color: const Color(0xFF9CA3AF), size: 18))),
+                  child: Icon(icon, color: context.adapt(const Color(0xFF9CA3AF), const Color(0xFF5A6478)), size: 18))),
         ),
       ],
     );
@@ -3450,13 +3451,13 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           obscureText: obscure,
           onChanged: onChanged,
           validator: validator,
-          style: const TextStyle(
-              fontSize: 14, color: Color(0xFF111827), fontFamily: 'Effra'),
+          style: TextStyle(
+              fontSize: 14, color: context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0)), fontFamily: 'Effra'),
           decoration: _inputDec(hint: hint).copyWith(
             suffixIcon: IconButton(
               onPressed: onToggle,
               icon: Icon(obscure ? Icons.visibility_off : Icons.visibility,
-                  color: const Color(0xFF9CA3AF), size: 18),
+                  color: context.adapt(const Color(0xFF9CA3AF), const Color(0xFF5A6478)), size: 18),
             ),
           ),
         ),
@@ -3474,14 +3475,14 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: enabled ? Colors.white : const Color(0xFFF9FAFB),
+        color: enabled ? Colors.white : context.bgInput,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: context.adapt(const Color(0xFFE5E7EB), const Color(0xFF2D3348))),
       ),
       child: Row(
         children: [
           if (icon != null) ...[
-            Icon(icon, color: const Color(0xFF9CA3AF), size: 18),
+            Icon(icon, color: context.adapt(const Color(0xFF9CA3AF), const Color(0xFF5A6478)), size: 18),
             const SizedBox(width: 10),
           ],
           Expanded(
@@ -3490,14 +3491,14 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
               style: TextStyle(
                 fontSize: 14,
                 color: value != null
-                    ? const Color(0xFF111827)
-                    : const Color(0xFFD1D5DB),
+                    ? context.adapt(const Color(0xFF111827), const Color(0xFFE8EAF0))
+                    : context.adapt(const Color(0xFFD1D5DB), const Color(0xFF3D4456)),
               ),
             ),
           ),
           Icon(Icons.keyboard_arrow_down,
               color:
-                  enabled ? const Color(0xFF6B7280) : const Color(0xFFD1D5DB),
+                  enabled ? context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)) : context.adapt(const Color(0xFFD1D5DB), const Color(0xFF3D4456)),
               size: 20),
         ],
       ),
@@ -3708,8 +3709,8 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
                   }
                 },
                 decoration: _inputDec(hint: 'Search address...').copyWith(
-                  prefixIcon: const Icon(Icons.search,
-                      color: Color(0xFF9CA3AF), size: 18),
+                  prefixIcon: Icon(Icons.search,
+                      color: context.adapt(const Color(0xFF9CA3AF), const Color(0xFF5A6478)), size: 18),
                 ),
               ),
             ),
@@ -3944,7 +3945,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
           padding: const EdgeInsets.only(bottom: 6),
           child: Text(
             'Use letters, numbers and these symbols only: $allowedSymbolsLabel',
-            style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+            style: TextStyle(fontSize: 12, color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4))),
           ),
         ),
         _passwordReq('8-$kPasswordMaxLength characters', isLengthOk(_password)),
@@ -3968,7 +3969,7 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
   /// stays grey.
   Widget _passwordReq(String label, bool met, {bool isError = false}) {
     const green = Color(0xFF166C46);
-    const grey = Color(0xFF9CA3AF);
+    const grey = context.adapt(const Color(0xFF9CA3AF), const Color(0xFF5A6478));
     const red = Color(0xFFD33B31);
     final color = isError ? red : (met ? green : grey);
     return Padding(
@@ -4346,7 +4347,7 @@ class _OFloatingFieldState extends State<_OFloatingField> {
               ? const Color(0xFF16A34A)
               : _hasValue
                   ? const Color(0xFF16A34A).withOpacity(0.4)
-                  : const Color(0xFFE4E7EC),
+                  : context.border,
           width: _focused ? 2 : 1,
         ),
       ),
@@ -4368,7 +4369,7 @@ class _OFloatingFieldState extends State<_OFloatingField> {
                   height: 1.2,
                   color: isActive
                       ? const Color(0xFF16A34A)
-                      : const Color(0xFF9CA3AF),
+                      : context.adapt(const Color(0xFF9CA3AF), const Color(0xFF5A6478)),
                 ),
                 child: Text(widget.label),
               ),
@@ -4452,7 +4453,7 @@ class _OFloatingFieldStatic extends StatelessWidget {
         border: Border.all(
           color: hasValue
               ? const Color(0xFF16A34A).withOpacity(0.4)
-              : const Color(0xFFE4E7EC),
+              : context.border,
         ),
       ),
       child: Stack(
@@ -4472,7 +4473,7 @@ class _OFloatingFieldStatic extends StatelessWidget {
                 height: 1.2,
                 color: hasValue
                     ? const Color(0xFF16A34A)
-                    : const Color(0xFF9CA3AF),
+                    : context.adapt(const Color(0xFF9CA3AF), const Color(0xFF5A6478)),
               ),
               child: Text(hasValue ? label : hint),
             ),
@@ -4486,10 +4487,10 @@ class _OFloatingFieldStatic extends StatelessWidget {
               bottom: 6,
               child: Text(
                 value!,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF101828),
+                  color: context.textPrimary,
                 ),
               ),
             ),
@@ -4523,7 +4524,7 @@ class _CbnFooter extends StatelessWidget {
           Text(context.l10n.licensedByTheCbn,
               style: TextStyle(
                   fontSize: 12,
-                  color: Color(0xFF6B7280),
+                  color: context.adapt(const Color(0xFF6B7280), const Color(0xFF8892A4)),
                   fontWeight: FontWeight.w500)),
         ],
       ),
