@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:rimapay/core/router/app_router.dart';
-import 'package:share_plus/share_plus.dart';
 import '../../../../core/providers/app_state_provider.dart';
 import '../../../../core/providers/auth_provider.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -10,6 +9,7 @@ import '../../../../core/theme/app_theme_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../shared/widgets/rimapay_logo.dart';
 import '../../../../shared/receipt/receipt_pdf.dart';
+import '../../../../shared/receipt/receipt_format_sheet.dart';
 
 import '../../../../core/localization/l10n.dart';
 import '../../../../core/providers/transaction_provider.dart';
@@ -208,40 +208,6 @@ class _ReceiptScreenState extends State<ReceiptScreen> with TickerProviderStateM
     }
   }
 
-  String _generateReceiptContent() {
-    final statusConfig = _getStatusConfig(widget.receiptData.status);
-
-    return '''
-RIMAPAY TRANSACTION RECEIPT
-===========================
-
-Transaction Details:
-----------------------------
-Type: ${widget.receiptData.type} ($_directionLabel)
-Amount: $_signedAmount
-${widget.receiptData.isCredit ? 'From' : 'To'}: ${widget.receiptData.recipient}
-Reference: ${widget.receiptData.reference}
-Date: ${widget.receiptData.date}
-Time: ${widget.receiptData.time}
-Status: ${statusConfig['label']}
-
-${widget.receiptData.network != null ? 'Network: ${widget.receiptData.network}' : ''}
-${widget.receiptData.plan != null ? 'Plan: ${widget.receiptData.plan}' : ''}
-${widget.receiptData.customer != null ? 'Customer: ${widget.receiptData.customer}' : ''}
-${widget.receiptData.provider != null ? 'Provider: ${widget.receiptData.provider}' : ''}
-${widget.receiptData.accountNumber != null ? 'Account: ${widget.receiptData.accountNumber}' : ''}
-${widget.receiptData.bank != null ? 'Bank: ${widget.receiptData.bank}' : ''}
-${widget.receiptData.fee != null ? 'Fee: ${_formatAmount(widget.receiptData.fee!)}' : ''}
-${widget.receiptData.description != null ? 'Description: ${widget.receiptData.description}' : ''}
-
-----------------------------
-Thank you for using RimaPay
-Contact: support@rimapay.com
-www.rimapay.com
-===========================
-    ''';
-  }
-
   /// Styled PDF, or a PNG of the same page, via the share sheet (Files,
   /// Photos, WhatsApp…); a download on web.
   Future<void> _downloadReceipt({bool asImage = false}) async {
@@ -305,25 +271,11 @@ www.rimapay.com
     }
   }
 
+  /// Shares the actual receipt (not a text summary): asks PDF or image first.
   Future<void> _shareReceipt() async {
-    final receiptContent = _generateReceiptContent();
-    try {
-      await Share.share(
-        receiptContent,
-        subject: 'RimaPay Transaction Receipt',
-      );
-    } catch (error) {
-      // Fallback - copy to clipboard
-      await Clipboard.setData(ClipboardData(text: receiptContent));
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(context.l10n.receiptCopiedToClipboard),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    }
+    final asImage = await showReceiptFormatSheet(context);
+    if (asImage == null || !mounted) return;
+    await _downloadReceipt(asImage: asImage);
   }
 
   @override

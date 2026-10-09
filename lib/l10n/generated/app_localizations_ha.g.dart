@@ -3185,4 +3185,13 @@ class AppL10nHa extends AppL10n {
 
   @override
   String get saveAsImage => 'Ajiye a matsayin Hoto';
+
+  @override
+  String get shareReceiptAs => 'Raba rasidi a matsayin';
+
+  @override
+  String get receiptPdfHint => 'Mafi kyau don imel da bugawa';
+
+  @override
+  String get receiptImageHint => 'Mafi kyau don WhatsApp da hotuna';
 }

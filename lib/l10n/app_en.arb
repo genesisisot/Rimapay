@@ -1563,5 +1563,8 @@
   "searchSmartcardOrReference": "Search smartcard number or reference",
   "receiptPdf": "PDF Receipt",
   "receiptImage": "Image Receipt",
-  "saveAsImage": "Save as Image"
+  "saveAsImage": "Save as Image",
+  "shareReceiptAs": "Share receipt as",
+  "receiptPdfHint": "Best for email and printing",
+  "receiptImageHint": "Best for WhatsApp and photos"
 }

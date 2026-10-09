@@ -3182,4 +3182,13 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get saveAsImage => 'Save as Image';
+
+  @override
+  String get shareReceiptAs => 'Share receipt as';
+
+  @override
+  String get receiptPdfHint => 'Best for email and printing';
+
+  @override
+  String get receiptImageHint => 'Best for WhatsApp and photos';
 }

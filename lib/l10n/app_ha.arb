@@ -960,5 +960,8 @@
   "searchSmartcardOrReference": "Nemi lambar smartcard ko lambar shaida",
   "receiptPdf": "Rasidin PDF",
   "receiptImage": "Rasidin Hoto",
-  "saveAsImage": "Ajiye a matsayin Hoto"
+  "saveAsImage": "Ajiye a matsayin Hoto",
+  "shareReceiptAs": "Raba rasidi a matsayin",
+  "receiptPdfHint": "Mafi kyau don imel da bugawa",
+  "receiptImageHint": "Mafi kyau don WhatsApp da hotuna"
 }

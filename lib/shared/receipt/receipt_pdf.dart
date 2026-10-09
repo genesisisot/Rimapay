@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
@@ -322,8 +323,13 @@ Future<Uint8List> buildReceiptPdf(ReceiptPdfData r,
 /// (Save to Files/Downloads, WhatsApp, email…), a file download on web.
 Future<void> shareReceiptPdf(ReceiptPdfData r, {required AppL10n l10n}) async {
   final bytes = await buildReceiptPdf(r, l10n: l10n);
-  await Printing.sharePdf(
-      bytes: bytes, filename: 'RimaPay-Receipt-${_fileStem(r)}.pdf');
+  final fileName = 'RimaPay-Receipt-${_fileStem(r)}.pdf';
+  if (kIsWeb) {
+    // Share sheet on phone browsers, download elsewhere (same as images).
+    await saveOrShareFile(bytes, fileName: fileName, mimeType: 'application/pdf');
+  } else {
+    await Printing.sharePdf(bytes: bytes, filename: fileName);
+  }
 }
 
 /// The same receipt as a PNG (for WhatsApp, the gallery…): the PDF page is

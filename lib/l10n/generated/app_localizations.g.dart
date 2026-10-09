@@ -5859,6 +5859,24 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Save as Image'**
   String get saveAsImage;
+
+  /// No description provided for @shareReceiptAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Share receipt as'**
+  String get shareReceiptAs;
+
+  /// No description provided for @receiptPdfHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Best for email and printing'**
+  String get receiptPdfHint;
+
+  /// No description provided for @receiptImageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Best for WhatsApp and photos'**
+  String get receiptImageHint;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

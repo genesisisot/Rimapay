@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:intl/intl.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/language_provider.dart';
 import '../../../core/providers/transaction_provider.dart';
@@ -1187,186 +1188,360 @@ class _RecentTransactionsState extends ConsumerState<_RecentTransactions> {
     return '$whole.${s[1]}';
   }
 
+  /// "Today, 10:55 AM", "Yesterday", "2 Oct" (this year) or "2 Oct 2025".
+  /// Statement rows carry no time of day, so they show the date only.
   String _fmtTime(Transaction tx) {
-    final dt = tx.timestamp;
     if (tx.dateUnknown) return '';
+    final dt = tx.timestamp;
     final now = DateTime.now();
     final d = DateTime(dt.year, dt.month, dt.day);
     final today = DateTime(now.year, now.month, now.day);
-    final yesterday = today.subtract(const Duration(days: 1));
-    final dayLabel = d == today
-        ? 'Today'
-        : d == yesterday
-            ? 'Yesterday'
-            : '${dt.day}/${dt.month}/${dt.year}';
-    final h = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
-    final m = dt.minute.toString().padLeft(2, '0');
-    final p = dt.hour >= 12 ? 'PM' : 'AM';
-    if (!tx.timeKnown) return dayLabel;
-    return '$dayLabel, ${h.toString().padLeft(2, '0')}:$m $p';
+    final String day;
+    if (d == today) {
+      day = context.l10n.today;
+    } else if (d == today.subtract(const Duration(days: 1))) {
+      day = context.l10n.yesterday;
+    } else {
+      day = DateFormat(dt.year == now.year ? 'd MMM' : 'd MMM yyyy').format(dt);
+    }
+    if (!tx.timeKnown) return day;
+    return '$day, ${DateFormat('h:mm a').format(dt)}';
   }
 
   @override
   Widget build(BuildContext context) {
-    final textDark = Theme.of(context).colorScheme.onSurface;
-    final textGray = textDark.withOpacity(0.55);
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     final txs = ref.watch(recentTransactionsProvider);
     final state = ref.watch(transactionProviders);
+    final dark = Theme.of(context).brightness == Brightness.dark;
+
+    Widget body;
+    if (state.isLoading && txs.isEmpty) {
+      body = const _RecentSkeleton();
+    } else if (txs.isEmpty) {
+      body = Padding(
+        padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
+        child: Column(
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: brandGreen.withOpacity(dark ? 0.22 : 0.1),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(Icons.receipt_long_rounded,
+                  color: dark ? const Color(0xFF4ADE80) : brandGreen),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              context.l10n.noTransactionsYet,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w600,
+                  color: onSurface.withOpacity(0.7)),
+            ),
+          ],
+        ),
+      );
+    } else {
+      body = Column(
+        children: [
+          for (var i = 0; i < txs.length; i++) ...[
+            if (i > 0)
+              Divider(
+                height: 1,
+                indent: 72,
+                endIndent: 16,
+                color: Theme.of(context).dividerColor.withOpacity(0.6),
+              ),
+            _TransactionTile(
+              tx: txs[i],
+              amount:
+                  '${txs[i].isIncoming ? '+' : '−'}₦${_fmtAmount(txs[i].amount)}',
+              time: _fmtTime(txs[i]),
+              isFirst: i == 0,
+              isLast: i == txs.length - 1,
+              onTap: () {
+                Haptics.tap();
+                context.push('/receipt',
+                    extra: receiptDataForTransaction(txs[i]));
+              },
+            ),
+          ],
+        ],
+      );
+    }
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(context.l10n.recentTransactions,
+              Expanded(
+                child: Text(
+                  context.l10n.recentTransactions,
                   style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: textDark)),
-              GestureDetector(
-                onTap: () => context.push('/transactions'),
-                child: Row(
-                  children: [
-                    Text(context.l10n.seeAll,
-                        style: TextStyle(
-                            fontFamily: 'Effra',
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    color: onSurface,
+                  ),
+                ),
+              ),
+              // A real button-sized target, not a word to aim at.
+              Material(
+                color: brandGreen.withOpacity(dark ? 0.22 : 0.08),
+                borderRadius: BorderRadius.circular(999),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(999),
+                  onTap: () {
+                    Haptics.tap();
+                    context.push('/transactions');
+                  },
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          context.l10n.seeAll,
+                          style: TextStyle(
                             fontSize: 13,
-                            color: brandGreen)),
-                    const Icon(Icons.chevron_right,
-                        color: brandGreen, size: 16),
-                  ],
+                            fontWeight: FontWeight.w700,
+                            color: dark ? const Color(0xFF4ADE80) : brandGreen,
+                          ),
+                        ),
+                        const SizedBox(width: 2),
+                        Icon(Icons.chevron_right_rounded,
+                            size: 18,
+                            color: dark ? const Color(0xFF4ADE80) : brandGreen),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 4),
-          if (state.isLoading && txs.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 28),
-              child: Center(
-                child: SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(
-                      strokeWidth: 2, color: brandGreen),
-                ),
-              ),
-            )
-          else if (txs.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 28),
-              child: Text(
-                context.l10n.noTransactionsYet,
-                style: TextStyle(
-                    fontFamily: 'Effra', fontSize: 13, color: textGray),
-              ),
-            )
-          else
-            ...txs.map((tx) {
-              final isCredit = tx.isIncoming;
-              return _TransactionTile(
-                iconBgColor: isCredit ? brandGreen : orangeIcon,
-                icon: isCredit ? Icons.arrow_downward : Icons.arrow_upward,
-                title: tx.typeDisplayName,
-                subtitle: tx.recipient,
-                amount: '${isCredit ? '+' : '-'} ₦${_fmtAmount(tx.amount)}',
-                time: _fmtTime(tx),
-                isCredit: isCredit,
-                onTap: () {
-                  Haptics.tap();
-                  context.push('/receipt',
-                      extra: receiptDataForTransaction(tx));
-                },
-              );
-            }),
+          const SizedBox(height: 12),
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                  color: Theme.of(context).dividerColor.withOpacity(0.7)),
+              boxShadow: dark
+                  ? null
+                  : [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 16,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+            ),
+            child: body,
+          ),
         ],
       ),
     );
   }
 }
 
+/// Glyph and accent per kind of transaction, so a row is recognisable at a
+/// glance (instead of every row being an up or down arrow).
+(IconData, Color) _txVisual(Transaction tx) {
+  switch (tx.type) {
+    case TransactionType.addMoney:
+      return (Icons.south_west_rounded, const Color(0xFF16A34A));
+    case TransactionType.reversal:
+      return (Icons.replay_rounded, const Color(0xFF0D9488));
+    case TransactionType.transfer:
+      return (Icons.north_east_rounded, const Color(0xFF2563EB));
+    case TransactionType.electricity:
+      return (Icons.bolt_rounded, const Color(0xFFD97706));
+    case TransactionType.cable:
+      return (Icons.live_tv_rounded, const Color(0xFF7C3AED));
+    case TransactionType.airtime:
+      return (Icons.phone_android_rounded, const Color(0xFF16A34A));
+    case TransactionType.data:
+      return (Icons.wifi_rounded, const Color(0xFF0284C7));
+    case TransactionType.education:
+      return (Icons.school_rounded, const Color(0xFF4F46E5));
+    case TransactionType.government:
+      return (Icons.account_balance_rounded, const Color(0xFF475569));
+    case TransactionType.transport:
+      return (Icons.directions_bus_rounded, const Color(0xFFEA580C));
+    case TransactionType.betting:
+      return (Icons.casino_rounded, const Color(0xFFDB2777));
+    case TransactionType.loan:
+      return (Icons.request_quote_rounded, const Color(0xFFCA8A04));
+  }
+}
+
 class _TransactionTile extends StatelessWidget {
-  final Color iconBgColor;
-  final IconData icon;
-  final String title;
-  final String subtitle;
+  final Transaction tx;
   final String amount;
   final String time;
-  final bool isCredit;
+  final bool isFirst;
+  final bool isLast;
   final VoidCallback? onTap;
 
   const _TransactionTile({
-    required this.iconBgColor,
-    required this.icon,
-    required this.title,
-    required this.subtitle,
+    required this.tx,
     required this.amount,
     required this.time,
-    required this.isCredit,
+    required this.isFirst,
+    required this.isLast,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final textDark = Theme.of(context).colorScheme.onSurface;
-    final textGray = Theme.of(context).colorScheme.onSurface.withOpacity(0.55);
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final (icon, accent) = _txVisual(tx);
+    // Brighter accents on dark surfaces so the glyphs keep their contrast.
+    final glyph = dark ? Color.lerp(accent, Colors.white, 0.35)! : accent;
+    final incoming = tx.isIncoming;
+    final amountColor = incoming
+        ? (dark ? const Color(0xFF4ADE80) : const Color(0xFF15803D))
+        : onSurface;
+    final radius = BorderRadius.vertical(
+      top: isFirst ? const Radius.circular(20) : Radius.zero,
+      bottom: isLast ? const Radius.circular(20) : Radius.zero,
+    );
 
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Row(
-          children: [
-            Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: iconBgColor,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: Colors.white, size: 20),
+    return Material(
+      color: Colors.transparent,
+      borderRadius: radius,
+      child: InkWell(
+        borderRadius: radius,
+        onTap: onTap,
+        child: ConstrainedBox(
+          // Comfortable thumb target for every row.
+          constraints: const BoxConstraints(minHeight: 68),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: accent.withOpacity(dark ? 0.2 : 0.1),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Icon(icon, color: glyph, size: 22),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        tx.typeDisplayName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w700,
+                          color: onSurface,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        tx.recipient,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          color: onSurface.withOpacity(0.55),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      amount,
+                      style: TextStyle(
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w800,
+                        color: amountColor,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                    if (time.isNotEmpty) ...[
+                      const SizedBox(height: 3),
+                      Text(
+                        time,
+                        style: TextStyle(
+                            fontSize: 11.5, color: onSurface.withOpacity(0.5)),
+                      ),
+                    ],
+                  ],
+                ),
+              ],
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Placeholder rows while the first load is in flight.
+class _RecentSkeleton extends StatelessWidget {
+  const _RecentSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    Widget bar(double w, double h) => Container(
+          width: w,
+          height: h,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(6),
+          ),
+        );
+    return Shimmer.fromColors(
+      baseColor: dark ? Colors.white10 : const Color(0xFFEDEFF1),
+      highlightColor: dark ? Colors.white24 : const Color(0xFFF8F9FA),
+      child: Column(
+        children: [
+          for (var i = 0; i < 3; i++)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Row(
                 children: [
-                  Text(title,
-                      style: TextStyle(
-                          fontFamily: 'Effra',
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: textDark)),
-                  const SizedBox(height: 2),
-                  Text(subtitle,
-                      style: TextStyle(
-                          fontFamily: 'Effra', fontSize: 12, color: textGray)),
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [bar(120, 12), const SizedBox(height: 7), bar(170, 10)],
+                    ),
+                  ),
+                  bar(70, 14),
                 ],
               ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  amount,
-                  style: TextStyle(
-                    fontFamily: 'Effra',
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: isCredit ? brandGreen : redDebit,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(time,
-                    style: TextStyle(
-                        fontFamily: 'Effra', fontSize: 11, color: textGray)),
-              ],
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }
