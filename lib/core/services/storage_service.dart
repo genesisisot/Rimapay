@@ -9,7 +9,10 @@ class StorageService {
   static const String _transactionsKey = 'rimapay_transactions';
   static const String _beneficiariesKey = 'rimapay_beneficiaries';
   static const String _settingsKey = 'rimapay_settings';
-  static const String _pinKey = 'rimapay_pin';
+  /// Legacy key: the transaction PIN used to be saved here in plain text
+  /// (browser localStorage on web). Nothing read it back — PINs are checked
+  /// by the server — so it is no longer written, and any old copy is wiped.
+  static const String _legacyPinKey = 'rimapay_pin';
   static const String _languageKey = 'rimapay_language';
   static const String _themeKey = 'rimapay_theme';
   static const String _biometricEnabledKey = 'rimapay_biometric_enabled';
@@ -42,7 +45,11 @@ class StorageService {
   }
   
   static Future<void> initialize() async {
-    _prefs ??= await SharedPreferences.getInstance();
+    if (_prefs != null) return;
+    _prefs = await SharedPreferences.getInstance();
+    if (_prefs!.containsKey(_legacyPinKey)) {
+      await _prefs!.remove(_legacyPinKey);
+    }
   }
 
   /// Drops the cached preferences handle and the active user, so each test
@@ -219,28 +226,6 @@ class StorageService {
       debugPrint('Error parsing settings: $e');
       return {};
     }
-  }
-  
-  // PIN Management (encrypted storage recommended in production)
-  static Future<void> savePin(String pin) async {
-    await initialize();
-    // In production, this should be encrypted
-    await prefs.setString(_pinKey, pin);
-  }
-  
-  static Future<String?> getPin() async {
-    await initialize();
-    return prefs.getString(_pinKey);
-  }
-  
-  static Future<bool> verifyPin(String enteredPin) async {
-    final savedPin = await getPin();
-    return savedPin == enteredPin;
-  }
-  
-  static Future<void> clearPin() async {
-    await initialize();
-    await prefs.remove(_pinKey);
   }
   
   // Language Preference

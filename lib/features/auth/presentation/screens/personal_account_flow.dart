@@ -3876,8 +3876,6 @@ class _PersonalAccountFlowState extends ConsumerState<PersonalAccountFlow>
     if (!mounted) return;
     setState(() => _creatingPin = false);
     if (ok) {
-      // Keep the PIN locally for in-app transaction verification.
-      await StorageService.savePin(_pin.join());
       // Best-effort: authenticate with the phone + password just set so the
       // user lands signed in. Safe to ignore failures (e.g. missing client
       // secret) — they can still sign in from the login screen.

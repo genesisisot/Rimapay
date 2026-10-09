@@ -3770,7 +3770,6 @@ class _ContinueLinkingPageState
       setState(() => _creatingPin = false);
       log('[auth] createPin → isSuccess=${res.isSuccess} errorCode=${res.errorCode}');
       if (res.isSuccess && res.data != null) {
-        await StorageService.savePin(_pin.join());
         setState(() => _step = 3);
       } else {
         setState(() {
